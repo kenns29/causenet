@@ -1,19 +1,23 @@
 import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
 import {Layout} from 'antd';
+import {window} from 'global';
 import NavPanel from './nav-panel';
-
-const mapDispatchToProps = {};
+import BayesianNetworkView from './bayesian-network-view';
+import {updateScreenSize} from '../actions';
+import {LAYOUT} from '../constants';
+const mapDispatchToProps = {updateScreenSize};
 
 const mapStateToProps = state => ({});
 
 class AppContainer extends PureComponent {
   get containerStyle() {
+    const {CONTAINER_PADDING} = LAYOUT;
     return {
       display: 'inline-flex',
       width: '100vw',
       height: '100vh',
-      padding: `${20}px ${20}px`
+      padding: `${CONTAINER_PADDING}px ${CONTAINER_PADDING}px`
     };
   }
   get navPanelStyle() {
@@ -31,14 +35,30 @@ class AppContainer extends PureComponent {
       zIndex: 1
     };
   }
+  componentDidMount() {
+    window.addEventListener('resize', this._handleResize);
+    this._handleResize();
+  }
+  componentWillUnmount() {
+    window.removeEventListener('resize', this._handleResize);
+  }
+  _handleResize = () => {
+    this.props.updateScreenSize({
+      width: window.innerWidth,
+      height: window.innerHeight
+    });
+  };
   render() {
+    const {NAV_PANEL_WIDTH} = LAYOUT;
     return (
       <Layout>
         <Layout.Content style={this.containerStyle}>
-          <Layout.Sider width={200} style={this.navPanelStyle}>
+          <Layout.Sider width={NAV_PANEL_WIDTH} style={this.navPanelStyle}>
             <NavPanel />
           </Layout.Sider>
-          <Layout.Content style={this.contentPanelStyle} />
+          <Layout.Content style={this.contentPanelStyle}>
+            <BayesianNetworkView />
+          </Layout.Content>
         </Layout.Content>
       </Layout>
     );

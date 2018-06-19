@@ -2,9 +2,11 @@ import {createAction} from 'redux-actions';
 import co from 'co';
 import {BACKEND_URL} from '../constants';
 // Action Ids
+export const UPDATE_SCREEN_SIZE = 'UPDATE_SCREEN_SIZE';
 export const FETCH_DATA_START = 'FETCH_DATA_START';
 export const FETCH_DATA_SUCCESS = 'FETCH_DATA_SUCCESS';
 
+export const updateScreenSize = createAction(UPDATE_SCREEN_SIZE);
 export const fetchDataStart = createAction(FETCH_DATA_START);
 export const fetchDataSuccess = createAction(FETCH_DATA_SUCCESS);
 
