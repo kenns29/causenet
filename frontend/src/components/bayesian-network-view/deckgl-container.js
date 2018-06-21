@@ -31,10 +31,33 @@ export default class ContentPanel extends PureComponent {
   _renderRowTitle() {
     const {
       matrix: {rows},
-      cellSize: [w],
+      cellSize,
       paddings: [paddingH, paddingV]
     } = this.props;
+    const h = cellSize[1];
     const data = rows.map((text, index) => ({
+      text,
+      position: [paddingH - 5, index * h + h / 2 + paddingV],
+      size: 15,
+      color: [10, 10, 10],
+      textAnchor: 'end'
+    }));
+    return [
+      new TextLayer({
+        id: 'y-axis',
+        data,
+        coordinateSystem: COORDINATE_SYSTEM.IDENTITY
+      })
+    ];
+  }
+  _renderColTitle() {
+    const {
+      matrix: {cols},
+      cellSize,
+      paddings: [paddingH, paddingV]
+    } = this.props;
+    const w = cellSize[0];
+    const data = cols.map((text, index) => ({
       text,
       position: [index * w + w / 2 + paddingH, paddingV - 5],
       size: 15,
@@ -45,27 +68,6 @@ export default class ContentPanel extends PureComponent {
     return [
       new TextLayer({
         id: 'x-axis',
-        data,
-        coordinateSystem: COORDINATE_SYSTEM.IDENTITY
-      })
-    ];
-  }
-  _renderColTitle() {
-    const {
-      matrix: {cols},
-      cellSize: [w, h],
-      paddings: [paddingH, paddingV]
-    } = this.props;
-    const data = cols.map((text, index) => ({
-      text,
-      position: [paddingH - 5, index * h + h / 2 + paddingV],
-      size: 15,
-      color: [10, 10, 10],
-      textAnchor: 'end'
-    }));
-    return [
-      new TextLayer({
-        id: 'y-axis',
         data,
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY
       })
