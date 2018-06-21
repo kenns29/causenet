@@ -4,27 +4,31 @@ import {
   getContentPanelWidth,
   getContentPanelHeight
 } from '../../selectors/base';
-import {getRawData} from '../../selectors/data';
-
+import {getMatrixLayout, getMatrixCellSize} from '../../selectors/data';
+import DeckGLContainer from './deckgl-container';
 const mapDispatchToProps = {};
 
 const mapStateToProps = state => ({
   width: getContentPanelWidth(state),
   height: getContentPanelHeight(state),
-  data: getRawData(state)
+  matrix: getMatrixLayout(state),
+  cellSize: getMatrixCellSize(state)
 });
 
 class ContentPanel extends PureComponent {
   get containerStyle() {
     return {
-      border: '1px dashed #DDD',
-      borderRadius: 8,
-      height: '-webkit-fill-available'
+      position: 'relative'
     };
   }
 
   render() {
-    return <div />;
+    const {width, height} = this.props;
+    return (
+      <div style={this.containerStyle} width={width} height={height}>
+        <DeckGLContainer {...this.props} />
+      </div>
+    );
   }
 }
 

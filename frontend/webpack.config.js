@@ -1,29 +1,29 @@
-const { resolve } = require("path");
-const webpack = require("webpack");
+const {resolve} = require('path');
+const webpack = require('webpack');
 
 module.exports = {
   entry: {
-    app: ["babel-polyfill", resolve("./app.js")]
+    app: ['babel-polyfill', resolve('./app.js')]
   },
-  devtool: "source-maps",
+  devtool: 'source-maps',
   module: {
     rules: [
       {
         test: /\.js$/,
-        loader: "babel-loader",
+        loader: 'babel-loader',
         exclude: [/node_modules/],
-        include: [resolve(".")]
+        include: [resolve('.')]
       },
       {
         test: /\.css$/,
-        use: ["style-loader", "css-loader"]
+        use: ['style-loader', 'css-loader']
       },
       {
         test: /\.(png)$/,
         use: [
           {
-            loader: "file-loader",
-            options: { name: "[path][name].[ext]" }
+            loader: 'file-loader',
+            options: {name: '[path][name].[ext]'}
           }
         ]
       }
