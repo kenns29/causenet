@@ -46,11 +46,17 @@ export const getMatrix = createSelector(getRawData, data => {
     .links(data)
     .source(d => d.source)
     .target(d => d.target)
-    .value(d => 1);
+    .value(d => 1)
+    .null(0);
   const matrix = generate();
   const {rows, cols, cells} = flattener().matrix(matrix);
   return {rows: rows(), cols: cols(), cells: cells()};
 });
+
+export const getMatrixPaddings = createSelector(rootSelector, state => [
+  600,
+  300
+]);
 
 export const getMatrixCellSize = createSelector(rootSelector, state => [
   20,
