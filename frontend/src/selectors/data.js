@@ -74,7 +74,7 @@ export const getMatrixDomain = createSelector(
 
 export const getMatrixPaddings = createSelector(rootSelector, state => [
   600,
-  300
+  320
 ]);
 
 export const getMatrixCellSize = createSelector(rootSelector, state => [
