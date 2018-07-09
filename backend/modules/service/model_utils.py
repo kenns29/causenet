@@ -1,7 +1,11 @@
 import pickle
 
+
 def get_model():
-    file = open('models/qcut5/model.bin', mode='rb')
-    model = pickle.load(file)
-    file.close()
-    return model
+    with open('models/qcut5/model.bin', mode='rb') as file:
+        return pickle.load(file)
+
+
+def get_fitted_model():
+    with open('models/qcut5/fitted_model.bin', mode='rb') as file:
+        return pickle.load(file)
