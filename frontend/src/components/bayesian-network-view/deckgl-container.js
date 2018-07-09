@@ -16,7 +16,7 @@ export default class ContentPanel extends PureComponent {
         data: cells,
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
         getPosition: d => [d.x, d.y],
-        getColor: d => (d.value ? [10, 10, 10] : [255, 255, 255]),
+        getColor: d => d.color,
         layout: {
           x: paddingH,
           y: paddingV,

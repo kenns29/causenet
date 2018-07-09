@@ -1,6 +1,9 @@
 import {createSelector} from 'reselect';
 import {rootSelector} from './base';
 import {links2generator, flattener} from 'sortable-matrix';
+import {scaleSequential} from 'd3-scale';
+import {interpolateGreys} from 'd3-scale-chromatic';
+import {rgb} from 'd3-color';
 
 export const getRawData = createSelector(rootSelector, state => state.data);
 
@@ -46,12 +49,28 @@ export const getMatrix = createSelector(getRawData, data => {
     .links(data)
     .source(d => d.source)
     .target(d => d.target)
-    .value(d => 1)
+    .value(d => d.weight)
     .null(0);
   const matrix = generate();
   const {rows, cols, cells} = flattener().matrix(matrix);
   return {rows: rows(), cols: cols(), cells: cells()};
 });
+
+export const getMatrixDomain = createSelector(
+  getMatrix,
+  ({rows, cols, cells}) => {
+    let [min, max] = [Infinity, -Infinity];
+    cells.forEach(({value}) => {
+      if (min > value) {
+        min = value;
+      }
+      if (max < value) {
+        max = value;
+      }
+    });
+    return [min, max];
+  }
+);
 
 export const getMatrixPaddings = createSelector(rootSelector, state => [
   600,
@@ -64,16 +83,23 @@ export const getMatrixCellSize = createSelector(rootSelector, state => [
 ]);
 
 export const getMatrixLayout = createSelector(
-  [getMatrix, getMatrixCellSize],
-  ({rows, cols, cells}, [w, h]) => ({
-    rows,
-    cols,
-    cells: cells.map(cell => ({
-      ...cell,
-      x: cell.col_index * w,
-      y: cell.row_index * h,
-      w,
-      h
-    }))
-  })
+  [getMatrix, getMatrixCellSize, getMatrixDomain],
+  ({rows, cols, cells}, [w, h], [min, max]) => {
+    const scale = scaleSequential(interpolateGreys).domain([0, max]);
+    return {
+      rows,
+      cols,
+      cells: cells.map(cell => {
+        const {r, g, b} = rgb(scale(cell.value));
+        return {
+          ...cell,
+          x: cell.col_index * w,
+          y: cell.row_index * h,
+          w,
+          h,
+          color: [r, g, b]
+        };
+      })
+    };
+  }
 );
