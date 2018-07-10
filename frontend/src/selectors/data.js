@@ -1,6 +1,6 @@
 import {createSelector} from 'reselect';
 import {rootSelector} from './base';
-import {links2generator, flattener} from 'sortable-matrix';
+import {links2generator, flattener, sort2d} from 'sortable-matrix';
 import {scaleSequential} from 'd3-scale';
 import {interpolateGreys} from 'd3-scale-chromatic';
 import {rgb} from 'd3-color';
@@ -51,7 +51,7 @@ export const getMatrix = createSelector(getRawData, data => {
     .target(d => d.target)
     .value(d => d.weight)
     .null(0);
-  const matrix = generate();
+  const matrix = sort2d(generate());
   const {rows, cols, cells} = flattener().matrix(matrix);
   return {rows: rows(), cols: cols(), cells: cells()};
 });
