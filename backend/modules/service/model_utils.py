@@ -1,11 +1,8 @@
-import os
-import pickle
-import subprocess
-import re
+import os, pickle, subprocess, re, json
 from pgmpy.models import BayesianModel
 from pgmpy.estimators import BayesianEstimator
 from modules.service.data_utils import to_blip_str, get_index2col
-from setup import blip_data_dir, blip_dir, model_dir
+from setup import blip_data_dir, blip_dir, model_dir, model_status_dir
 
 
 def get_model(name):
@@ -16,7 +13,17 @@ def get_model(name):
 def write_model(model, name):
     with open(model_dir + '/' + name, mode='wb') as file:
         pickle.dump(model, file)
-        return model
+    with open(model_status_dir, mode='r+', encoding='utf-8') as file:
+        status = json.load(file)
+        models = status['models']
+        if name not in models:
+            models[name] = {
+                'model_file': name
+            }
+            file.seek(0)
+            json.dump(status, file, indent='\t')
+            file.truncate()
+    return model
 
 
 def get_weighted_edges(name):
@@ -29,6 +36,14 @@ def get_weighted_edges(name):
 def write_weighted_edges(edges, name):
     with open(model_dir + '/weight.' + name, mode='wb') as file:
         pickle.dump(edges, file)
+    with open(model_status_dir, mode='r+', encoding='utf-8') as file:
+        status = json.load(file)
+        models = status['models']
+        models[name]['edge_weights_file'] = 'weight.' + name
+        file.seek(0)
+        json.dump(status, file, indent='\t')
+        file.truncate()
+    return edges
 
 
 def blip_learn_structure(data):
@@ -60,3 +75,10 @@ def train_model(data, name):
     model.fit(data, estimator=BayesianEstimator, prior_type='BDeu')
     write_model(model, name)
     return model
+
+
+def get_model_list():
+    with open(model_status_dir, mode='r', encoding='utf-8') as file:
+        status = json.load(file)
+        models = status['models']
+        return [{'name': name, **value} for name, value in models.items()]

@@ -8,6 +8,8 @@ data_dir = base_dir + '/data'
 
 model_dir = base_dir + '/models'
 
+model_status_dir = model_dir + '/model_status.json'
+
 blip_data_dir = base_dir + '/blip_data'
 
 jars_dir = base_dir + '/jars'

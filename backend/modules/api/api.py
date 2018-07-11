@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from modules.service.model_utils import get_model, blip_learn_structure, train_model, get_weighted_edges, \
-    write_weighted_edges
+    write_weighted_edges, get_model_list
 from modules.service.edge_weights import get_edge_weights
 from modules.service.data_utils import load_qcut_5_data
 
@@ -26,7 +26,7 @@ def load_model():
     model = get_model(name)
     print('loading edges weights ...')
     weighted_edges = get_weighted_edges(name)
-    if not weighted_edges:
+    if weighted_edges is None:
         print('edge weights not found, calculation edge weights ...')
         weighted_edges = get_edge_weights(model)
         write_weighted_edges(weighted_edges, name)
@@ -58,3 +58,8 @@ def train_bayesian_model():
     else:
         edges = model.edges()
         return jsonify([{'source': s, 'target': t} for s, t in edges])
+
+
+@blueprint.route('/load_model_list', methods=['GET'])
+def load_model_list():
+    return jsonify(get_model_list())

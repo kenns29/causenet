@@ -1,7 +1,3 @@
-import os
-from setup import base_dir
-
-
 class BaseConfig(object):
     SECRET_KEY = "SO_SECURE"
     DEBUG = True

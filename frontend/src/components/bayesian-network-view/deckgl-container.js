@@ -22,8 +22,8 @@ export default class ContentPanel extends PureComponent {
           y: paddingV,
           dx: w,
           dy: h,
-          width: rows.length * w,
-          height: cols.length * h
+          width: cols.length * w,
+          height: rows.length * h
         }
       })
     ];
