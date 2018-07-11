@@ -1,8 +1,9 @@
 from pandas import read_csv, cut, qcut
+from setup import data_dir
 
 
 def load_raw_data():
-    return read_csv(filepath_or_buffer='eats/eats_subset_without_near_real_time.csv')
+    return read_csv(filepath_or_buffer=data_dir + '/eats_subset_without_near_real_time.csv')
 
 
 def filter_data(data):
@@ -18,14 +19,47 @@ def filter_data(data):
 
 def get_qcut_5_data(filtered_data):
     numerical_keys = filtered_data.select_dtypes(exclude=['object']).keys()
+    categorical_keys = filtered_data.select_dtypes(include=['object']).keys()
     bin_data = filtered_data.copy()
     for key in numerical_keys:
         if key in ['@derived:restaurant_default_prep_time', '@derived:stage__order_number_of_items']:
             bin_data[key] = cut(bin_data[key], 5)
         else:
             bin_data[key] = qcut(bin_data[key], 5)
+    for key in categorical_keys:
+        bin_data[key] = bin_data[key].astype('category')
     return bin_data
 
 
 def load_qcut_5_data():
     return get_qcut_5_data(filter_data(load_raw_data()))
+
+
+def get_blip_value_converters(data):
+    return [dict((value, index) for index, value in enumerate(values))
+            for values in (data[col].unique().sort_values() for col in data)]
+
+
+def get_blip_value_inverters(data):
+    return [dict((index, value) for index, value in enumerate(values))
+            for values in (data[col].unique().sort_values() for col in data)]
+
+
+def get_col2index(data):
+    return dict((value, index) for index, value in enumerate(data.keys()))
+
+
+def get_index2col(data):
+    return dict((index, value) for index, value in enumerate(data.keys()))
+
+
+def to_blip_str(data):
+    header = ' '.join(data.keys())
+    cards = ' '.join([str(len(data[col].unique())) for col in data])
+    val_converters = get_blip_value_converters(data)
+    values = '\n'.join([' '.join([str(val_converters[index][value])
+                                  for index, value in enumerate(row.get_values())]) for index, row in data.iterrows()])
+    return '\n'.join([header, cards, values])
+
+
+
