@@ -39,6 +39,26 @@ def enumerate_evidences(ev, card):
     return tuples
 
 
+def _enumerate_evidences(ev, card):
+    if not ev:
+        return []
+    tuples = []
+    ev_len = len(ev)
+    stack = [0]
+    while stack:
+        s_len = len(stack)
+        print(stack)
+        if s_len == ev_len:
+            tuples.append(tuple([stack[ev_len - index - 1] for index, key in enumerate(ev)]))
+        stack[-1] += 1
+        if stack[-1] >= card[ev[-s_len]]:
+            stack.pop()
+        elif s_len < ev_len:
+            stack.append(0)
+    print(ev, card, tuples)
+    return tuples
+
+
 def get_evidence2index(ev):
     return dict((variable, index) for index, variable in enumerate(ev))
 
@@ -85,12 +105,11 @@ def get_edge_weight(edge, model, priors):
     Z = enumerate_evidence_dicts(parentsY, card)
     for z in Z if Z else [{}]:
         prz = reduce(lambda pre, cur: pre * cur, [priors[key][value] for key, value in z.items()]) if z else 1
-        xi2xz = dict((xi, enumeration_dict2tuple(evidences, {x: xi, **z})) for xi in range(len(prX)))
-        yj2pyz = dict((j, sum([t_row[xz2index[xi2xz[k]]] for k in range(card[x])]) / card[x])
-                      for j, t_row in enumerate(table))
+        xi2xz = [enumeration_dict2tuple(evidences, {x: xi, **z}) for xi in range(len(prX))]
+        yj2pyz = [sum([t_row[xz2index[xi2xz[k]]] for k in range(card[x])]) / card[x] for t_row in table]
         pp = sum([prx *
-                  sum([p * math.log(p / yj2pyz[j]) for j, p in enumerate([t_row[xz2index[xi2xz[xi]]]
-                                                                          for j, t_row in enumerate(table)])])
+                  sum([p * math.log(p / yj2pyz[j]) for j, p in
+                       [(j, t_row[xz2index[xi2xz[xi]]]) for j, t_row in enumerate(table)]])
                   for xi, prx in enumerate(prX)])
         weight += prz * pp
     return weight

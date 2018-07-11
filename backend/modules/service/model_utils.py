@@ -1,3 +1,4 @@
+import os
 import pickle
 import subprocess
 import re
@@ -16,6 +17,18 @@ def write_model(model, name):
     with open(model_dir + '/' + name, mode='wb') as file:
         pickle.dump(model, file)
         return model
+
+
+def get_weighted_edges(name):
+    if not os.path.exists(model_dir + '/weight.' + name):
+        return None
+    with open(model_dir + '/weight.' + name, mode='rb') as file:
+        return pickle.load(file)
+
+
+def write_weighted_edges(edges, name):
+    with open(model_dir + '/weight.' + name, mode='wb') as file:
+        pickle.dump(edges, file)
 
 
 def blip_learn_structure(data):
@@ -46,3 +59,4 @@ def train_model(data, name):
     model = BayesianModel(edges)
     model.fit(data, estimator=BayesianEstimator, prior_type='BDeu')
     write_model(model, name)
+    return model
