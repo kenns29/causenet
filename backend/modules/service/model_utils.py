@@ -1,18 +1,21 @@
 import pickle
 import subprocess
 import re
+from pgmpy.models import BayesianModel
+from pgmpy.estimators import BayesianEstimator
 from modules.service.data_utils import to_blip_str, get_index2col
-from setup import blip_data_dir, blip_dir
+from setup import blip_data_dir, blip_dir, model_dir
 
 
-def get_model():
-    with open('models/qcut5/model.bin', mode='rb') as file:
+def get_model(name):
+    with open(model_dir + '/' + name, mode='rb') as file:
         return pickle.load(file)
 
 
-def get_fitted_model():
-    with open('models/qcut5/fitted_model.bin', mode='rb') as file:
-        return pickle.load(file)
+def write_model(model, name):
+    with open(model_dir + '/' + name, mode='wb') as file:
+        pickle.dump(model, file)
+        return model
 
 
 def blip_learn_structure(data):
@@ -38,3 +41,8 @@ def blip_learn_structure(data):
         return edges
 
 
+def train_model(data, name):
+    edges = blip_learn_structure(data)
+    model = BayesianModel(edges)
+    model.fit(data, estimator=BayesianEstimator, prior_type='BDeu')
+    write_model(model, name)

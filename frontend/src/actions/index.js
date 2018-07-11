@@ -13,7 +13,8 @@ export const fetchDataSuccess = createAction(FETCH_DATA_SUCCESS);
 export const fetchData = queryParams => dispatch => {
   dispatch(fetchDataStart());
   return co(function* load() {
-    const response = yield fetch(`${BACKEND_URL}/loadmodel`);
+    const name = 'qcut5.bin';
+    const response = yield fetch(`${BACKEND_URL}/load_model?name=${name}`);
     const data = yield response.json();
     dispatch(fetchDataSuccess(data));
     return Promise.resolve(data);

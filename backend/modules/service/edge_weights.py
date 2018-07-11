@@ -106,5 +106,6 @@ def get_edge_weight(edge, model, priors):
 
 def get_edge_weights(model):
     edges = model.edges()
+    print('num edges={}'.format(len(edges)))
     priors = get_priors(model)
     return [tuple([edge, get_edge_weight(edge, model, priors)]) for edge in edges]
