@@ -86,26 +86,17 @@ def get_edge_weight(edge, model, priors):
     for z in Z if Z else [{}]:
         prz = reduce(lambda pre, cur: pre * cur, [priors[key][value] for key, value in z.items()]) if z else 1
         xi2xz = dict((xi, enumeration_dict2tuple(evidences, {x: xi, **z})) for xi in range(len(prX)))
-        pp = 0
-        for xi, prx in enumerate(prX):
-            xz = xi2xz[xi]
-            pyxz = 0
-            for j in range(len(table)):
-                p = table[j][xz2index[xz]]
-                pyz = 0
-                for k in range(card[x]):
-                    kz = xi2xz[k]
-                    pyz += table[j][xz2index[kz]]
-                pyz /= card[x]
-                p *= math.log(p / pyz)
-                pyxz += p
-            pp += prx * pyxz
+        yj2pyz = dict((j, sum([t_row[xz2index[xi2xz[k]]] for k in range(card[x])]) / card[x])
+                      for j, t_row in enumerate(table))
+        pp = sum([prx *
+                  sum([p * math.log(p / yj2pyz[j]) for j, p in enumerate([t_row[xz2index[xi2xz[xi]]]
+                                                                          for j, t_row in enumerate(table)])])
+                  for xi, prx in enumerate(prX)])
         weight += prz * pp
     return weight
 
 
 def get_edge_weights(model):
     edges = model.edges()
-    print('num edges={}'.format(len(edges)))
     priors = get_priors(model)
     return [tuple([edge, get_edge_weight(edge, model, priors)]) for edge in edges]
