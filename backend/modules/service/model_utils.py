@@ -4,6 +4,7 @@ import re
 from modules.service.data_utils import to_blip_str, get_index2col
 from setup import blip_data_dir, blip_dir
 
+
 def get_model():
     with open('models/qcut5/model.bin', mode='rb') as file:
         return pickle.load(file)
@@ -35,4 +36,5 @@ def blip_learn_structure(data):
             for child in [index2col[int(value)] for index, value in enumerate(t[1:]) if value]:
                 edges.append((parent, child))
         return edges
+
 
