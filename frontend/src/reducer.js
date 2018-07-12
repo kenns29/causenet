@@ -1,8 +1,9 @@
 import {handleActions} from 'redux-actions';
 import {
   UPDATE_SCREEN_SIZE,
-  FETCH_DATA_START,
-  FETCH_DATA_SUCCESS
+  FETCH_BAYESIAN_NETWORK_START,
+  UPDATE_BAYESIAN_NETWORK,
+  UPDATE_MODEL_LIST
 } from './actions';
 
 const DEFAULT_STATE = {
@@ -18,22 +19,27 @@ const handleUpdateScreenSize = (state, {payload}) => ({
   screenHeight: payload.height
 });
 
-const handleFecthDataStart = (state, {payload}) => ({
+const handleFecthBayesianNetworkStart = (state, {payload}) => ({
   ...state,
   isFetchingData: true
 });
 
-const handleFecthDataSuccess = (state, {payload}) => ({
+const handleUpdateBayesianNetwork = (state, {payload}) => ({
   ...state,
   data: payload,
   isFetchingData: false
 });
 
+const handleUpdateModelList = state => ({
+  ...state
+});
+
 export default handleActions(
   {
     [UPDATE_SCREEN_SIZE]: handleUpdateScreenSize,
-    [FETCH_DATA_START]: handleFecthDataStart,
-    [FETCH_DATA_SUCCESS]: handleFecthDataSuccess
+    [FETCH_BAYESIAN_NETWORK_START]: handleFecthBayesianNetworkStart,
+    [UPDATE_BAYESIAN_NETWORK]: handleUpdateBayesianNetwork,
+    [UPDATE_MODEL_LIST]: handleUpdateModelList
   },
   DEFAULT_STATE
 );

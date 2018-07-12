@@ -1,9 +1,9 @@
 import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
 import {Button} from 'antd';
-import {fetchData} from '../actions';
+import {fetchBayesianNetwork} from '../actions';
 
-const mapDispatchToProps = {fetchData};
+const mapDispatchToProps = {fetchBayesianNetwork};
 
 const mapStateToProps = state => ({});
 
@@ -14,7 +14,7 @@ class NavPanel extends PureComponent {
         <Button
           type="primary"
           size="small"
-          onClick={event => this.props.fetchData()}
+          onClick={event => this.props.fetchBayesianNetwork({})}
         >
           Load Data
         </Button>
