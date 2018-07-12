@@ -26,6 +26,20 @@ def write_model(model, name):
     return model
 
 
+def delete_model(name):
+    with open(model_status_dir, mode='r+', encoding='utf-8') as file:
+        status = json.load(file)
+        models = status['models']
+        model_stat = models.pop(name, None)
+        if model_stat is not None:
+            file.seek(0)
+            json.dump(status, file, indent='\t')
+            file.truncate()
+        if os.path.exists(model_dir + '/' + name):
+            os.remove(model_dir + '/' + name)
+        return model_stat
+
+
 def get_weighted_edges(name):
     if not os.path.exists(model_dir + '/weight.' + name):
         return None

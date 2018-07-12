@@ -1,8 +1,10 @@
 from flask import Blueprint, jsonify, request
-from modules.service.model_utils import get_model, blip_learn_structure, train_model, get_weighted_edges, \
-    write_weighted_edges, get_model_list
+from modules.service.model_utils import get_model, delete_model, blip_learn_structure, train_model, \
+    get_weighted_edges, write_weighted_edges, get_model_list
 from modules.service.edge_weights import get_edge_weights
-from modules.service.data_utils import load_qcut_5_data
+from modules.service.data_utils import load_qcut_5_data, load_lookalike_cut_5_data
+
+load_data = load_qcut_5_data
 
 blueprint = Blueprint('api', __name__)
 
@@ -34,9 +36,16 @@ def load_model():
     return jsonify(edge_list)
 
 
+@blueprint.route('/delete_model', methods=['GET'])
+def route_delete_model():
+    name = request.args.get('name') if request.args.get('name') else 'model.bin'
+    deleted_model = delete_model(name)
+    return jsonify(deleted_model) if deleted_model else jsonify({'name': 'NOT_EXIST'})
+
+
 @blueprint.route('/learn_structure', methods=['GET'])
 def learn_structure():
-    data = load_qcut_5_data()
+    data = load_data()
     edges = blip_learn_structure(data)
     edge_list = [{'source': s, 'target': t} for s, t in edges]
     return jsonify(edge_list)
@@ -47,7 +56,7 @@ def train_bayesian_model():
     name = request.args.get('name') if request.args.get('name') else 'model.bin'
     calc_edge_weights = str2bool(request.args.get('calc_edge_weights')) \
         if request.args.get('calc_edge_weights') else True
-    data = load_qcut_5_data()
+    data = load_data()
     print('training models ...')
     model = train_model(data, name)
     if calc_edge_weights:

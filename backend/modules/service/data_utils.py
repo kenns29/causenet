@@ -1,3 +1,4 @@
+import numpy as np
 from pandas import read_csv, cut, qcut
 from setup import data_dir
 
@@ -33,6 +34,63 @@ def get_qcut_5_data(filtered_data):
 
 def load_qcut_5_data():
     return get_qcut_5_data(filter_data(load_raw_data()))
+
+
+def get_lookalike_raw_data():
+    return read_csv(filepath_or_buffer='data/lookalike.csv',
+                    na_values=['0'],
+                    keep_default_na=False,
+                    dtype={
+                        'future_is_eats_driver': np.bool,
+                        'future_is_high_eph_xd': np.bool,
+                        'future_is_xd': np.bool,
+                        'has_completed_trips_12weeks': np.bool,
+                        'has_completed_trips_2weeks': np.bool,
+                        'has_supply_hours_12weeks': np.bool,
+                        'has_supply_hours_2weeks': np.bool,
+                        'vehicle_has_minimum_score': np.bool,
+                        'is_vehicle_solutions': np.bool,
+                        'city_id': np.object,
+                        'vehicle_year': np.object,
+                        'vehicle_score': np.object
+                    })
+
+
+def filter_lookalike_data(data):
+    # manually filter some features
+    keys = data.keys()[~data.keys().isin([
+        'Unnamed: 0',
+        'datestr',
+        'cohort',
+        'driver_type',
+        'driver_uuid',
+        'earning_segment'
+        ])]
+    filtered_data = data.filter(items=keys)
+
+    # filter columns that has too many missing values
+    data_counts = data.count()
+    n_rows, n_cols = data.shape
+    keys = [key for key, count in data_counts.iteritems() if float(count) / n_rows >= 0.8]
+    filtered_data = filtered_data.filter(items=keys)
+    return filtered_data.dropna()
+
+
+def get_lookalike_cut_5_data(data):
+    categorical_keys = data.select_dtypes(include=['object', 'bool']).keys().tolist()
+    numerical_keys = data.keys()[~data.keys().isin(categorical_keys + ['lifetime_rating'])].tolist()
+    bin_data = data.copy()
+    for key in numerical_keys:
+        bin_data[key] = cut(bin_data[key], 5)
+    for key in ['lifetime_rating']:
+        bin_data[key] = cut(bin_data[key], [0, 1, 2, 3, 4, 5])
+    for key in categorical_keys:
+        bin_data[key] = bin_data[key].astype('category')
+    return bin_data
+
+
+def load_lookalike_cut_5_data():
+    return get_lookalike_cut_5_data(filter_lookalike_data(get_lookalike_raw_data()))
 
 
 def get_blip_value_converters(data):
