@@ -2,6 +2,7 @@ import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
 import {Layout} from 'antd';
 import {window} from 'global';
+import DataLoader from './data-loader';
 import NavPanel from './nav-panel';
 import BayesianNetworkView from './bayesian-network-view';
 import {updateScreenSize} from '../actions';
@@ -51,16 +52,19 @@ class AppContainer extends PureComponent {
   render() {
     const {NAV_PANEL_WIDTH} = LAYOUT;
     return (
-      <Layout>
-        <Layout.Content style={this.containerStyle}>
-          <Layout.Sider width={NAV_PANEL_WIDTH} style={this.navPanelStyle}>
-            <NavPanel />
-          </Layout.Sider>
-          <Layout.Content style={this.contentPanelStyle}>
-            <BayesianNetworkView />
+      <React.Fragment>
+        <DataLoader />
+        <Layout>
+          <Layout.Content style={this.containerStyle}>
+            <Layout.Sider width={NAV_PANEL_WIDTH} style={this.navPanelStyle}>
+              <NavPanel />
+            </Layout.Sider>
+            <Layout.Content style={this.contentPanelStyle}>
+              <BayesianNetworkView />
+            </Layout.Content>
           </Layout.Content>
-        </Layout.Content>
-      </Layout>
+        </Layout>
+      </React.Fragment>
     );
   }
 }

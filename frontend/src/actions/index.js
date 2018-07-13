@@ -1,3 +1,4 @@
+import {fetch} from 'global';
 import {createAction} from 'redux-actions';
 import {BACKEND_URL} from '../constants';
 // Action Ids
@@ -14,7 +15,7 @@ export const updateBayesianNetwork = createAction(UPDATE_BAYESIAN_NETWORK);
 export const updateModelList = createAction(UPDATE_MODEL_LIST);
 
 export const fetchBayesianNetwork = ({
-  name = 'eats_qcut5'
+  name = 'lookalike-cut5-1'
 }) => async dispatch => {
   try {
     dispatch(fetchBayesianNetworkStart());
@@ -30,6 +31,17 @@ export const fetchBayesianNetwork = ({
 export const fetchModelList = () => async dispatch => {
   try {
     const response = await fetch(`${BACKEND_URL}/load_model_list`);
+    const data = await response.json();
+    dispatch(updateModelList(data));
+    return Promise.resolve(data);
+  } catch (err) {
+    throw new Error(err);
+  }
+};
+
+export const requestDeleteModel = ({name = 'model'}) => async dispatch => {
+  try {
+    const response = await fetch(`${BACKEND_URL}/delete_model?name=${name}`);
     const data = await response.json();
     dispatch(updateModelList(data));
     return Promise.resolve(data);
