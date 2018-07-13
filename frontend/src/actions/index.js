@@ -16,9 +16,7 @@ export const updateBayesianNetwork = createAction(UPDATE_BAYESIAN_NETWORK);
 export const updateModelList = createAction(UPDATE_MODEL_LIST);
 export const updateSelectedModel = createAction(UPDATE_SELECTED_MODEL);
 
-export const fetchBayesianNetwork = ({
-  name = 'lookalike-cut5-1'
-}) => async dispatch => {
+export const fetchBayesianNetwork = ({name = 'model'}) => async dispatch => {
   try {
     dispatch(fetchBayesianNetworkStart());
     const response = await fetch(`${BACKEND_URL}/load_model?name=${name}`);
