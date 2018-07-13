@@ -37,6 +37,8 @@ def delete_model(name):
             file.truncate()
         if os.path.exists(model_dir + '/' + name):
             os.remove(model_dir + '/' + name)
+        if os.path.exists(model_dir + '/weight.' + name):
+            os.remove(model_dir + '/weight.' + name)
         return model_stat
 
 
