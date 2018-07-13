@@ -2,6 +2,7 @@ import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
 import {Layout} from 'antd';
 import {window} from 'global';
+import {ProgressBar} from 'react-fetch-progressbar';
 import DataLoader from './data-loader';
 import NavPanel from './nav-panel';
 import BayesianNetworkView from './bayesian-network-view';
@@ -53,6 +54,7 @@ class AppContainer extends PureComponent {
     const {NAV_PANEL_WIDTH} = LAYOUT;
     return (
       <React.Fragment>
+        <ProgressBar />
         <DataLoader />
         <Layout>
           <Layout.Content style={this.containerStyle}>

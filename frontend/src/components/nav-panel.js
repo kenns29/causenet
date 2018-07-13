@@ -1,9 +1,18 @@
 import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
 import {Input, Button, notification} from 'antd';
-import {fetchBayesianNetwork, requestTrainBayesianModel} from '../actions';
+import ModelList from './model-list';
+import {
+  fetchModelList,
+  fetchBayesianNetwork,
+  requestTrainBayesianModel
+} from '../actions';
 
-const mapDispatchToProps = {fetchBayesianNetwork, requestTrainBayesianModel};
+const mapDispatchToProps = {
+  fetchModelList,
+  fetchBayesianNetwork,
+  requestTrainBayesianModel
+};
 
 const mapStateToProps = state => ({});
 
@@ -16,7 +25,9 @@ class NavPanel extends PureComponent {
       }
     };
   }
-  _renderModelList() {}
+  _renderModelList() {
+    return <ModelList />;
+  }
   _renderTrainModelButton() {
     return (
       <div>
@@ -24,12 +35,13 @@ class NavPanel extends PureComponent {
           <Button
             type="primary"
             size="small"
-            onClick={event => {
+            onClick={async event => {
               const {modelName} = this.state.trainModelButton;
               if (!modelName) {
                 notification.error({message: 'Please specify a model name'});
               } else {
-                this.props.requestTrainBayesianModel({name: modelName});
+                await this.props.requestTrainBayesianModel({name: modelName});
+                this.props.fetchModelList();
               }
             }}
           >
@@ -38,6 +50,7 @@ class NavPanel extends PureComponent {
           <Input
             size="small"
             defaultValue={this.state.trainModelButton.modelName}
+            style={{width: 100}}
             onChange={event =>
               this.setState({
                 trainModelButton: {
@@ -55,13 +68,7 @@ class NavPanel extends PureComponent {
     return (
       <div>
         {this._renderTrainModelButton()}
-        <Button
-          type="primary"
-          size="small"
-          onClick={event => this.props.fetchBayesianNetwork({})}
-        >
-          Load Data
-        </Button>
+        {this._renderModelList()}
       </div>
     );
   }

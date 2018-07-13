@@ -5,6 +5,16 @@ import {scaleSequential} from 'd3-scale';
 import {interpolateGreys} from 'd3-scale-chromatic';
 import {rgb} from 'd3-color';
 
+export const getModelList = createSelector(
+  rootSelector,
+  state => state.modelList
+);
+
+export const getSelectedModel = createSelector(
+  rootSelector,
+  state => state.selectedModel
+);
+
 export const getRawData = createSelector(rootSelector, state => state.data);
 
 export const getNodeLinks = createSelector(getRawData, data => {

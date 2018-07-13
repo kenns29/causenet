@@ -40,7 +40,7 @@ def load_model():
 def route_delete_model():
     name = request.args.get('name') if request.args.get('name') else 'model.bin'
     delete_model(name)
-    return redirect(url_for('load_model_list'))
+    return redirect(url_for('.load_model_list'))
 
 
 @blueprint.route('/learn_structure', methods=['GET'])
