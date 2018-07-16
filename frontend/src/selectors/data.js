@@ -1,5 +1,6 @@
 import {createSelector} from 'reselect';
 import {rootSelector} from './base';
+import dagre from 'dagre';
 import {links2generator, flattener, sort2d} from 'sortable-matrix';
 import {scaleSequential} from 'd3-scale';
 import {interpolateGreys} from 'd3-scale-chromatic';
@@ -17,42 +18,15 @@ export const getSelectedModel = createSelector(
 
 export const getRawData = createSelector(rootSelector, state => state.data);
 
-export const getNodeLinks = createSelector(getRawData, data => {
-  const nodeMap = data.reduce((map, {source, target}) => {
+export const getNodeMap = createSelector(getRawData, data =>
+  data.reduce((map, {source, target}) => {
     return [source, target].reduce(
       (m, label) =>
-        m.hasOwnProperty(label)
-          ? m
-          : Object.assign(m, {[label]: {label, width: 20, height: 20}}),
+        m.hasOwnProperty(label) ? m : Object.assign(m, {[label]: {label}}),
       map
     );
-  }, {});
-  const nodes = nodeMap.values();
-  const links = data.map(({source, target}) => ({
-    source: nodeMap[source],
-    target: nodeMap[target]
-  }));
-  return {nodes, links};
-});
-
-export const getGraph = createSelector(getRawData, data => {
-  const nodeMap = data.reduce((map, {source, target}) => {
-    return [source, target].reduce(
-      (m, id) =>
-        m.hasOwnProperty(id)
-          ? m
-          : Object.assign(m, {[id]: {id, width: 20, height: 20}}),
-      map
-    );
-  }, {});
-  const nodes = nodeMap.values();
-  const links = data.map(({source, target}) => ({
-    id: source + '-' + target,
-    sourceId: source,
-    targetId: target
-  }));
-  return {nodes, links};
-});
+  }, {})
+);
 
 export const getMatrix = createSelector(getRawData, data => {
   const generate = links2generator()
@@ -111,5 +85,31 @@ export const getMatrixLayout = createSelector(
         };
       })
     };
+  }
+);
+
+export const getDagLayout = createSelector(
+  [getRawData, getNodeMap],
+  (links, nodeMap) => {
+    const nodes = Object.values(nodeMap);
+    const dag = new dagre.graphlib.Graph();
+    dag.setGraph({});
+    dag.setDefaultEdgeLabel(() => {});
+    nodes.forEach(node => {
+      dag.setNode(node.label, {...node, width: 20, height: 20});
+    });
+    links.forEach(({source, target}) => {
+      dag.setEdge(source, target, {});
+    });
+    dagre.layout(dag);
+    const layoutNodes = dag.nodes().map(v => dag.node(v));
+    const layoutEdges = dag.edges().map(e => ({
+      ...dag.edge(e),
+      sourceId: e.v,
+      targetId: e.w,
+      source: dag.node(e.v),
+      target: dag.node(e.w)
+    }));
+    return {nodes: layoutNodes, edges: layoutEdges};
   }
 );

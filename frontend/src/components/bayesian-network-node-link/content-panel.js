@@ -1,23 +1,17 @@
 import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
 import {
-  getContentPanelWidth,
-  getContentPanelHeight
+  getContentPanelHeight,
+  getRightSubPanelWidth
 } from '../../selectors/base';
-import {
-  getMatrixLayout,
-  getMatrixCellSize,
-  getMatrixPaddings
-} from '../../selectors/data';
+import {getDagLayout} from '../../selectors/data';
 import DeckGLContainer from './deckgl-container';
 const mapDispatchToProps = {};
 
 const mapStateToProps = state => ({
-  width: getContentPanelWidth(state),
+  width: getRightSubPanelWidth(state),
   height: getContentPanelHeight(state),
-  matrix: getMatrixLayout(state),
-  cellSize: getMatrixCellSize(state),
-  paddings: getMatrixPaddings(state)
+  data: getDagLayout(state)
 });
 
 class ContentPanel extends PureComponent {

@@ -5,12 +5,18 @@ import {window} from 'global';
 import {ProgressBar} from 'react-fetch-progressbar';
 import DataLoader from './data-loader';
 import NavPanel from './nav-panel';
-import BayesianNetworkView from './bayesian-network-view';
+import BayesianNetworkMatrix from './bayesian-network-matrix';
+import BayesianNetworkNodeLink from './bayesian-network-node-link';
 import {updateScreenSize} from '../actions';
 import {LAYOUT} from '../constants';
+import {getLeftSubPanelWidth, getRightSubPanelWidth} from '../selectors/base';
+
 const mapDispatchToProps = {updateScreenSize};
 
-const mapStateToProps = state => ({});
+const mapStateToProps = state => ({
+  leftSubPanelWidth: getLeftSubPanelWidth(state),
+  rightSubPanelWidth: getRightSubPanelWidth(state)
+});
 
 class AppContainer extends PureComponent {
   get containerStyle() {
@@ -31,10 +37,28 @@ class AppContainer extends PureComponent {
   }
   get contentPanelStyle() {
     return {
+      position: 'relative',
       backgroundColor: '#FFF',
       boxShadow: '0 0 4px rgba(0, 0, 0, 0.2)',
       overflow: 'hidden',
       zIndex: 1
+    };
+  }
+  get leftSubPanelStyle() {
+    const {leftSubPanelWidth: width} = this.props;
+    return {
+      position: 'relative',
+      border: '1px solid black',
+      width
+    };
+  }
+  get rightSubPanelStyle() {
+    const {rightSubPanelWidth: width} = this.props;
+    return {
+      position: 'relative',
+      border: '1px solid black',
+      width,
+      float: 'right'
     };
   }
   componentDidMount() {
@@ -62,7 +86,12 @@ class AppContainer extends PureComponent {
               <NavPanel />
             </Layout.Sider>
             <Layout.Content style={this.contentPanelStyle}>
-              <BayesianNetworkView />
+              <Layout.Content style={this.leftSubPanelStyle}>
+                <BayesianNetworkMatrix />
+              </Layout.Content>
+              <Layout.Content style={this.rightSubPanelStyle}>
+                <BayesianNetworkNodeLink />
+              </Layout.Content>
             </Layout.Content>
           </Layout.Content>
         </Layout>
