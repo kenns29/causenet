@@ -48,7 +48,7 @@ class AppContainer extends PureComponent {
     const {leftSubPanelWidth: width} = this.props;
     return {
       position: 'relative',
-      border: '1px solid black',
+      display: 'inline-block',
       width
     };
   }
@@ -56,9 +56,8 @@ class AppContainer extends PureComponent {
     const {rightSubPanelWidth: width} = this.props;
     return {
       position: 'relative',
-      border: '1px solid black',
       width,
-      float: 'right'
+      display: 'inline-block'
     };
   }
   componentDidMount() {
