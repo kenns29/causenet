@@ -83,15 +83,26 @@ export default class ContentPanel extends PureComponent {
   render() {
     const {width, height} = this.props;
     const views = [
+      // new OrthographicView({
+      //   left: (-width / 2) * 0.5,
+      //   top: (-height / 2) * 0.5,
+      //   width,
+      //   height,
+      //   // bottom: height,
+      //   // right: width,
+      //   bottom: (height / 2) * 0.5,
+      //   right: (width / 2) * 0.5,
+      //   near: 0
+      // })
       new OrthographicView({
-        left: (-width / 2) * 0.5,
-        top: (-height / 2) * 0.5,
-        width,
+        left: 0,
+        top: 0,
         height,
+        width,
         // bottom: height,
         // right: width,
-        bottom: (height / 2) * 0.5,
-        right: (width / 2) * 0.5,
+        bottom: height,
+        right: width,
         near: 0
       })
     ];
