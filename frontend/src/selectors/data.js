@@ -57,8 +57,6 @@ export const getMatrixDomain = createSelector(
 );
 
 export const getMatrixPaddings = createSelector(rootSelector, state => [
-  // 600,
-  // 320
   100,
   100
 ]);
@@ -114,4 +112,9 @@ export const getDagLayout = createSelector(
     }));
     return {nodes: layoutNodes, edges: layoutEdges};
   }
+);
+
+export const getNodeLinkViewOptions = createSelector(
+  rootSelector,
+  state => state.nodeLinkViewOptions
 );

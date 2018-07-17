@@ -4,14 +4,15 @@ import {
   getContentPanelHeight,
   getRightSubPanelWidth
 } from '../../selectors/base';
-import {getDagLayout} from '../../selectors/data';
+import {getDagLayout, getNodeLinkViewOptions} from '../../selectors/data';
 import DeckGLContainer from './deckgl-container';
 const mapDispatchToProps = {};
 
 const mapStateToProps = state => ({
   width: getRightSubPanelWidth(state),
   height: getContentPanelHeight(state),
-  data: getDagLayout(state)
+  data: getDagLayout(state),
+  options: getNodeLinkViewOptions(state)
 });
 
 class ContentPanel extends PureComponent {

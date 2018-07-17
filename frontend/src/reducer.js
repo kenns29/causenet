@@ -4,7 +4,8 @@ import {
   FETCH_BAYESIAN_NETWORK_START,
   UPDATE_BAYESIAN_NETWORK,
   UPDATE_MODEL_LIST,
-  UPDATE_SELECTED_MODEL
+  UPDATE_SELECTED_MODEL,
+  UPDATE_NODE_LINK_VIEW_OPTIONS
 } from './actions';
 
 const DEFAULT_STATE = {
@@ -13,7 +14,10 @@ const DEFAULT_STATE = {
   isFetchingData: false,
   data: [],
   selectedModel: null,
-  modelList: []
+  modelList: [],
+  nodeLinkViewOptions: {
+    showLabels: false
+  }
 };
 
 const handleUpdateScreenSize = (state, {payload}) => ({
@@ -43,13 +47,22 @@ const handleUpdateSelectedModel = (state, {payload}) => ({
   selectedModel: payload
 });
 
+const handleUpdateNodeLinkViewOptions = (state, {payload}) => ({
+  ...state,
+  nodeLinkViewOptions: {
+    ...state.nodeLinkViewOptions,
+    ...payload
+  }
+});
+
 export default handleActions(
   {
     [UPDATE_SCREEN_SIZE]: handleUpdateScreenSize,
     [FETCH_BAYESIAN_NETWORK_START]: handleFecthBayesianNetworkStart,
     [UPDATE_BAYESIAN_NETWORK]: handleUpdateBayesianNetwork,
     [UPDATE_MODEL_LIST]: handleUpdateModelList,
-    [UPDATE_SELECTED_MODEL]: handleUpdateSelectedModel
+    [UPDATE_SELECTED_MODEL]: handleUpdateSelectedModel,
+    [UPDATE_NODE_LINK_VIEW_OPTIONS]: handleUpdateNodeLinkViewOptions
   },
   DEFAULT_STATE
 );

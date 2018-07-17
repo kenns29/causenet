@@ -1,20 +1,25 @@
 import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
-import {Input, Button, notification} from 'antd';
+import {Input, Button, Switch, notification} from 'antd';
 import ModelList from './model-list';
+import {getNodeLinkViewOptions} from '../selectors/data';
 import {
   fetchModelList,
   fetchBayesianNetwork,
-  requestTrainBayesianModel
+  requestTrainBayesianModel,
+  updateNodeLinkViewOptions
 } from '../actions';
 
 const mapDispatchToProps = {
   fetchModelList,
   fetchBayesianNetwork,
-  requestTrainBayesianModel
+  requestTrainBayesianModel,
+  updateNodeLinkViewOptions
 };
 
-const mapStateToProps = state => ({});
+const mapStateToProps = state => ({
+  nodeLinkViewOptions: getNodeLinkViewOptions(state)
+});
 
 class NavPanel extends PureComponent {
   constructor(props) {
@@ -64,11 +69,28 @@ class NavPanel extends PureComponent {
       </div>
     );
   }
+  _renderToggleNodeLinkViewLabels() {
+    const {
+      nodeLinkViewOptions: {showLabels}
+    } = this.props;
+    return (
+      <div>
+        <span>{`Show Node Link View Labels `}</span>
+        <Switch
+          checked={showLabels}
+          onChange={checked =>
+            this.props.updateNodeLinkViewOptions({showLabels: checked})
+          }
+        />
+      </div>
+    );
+  }
   render() {
     return (
       <div>
         {this._renderTrainModelButton()}
         {this._renderModelList()}
+        {this._renderToggleNodeLinkViewLabels()}
       </div>
     );
   }

@@ -7,6 +7,7 @@ export const FETCH_BAYESIAN_NETWORK_START = 'FETCH_BAYESIAN_NETWORK_START';
 export const UPDATE_BAYESIAN_NETWORK = 'UPDATE_BAYESIAN_NETWORK';
 export const UPDATE_MODEL_LIST = 'UPDATE_MODEL_LIST';
 export const UPDATE_SELECTED_MODEL = 'UPDATE_SELECTED_MODEL';
+export const UPDATE_NODE_LINK_VIEW_OPTIONS = 'UPDATE_NODE_LINK_VIEW_OPTIONS';
 
 export const updateScreenSize = createAction(UPDATE_SCREEN_SIZE);
 export const fetchBayesianNetworkStart = createAction(
@@ -15,6 +16,9 @@ export const fetchBayesianNetworkStart = createAction(
 export const updateBayesianNetwork = createAction(UPDATE_BAYESIAN_NETWORK);
 export const updateModelList = createAction(UPDATE_MODEL_LIST);
 export const updateSelectedModel = createAction(UPDATE_SELECTED_MODEL);
+export const updateNodeLinkViewOptions = createAction(
+  UPDATE_NODE_LINK_VIEW_OPTIONS
+);
 
 export const fetchBayesianNetwork = ({name = 'model'}) => async dispatch => {
   try {
