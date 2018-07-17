@@ -20,15 +20,24 @@ export default class ZoomableContainer extends PureComponent {
     bottom: PropTypes.number.isRequired,
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
-    layers: PropTypes.arrayOf(PropTypes.instanceOf(Layer))
+    layers: PropTypes.arrayOf(PropTypes.instanceOf(Layer)).isRequired
   };
   constructor(props) {
     super(props);
     this.state = {
       zoomScale: 1,
-      zoomOffset: [0, 0]
+      zoomOffset: [0, 0],
+      drag: {
+        move: null // drag start mouse position - [x, y]
+      }
     };
   }
+  // obtain the event mouse position relative to the current context (the div container)
+  _getEventMouse = event => {
+    const {clientX, clientY} = event;
+    const {left, top} = this.container.getBoundingClientRect();
+    return [clientX - left, clientY - top];
+  };
   _zoomIn = () => {
     this.setState({
       zoomScale: Math.max(0.001, this.state.zoomScale - this.props.zoomStep)
@@ -39,36 +48,66 @@ export default class ZoomableContainer extends PureComponent {
       zoomScale: Math.min(2.88, this.state.zoomScale + this.props.zoomStep)
     });
   };
-  _move = (dx, dy) => {};
+  _moveStart = event => {
+    const [x, y] = this._getEventMouse(event);
+    this.setState({drag: {...this.state.drag, move: [x, y]}});
+  };
+  _moveOn = event => {
+    if (this.state.drag.move) {
+      const [x, y] = this._getEventMouse(event);
+      const [sx, sy] = this.state.drag.move;
+      const [ox, oy] = this.state.zoomOffset;
+      const [dx, dy] = [ox + sx - x, oy + sy - y];
+      this.setState({
+        zoomOffset: [dx, dy],
+        drag: {...this.state.drag, move: [x, y]}
+      });
+    }
+  };
+  _moveEnd = () => {
+    this.setState({drag: {...this.state.drag, move: null}});
+  };
   _handleWheel = event => {
-    const {deltaY} = event;
-    if (deltaY < 0) {
+    if (event.deltaY < 0) {
       this._zoomIn();
     } else {
       this._zoomOut();
     }
   };
+  _handleMouseDown = event => {
+    this._moveStart(event);
+  };
+  _handleMouseMove = event => {
+    this._moveOn(event);
+  };
+  _handleMouseUp = event => {
+    this._moveEnd();
+  };
   render() {
-    const {left, top, width, height, layers} = this.props;
-    let {bottom, right} = this.props;
-    bottom = bottom || height;
-    right = right || width;
+    const {left, right, bottom, top, width, height, layers} = this.props;
     const {
       zoomScale,
       zoomOffset: [dx, dy]
     } = this.state;
     const views = [
       new OrthographicView({
-        left: left + dx + (right - left) * (1 - zoomScale) * 0.5,
-        right: right + dx - (right - left) * (1 - zoomScale) * 0.5,
-        bottom: bottom + dy - (bottom - top) * (1 - zoomScale) * 0.5,
-        top: top + dy + (bottom - top) * (1 - zoomScale) * 0.5,
+        left: left + dx * zoomScale + (right - left) * (1 - zoomScale) * 0.5,
+        right: right + dx * zoomScale - (right - left) * (1 - zoomScale) * 0.5,
+        bottom:
+          bottom + dy * zoomScale - (bottom - top) * (1 - zoomScale) * 0.5,
+        top: top + dy * zoomScale + (bottom - top) * (1 - zoomScale) * 0.5,
         width,
         height
       })
     ];
     return (
-      <div onWheel={this._handleWheel}>
+      <div
+        ref={input => (this.container = input)}
+        onMouseDown={this._handleMouseDown}
+        onMouseMove={this._handleMouseMove}
+        onMouseUp={this._handleMouseUp}
+        onWheel={this._handleWheel}
+      >
         <DeckGL width={width} height={height} views={views} layers={layers}>
           {this.props.children &&
             React.Children.map(
