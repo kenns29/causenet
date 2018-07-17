@@ -1,6 +1,7 @@
 import React, {PureComponent} from 'react';
-import DeckGL, {OrthographicView, TextLayer, COORDINATE_SYSTEM} from 'deck.gl';
+import {TextLayer, COORDINATE_SYSTEM} from 'deck.gl';
 import {MatrixLayer} from './deckgl-layers';
+import ZoomableContainer from './zoomable-container';
 
 export default class ContentPanel extends PureComponent {
   _renderMatrix() {
@@ -82,35 +83,14 @@ export default class ContentPanel extends PureComponent {
   }
   render() {
     const {width, height} = this.props;
-    const views = [
-      // new OrthographicView({
-      //   left: (-width / 2) * 0.5,
-      //   top: (-height / 2) * 0.5,
-      //   width,
-      //   height,
-      //   // bottom: height,
-      //   // right: width,
-      //   bottom: (height / 2) * 0.5,
-      //   right: (width / 2) * 0.5,
-      //   near: 0
-      // })
-      new OrthographicView({
-        left: 0,
-        top: 0,
-        height,
-        width,
-        // bottom: height,
-        // right: width,
-        bottom: height,
-        right: width,
-        near: 0
-      })
-    ];
     return (
-      <DeckGL
+      <ZoomableContainer
         width={width}
         height={height}
-        views={views}
+        left={0}
+        right={width}
+        bottom={height}
+        top={0}
         layers={this._renderLayers()}
       />
     );
