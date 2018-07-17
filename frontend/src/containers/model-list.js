@@ -7,7 +7,7 @@ import {
   fetchBayesianNetwork,
   fetchModelList
 } from '../actions';
-import DataTable from './data-table';
+import DataTable from '../components/data-table';
 
 const mapDispatchToProps = {
   requestDeleteModel,

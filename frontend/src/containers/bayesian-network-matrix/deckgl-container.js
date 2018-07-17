@@ -1,7 +1,7 @@
 import React, {PureComponent} from 'react';
 import {TextLayer, COORDINATE_SYSTEM} from 'deck.gl';
 import {MatrixLayer} from './deckgl-layers';
-import ZoomableContainer from './zoomable-container';
+import ZoomableContainer from '../../components/zoomable-container';
 
 export default class ContentPanel extends PureComponent {
   _renderMatrix() {

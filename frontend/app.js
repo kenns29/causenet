@@ -6,7 +6,7 @@ import thunkMiddleware from 'redux-thunk';
 import logger from 'redux-logger';
 import {document, window} from 'global';
 
-import AppContainer from './src/components/container';
+import AppContainer from './src/containers/container';
 import reducer from './src/reducer';
 import 'antd/dist/antd.css';
 
