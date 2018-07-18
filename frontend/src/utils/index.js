@@ -11,8 +11,8 @@ export const rotatePointOnZ = ({
   cos, // the cosine of the rotate angle
   sin // the sine of the rotate angle
 }) => {
-  [x, y, z] = [x, y, z].map(v => v && 0);
-  const [dx, dy] = origin.map(v => v && 0);
+  [x, y, z] = [x, y, z].map(v => v || 0);
+  const [dx, dy] = origin.map(v => v || 0);
   cos = isNull(cos) ? Math.cos(theta) : cos;
   sin = isNull(sin) ? Math.sin(theta) : sin;
   x -= dx;
@@ -24,4 +24,26 @@ export const rotatePolygonOnZ = ({points = [], origin, theta, cos, sin}) => {
   return points.map(point => rotatePointOnZ({point, origin, theta, cos, sin}));
 };
 
-export const makeLineArrow = ({line: [source, target], l, w}) => {};
+export const makeLineArrow = ({
+  line: [[sx = 0, sy = 0, sz = 0], [tx = 0, ty = 0, tz = 0]],
+  l,
+  w
+}) => {
+  const hyp = Math.sqrt(
+    (tx - sx) * (tx - sx) + (ty - sy) * (ty - sy) + (tz - sz) * (tz - sz)
+  );
+  const sin = (ty - sy) / hyp;
+  const cos = (tx - sx) / hyp;
+  const trig = [
+    [hyp - l / 2, -w / 2, tz],
+    [hyp - l / 2, w / 2, tz],
+    [hyp, 0, tz]
+  ];
+  const rotTrig = rotatePolygonOnZ({
+    points: trig,
+    origin: [0, 0, 0],
+    cos,
+    sin
+  });
+  return rotTrig.map(([rx, ry, rz]) => [rx + sx, ry + sy, rz + sz]);
+};
