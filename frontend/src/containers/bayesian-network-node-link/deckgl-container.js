@@ -62,32 +62,29 @@ export default class ContentPanel extends PureComponent {
   }
   _renderLabels() {
     const {
-      data: {nodes}
-    } = this.props;
-    return [
-      new TextLayer({
-        id: ID + '-text-layer',
-        data: nodes,
-        getText: ({label}) => label,
-        getPosition: ({x, y}) => [x, y],
-        getSize: 10,
-        coordinateSystem: COORDINATE_SYSTEM.IDENTITY
-      })
-    ];
-  }
-  _renderLayers() {
-    const {
+      data: {nodes},
       options: {showLabels}
     } = this.props;
-    let layers = [
+    return showLabels
+      ? [
+        new TextLayer({
+          id: ID + '-text-layer',
+          data: nodes,
+          getText: ({label}) => label,
+          getPosition: ({x, y}) => [x, y],
+          getSize: 10,
+          coordinateSystem: COORDINATE_SYSTEM.IDENTITY
+        })
+      ]
+      : [];
+  }
+  _renderLayers() {
+    return [
       ...this._renderNodes(),
       ...this._renderEdges(),
-      ...this._renderArrows()
+      ...this._renderArrows(),
+      ...this._renderLabels()
     ];
-    if (showLabels) {
-      layers = layers.concat(this._renderLabels());
-    }
-    return layers;
   }
   render() {
     const {width, height} = this.props;
