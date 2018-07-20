@@ -2,6 +2,7 @@ import numpy as np
 import pickle
 from pandas import read_csv, cut, qcut
 from setup import data_dir
+from scipy.spatial.distance import pdist
 
 
 def load_raw_data():
@@ -163,6 +164,20 @@ def load_lookalike_full_feature_cut_5_data():
     with open(data_dir + '/lookalike_full_feature_cut5.bin', mode='rb') as file:
         data = pickle.load(file)
         return data.filter(items=data.keys()[~data.keys().isin(['city_id'])])
+
+
+def save_binary_to_data_dir(data, name):
+    with open(data_dir + '/' + name, mode='wb') as file:
+        pickle.dump(data, file)
+    return data
+
+
+def get_feature_pdist(data):
+    value_converters = get_blip_value_converters(data)
+    blip_data = to_blip_data(data, value_converters)
+    matrix = blip_data.values.astype('double').transpose()
+    return pdist(matrix, metric='jaccard')
+
 
 def get_blip_value_converters(data):
     return [dict((value, index) for index, value in enumerate(data[col].cat.categories)) for col in data]
