@@ -84,7 +84,7 @@ def get_lookalike_cut_5_data(data):
     for key in numerical_keys:
         bin_data[key] = cut(bin_data[key], 5)
     for key in ['lifetime_rating']:
-        bin_data[key] = cut(bin_data[key], [0, 1, 2, 3, 4, 5])
+        bin_data[key] = cut(bin_data[key], [-1, 0, 1, 2, 3, 4, 5])
     for key in categorical_keys:
         bin_data[key] = bin_data[key].astype('category')
     return bin_data
@@ -153,7 +153,7 @@ def get_lookalike_full_feature_cut_5_data(data):
         print('cut key={}'.format(key))
         bin_data[key] = cut(bin_data[key], 5)
     for key in ['lifetime_rating']:
-        bin_data[key] = cut(bin_data[key], [0, 1, 2, 3, 4, 5])
+        bin_data[key] = cut(bin_data[key], [-1, 0, 1, 2, 3, 4, 5])
     for key in categorical_keys:
         bin_data[key] = bin_data[key].astype('category')
     return bin_data
@@ -161,17 +161,15 @@ def get_lookalike_full_feature_cut_5_data(data):
 
 def load_lookalike_full_feature_cut_5_data():
     with open(data_dir + '/lookalike_full_feature_cut5.bin', mode='rb') as file:
-        return pickle.load(file)
-
+        data = pickle.load(file)
+        return data.filter(items=data.keys()[~data.keys().isin(['city_id'])])
 
 def get_blip_value_converters(data):
-    return [dict((value, index) for index, value in enumerate(values))
-            for values in (data[col].unique().sort_values() for col in data)]
+    return [dict((value, index) for index, value in enumerate(data[col].cat.categories)) for col in data]
 
 
 def get_blip_value_inverters(data):
-    return [dict((index, value) for index, value in enumerate(values))
-            for values in (data[col].unique().sort_values() for col in data)]
+    return [dict((index, value) for index, value in enumerate(data[col].cat.categories)) for col in data]
 
 
 def get_col2index(data):
@@ -185,7 +183,7 @@ def get_index2col(data):
 def to_blip_str(data, value_converters=None):
     val_converters = get_blip_value_converters(data) if not value_converters else value_converters
     header = ' '.join(data.keys())
-    cards = ' '.join([str(len(data[col].unique())) for col in data])
+    cards = ' '.join([str(data[col].cat.categories.size) for col in data])
     values = '\n'.join([' '.join([str(val_converters[index][value])
                                   for index, value in enumerate(row.get_values())]) for index, row in data.iterrows()])
     return '\n'.join([header, cards, values])
@@ -194,13 +192,14 @@ def to_blip_str(data, value_converters=None):
 def to_blip_data(data, value_converters=None):
     value_converters = get_blip_value_converters(data) if not value_converters else value_converters
     new_data = data.copy()
-    for index in range(new_data.shape[1]):
-        new_data.ix[index].replace(value_converters[index], inplace=True)
+    keys = new_data.keys()
+    for index, key in enumerate(keys):
+        new_data[key].cat.categories = [value_converters[index][value] for value in new_data[key].cat.categories]
     return new_data
 
 
 def blip_data_to_blip_str(data):
     header = ' '.join(data.keys())
-    cards = ' '.join([str(len(data[col].unique())) for col in data])
+    cards = ' '.join([str(data[col].cat.categories.size) for col in data])
     values = '\n'.join([' '.join([str(value) for value in row.get_values()]) for index, row in data.iterrows()])
     return '\n'.join([header, cards, values])
