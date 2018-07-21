@@ -44,12 +44,6 @@ class NavPanel extends PureComponent {
   }
   _renderDatasetSelect() {
     const {currentDatasetName, datasetList} = this.props;
-    console.log(
-      'datasetList',
-      datasetList,
-      'currentDatasetName',
-      currentDatasetName
-    );
     return (
       <div>
         <Input.Group compact>
