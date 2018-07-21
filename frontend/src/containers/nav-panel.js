@@ -1,24 +1,36 @@
 import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
-import {Input, Button, Switch, notification} from 'antd';
+import {Input, Button, Select, Switch, notification} from 'antd';
 import ModelList from './model-list';
-import {getNodeLinkViewOptions} from '../selectors/data';
+import {
+  getCurrentDatasetName,
+  getDatasetList,
+  getNodeLinkViewOptions
+} from '../selectors/data';
 import {
   fetchModelList,
+  requestUpdateCurrentDatasetName,
   fetchBayesianNetwork,
+  updateBayesianNetwork,
+  updateSelectedModel,
   requestTrainBayesianModel,
   updateNodeLinkViewOptions
 } from '../actions';
 
 const mapDispatchToProps = {
   fetchModelList,
+  requestUpdateCurrentDatasetName,
   fetchBayesianNetwork,
   requestTrainBayesianModel,
+  updateBayesianNetwork,
+  updateSelectedModel,
   updateNodeLinkViewOptions
 };
 
 const mapStateToProps = state => ({
-  nodeLinkViewOptions: getNodeLinkViewOptions(state)
+  nodeLinkViewOptions: getNodeLinkViewOptions(state),
+  currentDatasetName: getCurrentDatasetName(state),
+  datasetList: getDatasetList(state)
 });
 
 class NavPanel extends PureComponent {
@@ -29,6 +41,38 @@ class NavPanel extends PureComponent {
         modelName: ''
       }
     };
+  }
+  _renderDatasetSelect() {
+    const {currentDatasetName, datasetList} = this.props;
+    console.log(
+      'datasetList',
+      datasetList,
+      'currentDatasetName',
+      currentDatasetName
+    );
+    return (
+      <div>
+        <Input.Group compact>
+          <span>Dataset: </span>
+          <Select
+            value={currentDatasetName}
+            onChange={async name => {
+              await this.props.requestUpdateCurrentDatasetName(name);
+              await this.props.fetchModelList();
+              this.props.updateSelectedModel(null);
+              this.props.updateBayesianNetwork([]);
+            }}
+            style={{width: '50%'}}
+          >
+            {datasetList.map(name => (
+              <Select.Option key={name} value={name}>
+                {name}
+              </Select.Option>
+            ))}
+          </Select>
+        </Input.Group>
+      </div>
+    );
   }
   _renderModelList() {
     return <ModelList />;
@@ -88,6 +132,7 @@ class NavPanel extends PureComponent {
   render() {
     return (
       <div>
+        {this._renderDatasetSelect()}
         {this._renderTrainModelButton()}
         {this._renderModelList()}
         {this._renderToggleNodeLinkViewLabels()}

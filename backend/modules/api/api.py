@@ -2,9 +2,8 @@ from flask import Blueprint, jsonify, request, redirect, url_for
 from modules.service.model_utils import get_model, delete_model, blip_learn_structure, train_model, \
     get_weighted_edges, write_weighted_edges, get_model_list
 from modules.service.edge_weights import get_edge_weights
-from modules.service.data_utils import load_qcut_5_data, load_lookalike_cut_5_data
-
-load_data = load_lookalike_cut_5_data
+from modules.service.data_utils import load_data, load_pdist, load_clustering, get_current_dataset_name, \
+    get_dataset_config, update_current_dataset_name as update_current_dataset_name_util
 
 blueprint = Blueprint('api', __name__)
 
@@ -19,6 +18,22 @@ def ping():
         'status': 'success',
         'message': 'pong'
     })
+
+
+@blueprint.route('/load_current_dataset_name', methods=['GET'])
+def load_current_dataset_name():
+    return jsonify({'name': get_current_dataset_name()})
+
+
+@blueprint.route('/update_current_dataset_name', methods=['GET'])
+def update_current_dataset_name():
+    name = request.args.get('name') if request.args.get('name') else ''
+    return jsonify({'name': update_current_dataset_name_util(name)})
+
+
+@blueprint.route('/load_dataset_list', methods=['GET'])
+def load_dataset_list():
+    return jsonify([{'name': key} for key, _ in get_dataset_config().items()])
 
 
 @blueprint.route('/load_model', methods=['GET'])

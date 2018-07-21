@@ -6,6 +6,16 @@ import {scaleSequential} from 'd3-scale';
 import {interpolateGreys} from 'd3-scale-chromatic';
 import {rgb} from 'd3-color';
 
+export const getCurrentDatasetName = createSelector(
+  rootSelector,
+  state => state.currentDatasetName
+);
+
+export const getDatasetList = createSelector(
+  rootSelector,
+  state => state.datasetList
+);
+
 export const getModelList = createSelector(
   rootSelector,
   state => state.modelList

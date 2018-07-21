@@ -53,7 +53,7 @@ def save_lookalike_full_feature_pdist():
     value_converters = get_blip_value_converters(bin_data)
     blip_data = to_blip_data(bin_data, value_converters)
     matrix = blip_data.values.astype('double').transpose()
-    dist = pdist(matrix, metric='jaccard')
+    dist = pdist(matrix, metric='correlation')
     with open(data_dir + '/lookalike_full_feature_cut5_euclidean_pdist.bin', mode='wb') as file:
         pickle.dump(dist, file)
     return dist
@@ -116,12 +116,13 @@ def find_na(data):
 
 data = load_lookalike_full_feature_cut_5_data()
 index2col = get_index2col(data)
-save_lookalike_full_feature_pdist()
+# save_lookalike_full_feature_pdist()
 dist = load_lookalike_full_feature_pdist()
 clustering = linkage(dist)
 normalized_clustering = normalize_clustering_dist(clustering)
 tree = to_tree(normalized_clustering)
-clusters = cut_tree_to_clustering_by_dist(tree, 0.02)
+clusters = cut_tree_to_clustering_by_dist(tree, 0.5)
 named_clusters = [[index2col[item] for item in cluster] for cluster in clusters]
+print(named_clusters)
 plot_dendrogram(clustering, index2col)
 

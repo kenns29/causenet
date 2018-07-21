@@ -1,63 +1,83 @@
 import os, pickle, subprocess, re, json
 from pgmpy.models import BayesianModel
 from pgmpy.estimators import BayesianEstimator
-from modules.service.data_utils import to_blip_str, get_index2col
-from setup import blip_data_dir, blip_dir, model_dir, model_status_dir
+from modules.service.data_utils import get_current_dataset_name, to_blip_str, get_index2col
+from setup import blip_data_dir, blip_dir, model_dir, model_config_dir
+
+
+def get_model_config():
+    with open(model_config_dir, mode='r') as file:
+        return json.load(file)
+
+
+def get_current_dataset_model_status():
+    config = get_model_config()
+    return config[get_current_dataset_name()]
+
+
+def get_current_dataset_model_dir():
+    return model_dir + '/' + get_current_dataset_name()
 
 
 def get_model(name):
-    with open(model_dir + '/' + name, mode='rb') as file:
+    with open(get_current_dataset_model_dir() + '/' + name, mode='rb') as file:
         return pickle.load(file)
 
 
 def write_model(model, name):
-    with open(model_dir + '/' + name, mode='wb') as file:
+    current_dataset_name = get_current_dataset_name()
+    with open(get_current_dataset_model_dir() + '/' + name, mode='wb') as file:
         pickle.dump(model, file)
-    with open(model_status_dir, mode='r+', encoding='utf-8') as file:
-        status = json.load(file)
-        models = status['models']
+    with open(model_config_dir, mode='r+', encoding='utf-8') as file:
+        config = json.load(file)
+        models = config[current_dataset_name]
         if name not in models:
             models[name] = {
                 'model_file': name
             }
             file.seek(0)
-            json.dump(status, file, indent='\t')
+            json.dump(config, file, indent='\t')
             file.truncate()
     return model
 
 
 def delete_model(name):
-    with open(model_status_dir, mode='r+', encoding='utf-8') as file:
-        status = json.load(file)
-        models = status['models']
+    current_dataset_name = get_current_dataset_name()
+    current_dataset_model_dir = get_current_dataset_model_dir()
+    with open(model_config_dir, mode='r+', encoding='utf-8') as file:
+        config = json.load(file)
+        models = config[current_dataset_name]
         model_stat = models.pop(name, None)
         if model_stat is not None:
             file.seek(0)
-            json.dump(status, file, indent='\t')
+            json.dump(config, file, indent='\t')
             file.truncate()
-        if os.path.exists(model_dir + '/' + name):
-            os.remove(model_dir + '/' + name)
-        if os.path.exists(model_dir + '/weight.' + name):
-            os.remove(model_dir + '/weight.' + name)
+        if os.path.exists(current_dataset_model_dir + '/' + name):
+            os.remove(current_dataset_model_dir + '/' + name)
+        if os.path.exists(current_dataset_model_dir + '/weight.' + name):
+            os.remove(current_dataset_model_dir + '/weight.' + name)
         return model_stat
 
 
 def get_weighted_edges(name):
-    if not os.path.exists(model_dir + '/weight.' + name):
+    current_dataset_model_dir = get_current_dataset_model_dir()
+    if not os.path.exists(current_dataset_model_dir + '/weight.' + name):
         return None
-    with open(model_dir + '/weight.' + name, mode='rb') as file:
+    with open(current_dataset_model_dir + '/weight.' + name, mode='rb') as file:
         return pickle.load(file)
 
 
 def write_weighted_edges(edges, name):
-    with open(model_dir + '/weight.' + name, mode='wb') as file:
+    current_dataset_name = get_current_dataset_name()
+    current_dataset_model_dir = get_current_dataset_model_dir()
+    with open(current_dataset_model_dir + '/weight.' + name, mode='wb') as file:
         pickle.dump(edges, file)
-    with open(model_status_dir, mode='r+', encoding='utf-8') as file:
-        status = json.load(file)
-        models = status['models']
+    with open(model_config_dir, mode='r+', encoding='utf-8') as file:
+        config = json.load(file)
+        models = config[current_dataset_name]
         models[name]['edge_weights_file'] = 'weight.' + name
         file.seek(0)
-        json.dump(status, file, indent='\t')
+        json.dump(config, file, indent='\t')
         file.truncate()
     return edges
 
@@ -94,7 +114,5 @@ def train_model(data, name):
 
 
 def get_model_list():
-    with open(model_status_dir, mode='r', encoding='utf-8') as file:
-        status = json.load(file)
-        models = status['models']
-        return [{'name': name, **value} for name, value in models.items()]
+    models = get_current_dataset_model_status()
+    return [{'name': name, **value} for name, value in models.items()]

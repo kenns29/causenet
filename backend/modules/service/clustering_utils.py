@@ -1,11 +1,13 @@
 import numpy as np
 
 
+# @param clustering (ndarray) -- the scipy hierarchy matrix
 def normalize_clustering_dist(clustering):
     max_dist = clustering[-1][2]
     return np.array([[n1, n2, n_dist / max_dist, num] for n1, n2, n_dist, num in clustering])
 
 
+# @param root (ClusterNode)
 def cut_tree_by_dist(root, threshold):
     def recurse(node, nodes):
         if not node:
@@ -20,6 +22,7 @@ def cut_tree_by_dist(root, threshold):
     return nodes
 
 
+# @param root (ClusterNode)
 def get_leaf_nodes(root):
     def recurse(node, nodes):
         if node.is_leaf():

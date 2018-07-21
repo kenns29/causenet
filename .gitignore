@@ -20,6 +20,7 @@ backend/data/
 backend/env/
 backend/models/
 backend/blip_data/
+backend/config.json
 __pycache__
 
 ###################
