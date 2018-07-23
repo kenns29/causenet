@@ -38,15 +38,15 @@ export default class ContentPanel extends PureComponent {
     const h = cellSize[1];
     const data = rows.map((text, index) => ({
       text,
-      position: [paddingH - 5, index * h + h / 2 + paddingV],
-      size: 15,
-      color: [10, 10, 10],
-      textAnchor: 'end'
+      position: [paddingH - 5, index * h + h / 2 + paddingV]
     }));
     return [
       new TextLayer({
         id: 'y-axis',
         data,
+        getSize: 10,
+        getColor: [10, 10, 10],
+        getTextAnchor: 'end',
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY
       })
     ];
@@ -60,16 +60,16 @@ export default class ContentPanel extends PureComponent {
     const w = cellSize[0];
     const data = cols.map((text, index) => ({
       text,
-      position: [index * w + w / 2 + paddingH, paddingV - 5],
-      size: 15,
-      color: [10, 10, 10],
-      angle: 70,
-      textAnchor: 'start'
+      position: [index * w + w / 2 + paddingH, paddingV - 5]
     }));
     return [
       new TextLayer({
         id: 'x-axis',
         data,
+        getSize: 10,
+        getColor: [10, 10, 10],
+        getAngle: 70,
+        getTextAnchor: 'start',
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY
       })
     ];
