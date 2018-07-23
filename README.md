@@ -12,24 +12,40 @@ source venv/bin/activate
 pip3 install -r requirements.txt
 ```
 
+Currently the data loading process is hard coded, we support two sets of data ("uberEats" and "lookalike"). You need to download the data from the [google drive folder](https://drive.google.com/drive/u/0/folders/1n9FmqDravUOg4HjnlsmP2cUdtRp16QKO). Copy the `/metadata` folder and place it in the `/backend` directory, then do
+
+```
+python3 generate_data.py
+```
+
+This script preprocesses the data (filtering and converting numerical variables to categorical ones), then calculates pairwise distances for all the features and performs hierarchical clustering. The resulting data will be placed in the `/data` directory. A config file will also be generated under the `/data` directory (`/data/config.json`) that has the following format:
+
+```json
+{
+  "eats_qcut_5": {
+    "data_file": "eats_qcut_5.bin",
+    "pdist_file": "eats_qcut_5_pdist.bin",
+    "clustering_file": "eats_qcut_5_clustering.bin"
+  },
+  "lookalike_cut_5": {
+    "data_file": "lookalike_cut_5.bin",
+    "pdist_file": "lookalike_cut_5_pdist.bin",
+    "clustering_file": "lookalike_cut_5_clustering.bin"
+  },
+  "lookalike_full_feature_cut_5": {
+    "data_file": "lookalike_full_feature_cut_5.bin",
+    "pdist_file": "lookalike_full_feature_pdist.bin",
+    "clustering_file": "lookalike_full_feature_cut_5_clustering.bin"
+  }
+}
+```
+
+This config file is to help the backend keep track of the existing datasets and their corresponding files.
+
 ### Run
 
 ```
 python3 manager.py runserver
-```
-
-Currently the data loading process is hard coded, we support two sets of data ("uberEats" and "lookalike"). You need to download the data from the [google drive folder](https://drive.google.com/drive/u/0/folders/1n9FmqDravUOg4HjnlsmP2cUdtRp16QKO). Copy the `/data` folder and place it in the `/backend` directory. If you need some quick models to test, you can also download the `/model` folder and place it in the `/backend` direcotry as well.
-
-Currently, when you click on the "Train Model" button in the frontend UI, the default dataset for the model is the "lookalike" data. If you want to train model for uberEats data, go to `/backend/modules/api/api.py` and change the following line in the code
-
-```python
-load_data = load_lookalike_cut_5_data
-```
-
-to
-
-```python
-load_data = load_qcut_5_data
 ```
 
 ## Frontend
