@@ -1,10 +1,6 @@
 import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
 import {
-  getContentPanelHeight,
-  getLeftSubPanelWidth
-} from '../../selectors/base';
-import {
   getMatrixLayout,
   getMatrixCellSize,
   getMatrixPaddings
@@ -13,8 +9,6 @@ import DeckGLContainer from './deckgl-container';
 const mapDispatchToProps = {};
 
 const mapStateToProps = state => ({
-  width: getLeftSubPanelWidth(state),
-  height: getContentPanelHeight(state),
   matrix: getMatrixLayout(state),
   cellSize: getMatrixCellSize(state),
   paddings: getMatrixPaddings(state)

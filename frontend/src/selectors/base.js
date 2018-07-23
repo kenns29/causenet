@@ -24,12 +24,22 @@ export const getContentPanelHeight = createSelector(getScreenHeight, height => {
   return height - CONTAINER_PADDING * 2;
 });
 
-export const getLeftSubPanelWidth = createSelector(
-  getContentPanelWidth,
-  width => width / 2
+export const getTopLeftSubPanelSize = createSelector(
+  [getContentPanelWidth, getContentPanelHeight],
+  (width, height) => [width / 2, height / 2]
 );
 
-export const getRightSubPanelWidth = createSelector(
-  getContentPanelWidth,
-  width => width / 2
+export const getTopRightSubPanelSize = createSelector(
+  [getContentPanelWidth, getContentPanelHeight],
+  (width, height) => [width / 2, height / 2]
+);
+
+export const getBottomLeftSubPanelSize = createSelector(
+  [getContentPanelWidth, getContentPanelHeight],
+  (width, height) => [width / 2, height / 2]
+);
+
+export const getBottomRightSubPanelSize = createSelector(
+  [getContentPanelWidth, getContentPanelHeight],
+  (width, height) => [width / 2, height / 2]
 );

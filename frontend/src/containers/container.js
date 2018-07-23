@@ -9,13 +9,20 @@ import BayesianNetworkMatrix from './bayesian-network-matrix';
 import BayesianNetworkNodeLink from './bayesian-network-node-link';
 import {updateScreenSize} from '../actions';
 import {LAYOUT} from '../constants';
-import {getLeftSubPanelWidth, getRightSubPanelWidth} from '../selectors/base';
+import {
+  getTopLeftSubPanelSize,
+  getTopRightSubPanelSize,
+  getBottomLeftSubPanelSize,
+  getBottomRightSubPanelSize
+} from '../selectors/base';
 
 const mapDispatchToProps = {updateScreenSize};
 
 const mapStateToProps = state => ({
-  leftSubPanelWidth: getLeftSubPanelWidth(state),
-  rightSubPanelWidth: getRightSubPanelWidth(state)
+  topLeftSubPanelSize: getTopLeftSubPanelSize(state),
+  topRightSubPanelSize: getTopRightSubPanelSize(state),
+  bottomLeftSubPanelSize: getBottomLeftSubPanelSize(state),
+  bottomRightSubPanelSize: getBottomRightSubPanelSize(state)
 });
 
 class AppContainer extends PureComponent {
@@ -44,22 +51,55 @@ class AppContainer extends PureComponent {
       zIndex: 1
     };
   }
-  get leftSubPanelStyle() {
-    const {leftSubPanelWidth: width} = this.props;
+  get topLeftSubPanelStyle() {
+    const {
+      topLeftSubPanelSize: [width, height]
+    } = this.props;
     return {
       position: 'relative',
       display: 'inline-block',
-      width
+      border: '1px solid black',
+      width,
+      height
     };
   }
-  get rightSubPanelStyle() {
-    const {rightSubPanelWidth: width} = this.props;
+  get topRightSubPanelStyle() {
+    const {
+      topRightSubPanelSize: [width, height]
+    } = this.props;
     return {
       position: 'relative',
+      display: 'inline-block',
+      border: '1px solid black',
       width,
-      display: 'inline-block'
+      height
     };
   }
+  get bottomLeftSubPanelStyle() {
+    const {
+      topLeftSubPanelSize: [width, height]
+    } = this.props;
+    return {
+      position: 'relative',
+      display: 'inline-block',
+      border: '1px solid black',
+      width,
+      height
+    };
+  }
+  get bottomRightSubPanelStyle() {
+    const {
+      bottomRightSubPanelSize: [width, height]
+    } = this.props;
+    return {
+      position: 'relative',
+      display: 'inline-block',
+      border: '1px solid black',
+      width,
+      height
+    };
+  }
+
   componentDidMount() {
     window.addEventListener('resize', this._handleResize);
     this._handleResize();
@@ -85,11 +125,19 @@ class AppContainer extends PureComponent {
               <NavPanel />
             </Layout.Sider>
             <Layout.Content style={this.contentPanelStyle}>
-              <Layout.Content style={this.leftSubPanelStyle}>
-                <BayesianNetworkMatrix />
+              <Layout.Content style={this.topLeftSubPanelStyle} />
+              <Layout.Content style={this.topRightSubPanelStyle} />
+              <Layout.Content style={this.bottomLeftSubPanelStyle}>
+                <BayesianNetworkMatrix
+                  width={this.props.bottomLeftSubPanelSize[0]}
+                  height={this.props.bottomLeftSubPanelSize[1]}
+                />
               </Layout.Content>
-              <Layout.Content style={this.rightSubPanelStyle}>
-                <BayesianNetworkNodeLink />
+              <Layout.Content style={this.bottomRightSubPanelStyle}>
+                <BayesianNetworkNodeLink
+                  width={this.props.bottomRightSubPanelSize[0]}
+                  height={this.props.bottomRightSubPanelSize[1]}
+                />
               </Layout.Content>
             </Layout.Content>
           </Layout.Content>

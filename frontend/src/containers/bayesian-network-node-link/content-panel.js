@@ -1,16 +1,10 @@
 import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
-import {
-  getContentPanelHeight,
-  getRightSubPanelWidth
-} from '../../selectors/base';
 import {getDagLayout, getNodeLinkViewOptions} from '../../selectors/data';
 import DeckGLContainer from './deckgl-container';
 const mapDispatchToProps = {};
 
 const mapStateToProps = state => ({
-  width: getRightSubPanelWidth(state),
-  height: getContentPanelHeight(state),
   data: getDagLayout(state),
   options: getNodeLinkViewOptions(state)
 });
