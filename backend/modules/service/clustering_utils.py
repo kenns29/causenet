@@ -1,6 +1,35 @@
 import numpy as np
 
 
+# @param node (ClusterNode)
+def tree2dict(node):
+    return {
+        'id': node.get_id(),
+        'count': node.get_count(),
+        'dist': node.dist,
+        'left': tree2dict(node.get_left()),
+        'right': tree2dict(node.get_right())
+    } if node else None
+
+
+def tree_to_non_binary_dict(node):
+    if not node:
+        return None
+    children = []
+    left = tree_to_non_binary_dict(node.get_left())
+    right = tree_to_non_binary_dict(node.get_right())
+    if left:
+        children.append(left)
+    if right:
+        children.append(right)
+    return {
+        'id': node.get_id(),
+        'count': node.get_count(),
+        'dist': node.dist,
+        'children': children
+    }
+
+
 # @param clustering (ndarray) -- the scipy hierarchy matrix
 def normalize_clustering_dist(clustering):
     max_dist = clustering[-1][2]

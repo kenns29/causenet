@@ -4,6 +4,8 @@ from modules.service.model_utils import get_model, delete_model, blip_learn_stru
 from modules.service.edge_weights import get_edge_weights
 from modules.service.data_utils import load_data, load_pdist, load_clustering, get_current_dataset_name, \
     get_dataset_config, update_current_dataset_name as update_current_dataset_name_util
+from modules.service.clustering_utils import tree2dict, tree_to_non_binary_dict
+from scipy.cluster.hierarchy import to_tree
 
 blueprint = Blueprint('api', __name__)
 
@@ -34,6 +36,26 @@ def update_current_dataset_name():
 @blueprint.route('/load_dataset_list', methods=['GET'])
 def load_dataset_list():
     return jsonify([{'name': key} for key, _ in get_dataset_config().items()])
+
+
+@blueprint.route('/load_clustering', methods=['GET'])
+def route_load_clustering():
+    return jsonify(load_clustering().tolist())
+
+
+@blueprint.route('/load_distances', methods=['GET'])
+def load_distances():
+    return jsonify(load_pdist().tolist())
+
+
+@blueprint.route('/load_clustering_tree', methods=['GET'])
+def load_clustering_tree():
+    return jsonify(tree_to_non_binary_dict(to_tree(load_clustering())))
+
+
+@blueprint.route('/load_clustering_binary_tree', methods=['GET'])
+def load_clustering_binary_tree():
+    return jsonify(tree2dict(to_tree(load_clustering())))
 
 
 @blueprint.route('/load_model', methods=['GET'])
