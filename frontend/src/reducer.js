@@ -7,7 +7,9 @@ import {
   UPDATE_BAYESIAN_NETWORK,
   UPDATE_MODEL_LIST,
   UPDATE_SELECTED_MODEL,
-  UPDATE_NODE_LINK_VIEW_OPTIONS
+  UPDATE_NODE_LINK_VIEW_OPTIONS,
+  UPDATE_HIERARCHICAL_CLUSTERING_TREE,
+  UPDATE_DISTANCE_MAP
 } from './actions';
 
 const DEFAULT_STATE = {
@@ -16,7 +18,9 @@ const DEFAULT_STATE = {
   isFetchingData: false,
   currentDatasetName: null,
   datasetList: [],
-  data: [],
+  bayesianNetwork: [],
+  hierarchicalClusteringTree: null,
+  distanceMap: {},
   selectedModel: null,
   modelList: [],
   nodeLinkViewOptions: {
@@ -47,7 +51,7 @@ const handleFecthBayesianNetworkStart = (state, {payload}) => ({
 
 const handleUpdateBayesianNetwork = (state, {payload}) => ({
   ...state,
-  data: payload,
+  bayesianNetwork: payload,
   isFetchingData: false
 });
 
@@ -69,6 +73,16 @@ const handleUpdateNodeLinkViewOptions = (state, {payload}) => ({
   }
 });
 
+const handleUpdateHierarchicalClusteringTree = (state, {payload}) => ({
+  ...state,
+  hierarchicalClusteringTree: payload
+});
+
+const handleUpdateDistanceMap = (state, {payload}) => ({
+  ...state,
+  distanceMap: payload
+});
+
 export default handleActions(
   {
     [UPDATE_SCREEN_SIZE]: handleUpdateScreenSize,
@@ -78,7 +92,9 @@ export default handleActions(
     [UPDATE_BAYESIAN_NETWORK]: handleUpdateBayesianNetwork,
     [UPDATE_MODEL_LIST]: handleUpdateModelList,
     [UPDATE_SELECTED_MODEL]: handleUpdateSelectedModel,
-    [UPDATE_NODE_LINK_VIEW_OPTIONS]: handleUpdateNodeLinkViewOptions
+    [UPDATE_NODE_LINK_VIEW_OPTIONS]: handleUpdateNodeLinkViewOptions,
+    [UPDATE_HIERARCHICAL_CLUSTERING_TREE]: handleUpdateHierarchicalClusteringTree,
+    [UPDATE_DISTANCE_MAP]: handleUpdateDistanceMap
   },
   DEFAULT_STATE
 );

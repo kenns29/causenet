@@ -6,6 +6,8 @@ from modules.service.data_utils import load_data, load_pdist, load_clustering, g
     get_dataset_config, update_current_dataset_name as update_current_dataset_name_util, get_index2col
 from modules.service.clustering_utils import tree2dict, tree_to_non_binary_dict
 from scipy.cluster.hierarchy import to_tree
+from scipy.spatial.distance import squareform
+from itertools import combinations
 
 blueprint = Blueprint('api', __name__)
 
@@ -45,7 +47,34 @@ def route_load_clustering():
 
 @blueprint.route('/load_distances', methods=['GET'])
 def load_distances():
-    return jsonify(load_pdist().tolist())
+    distances = load_pdist()
+    index2col = get_index2col(load_data())
+    n_len = len(index2col)
+    return jsonify([
+        {
+            'source': {
+                'id': s,
+                'name': index2col[s]
+            },
+            'target': {
+                'id': t,
+                'name': index2col[t]
+            },
+            'dist': distances[i]
+        } for i, (s, t) in enumerate(combinations(range(n_len), 2))])
+
+
+@blueprint.route('/load_id2name', methods=['GET'])
+def load_id2name():
+    return jsonify(get_index2col(load_data()))
+
+
+@blueprint.route('/load_distance_map', methods=['GET'])
+def load_distance_map():
+    distances = load_pdist()
+    n_len = load_data().shape[1]
+    return jsonify(dict((str(s) + '-' + str(t), distances[i])
+                        for i, (s, t) in enumerate(combinations(range(n_len), 2))))
 
 
 @blueprint.route('/load_clustering_tree', methods=['GET'])

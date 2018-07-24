@@ -26,9 +26,22 @@ export const getSelectedModel = createSelector(
   state => state.selectedModel
 );
 
-export const getRawData = createSelector(rootSelector, state => state.data);
+export const getRawBayesianNetwork = createSelector(
+  rootSelector,
+  state => state.bayesianNetwork
+);
 
-export const getNodeMap = createSelector(getRawData, data =>
+export const getRawHierarchicalClusteringTree = createSelector(
+  rootSelector,
+  state => state.hierarchicalClusteringTree
+);
+
+export const getRawDistanceMap = createSelector(
+  rootSelector,
+  state => state.distanceMap
+);
+
+export const getNodeMap = createSelector(getRawBayesianNetwork, data =>
   data.reduce((map, {source, target}) => {
     return [source, target].reduce(
       (m, label) =>
@@ -38,7 +51,7 @@ export const getNodeMap = createSelector(getRawData, data =>
   }, {})
 );
 
-export const getMatrix = createSelector(getRawData, data => {
+export const getMatrix = createSelector(getRawBayesianNetwork, data => {
   const generate = links2generator()
     .links(data)
     .source(d => d.source)
@@ -99,7 +112,7 @@ export const getMatrixLayout = createSelector(
 );
 
 export const getDagLayout = createSelector(
-  [getRawData, getNodeMap],
+  [getRawBayesianNetwork, getNodeMap],
   (links, nodeMap) => {
     const nodes = Object.values(nodeMap);
     const dag = new dagre.graphlib.Graph();

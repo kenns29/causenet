@@ -1,6 +1,6 @@
 // @flow
 export {default as progressFetch} from './progress-fetch';
-
+export * from './clustering-utils';
 export const isNull = v => v === null || v === undefined;
 
 // rotate the point on Z axis

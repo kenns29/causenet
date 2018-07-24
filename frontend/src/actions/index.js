@@ -10,6 +10,9 @@ export const UPDATE_BAYESIAN_NETWORK = 'UPDATE_BAYESIAN_NETWORK';
 export const UPDATE_MODEL_LIST = 'UPDATE_MODEL_LIST';
 export const UPDATE_SELECTED_MODEL = 'UPDATE_SELECTED_MODEL';
 export const UPDATE_NODE_LINK_VIEW_OPTIONS = 'UPDATE_NODE_LINK_VIEW_OPTIONS';
+export const UPDATE_HIERARCHICAL_CLUSTERING_TREE =
+  'UPDATE_HIERARCHICAL_CLUSTERING_TREE';
+export const UPDATE_DISTANCE_MAP = 'UPDATE_DISTANCE_MAP';
 
 export const updateScreenSize = createAction(UPDATE_SCREEN_SIZE);
 export const updateCurrentDatasetName = createAction(
@@ -25,6 +28,10 @@ export const updateSelectedModel = createAction(UPDATE_SELECTED_MODEL);
 export const updateNodeLinkViewOptions = createAction(
   UPDATE_NODE_LINK_VIEW_OPTIONS
 );
+export const updateHierarchicalClusteringTree = createAction(
+  UPDATE_HIERARCHICAL_CLUSTERING_TREE
+);
+export const updateDistanceMap = createAction(UPDATE_DISTANCE_MAP);
 
 export const fetchCurrentDatasetName = () => async dispatch => {
   try {
@@ -105,6 +112,28 @@ export const requestTrainBayesianModel = ({
     );
     const data = await response.json();
     return Promise.resolve(data);
+  } catch (err) {
+    throw new Error(err);
+  }
+};
+
+export const fetchHierarchicalClusteringTree = () => async dispatch => {
+  try {
+    const response = await fetch(`${BACKEND_URL}/load_clustering_tree`);
+    const data = await response.json();
+    dispatch(updateHierarchicalClusteringTree());
+    return Promise.resove(data);
+  } catch (err) {
+    throw new Error(err);
+  }
+};
+
+export const fetchDistanceMap = () => async dispatch => {
+  try {
+    const response = await fetch(`${BACKEND_URL}/load_distance_map`);
+    const data = await response.json();
+    dispatch(updateDistanceMap());
+    return Promise.resove(data);
   } catch (err) {
     throw new Error(err);
   }
