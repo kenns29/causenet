@@ -2,32 +2,40 @@ import numpy as np
 
 
 # @param node (ClusterNode)
-def tree2dict(node):
-    return {
+def tree2dict(node, index2col=None):
+    if not node:
+        return None
+    d = {
         'id': node.get_id(),
         'count': node.get_count(),
         'dist': node.dist,
-        'left': tree2dict(node.get_left()),
-        'right': tree2dict(node.get_right())
-    } if node else None
+        'left': tree2dict(node.get_left(), index2col),
+        'right': tree2dict(node.get_right(), index2col)
+    }
+    if node.is_leaf() and index2col:
+        node['name'] = index2col[node.get_id()]
+    return d
 
 
-def tree_to_non_binary_dict(node):
+def tree_to_non_binary_dict(node, index2col=None):
     if not node:
         return None
     children = []
-    left = tree_to_non_binary_dict(node.get_left())
-    right = tree_to_non_binary_dict(node.get_right())
+    left = tree_to_non_binary_dict(node.get_left(), index2col)
+    right = tree_to_non_binary_dict(node.get_right(), index2col)
     if left:
         children.append(left)
     if right:
         children.append(right)
-    return {
+    d = {
         'id': node.get_id(),
         'count': node.get_count(),
         'dist': node.dist,
         'children': children
     }
+    if node.is_leaf() and index2col:
+        d['name'] = index2col[node.get_id()]
+    return d
 
 
 # @param clustering (ndarray) -- the scipy hierarchy matrix

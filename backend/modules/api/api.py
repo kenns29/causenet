@@ -3,7 +3,7 @@ from modules.service.model_utils import get_model, delete_model, blip_learn_stru
     get_weighted_edges, write_weighted_edges, get_model_list
 from modules.service.edge_weights import get_edge_weights
 from modules.service.data_utils import load_data, load_pdist, load_clustering, get_current_dataset_name, \
-    get_dataset_config, update_current_dataset_name as update_current_dataset_name_util
+    get_dataset_config, update_current_dataset_name as update_current_dataset_name_util, get_index2col
 from modules.service.clustering_utils import tree2dict, tree_to_non_binary_dict
 from scipy.cluster.hierarchy import to_tree
 
@@ -50,12 +50,14 @@ def load_distances():
 
 @blueprint.route('/load_clustering_tree', methods=['GET'])
 def load_clustering_tree():
-    return jsonify(tree_to_non_binary_dict(to_tree(load_clustering())))
+    index2col = get_index2col(load_data())
+    return jsonify(tree_to_non_binary_dict(to_tree(load_clustering()), index2col))
 
 
 @blueprint.route('/load_clustering_binary_tree', methods=['GET'])
 def load_clustering_binary_tree():
-    return jsonify(tree2dict(to_tree(load_clustering())))
+    index2col = get_index2col(load_data())
+    return jsonify(tree2dict(to_tree(load_clustering()), index2col))
 
 
 @blueprint.route('/load_model', methods=['GET'])
