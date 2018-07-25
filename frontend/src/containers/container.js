@@ -5,6 +5,7 @@ import {window} from 'global';
 import {ProgressBar} from 'react-fetch-progressbar';
 import DataLoader from './data-loader';
 import NavPanel from './nav-panel';
+import HierarchicalMatrix from './hierarchical-matrix';
 import BayesianNetworkMatrix from './bayesian-network-matrix';
 import BayesianNetworkNodeLink from './bayesian-network-node-link';
 import {updateScreenSize} from '../actions';
@@ -125,7 +126,12 @@ class AppContainer extends PureComponent {
               <NavPanel />
             </Layout.Sider>
             <Layout.Content style={this.contentPanelStyle}>
-              <Layout.Content style={this.topLeftSubPanelStyle} />
+              <Layout.Content style={this.topLeftSubPanelStyle}>
+                <HierarchicalMatrix
+                  width={this.props.topLeftSubPanelSize[0]}
+                  height={this.props.topLeftSubPanelSize[1]}
+                />
+              </Layout.Content>
               <Layout.Content style={this.topRightSubPanelStyle} />
               <Layout.Content style={this.bottomLeftSubPanelStyle}>
                 <BayesianNetworkMatrix

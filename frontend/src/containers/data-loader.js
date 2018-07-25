@@ -3,13 +3,15 @@ import {connect} from 'react-redux';
 import {
   fetchCurrentDatasetName,
   fetchDatasetList,
-  fetchModelList
+  fetchModelList,
+  fetchHierarchicalClusteringTree
 } from '../actions';
 
 const mapDispatchToProps = {
   fetchCurrentDatasetName,
   fetchDatasetList,
-  fetchModelList
+  fetchModelList,
+  fetchHierarchicalClusteringTree
 };
 
 const mapStateToProps = state => ({});
@@ -21,6 +23,7 @@ class DataLoader extends PureComponent {
       this.props.fetchCurrentDatasetName()
     ]);
     this.props.fetchModelList();
+    this.props.fetchHierarchicalClusteringTree();
   }
   render() {
     return null;

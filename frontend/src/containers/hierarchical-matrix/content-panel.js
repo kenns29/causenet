@@ -1,9 +1,12 @@
 import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
-import DeckGLContainer from './deckgl-container';
+import {getClusteringMatrixOrder} from '../../selectors/data';
+
 const mapDispatchToProps = {};
 
-const mapStateToProps = state => ({});
+const mapStateToProps = state => ({
+  matrixOrder: getClusteringMatrixOrder(state)
+});
 
 class ContentPanel extends PureComponent {
   get containerStyle() {
@@ -14,11 +17,7 @@ class ContentPanel extends PureComponent {
 
   render() {
     const {width, height} = this.props;
-    return (
-      <div style={this.containerStyle} width={width} height={height}>
-        <DeckGLContainer {...this.props} />
-      </div>
-    );
+    return <div style={this.containerStyle} width={width} height={height} />;
   }
 }
 

@@ -5,6 +5,7 @@ import {links2generator, flattener, sort2d} from 'sortable-matrix';
 import {scaleSequential} from 'd3-scale';
 import {interpolateGreys} from 'd3-scale-chromatic';
 import {rgb} from 'd3-color';
+import {getTreeLeaves} from '../utils';
 
 export const getCurrentDatasetName = createSelector(
   rootSelector,
@@ -39,6 +40,11 @@ export const getRawHierarchicalClusteringTree = createSelector(
 export const getRawDistanceMap = createSelector(
   rootSelector,
   state => state.distanceMap
+);
+
+export const getNodeLinkViewOptions = createSelector(
+  rootSelector,
+  state => state.nodeLinkViewOptions
 );
 
 export const getNodeMap = createSelector(getRawBayesianNetwork, data =>
@@ -137,7 +143,7 @@ export const getDagLayout = createSelector(
   }
 );
 
-export const getNodeLinkViewOptions = createSelector(
-  rootSelector,
-  state => state.nodeLinkViewOptions
+export const getClusteringMatrixOrder = createSelector(
+  getRawHierarchicalClusteringTree,
+  tree => tree && getTreeLeaves(tree).map(({id, name}) => ({id, name}))
 );

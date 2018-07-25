@@ -121,8 +121,8 @@ export const fetchHierarchicalClusteringTree = () => async dispatch => {
   try {
     const response = await fetch(`${BACKEND_URL}/load_clustering_tree`);
     const data = await response.json();
-    dispatch(updateHierarchicalClusteringTree());
-    return Promise.resove(data);
+    dispatch(updateHierarchicalClusteringTree(data));
+    return Promise.resolve(data);
   } catch (err) {
     throw new Error(err);
   }
@@ -132,8 +132,8 @@ export const fetchDistanceMap = () => async dispatch => {
   try {
     const response = await fetch(`${BACKEND_URL}/load_distance_map`);
     const data = await response.json();
-    dispatch(updateDistanceMap());
-    return Promise.resove(data);
+    dispatch(updateDistanceMap(data));
+    return Promise.resolve(data);
   } catch (err) {
     throw new Error(err);
   }
