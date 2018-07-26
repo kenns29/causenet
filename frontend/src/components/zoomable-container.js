@@ -45,7 +45,7 @@ export default class ZoomableContainer extends PureComponent {
   };
   _zoomOut = () => {
     this.setState({
-      zoomScale: Math.min(2.88, this.state.zoomScale + this.props.zoomStep)
+      zoomScale: Math.min(100, this.state.zoomScale + this.props.zoomStep)
     });
   };
   _moveStart = event => {

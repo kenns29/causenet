@@ -3,7 +3,8 @@ import {TextLayer, COORDINATE_SYSTEM} from 'deck.gl';
 import {MatrixLayer} from '../../components/deckgl-layers';
 import ZoomableContainer from '../../components/zoomable-container';
 
-export default class ContentPanel extends PureComponent {
+const PANEL_ID_PREFIX = 'clustering-matrix-';
+export default class Container extends PureComponent {
   _renderMatrix() {
     const {
       matrix: {rows, cols, cells},
@@ -13,7 +14,7 @@ export default class ContentPanel extends PureComponent {
 
     return [
       new MatrixLayer({
-        id: 'matrix-layer',
+        id: PANEL_ID_PREFIX + 'matrix-layer',
         data: cells,
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
         getPosition: d => [d.x, d.y],
@@ -42,7 +43,7 @@ export default class ContentPanel extends PureComponent {
     }));
     return [
       new TextLayer({
-        id: 'y-axis',
+        id: PANEL_ID_PREFIX + 'y-axis',
         data,
         getSize: 10,
         getColor: [10, 10, 10],
@@ -64,7 +65,7 @@ export default class ContentPanel extends PureComponent {
     }));
     return [
       new TextLayer({
-        id: 'x-axis',
+        id: PANEL_ID_PREFIX + 'x-axis',
         data,
         getSize: 10,
         getColor: [10, 10, 10],

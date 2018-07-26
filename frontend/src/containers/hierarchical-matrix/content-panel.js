@@ -1,23 +1,36 @@
 import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
-import {getClusteringMatrixOrder} from '../../selectors/data';
+import DeckGLContainer from './deckgl-container';
+import {
+  getClusteringMatrixLayout,
+  getClusteringMatrixCellSize,
+  getClusteringMatrixPaddings
+} from '../../selectors/data';
 
 const mapDispatchToProps = {};
 
 const mapStateToProps = state => ({
-  matrixOrder: getClusteringMatrixOrder(state)
+  matrix: getClusteringMatrixLayout(state),
+  cellSize: getClusteringMatrixCellSize(state),
+  paddings: getClusteringMatrixPaddings(state)
 });
 
 class ContentPanel extends PureComponent {
   get containerStyle() {
+    const {width, height} = this.props;
     return {
-      position: 'relative'
+      position: 'relative',
+      width,
+      height
     };
   }
 
   render() {
-    const {width, height} = this.props;
-    return <div style={this.containerStyle} width={width} height={height} />;
+    return (
+      <div style={this.containerStyle}>
+        {this.props.matrix && <DeckGLContainer {...this.props} />}
+      </div>
+    );
   }
 }
 

@@ -4,14 +4,16 @@ import {
   fetchCurrentDatasetName,
   fetchDatasetList,
   fetchModelList,
-  fetchHierarchicalClusteringTree
+  fetchHierarchicalClusteringTree,
+  fetchDistanceMap
 } from '../actions';
 
 const mapDispatchToProps = {
   fetchCurrentDatasetName,
   fetchDatasetList,
   fetchModelList,
-  fetchHierarchicalClusteringTree
+  fetchHierarchicalClusteringTree,
+  fetchDistanceMap
 };
 
 const mapStateToProps = state => ({});
@@ -23,6 +25,7 @@ class DataLoader extends PureComponent {
       this.props.fetchCurrentDatasetName()
     ]);
     this.props.fetchModelList();
+    await this.props.fetchDistanceMap();
     this.props.fetchHierarchicalClusteringTree();
   }
   render() {

@@ -9,6 +9,8 @@ import {
 } from '../selectors/data';
 import {
   fetchModelList,
+  fetchDistanceMap,
+  fetchHierarchicalClusteringTree,
   requestUpdateCurrentDatasetName,
   fetchBayesianNetwork,
   updateBayesianNetwork,
@@ -19,6 +21,8 @@ import {
 
 const mapDispatchToProps = {
   fetchModelList,
+  fetchDistanceMap,
+  fetchHierarchicalClusteringTree,
   requestUpdateCurrentDatasetName,
   fetchBayesianNetwork,
   requestTrainBayesianModel,
@@ -53,6 +57,8 @@ class NavPanel extends PureComponent {
             onChange={async name => {
               await this.props.requestUpdateCurrentDatasetName(name);
               await this.props.fetchModelList();
+              await this.props.fetchDistanceMap();
+              await this.props.fetchHierarchicalClusteringTree();
               this.props.updateSelectedModel(null);
               this.props.updateBayesianNetwork([]);
             }}

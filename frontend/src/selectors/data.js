@@ -1,9 +1,9 @@
 import {createSelector} from 'reselect';
 import {rootSelector} from './base';
 import dagre from 'dagre';
-import {links2generator, flattener, sort2d} from 'sortable-matrix';
-import {scaleSequential} from 'd3-scale';
-import {interpolateGreys} from 'd3-scale-chromatic';
+import Matrix, {links2generator, flattener, sort2d} from 'sortable-matrix';
+import {scaleSequential, scaleDiverging} from 'd3-scale';
+import {interpolateGreys, interpolateRdBu} from 'd3-scale-chromatic';
 import {rgb} from 'd3-color';
 import {getTreeLeaves} from '../utils';
 
@@ -143,7 +143,75 @@ export const getDagLayout = createSelector(
   }
 );
 
+export const getId2DistanceFunction = createSelector(
+  getRawDistanceMap,
+  rawDistanceMap => (id1, id2) => {
+    if (Number(id1) < Number(id2)) {
+      return rawDistanceMap[id1 + '-' + id2];
+    } else if (Number(id1) > Number(id2)) {
+      return rawDistanceMap[id2 + '-' + id1];
+    }
+    return 0;
+  }
+);
+
 export const getClusteringMatrixOrder = createSelector(
   getRawHierarchicalClusteringTree,
   tree => tree && getTreeLeaves(tree).map(({id, name}) => ({id, name}))
+);
+
+export const getClusteringMatrix = createSelector(
+  [getClusteringMatrixOrder, getId2DistanceFunction],
+  (matrixOrder, id2Distance) => {
+    if (!matrixOrder) {
+      return null;
+    }
+    const matrixData = matrixOrder.map(({id: rowId}) =>
+      matrixOrder.map(({id: colId}) => id2Distance(rowId, colId))
+    );
+    const names = matrixOrder.map(({name}) => name);
+    const {rows, cols, cells} = flattener().matrix(
+      Matrix()
+        .row_ids(names)
+        .col_ids(names)
+        .matrix_data(matrixData)
+    );
+    return {rows: rows(), cols: cols(), cells: cells()};
+  }
+);
+
+export const getClusteringMatrixPaddings = createSelector(
+  rootSelector,
+  state => [100, 100]
+);
+
+export const getClusteringMatrixCellSize = createSelector(
+  rootSelector,
+  state => [20, 20]
+);
+
+export const getClusteringMatrixLayout = createSelector(
+  [getClusteringMatrix, getClusteringMatrixCellSize],
+  (matrix, [w, h]) => {
+    if (!matrix) {
+      return null;
+    }
+    const {rows, cols, cells} = matrix;
+    const scale = scaleDiverging(interpolateRdBu).domain([1, 0.5, 0]);
+    return {
+      rows,
+      cols,
+      cells: cells.map(cell => {
+        const {r, g, b} = rgb(scale(cell.value));
+        return {
+          ...cell,
+          x: cell.col_index * w,
+          y: cell.row_index * h,
+          w,
+          h,
+          color: [r, g, b]
+        };
+      })
+    };
+  }
 );
