@@ -1,6 +1,7 @@
 class BaseConfig(object):
     SECRET_KEY = "SO_SECURE"
     DEBUG = True
+    JSONIFY_PRETTYPRINT_REGULAR = False
 
 
 class TestingConfig(object):
