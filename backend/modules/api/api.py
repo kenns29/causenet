@@ -6,7 +6,6 @@ from modules.service.data_utils import load_data, load_pdist, load_clustering, g
     get_dataset_config, update_current_dataset_name as update_current_dataset_name_util, get_index2col
 from modules.service.clustering_utils import tree2dict, tree_to_non_binary_dict
 from scipy.cluster.hierarchy import to_tree
-from scipy.spatial.distance import squareform
 from itertools import combinations
 
 blueprint = Blueprint('api', __name__)
