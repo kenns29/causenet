@@ -197,7 +197,7 @@ export const getClusteringMatrixLayout = createSelector(
       return null;
     }
     const {rows, cols, cells} = matrix;
-    const scale = scaleDiverging(interpolateRdBu).domain([1, 0.5, 0]);
+    const scale = scaleDiverging(interpolateRdBu).domain([2, 1, 0]);
     return {
       rows,
       cols,
