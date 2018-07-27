@@ -1,16 +1,18 @@
 import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
-import {Input, Button, Select, Switch, notification} from 'antd';
+import {Input, Button, Select, Switch, Slider, notification} from 'antd';
 import ModelList from './model-list';
 import {
   getCurrentDatasetName,
   getDatasetList,
-  getNodeLinkViewOptions
+  getNodeLinkViewOptions,
+  getHierarchicalClusteringCutThreshold
 } from '../selectors/data';
 import {
   fetchModelList,
   fetchDistanceMap,
   fetchHierarchicalClusteringTree,
+  updateHierarchicalClusteringCutThreshold,
   requestUpdateCurrentDatasetName,
   fetchBayesianNetwork,
   updateBayesianNetwork,
@@ -23,6 +25,7 @@ const mapDispatchToProps = {
   fetchModelList,
   fetchDistanceMap,
   fetchHierarchicalClusteringTree,
+  updateHierarchicalClusteringCutThreshold,
   requestUpdateCurrentDatasetName,
   fetchBayesianNetwork,
   requestTrainBayesianModel,
@@ -34,7 +37,10 @@ const mapDispatchToProps = {
 const mapStateToProps = state => ({
   nodeLinkViewOptions: getNodeLinkViewOptions(state),
   currentDatasetName: getCurrentDatasetName(state),
-  datasetList: getDatasetList(state)
+  datasetList: getDatasetList(state),
+  hierarchicalClusteringCutThreshold: getHierarchicalClusteringCutThreshold(
+    state
+  )
 });
 
 class NavPanel extends PureComponent {
@@ -129,6 +135,21 @@ class NavPanel extends PureComponent {
       </div>
     );
   }
+  _renderHierachicalClusteringCutThresholdSlider() {
+    const {hierarchicalClusteringCutThreshold} = this.props;
+    return (
+      <div>
+        <span>{`Hierarchical Clustering Cut Threshold `}</span>
+        <Slider
+          min={0}
+          max={2}
+          step={0.1}
+          defaultValue={hierarchicalClusteringCutThreshold}
+          onChange={this.props.updateHierarchicalClusteringCutThreshold}
+        />
+      </div>
+    );
+  }
   render() {
     return (
       <div>
@@ -136,6 +157,7 @@ class NavPanel extends PureComponent {
         {this._renderTrainModelButton()}
         {this._renderModelList()}
         {this._renderToggleNodeLinkViewLabels()}
+        {this._renderHierachicalClusteringCutThresholdSlider()}
       </div>
     );
   }

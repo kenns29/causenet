@@ -9,7 +9,8 @@ import {
   UPDATE_SELECTED_MODEL,
   UPDATE_NODE_LINK_VIEW_OPTIONS,
   UPDATE_HIERARCHICAL_CLUSTERING_TREE,
-  UPDATE_DISTANCE_MAP
+  UPDATE_DISTANCE_MAP,
+  UPDATE_HIERARCHICAL_CLUSTERING_CUT_THRESHOLD
 } from './actions';
 
 const DEFAULT_STATE = {
@@ -20,6 +21,7 @@ const DEFAULT_STATE = {
   datasetList: [],
   bayesianNetwork: [],
   hierarchicalClusteringTree: null,
+  hierarchicalClusteringCutThreshold: 1,
   distanceMap: {},
   selectedModel: null,
   modelList: [],
@@ -83,6 +85,11 @@ const handleUpdateDistanceMap = (state, {payload}) => ({
   distanceMap: payload
 });
 
+const handleUpdateHierarchicalClusteringCutThreshold = (state, {payload}) => ({
+  ...state,
+  hierarchicalClusteringCutThreshold: payload
+});
+
 export default handleActions(
   {
     [UPDATE_SCREEN_SIZE]: handleUpdateScreenSize,
@@ -94,7 +101,8 @@ export default handleActions(
     [UPDATE_SELECTED_MODEL]: handleUpdateSelectedModel,
     [UPDATE_NODE_LINK_VIEW_OPTIONS]: handleUpdateNodeLinkViewOptions,
     [UPDATE_HIERARCHICAL_CLUSTERING_TREE]: handleUpdateHierarchicalClusteringTree,
-    [UPDATE_DISTANCE_MAP]: handleUpdateDistanceMap
+    [UPDATE_DISTANCE_MAP]: handleUpdateDistanceMap,
+    [UPDATE_HIERARCHICAL_CLUSTERING_CUT_THRESHOLD]: handleUpdateHierarchicalClusteringCutThreshold
   },
   DEFAULT_STATE
 );

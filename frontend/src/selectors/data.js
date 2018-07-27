@@ -5,7 +5,7 @@ import Matrix, {links2generator, flattener, sort2d} from 'sortable-matrix';
 import {scaleSequential, scaleDiverging} from 'd3-scale';
 import {interpolateGreys, interpolateRdBu} from 'd3-scale-chromatic';
 import {rgb} from 'd3-color';
-import {getTreeLeaves} from '../utils';
+import {getTreeLeaves, cutTreeByDist, getCutTree} from '../utils';
 
 export const getCurrentDatasetName = createSelector(
   rootSelector,
@@ -35,6 +35,11 @@ export const getRawBayesianNetwork = createSelector(
 export const getRawHierarchicalClusteringTree = createSelector(
   rootSelector,
   state => state.hierarchicalClusteringTree
+);
+
+export const getHierarchicalClusteringCutThreshold = createSelector(
+  rootSelector,
+  state => state.hierarchicalClusteringCutThreshold
 );
 
 export const getRawDistanceMap = createSelector(
@@ -155,9 +160,39 @@ export const getId2DistanceFunction = createSelector(
   }
 );
 
+export const getHierachicalClusteringCut = createSelector(
+  [getRawHierarchicalClusteringTree, getHierarchicalClusteringCutThreshold],
+  (tree, threshold) => {
+    return cutTreeByDist(tree, threshold);
+  }
+);
+
+export const getHierachicalClusteringCutClustering = createSelector(
+  getHierachicalClusteringCut,
+  cut =>
+    cut.map(tree => {
+      const cluster = getTreeLeaves(tree).map(({id, name}) => ({id, name}));
+      return {
+        rep: cluster[0],
+        dist: tree.dist,
+        cluster
+      };
+    })
+);
+
+export const getHierachicalClusteringCutTree = createSelector(
+  [getRawHierarchicalClusteringTree, getHierachicalClusteringCut],
+  getCutTree
+);
+
 export const getClusteringMatrixOrder = createSelector(
-  getRawHierarchicalClusteringTree,
-  tree => tree && getTreeLeaves(tree).map(({id, name}) => ({id, name}))
+  getHierachicalClusteringCutTree,
+  tree =>
+    getTreeLeaves(tree).map(({id, name, cluster}) => ({
+      id,
+      name,
+      rep: cluster && cluster[0]
+    }))
 );
 
 export const getClusteringMatrix = createSelector(
@@ -166,10 +201,16 @@ export const getClusteringMatrix = createSelector(
     if (!matrixOrder) {
       return null;
     }
-    const matrixData = matrixOrder.map(({id: rowId}) =>
-      matrixOrder.map(({id: colId}) => id2Distance(rowId, colId))
+    const matrixData = matrixOrder.map(({id: rowId, rep: rowRep}) => {
+      const rId = rowRep ? rowRep.id : rowId;
+      return matrixOrder.map(({id: colId, rep: colRep}) => {
+        const cId = colRep ? colRep.id : colId;
+        return id2Distance(rId, cId);
+      });
+    });
+    const names = matrixOrder.map(
+      ({id, name}) => name || Number(id).toString()
     );
-    const names = matrixOrder.map(({name}) => name);
     const {rows, cols, cells} = flattener().matrix(
       Matrix()
         .row_ids(names)

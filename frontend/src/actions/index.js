@@ -13,6 +13,8 @@ export const UPDATE_NODE_LINK_VIEW_OPTIONS = 'UPDATE_NODE_LINK_VIEW_OPTIONS';
 export const UPDATE_HIERARCHICAL_CLUSTERING_TREE =
   'UPDATE_HIERARCHICAL_CLUSTERING_TREE';
 export const UPDATE_DISTANCE_MAP = 'UPDATE_DISTANCE_MAP';
+export const UPDATE_HIERARCHICAL_CLUSTERING_CUT_THRESHOLD =
+  'UPDATE_HIERARCHICAL_CLUSTERING_CUT_THRESHOLD';
 
 export const updateScreenSize = createAction(UPDATE_SCREEN_SIZE);
 export const updateCurrentDatasetName = createAction(
@@ -32,6 +34,9 @@ export const updateHierarchicalClusteringTree = createAction(
   UPDATE_HIERARCHICAL_CLUSTERING_TREE
 );
 export const updateDistanceMap = createAction(UPDATE_DISTANCE_MAP);
+export const updateHierarchicalClusteringCutThreshold = createAction(
+  UPDATE_HIERARCHICAL_CLUSTERING_CUT_THRESHOLD
+);
 
 export const fetchCurrentDatasetName = () => async dispatch => {
   try {

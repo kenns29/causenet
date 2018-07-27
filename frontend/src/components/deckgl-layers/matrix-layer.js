@@ -45,7 +45,7 @@ export default class MatrixLayer extends CompositeLayer {
     return new LineLayer({
       id: `${id}-cells`,
       data,
-      getStrokeWidth: 1,
+      getStrokeWidth: dy,
       pickable: Boolean(onHover || onClick),
       coordinateSystem,
       getSourcePosition: d => {
