@@ -1,5 +1,10 @@
 import React, {PureComponent} from 'react';
-import {TextLayer, COORDINATE_SYSTEM} from 'deck.gl';
+import {
+  TextLayer,
+  ScatterplotLayer,
+  LineLayer,
+  COORDINATE_SYSTEM
+} from 'deck.gl';
 import {MatrixLayer} from '../../components/deckgl-layers';
 import ZoomableContainer from '../../components/zoomable-container';
 
@@ -75,11 +80,44 @@ export default class Container extends PureComponent {
       })
     ];
   }
+  _renderColTree() {
+    const {
+      colTree: {nodes, links},
+      paddings: [paddingH, paddingV]
+    } = this.props;
+    console.log('nodes', nodes, 'links', links);
+    return [
+      new ScatterplotLayer({
+        id: PANEL_ID_PREFIX + '-row-tree-nodes',
+        data: nodes,
+        getRadius: 2,
+        getColor: [100, 100, 100],
+        getPosition: ({x, y}) => [x + paddingH, y + paddingV - 10],
+        coordinateSystem: COORDINATE_SYSTEM.IDENTITY
+      }),
+      new LineLayer({
+        id: PANEL_ID_PREFIX + '-row-tree-lines',
+        data: links,
+        getColor: [100, 100, 100],
+        getStrokeWidth: 1,
+        getSourcePosition: ({sourcePosition: [x, y]}) => [
+          x + paddingH,
+          y + paddingV - 10
+        ],
+        getTargetPosition: ({targetPosition: [x, y]}) => [
+          x + paddingH,
+          y + paddingV - 10
+        ],
+        coordinateSystem: COORDINATE_SYSTEM.IDENTITY
+      })
+    ];
+  }
   _renderLayers() {
     return [
       ...this._renderMatrix(),
       ...this._renderRowTitle(),
-      ...this._renderColTitle()
+      ...this._renderColTitle(),
+      ...this._renderColTree()
     ];
   }
   render() {

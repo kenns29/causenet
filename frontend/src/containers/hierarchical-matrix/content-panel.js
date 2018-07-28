@@ -3,6 +3,7 @@ import {connect} from 'react-redux';
 import DeckGLContainer from './deckgl-container';
 import {
   getClusteringMatrixLayout,
+  getHierarchicalClusteringVerticalTreeLayout,
   getClusteringMatrixCellSize,
   getClusteringMatrixPaddings
 } from '../../selectors/data';
@@ -10,6 +11,7 @@ import {
 const mapDispatchToProps = {};
 
 const mapStateToProps = state => ({
+  colTree: getHierarchicalClusteringVerticalTreeLayout(state),
   matrix: getClusteringMatrixLayout(state),
   cellSize: getClusteringMatrixCellSize(state),
   paddings: getClusteringMatrixPaddings(state)
@@ -26,9 +28,10 @@ class ContentPanel extends PureComponent {
   }
 
   render() {
+    const {matrix, colTree} = this.props;
     return (
       <div style={this.containerStyle}>
-        {this.props.matrix && <DeckGLContainer {...this.props} />}
+        {matrix && colTree && <DeckGLContainer {...this.props} />}
       </div>
     );
   }

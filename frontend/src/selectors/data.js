@@ -5,6 +5,7 @@ import Matrix, {links2generator, flattener, sort2d} from 'sortable-matrix';
 import {scaleSequential, scaleDiverging} from 'd3-scale';
 import {interpolateGreys, interpolateRdBu} from 'd3-scale-chromatic';
 import {rgb} from 'd3-color';
+import {hierarchy as d3Hierarchy, cluster as d3Cluster} from 'd3-hierarchy';
 import {getTreeLeaves, cutTreeByDist, getCutTree} from '../utils';
 
 export const getCurrentDatasetName = createSelector(
@@ -254,5 +255,81 @@ export const getClusteringMatrixLayout = createSelector(
         };
       })
     };
+  }
+);
+export const getHierachicalClusteringLayoutHeight = createSelector(
+  rootSelector,
+  () => 300
+);
+export const getHierachicalClusteringLayoutHierarchy = createSelector(
+  [
+    getHierachicalClusteringCutTree,
+    getClusteringMatrixCellSize,
+    getClusteringMatrixOrder,
+    getHierachicalClusteringLayoutHeight
+  ],
+  (tree, [w, h], order, height) => {
+    if (!tree) {
+      return null;
+    }
+    const hierarchy = d3Hierarchy(tree);
+    const clusterer = d3Cluster()
+      .size([w * order.length, height])
+      .separation(() => 1);
+    return clusterer(hierarchy);
+  }
+);
+
+export const getHierarchicalClusteringVerticalTreeLayout = createSelector(
+  [
+    getHierachicalClusteringLayoutHierarchy,
+    getHierachicalClusteringLayoutHeight
+  ],
+  (hierarchy, height) => {
+    if (!hierarchy) {
+      return null;
+    }
+    const [nodes, links] = [[], []];
+
+    hierarchy.each(n => {
+      if (n.children && n.children.length) {
+        const node = {...n, x: n.x, y: n.y - height};
+        nodes.push(node);
+        const [left, right] = node.children.map(d => ({
+          ...d,
+          x: d.x,
+          y: d.y - height
+        }));
+        const mid = (node.y + Math.min(left.y, right.y)) / 2;
+        [
+          {
+            sourcePosition: [node.x, node.y],
+            targetPosition: [node.x, mid],
+            nodes: [node, left, right]
+          },
+          {
+            sourcePosition: [node.x, mid],
+            targetPosition: [left.x, mid],
+            nodes: [node, left]
+          },
+          {
+            sourcePosition: [left.x, mid],
+            targetPosition: [left.x, left.y],
+            nodes: [node, left]
+          },
+          {
+            sourcePosition: [node.x, mid],
+            targetPosition: [right.x, mid],
+            nodes: [node, right]
+          },
+          {
+            sourcePosition: [right.x, mid],
+            targetPosition: [right.x, right.y],
+            nodes: [node, right]
+          }
+        ].forEach(link => links.push(link));
+      }
+    });
+    return {nodes, links};
   }
 );
