@@ -333,3 +333,28 @@ export const getHierarchicalClusteringVerticalTreeLayout = createSelector(
     return {nodes, links};
   }
 );
+
+export const getHierarchicalClusteringHorizontalTreeLayout = createSelector(
+  getHierarchicalClusteringVerticalTreeLayout,
+  layout => {
+    if (!layout) {
+      return null;
+    }
+    const {nodes, links} = layout;
+    const nodeMap = nodes.reduce(
+      (map, node) => ({
+        ...map,
+        [node.data.id]: {...node, x: node.y, y: node.x}
+      }),
+      {}
+    );
+    const hLinks = links.map(
+      ({sourcePosition, targetPosition, nodes: vNodes}) => ({
+        sourcePosition: sourcePosition.slice(0).reverse(),
+        targetPosition: targetPosition.slice(0).reverse(),
+        nodes: nodes.map(({data: {id}}) => nodeMap[id])
+      })
+    );
+    return {nodes: Object.values(nodeMap), links: hLinks};
+  }
+);

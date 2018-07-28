@@ -85,10 +85,9 @@ export default class Container extends PureComponent {
       colTree: {nodes, links},
       paddings: [paddingH, paddingV]
     } = this.props;
-    console.log('nodes', nodes, 'links', links);
     return [
       new ScatterplotLayer({
-        id: PANEL_ID_PREFIX + '-row-tree-nodes',
+        id: PANEL_ID_PREFIX + '-col-tree-nodes',
         data: nodes,
         getRadius: 2,
         getColor: [100, 100, 100],
@@ -96,7 +95,7 @@ export default class Container extends PureComponent {
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY
       }),
       new LineLayer({
-        id: PANEL_ID_PREFIX + '-row-tree-lines',
+        id: PANEL_ID_PREFIX + '-col-tree-lines',
         data: links,
         getColor: [100, 100, 100],
         getStrokeWidth: 1,
@@ -112,12 +111,44 @@ export default class Container extends PureComponent {
       })
     ];
   }
+  _renderRowTree() {
+    const {
+      rowTree: {nodes, links},
+      paddings: [paddingH, paddingV]
+    } = this.props;
+    return [
+      new ScatterplotLayer({
+        id: PANEL_ID_PREFIX + '-row-tree-nodes',
+        data: nodes,
+        getRadius: 2,
+        getColor: [100, 100, 100],
+        getPosition: ({x, y}) => [x + paddingH - 10, y + paddingV],
+        coordinateSystem: COORDINATE_SYSTEM.IDENTITY
+      }),
+      new LineLayer({
+        id: PANEL_ID_PREFIX + '-row-tree-lines',
+        data: links,
+        getColor: [100, 100, 100],
+        getStrokeWidth: 1,
+        getSourcePosition: ({sourcePosition: [x, y]}) => [
+          x + paddingH - 10,
+          y + paddingV
+        ],
+        getTargetPosition: ({targetPosition: [x, y]}) => [
+          x + paddingH - 10,
+          y + paddingV
+        ],
+        coordinateSystem: COORDINATE_SYSTEM.IDENTITY
+      })
+    ];
+  }
   _renderLayers() {
     return [
       ...this._renderMatrix(),
       ...this._renderRowTitle(),
       ...this._renderColTitle(),
-      ...this._renderColTree()
+      ...this._renderColTree(),
+      ...this._renderRowTree()
     ];
   }
   render() {
