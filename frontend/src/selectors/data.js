@@ -6,7 +6,12 @@ import {scaleSequential, scaleDiverging} from 'd3-scale';
 import {interpolateGreys, interpolateRdBu} from 'd3-scale-chromatic';
 import {rgb} from 'd3-color';
 import {hierarchy as d3Hierarchy, cluster as d3Cluster} from 'd3-hierarchy';
-import {getTreeLeaves, cutTreeByDist, getCutTree} from '../utils';
+import {
+  getTreeLeaves,
+  cutTreeByDist,
+  getCutTree,
+  findMaxDistancePair
+} from '../utils';
 
 export const getCurrentDatasetName = createSelector(
   rootSelector,
@@ -168,50 +173,53 @@ export const getHierachicalClusteringCut = createSelector(
   }
 );
 
-export const getHierachicalClusteringCutClustering = createSelector(
-  getHierachicalClusteringCut,
-  cut =>
-    cut.map(tree => {
-      const cluster = getTreeLeaves(tree).map(({id, name}) => ({id, name}));
-      return {
-        rep: cluster[0],
-        dist: tree.dist,
-        cluster
-      };
-    })
-);
-
 export const getHierachicalClusteringCutTree = createSelector(
   [getRawHierarchicalClusteringTree, getHierachicalClusteringCut],
   getCutTree
 );
 
+export const getHierarchicalClusteringCutClustering = createSelector(
+  [getHierachicalClusteringCutTree, getId2DistanceFunction],
+  (tree, id2distance) => {
+    const leaves = getTreeLeaves(tree);
+    const clusterPairs = [
+      ...new Set(leaves.filter(node => node.parent).map(node => node.parent))
+    ].map(({children}) =>
+      children.map(
+        child =>
+          child.cluster
+            ? {id: child.id, cluster: child.cluster}
+            : {id: child.id, cluster: getTreeLeaves(child)}
+      )
+    );
+    const id2rep = clusterPairs.reduce(
+      (map, [{id: id1, cluster: cluster1}, {id: id2, cluster: cluster2}]) => {
+        const [maxNode1, maxNode2] = findMaxDistancePair(
+          cluster1,
+          cluster2,
+          id2distance
+        );
+        return Object.assign(map, {[id1]: maxNode1, [id2]: maxNode2});
+      },
+      {}
+    );
+    return leaves.map(leave => ({...leave, rep: id2rep[leave.id] || leave}));
+  }
+);
+
 export const getClusteringMatrixOrder = createSelector(
-  getHierachicalClusteringCutTree,
-  tree =>
-    getTreeLeaves(tree).map(({id, name, cluster}) => ({
-      id,
-      name,
-      rep: cluster && cluster[0]
-    }))
+  getHierarchicalClusteringCutClustering,
+  clustering => clustering.map(({id, name, rep}) => ({id, name, rep}))
 );
 
 export const getClusteringMatrix = createSelector(
   [getClusteringMatrixOrder, getId2DistanceFunction],
   (matrixOrder, id2Distance) => {
-    if (!matrixOrder) {
-      return null;
-    }
-    const matrixData = matrixOrder.map(({id: rowId, rep: rowRep}) => {
-      const rId = rowRep ? rowRep.id : rowId;
-      return matrixOrder.map(({id: colId, rep: colRep}) => {
-        const cId = colRep ? colRep.id : colId;
-        return id2Distance(rId, cId);
-      });
-    });
-    const names = matrixOrder.map(
-      ({id, name}) => name || Number(id).toString()
+    const matrixData = matrixOrder.map(({rep: {id: rowId}}) =>
+      matrixOrder.map(({rep: {id: colId}}) => id2Distance(rowId, colId))
     );
+
+    const names = matrixOrder.map(({rep: {name: repName}}) => repName);
     const {rows, cols, cells} = flattener().matrix(
       Matrix()
         .row_ids(names)
