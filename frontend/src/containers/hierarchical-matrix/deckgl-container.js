@@ -42,8 +42,8 @@ export default class Container extends PureComponent {
       paddings: [paddingH, paddingV]
     } = this.props;
     const matrixWidth = rows.length * w;
-    const data = rows.map((text, index) => ({
-      text,
+    const data = rows.map((row, index) => ({
+      ...row,
       position: [paddingH + matrixWidth + 5, index * h + h / 2 + paddingV]
     }));
     return [
@@ -51,7 +51,8 @@ export default class Container extends PureComponent {
         id: PANEL_ID_PREFIX + 'y-axis',
         data,
         getSize: 10,
-        getColor: [10, 10, 10],
+        getText: ({name}) => name,
+        getColor: ({isCluster}) => (isCluster ? [200, 10, 200] : [10, 10, 10]),
         getTextAnchor: 'start',
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY
       })
@@ -64,8 +65,8 @@ export default class Container extends PureComponent {
       paddings: [paddingH, paddingV]
     } = this.props;
     const matrixHeight = cols.length * h;
-    const data = cols.map((text, index) => ({
-      text,
+    const data = cols.map((row, index) => ({
+      ...row,
       position: [index * w + w / 2 + paddingH, paddingV + matrixHeight + 5]
     }));
     return [
@@ -73,7 +74,8 @@ export default class Container extends PureComponent {
         id: PANEL_ID_PREFIX + 'x-axis',
         data,
         getSize: 10,
-        getColor: [10, 10, 10],
+        getText: ({name}) => name,
+        getColor: ({isCluster}) => (isCluster ? [200, 10, 200] : [10, 10, 10]),
         getAngle: 70,
         getTextAnchor: 'end',
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY

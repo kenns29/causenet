@@ -209,7 +209,13 @@ export const getHierarchicalClusteringCutClustering = createSelector(
 
 export const getClusteringMatrixOrder = createSelector(
   getHierarchicalClusteringCutClustering,
-  clustering => clustering.map(({id, name, rep}) => ({id, name, rep}))
+  clustering =>
+    clustering.map(({id, name, rep, cluster}) => ({
+      id,
+      name,
+      rep,
+      isCluster: cluster.length > 1
+    }))
 );
 
 export const getClusteringMatrix = createSelector(
@@ -220,13 +226,22 @@ export const getClusteringMatrix = createSelector(
     );
 
     const names = matrixOrder.map(({rep: {name: repName}}) => repName);
-    const {rows, cols, cells} = flattener().matrix(
+    const {cells} = flattener().matrix(
       Matrix()
         .row_ids(names)
         .col_ids(names)
         .matrix_data(matrixData)
     );
-    return {rows: rows(), cols: cols(), cells: cells()};
+
+    const order = matrixOrder.map(({rep: {name}, isCluster}) => ({
+      name,
+      isCluster
+    }));
+    return {
+      rows: order,
+      cols: order,
+      cells: cells()
+    };
   }
 );
 
@@ -237,7 +252,7 @@ export const getClusteringMatrixPaddings = createSelector(
 
 export const getClusteringMatrixCellSize = createSelector(
   rootSelector,
-  state => [20, 20]
+  state => [10, 10]
 );
 
 export const getClusteringMatrixLayout = createSelector(
@@ -267,7 +282,7 @@ export const getClusteringMatrixLayout = createSelector(
 );
 export const getHierachicalClusteringLayoutHeight = createSelector(
   rootSelector,
-  () => 300
+  () => 100
 );
 export const getHierachicalClusteringLayoutHierarchy = createSelector(
   [
