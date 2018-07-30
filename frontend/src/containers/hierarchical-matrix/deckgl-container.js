@@ -38,13 +38,13 @@ export default class Container extends PureComponent {
   _renderRowTitle() {
     const {
       matrix: {rows},
-      cellSize,
+      cellSize: [w, h],
       paddings: [paddingH, paddingV]
     } = this.props;
-    const h = cellSize[1];
+    const matrixWidth = rows.length * w;
     const data = rows.map((text, index) => ({
       text,
-      position: [paddingH - 5, index * h + h / 2 + paddingV]
+      position: [paddingH + matrixWidth + 5, index * h + h / 2 + paddingV]
     }));
     return [
       new TextLayer({
@@ -52,7 +52,7 @@ export default class Container extends PureComponent {
         data,
         getSize: 10,
         getColor: [10, 10, 10],
-        getTextAnchor: 'end',
+        getTextAnchor: 'start',
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY
       })
     ];
@@ -60,13 +60,13 @@ export default class Container extends PureComponent {
   _renderColTitle() {
     const {
       matrix: {cols},
-      cellSize,
+      cellSize: [w, h],
       paddings: [paddingH, paddingV]
     } = this.props;
-    const w = cellSize[0];
+    const matrixHeight = cols.length * h;
     const data = cols.map((text, index) => ({
       text,
-      position: [index * w + w / 2 + paddingH, paddingV - 5]
+      position: [index * w + w / 2 + paddingH, paddingV + matrixHeight + 5]
     }));
     return [
       new TextLayer({
@@ -75,7 +75,7 @@ export default class Container extends PureComponent {
         getSize: 10,
         getColor: [10, 10, 10],
         getAngle: 70,
-        getTextAnchor: 'start',
+        getTextAnchor: 'end',
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY
       })
     ];
