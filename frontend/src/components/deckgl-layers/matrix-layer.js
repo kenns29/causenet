@@ -24,7 +24,8 @@ const defaultProps = {
   // left-top
   getPosition: d => [0, 0, 0],
   getColor: d => [0, 128, 0],
-  getAltColor: d => [128, 0, 0]
+  getAltColor: d => [128, 0, 0],
+  updateTriggers: {}
 };
 
 export default class MatrixLayer extends CompositeLayer {
@@ -32,14 +33,13 @@ export default class MatrixLayer extends CompositeLayer {
     const {
       id,
       data,
-      filters,
       layout: {x, y, dx, dy},
       coordinateSystem,
       getPosition,
       getColor,
-      getAltColor,
       onHover,
-      onClick
+      onClick,
+      updateTriggers
     } = this.props;
 
     return new LineLayer({
@@ -56,26 +56,10 @@ export default class MatrixLayer extends CompositeLayer {
         const p = getPosition(d);
         return [x + p[0] + dx, y + p[1] + dy / 2];
       },
-      getColor: d => {
-        const selected = Object.keys(filters).reduce((sel, key) => {
-          const filter = filters[key];
-          if (filter.type === 'EQUAL') {
-            return (sel |= filter.values.indexOf(d[key]) >= 0);
-          } else if (filter.type === 'RANGE') {
-            return (sel |=
-              d[key] >= filter.values[0] && d[key] <= filter.values[1]);
-          }
-          return sel;
-        }, false);
-        return selected ? getAltColor(d) : getColor(d);
-      },
+      getColor,
       onHover,
       onClick,
-      updateTriggers: {
-        getColor: Object.keys(filters)
-          .map(key => filters[key])
-          .join('-')
-      }
+      updateTriggers
     });
   }
 

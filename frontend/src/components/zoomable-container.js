@@ -10,7 +10,8 @@ export default class ZoomableContainer extends PureComponent {
     bottom: 0,
     width: 0,
     height: 0,
-    layers: []
+    layers: [],
+    style: {}
   };
   static propTypes = {
     zoomStep: PropTypes.number.isRequired,
@@ -20,7 +21,9 @@ export default class ZoomableContainer extends PureComponent {
     bottom: PropTypes.number.isRequired,
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
-    layers: PropTypes.arrayOf(PropTypes.instanceOf(Layer)).isRequired
+    layers: PropTypes.arrayOf(PropTypes.instanceOf(Layer)).isRequired,
+    style: PropTypes.object.isRequired,
+    getCursor: PropTypes.func
   };
   constructor(props) {
     super(props);
@@ -84,7 +87,17 @@ export default class ZoomableContainer extends PureComponent {
     this._moveEnd();
   };
   render() {
-    const {left, right, bottom, top, width, height, layers} = this.props;
+    const {
+      left,
+      right,
+      bottom,
+      top,
+      width,
+      height,
+      layers,
+      style,
+      getCursor
+    } = this.props;
     const {
       zoomScale,
       zoomOffset: [dx, dy]
@@ -108,7 +121,14 @@ export default class ZoomableContainer extends PureComponent {
         onMouseUp={this._handleMouseUp}
         onWheel={this._handleWheel}
       >
-        <DeckGL width={width} height={height} views={views} layers={layers}>
+        <DeckGL
+          width={width}
+          height={height}
+          views={views}
+          layers={layers}
+          style={style}
+          getCursor={getCursor}
+        >
           {this.props.children &&
             React.Children.map(
               this.props.children,

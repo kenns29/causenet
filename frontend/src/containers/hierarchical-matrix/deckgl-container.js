@@ -10,20 +10,39 @@ import ZoomableContainer from '../../components/zoomable-container';
 
 const PANEL_ID_PREFIX = 'clustering-matrix-';
 export default class Container extends PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = {
+      highlightedCell: null
+    };
+  }
+  _getAlpha = (rowId, colId) => {
+    const {highlightedCell: hc} = this.state;
+    return hc
+      ? ![[rowId, hc.row_id], [colId, hc.col_id]].some(
+        ([id, cId]) => id !== null && id !== undefined && id !== cId
+      )
+        ? 255
+        : 50
+      : 255;
+  };
   _renderMatrix() {
     const {
       matrix: {rows, cols, cells},
       cellSize: [w, h],
       paddings: [paddingH, paddingV]
     } = this.props;
-
+    const {highlightedCell} = this.state;
     return [
       new MatrixLayer({
         id: PANEL_ID_PREFIX + 'matrix-layer',
         data: cells,
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
-        getPosition: d => [d.x, d.y],
-        getColor: d => d.color,
+        getPosition: ({x, y}) => [x, y],
+        getColor: ({color, row_id: rowId, col_id: colId}) => [
+          ...color,
+          this._getAlpha(rowId, colId)
+        ],
         layout: {
           x: paddingH,
           y: paddingV,
@@ -31,6 +50,12 @@ export default class Container extends PureComponent {
           dy: h,
           width: cols.length * w,
           height: rows.length * h
+        },
+        onHover: ({object}) => {
+          this.setState({highlightedCell: object || null});
+        },
+        updateTriggers: {
+          getColor: highlightedCell
         }
       })
     ];
@@ -41,6 +66,7 @@ export default class Container extends PureComponent {
       cellSize: [w, h],
       paddings: [paddingH, paddingV]
     } = this.props;
+    const {highlightedCell} = this.state;
     const matrixWidth = rows.length * w;
     const data = rows.map((row, index) => ({
       ...row,
@@ -52,9 +78,15 @@ export default class Container extends PureComponent {
         data,
         getSize: 10,
         getText: ({name}) => name,
-        getColor: ({isCluster}) => (isCluster ? [200, 10, 200] : [10, 10, 10]),
+        getColor: ({name, isCluster}) => [
+          ...(isCluster ? [200, 10, 200] : [10, 10, 10]),
+          this._getAlpha(name, null)
+        ],
         getTextAnchor: 'start',
-        coordinateSystem: COORDINATE_SYSTEM.IDENTITY
+        coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+        updateTriggers: {
+          getColor: highlightedCell
+        }
       })
     ];
   }
@@ -75,7 +107,10 @@ export default class Container extends PureComponent {
         data,
         getSize: 10,
         getText: ({name}) => name,
-        getColor: ({isCluster}) => (isCluster ? [200, 10, 200] : [10, 10, 10]),
+        getColor: ({name, isCluster}) => [
+          ...(isCluster ? [200, 10, 200] : [10, 10, 10]),
+          this._getAlpha(null, name)
+        ],
         getAngle: 70,
         getTextAnchor: 'end',
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY
@@ -89,7 +124,7 @@ export default class Container extends PureComponent {
     } = this.props;
     return [
       new ScatterplotLayer({
-        id: PANEL_ID_PREFIX + '-col-tree-nodes',
+        id: PANEL_ID_PREFIX + 'col-tree-nodes',
         data: nodes,
         getRadius: 2,
         getColor: [100, 100, 100],
@@ -97,7 +132,7 @@ export default class Container extends PureComponent {
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY
       }),
       new LineLayer({
-        id: PANEL_ID_PREFIX + '-col-tree-lines',
+        id: PANEL_ID_PREFIX + 'col-tree-lines',
         data: links,
         getColor: [100, 100, 100],
         getStrokeWidth: 1,
@@ -120,7 +155,7 @@ export default class Container extends PureComponent {
     } = this.props;
     return [
       new ScatterplotLayer({
-        id: PANEL_ID_PREFIX + '-row-tree-nodes',
+        id: PANEL_ID_PREFIX + 'row-tree-nodes',
         data: nodes,
         getRadius: 2,
         getColor: [100, 100, 100],
@@ -128,7 +163,7 @@ export default class Container extends PureComponent {
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY
       }),
       new LineLayer({
-        id: PANEL_ID_PREFIX + '-row-tree-lines',
+        id: PANEL_ID_PREFIX + 'row-tree-lines',
         data: links,
         getColor: [100, 100, 100],
         getStrokeWidth: 1,
@@ -164,6 +199,7 @@ export default class Container extends PureComponent {
         bottom={height}
         top={0}
         layers={this._renderLayers()}
+        getCursor={() => 'pointer'}
       />
     );
   }
