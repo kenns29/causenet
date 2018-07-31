@@ -11,7 +11,9 @@ export default class ZoomableContainer extends PureComponent {
     width: 0,
     height: 0,
     layers: [],
-    style: {}
+    style: {},
+    onZoom: () => {},
+    onMove: () => {}
   };
   static propTypes = {
     zoomStep: PropTypes.number.isRequired,
@@ -23,7 +25,9 @@ export default class ZoomableContainer extends PureComponent {
     height: PropTypes.number.isRequired,
     layers: PropTypes.arrayOf(PropTypes.instanceOf(Layer)).isRequired,
     style: PropTypes.object.isRequired,
-    getCursor: PropTypes.func
+    getCursor: PropTypes.func,
+    onZoom: PropTypes.func.isRequired,
+    onMove: PropTypes.func.isRequired
   };
   constructor(props) {
     super(props);
@@ -85,6 +89,14 @@ export default class ZoomableContainer extends PureComponent {
   };
   _handleMouseUp = event => {
     this._moveEnd();
+  };
+  componentDidUpdate = (prevProps, prevState) => {
+    if (this.state.zoomScale !== prevState.zoomScale) {
+      this.props.onZoom(this.state.zoomScale);
+    }
+    if (this.state.zoomOffset !== prevState.zoomOffset) {
+      this.props.onMove(this.state.zoomOffset);
+    }
   };
   render() {
     const {

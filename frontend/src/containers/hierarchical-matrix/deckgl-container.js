@@ -3,18 +3,22 @@ import {
   TextLayer,
   ScatterplotLayer,
   LineLayer,
+  PolygonLayer,
   COORDINATE_SYSTEM
 } from 'deck.gl';
 import {MatrixLayer} from '../../components/deckgl-layers';
 import ZoomableContainer from '../../components/zoomable-container';
+import {makeTextLengthComputer} from '../../utils';
 
 const PANEL_ID_PREFIX = 'clustering-matrix-';
 export default class Container extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      highlightedCell: null
+      highlightedCell: null,
+      zoomScale: 1
     };
+    this._computeTextLength = makeTextLengthComputer(null, 10);
   }
   _getAlpha = (rowId, colId) => {
     const {highlightedCell: hc} = this.state;
@@ -72,7 +76,7 @@ export default class Container extends PureComponent {
       ...row,
       position: [paddingH + matrixWidth + 5, index * h + h / 2 + paddingV]
     }));
-    return [
+    const layers = [
       new TextLayer({
         id: PANEL_ID_PREFIX + 'y-axis',
         data,
@@ -89,6 +93,36 @@ export default class Container extends PureComponent {
         }
       })
     ];
+    const {zoomScale} = this.state;
+    const clusters = data.filter(row => row.isCluster).map(row => {
+      const {
+        name,
+        position: [x, y]
+      } = row;
+      const len = this._computeTextLength(name);
+      const [slen, sh] = [len, h].map(d => d * zoomScale);
+      const polygon = [
+        [x, y - sh / 2],
+        [x, y + sh / 2],
+        [x + slen, y + sh / 2],
+        [x + slen, y - sh / 2]
+      ];
+      const cluster = {...row, polygon};
+      delete cluster.position;
+      return cluster;
+    });
+    if (clusters.length > 0) {
+      layers.push(
+        new PolygonLayer({
+          id: PANEL_ID_PREFIX + 'y-axis-cluster',
+          data: clusters,
+          getFillColor: [50, 50, 50, 50],
+          getLineWidth: 0,
+          coordinateSystem: COORDINATE_SYSTEM.IDENTITY
+        })
+      );
+    }
+    return layers;
   }
   _renderColTitle() {
     const {
@@ -192,6 +226,7 @@ export default class Container extends PureComponent {
     const {width, height} = this.props;
     return (
       <ZoomableContainer
+        ref={input => (this.container = input)}
         width={width}
         height={height}
         left={0}
@@ -200,6 +235,9 @@ export default class Container extends PureComponent {
         top={0}
         layers={this._renderLayers()}
         getCursor={() => 'pointer'}
+        onZoom={zoomScale => {
+          this.setState({zoomScale});
+        }}
       />
     );
   }
