@@ -18,7 +18,7 @@ export default class Container extends PureComponent {
       highlightedCell: null,
       zoomScale: 1
     };
-    this._computeTextLength = makeTextLengthComputer(null, 10);
+    this._computeTextLength = makeTextLengthComputer({fontSize: 10});
   }
   _getAlpha = (rowId, colId) => {
     const {highlightedCell: hc} = this.state;
