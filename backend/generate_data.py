@@ -186,7 +186,7 @@ data_config = {
     },
     'lookalike_full_feature_cut_5': {
         'data_file': 'lookalike_full_feature_cut_5.bin',
-        'pdist_file': 'lookalike_full_feature_pdist.bin',
+        'pdist_file': 'lookalike_full_feature_cut_5_pdist.bin',
         'clustering_file': 'lookalike_full_feature_cut_5_clustering.bin'
     }
 }

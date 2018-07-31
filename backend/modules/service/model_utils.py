@@ -30,7 +30,10 @@ def write_model(model, name):
         pickle.dump(model, file)
     with open(model_config_dir, mode='r+', encoding='utf-8') as file:
         config = json.load(file)
-        models = config[current_dataset_name]
+        status = config[current_dataset_name]
+        if 'models' not in status:
+            status['models'] = {}
+        models = status['models']
         if name not in models:
             models[name] = {
                 'model_file': name
@@ -46,7 +49,10 @@ def delete_model(name):
     current_dataset_model_dir = get_current_dataset_model_dir()
     with open(model_config_dir, mode='r+', encoding='utf-8') as file:
         config = json.load(file)
-        models = config[current_dataset_name]
+        status = config[current_dataset_name]
+        if 'models' not in status:
+            return {}
+        models = status['models']
         model_stat = models.pop(name, None)
         if model_stat is not None:
             file.seek(0)
@@ -74,7 +80,8 @@ def write_weighted_edges(edges, name):
         pickle.dump(edges, file)
     with open(model_config_dir, mode='r+', encoding='utf-8') as file:
         config = json.load(file)
-        models = config[current_dataset_name]
+        status = config[current_dataset_name]
+        models = status['models']
         models[name]['edge_weights_file'] = 'weight.' + name
         file.seek(0)
         json.dump(config, file, indent='\t')
@@ -114,5 +121,16 @@ def train_model(data, name):
 
 
 def get_model_list():
-    models = get_current_dataset_model_status()
+    status = get_current_dataset_model_status()
+    if 'models' not in status:
+        return []
+    models = status['models']
     return [{'name': name, **value} for name, value in models.items()]
+
+
+def update_feature_selection():
+    return None
+
+
+def get_feature_selection():
+    return None
