@@ -8,7 +8,7 @@ import {
 } from 'deck.gl';
 import {MatrixLayer} from '../../components/deckgl-layers';
 import ZoomableContainer from '../../components/zoomable-container';
-import {makeTextLengthComputer} from '../../utils';
+import {makeTextLengthComputer, rotatePolygonOnZ} from '../../utils';
 
 const PANEL_ID_PREFIX = 'clustering-matrix-';
 export default class Container extends PureComponent {
@@ -135,7 +135,7 @@ export default class Container extends PureComponent {
       ...row,
       position: [index * w + w / 2 + paddingH, paddingV + matrixHeight + 5]
     }));
-    return [
+    const layers = [
       new TextLayer({
         id: PANEL_ID_PREFIX + 'x-axis',
         data,
@@ -150,6 +150,40 @@ export default class Container extends PureComponent {
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY
       })
     ];
+    const {zoomScale} = this.state;
+    const clusters = data.filter(row => row.isCluster).map(row => {
+      const {
+        name,
+        position: [x, y]
+      } = row;
+      const len = this._computeTextLength(name);
+      const [slen, sh] = [len, h].map(d => d * zoomScale);
+      const polygon = rotatePolygonOnZ({
+        points: [
+          [x, y - sh / 2],
+          [x, y + sh / 2],
+          [x - slen, y + sh / 2],
+          [x - slen, y - sh / 2]
+        ],
+        origin: [x, y, 0],
+        theta: (-70 / 180) * Math.PI
+      });
+      const cluster = {...row, polygon};
+      delete cluster.position;
+      return cluster;
+    });
+    if (clusters.length > 0) {
+      layers.push(
+        new PolygonLayer({
+          id: PANEL_ID_PREFIX + 'y-axis-cluster',
+          data: clusters,
+          getFillColor: [50, 50, 50, 50],
+          getLineWidth: 0,
+          coordinateSystem: COORDINATE_SYSTEM.IDENTITY
+        })
+      );
+    }
+    return layers;
   }
   _renderColTree() {
     const {
