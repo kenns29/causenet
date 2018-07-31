@@ -70,13 +70,35 @@ export default class Container extends PureComponent {
       cellSize: [w, h],
       paddings: [paddingH, paddingV]
     } = this.props;
-    const {highlightedCell} = this.state;
+    const {zoomScale} = this.state;
     const matrixWidth = rows.length * w;
-    const data = rows.map((row, index) => ({
-      ...row,
-      position: [paddingH + matrixWidth + 5, index * h + h / 2 + paddingV]
-    }));
-    const layers = [
+    const data = rows.map((row, index) => {
+      const {name} = row;
+      const [x, y] = [paddingH + matrixWidth + 5, index * h + h / 2 + paddingV];
+      const len = this._computeTextLength(name);
+      const [slen, sh] = [len, h].map(d => d * zoomScale);
+      return {
+        ...row,
+        position: [x, y],
+        polygon: [
+          [x, y - sh / 2],
+          [x, y + sh / 2],
+          [x + slen, y + sh / 2],
+          [x + slen, y - sh / 2]
+        ]
+      };
+    });
+    return [
+      new PolygonLayer({
+        id: PANEL_ID_PREFIX + 'y-axis-cluster',
+        data,
+        getFillColor: ({name, isCluster}) =>
+          isCluster
+            ? [180, 180, 180, this._getAlpha(name, null)]
+            : [255, 255, 255, 50],
+        getLineWidth: 0,
+        coordinateSystem: COORDINATE_SYSTEM.IDENTITY
+      }),
       new TextLayer({
         id: PANEL_ID_PREFIX + 'y-axis',
         data,
@@ -87,42 +109,9 @@ export default class Container extends PureComponent {
           this._getAlpha(name, null)
         ],
         getTextAnchor: 'start',
-        coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
-        updateTriggers: {
-          getColor: highlightedCell
-        }
+        coordinateSystem: COORDINATE_SYSTEM.IDENTITY
       })
     ];
-    const {zoomScale} = this.state;
-    const clusters = data.filter(row => row.isCluster).map(row => {
-      const {
-        name,
-        position: [x, y]
-      } = row;
-      const len = this._computeTextLength(name);
-      const [slen, sh] = [len, h].map(d => d * zoomScale);
-      const polygon = [
-        [x, y - sh / 2],
-        [x, y + sh / 2],
-        [x + slen, y + sh / 2],
-        [x + slen, y - sh / 2]
-      ];
-      const cluster = {...row, polygon};
-      delete cluster.position;
-      return cluster;
-    });
-    if (clusters.length > 0) {
-      layers.push(
-        new PolygonLayer({
-          id: PANEL_ID_PREFIX + 'y-axis-cluster',
-          data: clusters,
-          getFillColor: [50, 50, 50, 50],
-          getLineWidth: 0,
-          coordinateSystem: COORDINATE_SYSTEM.IDENTITY
-        })
-      );
-    }
-    return layers;
   }
   _renderColTitle() {
     const {
@@ -130,12 +119,42 @@ export default class Container extends PureComponent {
       cellSize: [w, h],
       paddings: [paddingH, paddingV]
     } = this.props;
+    const {zoomScale} = this.state;
     const matrixHeight = cols.length * h;
-    const data = cols.map((row, index) => ({
-      ...row,
-      position: [index * w + w / 2 + paddingH, paddingV + matrixHeight + 5]
-    }));
-    const layers = [
+    const data = cols.map((row, index) => {
+      const {name} = row;
+      const [x, y] = [
+        index * w + w / 2 + paddingH,
+        paddingV + matrixHeight + 5
+      ];
+      const len = this._computeTextLength(name);
+      const [slen, sh] = [len, h].map(d => d * zoomScale);
+      return {
+        ...row,
+        position: [x, y],
+        polygon: rotatePolygonOnZ({
+          points: [
+            [x, y - sh / 2],
+            [x, y + sh / 2],
+            [x - slen, y + sh / 2],
+            [x - slen, y - sh / 2]
+          ],
+          origin: [x, y, 0],
+          theta: (-70 / 180) * Math.PI
+        })
+      };
+    });
+    return [
+      new PolygonLayer({
+        id: PANEL_ID_PREFIX + 'y-axis-cluster',
+        data,
+        getFillColor: ({name, isCluster}) =>
+          isCluster
+            ? [180, 180, 180, this._getAlpha(null, name)]
+            : [255, 255, 255, 50],
+        getLineWidth: 0,
+        coordinateSystem: COORDINATE_SYSTEM.IDENTITY
+      }),
       new TextLayer({
         id: PANEL_ID_PREFIX + 'x-axis',
         data,
@@ -150,40 +169,6 @@ export default class Container extends PureComponent {
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY
       })
     ];
-    const {zoomScale} = this.state;
-    const clusters = data.filter(row => row.isCluster).map(row => {
-      const {
-        name,
-        position: [x, y]
-      } = row;
-      const len = this._computeTextLength(name);
-      const [slen, sh] = [len, h].map(d => d * zoomScale);
-      const polygon = rotatePolygonOnZ({
-        points: [
-          [x, y - sh / 2],
-          [x, y + sh / 2],
-          [x - slen, y + sh / 2],
-          [x - slen, y - sh / 2]
-        ],
-        origin: [x, y, 0],
-        theta: (-70 / 180) * Math.PI
-      });
-      const cluster = {...row, polygon};
-      delete cluster.position;
-      return cluster;
-    });
-    if (clusters.length > 0) {
-      layers.push(
-        new PolygonLayer({
-          id: PANEL_ID_PREFIX + 'y-axis-cluster',
-          data: clusters,
-          getFillColor: [50, 50, 50, 50],
-          getLineWidth: 0,
-          coordinateSystem: COORDINATE_SYSTEM.IDENTITY
-        })
-      );
-    }
-    return layers;
   }
   _renderColTree() {
     const {
