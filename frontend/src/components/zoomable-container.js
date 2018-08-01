@@ -26,14 +26,14 @@ export default class ZoomableContainer extends PureComponent {
     layers: PropTypes.arrayOf(PropTypes.instanceOf(Layer)).isRequired,
     style: PropTypes.object.isRequired,
     getCursor: PropTypes.func,
-    onZoom: PropTypes.func.isRequired,
-    onMove: PropTypes.func.isRequired
+    onZoom: PropTypes.func.isRequired, // callback function after zoom is triggered
+    onMove: PropTypes.func.isRequired // callback function after pan is triggered
   };
   constructor(props) {
     super(props);
     this.state = {
-      zoomScale: 1,
-      zoomOffset: [0, 0],
+      zoomScale: 1, // zoomScale < 1 for zoom out, zoomScale > 1 for zoom out
+      zoomOffset: [0, 0], // the panning offset -- [x offset, y offset]
       drag: {
         move: null // drag start mouse position - [x, y]
       }

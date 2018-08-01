@@ -17,11 +17,29 @@ const DEFAULT_STATE = {
   screenWidth: 0,
   screenHeight: 0,
   isFetchingData: false,
-  currentDatasetName: null,
-  datasetList: [],
+  currentDatasetName: null, // the current dataset name
+  datasetList: [], // the names of all the available datasets
+  // the raw Bayesian Network data:
+  // [
+  //  {
+  //  source: (the source name),
+  //  target: (the target name),
+  //  weight: (the edge weight)
+  //  },
+  //  ...]
   bayesianNetwork: [],
+  // the raw hierarchical clustering tree:
+  // {
+  //  id,
+  //  name: (name of the node, only defined in leaf nodes),
+  //  count: (number of descendends of the node),
+  //  dist: (the max distance of pairs within the cluster node),
+  //  children: [...]
+  //  }
   hierarchicalClusteringTree: null,
   hierarchicalClusteringCutThreshold: 1,
+  // the raw distance map:
+  // {'id1-id2': (dist), ...} -- id1 < id2
   distanceMap: {},
   selectedModel: null,
   modelList: [],
