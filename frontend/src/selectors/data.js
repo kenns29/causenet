@@ -58,6 +58,11 @@ export const getNodeLinkViewOptions = createSelector(
   state => state.nodeLinkViewOptions
 );
 
+/**
+ * Obtain a map (label -> Node) in the bayesian network
+ * @param {Array} rawBayesianNetwork
+ * @return {Object} the map
+ */
 export const getNodeMap = createSelector(getRawBayesianNetwork, data =>
   data.reduce((map, {source, target}) => {
     return [source, target].reduce(
@@ -68,6 +73,14 @@ export const getNodeMap = createSelector(getRawBayesianNetwork, data =>
   }, {})
 );
 
+/**
+ * Obtain the Bayesian Network in matrix form. The resulting matrix is flattened
+ * @param {Array} rawBayesianNetwork
+ * @return {Object} the flattened matrix:
+ * rows: matrix rows -- Array of labels
+ * cols: matrix columns -- Array of labels
+ * cells: matrix cells -- Array of cells
+ */
 export const getMatrix = createSelector(getRawBayesianNetwork, data => {
   const generate = links2generator()
     .links(data)
@@ -106,6 +119,9 @@ export const getMatrixCellSize = createSelector(rootSelector, state => [
   20
 ]);
 
+/**
+ * Obtain the Bayesian Network matrix layout
+ */
 export const getMatrixLayout = createSelector(
   [getMatrix, getMatrixCellSize, getMatrixDomain],
   ({rows, cols, cells}, [w, h], [min, max]) => {
@@ -128,6 +144,10 @@ export const getMatrixLayout = createSelector(
   }
 );
 
+/**
+ * Obtain the Bayesian Network in a direct acyclic graph (DAG) layout using
+ * the Dagre JavaScript library <https://github.com/dagrejs/dagre>
+ */
 export const getDagLayout = createSelector(
   [getRawBayesianNetwork, getNodeMap],
   (links, nodeMap) => {
@@ -178,6 +198,11 @@ export const getHierachicalClusteringCutTree = createSelector(
   getCutTree
 );
 
+/**
+ * Obtain the cut clustering, each cluster is assigned a representative (rep)
+ * node based on the maximum distance pair between this cluster and its sibline
+ * cluster.
+ */
 export const getHierarchicalClusteringCutClustering = createSelector(
   [getHierachicalClusteringCutTree, getId2DistanceFunction],
   (tree, id2distance) => {
@@ -207,6 +232,10 @@ export const getHierarchicalClusteringCutClustering = createSelector(
   }
 );
 
+/**
+ * Obtain the row and column order for the hierarchical clustering matrix,
+ * row and column should have identical orders
+ */
 export const getClusteringMatrixOrder = createSelector(
   getHierarchicalClusteringCutClustering,
   clustering =>
@@ -218,6 +247,9 @@ export const getClusteringMatrixOrder = createSelector(
     }))
 );
 
+/**
+ * Obtain the flattened hierarchical clustering matrix
+ */
 export const getClusteringMatrix = createSelector(
   [getClusteringMatrixOrder, getId2DistanceFunction],
   (matrixOrder, id2Distance) => {
@@ -255,6 +287,9 @@ export const getClusteringMatrixCellSize = createSelector(
   state => [10, 10]
 );
 
+/**
+ * Obtain the hierarchical clustering matrix layout
+ */
 export const getClusteringMatrixLayout = createSelector(
   [getClusteringMatrix, getClusteringMatrixCellSize],
   (matrix, [w, h]) => {
@@ -280,10 +315,17 @@ export const getClusteringMatrixLayout = createSelector(
     };
   }
 );
+
 export const getHierachicalClusteringLayoutHeight = createSelector(
   rootSelector,
   () => 100
 );
+
+/**
+ * Obtain the d3 hierarchy object from the hierarchical clustering cut tree.
+ * refer to d3-hierarchy<https://github.com/d3/d3-hierarchy> for more detail
+ * This will be used for the dendogram layout generation
+ */
 export const getHierachicalClusteringLayoutHierarchy = createSelector(
   [
     getHierachicalClusteringCutTree,
@@ -303,6 +345,12 @@ export const getHierachicalClusteringLayoutHierarchy = createSelector(
   }
 );
 
+/**
+ * Generate a dendogram layout for the hierarchical matrix columns
+ * @return {Object} -- the layout
+ * nodes -- the internal nodes of the dendogram
+ * links -- the paths connecting the nodes
+ */
 export const getHierarchicalClusteringVerticalTreeLayout = createSelector(
   [
     getHierachicalClusteringLayoutHierarchy,
@@ -357,6 +405,12 @@ export const getHierarchicalClusteringVerticalTreeLayout = createSelector(
   }
 );
 
+/**
+ * Generate a dendogram layout for the hierarchical matrix rows
+ * @return {Object} -- the layout
+ * nodes -- the internal nodes of the dendogram
+ * links -- the paths connecting the nodes
+ */
 export const getHierarchicalClusteringHorizontalTreeLayout = createSelector(
   getHierarchicalClusteringVerticalTreeLayout,
   layout => {

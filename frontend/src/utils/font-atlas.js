@@ -1,3 +1,6 @@
+/**
+ * A temporary solution for computing character width, this piece of code is taken from deck.gl
+ */
 import {document} from 'global';
 const MAX_CANVAS_WIDTH = 1024;
 const DEFAULT_FONT_SIZE = 64;

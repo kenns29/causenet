@@ -27,8 +27,8 @@ export const rotatePolygonOnZ = ({points = [], origin, theta, cos, sin}) => {
 
 export const makeLineArrow = ({
   line: [[sx = 0, sy = 0, sz = 0], [tx = 0, ty = 0, tz = 0]],
-  l,
-  w
+  l, // the length of the arrow
+  w // the width of the arrow
 }) => {
   const hyp = Math.sqrt(
     (tx - sx) * (tx - sx) + (ty - sy) * (ty - sy) + (tz - sz) * (tz - sz)
