@@ -1,3 +1,11 @@
+"""
+Utilities for computing the edge weights using mutual information.
+
+Reference:
+[1] Nicholson, Ann E., and Nathalie Jitnah. "Using mutual information to determine relevance in Bayesian networks."
+In Pacific rim international conference on artificial intelligence, pp. 399-410. Springer, Berlin, Heidelberg, 1998.
+<http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.56.8930&rep=rep1&type=pdf>
+"""
 from functools import reduce
 import math
 
@@ -11,6 +19,13 @@ def col(j, table):
 
 
 def get_prior(cpd):
+    """
+    Estimate the prior probability of a variable given its CPD, the prior for a value is estimated by averaging all
+    conditional probabilities with that value
+
+    :param cpd: CPD of the variable -- TabularCPD
+    :return: A list of prior probabilities for all the values of the variable
+    """
     table = cpd.get_values()
     ev = cpd.get_evidence()
     if not ev:
@@ -23,6 +38,13 @@ def get_priors(model):
 
 
 def enumerate_evidences(ev, card):
+    """
+    Enumerate all cardinality of the evidences (TODO: replace this function with the itertools.combinations utility)
+
+    :param ev: evidences -- List
+    :param card: cardinality of each of the evidences -- dict<str, int>
+    :return: A list of tuples that enumerates all the possible combinations of the cardinality
+    """
     def recurse(i, ev, card, stack, tuples):
         ev_len = len(ev)
         if i >= ev_len:
@@ -36,26 +58,6 @@ def enumerate_evidences(ev, card):
     tuples = []
     if ev:
         recurse(0, ev[::-1], card, [], tuples)
-    return tuples
-
-
-def _enumerate_evidences(ev, card):
-    if not ev:
-        return []
-    tuples = []
-    ev_len = len(ev)
-    stack = [0]
-    while stack:
-        s_len = len(stack)
-        print(stack)
-        if s_len == ev_len:
-            tuples.append(tuple([stack[ev_len - index - 1] for index, key in enumerate(ev)]))
-        stack[-1] += 1
-        if stack[-1] >= card[ev[-s_len]]:
-            stack.pop()
-        elif s_len < ev_len:
-            stack.append(0)
-    print(ev, card, tuples)
     return tuples
 
 
@@ -92,6 +94,15 @@ def enumerate_cpd_evidence_dicts(cpd):
 
 
 def get_edge_weight(edge, model, priors):
+    """
+    Compute the weight of the edge based on the fitted CPDs. This is an implementation of the equation
+    in section 3.2 of Nicholson et. al[1]
+
+    :param edge: A tuple of str, (A, B), indicating an edge from A to B -- tuple
+    :param model: Bayesian Network model with fitted CPDs -- BayesianModel
+    :param priors: The estimated prior probabilities of each variables in the model -- list<float>
+    :return: weight -- float
+    """
     (x, y) = edge
     cpd = model.get_cpds(y)
     evidences = cpd.get_evidence()
@@ -116,6 +127,13 @@ def get_edge_weight(edge, model, priors):
 
 
 def get_edge_weights(model):
+    """
+    Compute the weights of edges in the Bayesian Network model
+
+    :param model: Bayesian Network model with fitted CPDs -- BayesianModel
+    :return: A list of tuples with the following format [((A, B), W), ...], in which the tuple (A, B) is the edge and
+    W is the weight.
+    """
     edges = model.edges()
     priors = get_priors(model)
     return [tuple([edge, get_edge_weight(edge, model, priors)]) for edge in edges]

@@ -90,6 +90,14 @@ def write_weighted_edges(edges, name):
 
 
 def blip_learn_structure(data):
+    """
+    Learn the Bayesian Network Structure using the blip java library:
+    <https://github.com/mauro-idsia/blip>
+    Using python subprocess to invoke the library executable, which is stored in backend/jars/
+
+    :param data: Pandas DataFrame
+    :return: edges in list of tuples
+    """
     blip_data = to_blip_str(data)
     index2col = get_index2col(data)
     with open(blip_data_dir + '/input.dat', mode='w+', encoding='utf-8') as score_file:
@@ -103,6 +111,7 @@ def blip_learn_structure(data):
 
     with open(blip_data_dir + '/structure.res', mode='r', encoding='utf-8') as structure_file:
         structure = structure_file.read()
+        # Parse the result from the blip library
         m = re.findall(r'(?:\b(\d+):\s+(?:-?\d+(?:\.\d+)?)\s+(?:\((\d+)(?:,(\d+))*\)))', structure)
         edges = []
         for t in m:

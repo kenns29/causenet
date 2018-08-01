@@ -1,8 +1,14 @@
 import numpy as np
 
 
-# @param node (ClusterNode)
 def tree2dict(node, index2col=None):
+    """
+    Convert the tree to a dictionary
+
+    :param node: root of the tree -- ClusterNode
+    :param index2col: (Optional) a mapping from id of the leaf node to its variable name
+    :return: the dictionary
+    """
     if not node:
         return None
     d = {
@@ -18,6 +24,14 @@ def tree2dict(node, index2col=None):
 
 
 def tree_to_non_binary_dict(node, index2col=None):
+    """
+    Convert the tree to non binary tree format dictionary, in which the children of each node is stored in the
+    children list.
+
+    :param node: root of the tree -- ClusterNode
+    :param index2col: (Optional) a mapping from id of the leaf node to its variable name
+    :return: the dictionary
+    """
     if not node:
         return None
     children = []
@@ -38,13 +52,11 @@ def tree_to_non_binary_dict(node, index2col=None):
     return d
 
 
-# @param clustering (ndarray) -- the scipy hierarchy matrix
 def normalize_clustering_dist(clustering):
     max_dist = clustering[-1][2]
     return np.array([[n1, n2, n_dist / max_dist, num] for n1, n2, n_dist, num in clustering])
 
 
-# @param root (ClusterNode)
 def cut_tree_by_dist(root, threshold):
     def recurse(node, nodes):
         if not node:
@@ -59,7 +71,6 @@ def cut_tree_by_dist(root, threshold):
     return nodes
 
 
-# @param root (ClusterNode)
 def get_leaf_nodes(root):
     def recurse(node, nodes):
         if node.is_leaf():

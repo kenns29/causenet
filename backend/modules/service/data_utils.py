@@ -47,6 +47,13 @@ def load_clustering():
 
 
 def get_feature_pdist(data):
+    """
+    Compute the correlation distance [0, 2] between each features in the data.
+    Converts the categorical data to numerical values before the computation
+
+    :param data: input data -- DataFrame
+    :return: the condensed SciPy distance matrix
+    """
     value_converters = get_blip_value_converters(data)
     blip_data = to_blip_data(data, value_converters)
     matrix = blip_data.values.astype('double').transpose()
@@ -70,6 +77,17 @@ def get_index2col(data):
 
 
 def to_blip_str(data, value_converters=None):
+    """
+    Convert the data frame to the string format that blip recognizes:
+    * First line: list of variables names, separated by space;
+    * Second line: list of variables cardinalities, separated by space;
+    * Following lines: list of values taken by the variables in each datapoint, separated by space.
+
+    :param data: input data -- DataFrame
+    :param value_converters: (Optional) converts the categorical values in each feature to an integer
+    representation -- list<dict>
+    :return: the blip input string
+    """
     val_converters = get_blip_value_converters(data) if not value_converters else value_converters
     header = ' '.join(data.keys())
     cards = ' '.join([str(data[col].cat.categories.size) for col in data])
