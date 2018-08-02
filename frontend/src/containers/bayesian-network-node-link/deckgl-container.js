@@ -1,12 +1,7 @@
 import React, {PureComponent} from 'react';
-import {
-  ScatterplotLayer,
-  PathLayer,
-  TextLayer,
-  PolygonLayer,
-  COORDINATE_SYSTEM
-} from 'deck.gl';
+import {PathLayer, TextLayer, PolygonLayer, COORDINATE_SYSTEM} from 'deck.gl';
 import ZoomableContainer from '../../components/zoomable-container';
+import {StrokedScatterplotLayer} from '../../components/deckgl-layers';
 import {makeLineArrow} from '../../utils';
 const ID = 'bayesian-network-node-link';
 export default class ContentPanel extends PureComponent {
@@ -15,12 +10,14 @@ export default class ContentPanel extends PureComponent {
       data: {nodes}
     } = this.props;
     return [
-      new ScatterplotLayer({
-        id: ID + '-scatterplot-layer',
+      new StrokedScatterplotLayer({
+        id: ID + '-stroked-scatterplot-layer',
         data: nodes,
         getPosition: ({x, y}) => [x, y],
         getRadius: ({width, height}) => Math.max(width, height) / 2,
-        getColor: () => [64, 64, 64],
+        getFillColor: () => [0, 100, 0],
+        getStrokeColor: () => [100, 0, 0],
+        strokeWidth: 2,
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY
       })
     ];
@@ -73,6 +70,7 @@ export default class ContentPanel extends PureComponent {
           getText: ({label}) => label,
           getPosition: ({x, y}) => [x, y],
           getSize: 10,
+          getAngle: 45,
           coordinateSystem: COORDINATE_SYSTEM.IDENTITY
         })
       ]

@@ -163,7 +163,7 @@ export const getDagLayout = createSelector(
   (links, nodeMap) => {
     const nodes = Object.values(nodeMap);
     const dag = new dagre.graphlib.Graph();
-    dag.setGraph({});
+    dag.setGraph({rankdir: 'LR'});
     dag.setDefaultEdgeLabel(() => {});
     nodes.forEach(node => {
       dag.setNode(node.label, {...node, width: 20, height: 20});
