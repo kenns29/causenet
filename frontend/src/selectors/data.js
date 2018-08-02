@@ -38,6 +38,11 @@ export const getRawBayesianNetwork = createSelector(
   state => state.bayesianNetwork
 );
 
+export const getRawBayesianModelFeatures = createSelector(
+  rootSelector,
+  state => state.bayesianModelFeatures
+);
+
 export const getRawHierarchicalClusteringTree = createSelector(
   rootSelector,
   state => state.hierarchicalClusteringTree

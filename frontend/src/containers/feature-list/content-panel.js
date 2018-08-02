@@ -3,9 +3,14 @@ import {connect} from 'react-redux';
 import {Tabs} from 'antd';
 import AllFeatureList from './all-feature-list';
 import SelectedFeatureList from './selected-feature-list';
+import ModelFeatureList from './model-feature-list';
+import {getRawBayesianModelFeatures} from '../../selectors/data';
+
 const mapDispatchToProps = {};
 
-const mapStateToProps = state => ({});
+const mapStateToProps = state => ({
+  bayesianModelFeatures: getRawBayesianModelFeatures(state)
+});
 
 class ContentPanel extends PureComponent {
   get containerStyle() {
@@ -15,7 +20,7 @@ class ContentPanel extends PureComponent {
   }
 
   render() {
-    const {width, height} = this.props;
+    const {width, height, bayesianModelFeatures} = this.props;
     return (
       <div style={this.containerStyle} width={width} height={height}>
         <Tabs defaultActiveKey="all">
@@ -25,6 +30,11 @@ class ContentPanel extends PureComponent {
           <Tabs.TabPane tab="Selected Features" key="selected">
             <SelectedFeatureList />
           </Tabs.TabPane>
+          {bayesianModelFeatures.length && (
+            <Tabs.TabPane tab="Model Features" key="model">
+              <ModelFeatureList features={bayesianModelFeatures} />
+            </Tabs.TabPane>
+          )}
         </Tabs>
       </div>
     );

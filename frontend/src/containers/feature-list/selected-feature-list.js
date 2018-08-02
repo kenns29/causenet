@@ -8,7 +8,7 @@ const mapStateToProps = state => ({
   features: getRawFeatureSelection(state)
 });
 
-class SelectedFeatureList extends PureComponent {
+class FeatureList extends PureComponent {
   render() {
     const {features} = this.props;
     const dataSource = features || [];
@@ -31,4 +31,4 @@ class SelectedFeatureList extends PureComponent {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(SelectedFeatureList);
+)(FeatureList);

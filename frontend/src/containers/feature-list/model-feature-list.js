@@ -1,14 +1,7 @@
 import React, {PureComponent} from 'react';
-import {connect} from 'react-redux';
 import {List} from 'antd';
-import {getFeatureList} from '../../selectors/data';
-const mapDispatchToProps = {};
 
-const mapStateToProps = state => ({
-  features: getFeatureList(state)
-});
-
-class FeatureList extends PureComponent {
+export default class FeatureList extends PureComponent {
   render() {
     const {features} = this.props;
     const dataSource = features || [];
@@ -19,16 +12,11 @@ class FeatureList extends PureComponent {
           size: 'small',
           pageSize: 10
         }}
-        size="small"
         dataSource={dataSource}
+        size="small"
         renderItem={item => <List.Item>{item}</List.Item>}
         style={{marginLeft: 5}}
       />
     );
   }
 }
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(FeatureList);
