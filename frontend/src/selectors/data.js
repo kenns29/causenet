@@ -191,6 +191,11 @@ export const getId2DistanceFunction = createSelector(
   }
 );
 
+export const getFeatureList = createSelector(
+  getRawHierarchicalClusteringTree,
+  tree => getTreeLeaves(tree).map(d => d.name)
+);
+
 export const getHierachicalClusteringCut = createSelector(
   [getRawHierarchicalClusteringTree, getHierarchicalClusteringCutThreshold],
   (tree, threshold) => {

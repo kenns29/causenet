@@ -1,6 +1,7 @@
 import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
 import {Tabs} from 'antd';
+import AllFeatureList from './all-feature-list';
 import SelectedFeatureList from './selected-feature-list';
 const mapDispatchToProps = {};
 
@@ -18,7 +19,9 @@ class ContentPanel extends PureComponent {
     return (
       <div style={this.containerStyle} width={width} height={height}>
         <Tabs defaultActiveKey="all">
-          <Tabs.TabPane tab="All Features" key="all" />
+          <Tabs.TabPane tab="All Features" key="all">
+            <AllFeatureList />
+          </Tabs.TabPane>
           <Tabs.TabPane tab="Selected Features" key="selected">
             <SelectedFeatureList />
           </Tabs.TabPane>
