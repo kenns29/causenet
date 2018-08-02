@@ -143,3 +143,27 @@ export const fetchDistanceMap = () => async dispatch => {
     throw new Error(err);
   }
 };
+
+export const fetchFeatureSelection = () => async dispatch => {
+  try {
+    const response = await fetch(`${BACKEND_URL}/load_feature_selection`);
+    const data = await response.json();
+    return Promise.resolve(data);
+  } catch (err) {
+    throw new Error(err);
+  }
+};
+
+export const requestUpdateFeatureSelection = features => async dispatch => {
+  try {
+    const response = await fetch(`${BACKEND_URL}/update_feature_selection`, {
+      method: 'POST',
+      body: JSON.stringify(features)
+    });
+    const data = await response.json();
+    console.log('feature_Selection', data);
+    return Promise.resolve(data);
+  } catch (err) {
+    throw new Error(err);
+  }
+};

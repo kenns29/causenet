@@ -122,7 +122,9 @@ def blip_learn_structure(data):
 
 
 def train_model(data, name):
-    edges = blip_learn_structure(data)
+    feature_selection = get_feature_selection()
+    filtered_data = data.filter(feature_selection) if feature_selection else data
+    edges = blip_learn_structure(filtered_data)
     model = BayesianModel(edges)
     model.fit(data, estimator=BayesianEstimator, prior_type='BDeu')
     write_model(model, name)
@@ -137,9 +139,29 @@ def get_model_list():
     return [{'name': name, **value} for name, value in models.items()]
 
 
-def update_feature_selection():
-    return None
+def update_feature_selection(features):
+    if features is not None and not isinstance(features, list):
+        raise TypeError('Unexpected Parameter: expecting a None or list')
+    with open(model_config_dir, mode='r+') as file:
+        config = json.load(file)
+        status = config[get_current_dataset_name()]
+        if features is None:
+            status.pop('feature_selection', None)
+        else:
+            status['feature_selection'] = features
+        file.seek(0)
+        json.dump(config, file, indent='\t')
+        file.truncate()
+        return features
 
 
 def get_feature_selection():
-    return None
+    """
+    Obtain the feature selection
+
+    :return: A list of selected features or None if no feature is selected (which means selecting all features)
+    """
+    with open(model_config_dir, mode='r') as file:
+        config = json.load(file)
+        status = config[get_current_dataset_name()]
+        return status['feature_selection'] if 'feature_selection' in status else None

@@ -1,6 +1,6 @@
-from flask import Blueprint, jsonify, request, redirect, url_for
+from flask import Blueprint, jsonify, request, redirect, url_for, json
 from modules.service.model_utils import get_model, delete_model, blip_learn_structure, train_model, \
-    get_weighted_edges, write_weighted_edges, get_model_list
+    get_weighted_edges, write_weighted_edges, get_model_list, update_feature_selection, get_feature_selection
 from modules.service.edge_weights import get_edge_weights
 from modules.service.data_utils import load_data, load_pdist, load_clustering, get_current_dataset_name, \
     get_dataset_config, update_current_dataset_name as update_current_dataset_name_util, get_index2col
@@ -139,3 +139,14 @@ def train_bayesian_model():
 @blueprint.route('/load_model_list', methods=['GET'])
 def load_model_list():
     return jsonify(get_model_list())
+
+
+@blueprint.route('/load_feature_selection', methods=['GET'])
+def load_feature_selection():
+    return jsonify(get_feature_selection())
+
+
+@blueprint.route('/update_feature_selection', methods=['POST'])
+def route_update_feature_selection():
+    update_feature_selection(json.loads(request.data))
+    return redirect(url_for('.load_feature_selection'))

@@ -5,7 +5,8 @@ import {
   fetchDatasetList,
   fetchModelList,
   fetchHierarchicalClusteringTree,
-  fetchDistanceMap
+  fetchDistanceMap,
+  fetchFeatureSelection
 } from '../actions';
 
 const mapDispatchToProps = {
@@ -13,7 +14,8 @@ const mapDispatchToProps = {
   fetchDatasetList,
   fetchModelList,
   fetchHierarchicalClusteringTree,
-  fetchDistanceMap
+  fetchDistanceMap,
+  fetchFeatureSelection
 };
 
 const mapStateToProps = state => ({});
