@@ -58,8 +58,8 @@ class AppContainer extends PureComponent {
     } = this.props;
     return {
       position: 'relative',
-      display: 'inline-block',
-      border: '1px solid black',
+      float: 'left',
+      border: '1px solid lightgrey',
       width,
       height
     };
@@ -70,8 +70,8 @@ class AppContainer extends PureComponent {
     } = this.props;
     return {
       position: 'relative',
-      display: 'inline-block',
-      border: '1px solid black',
+      float: 'left',
+      border: '1px solid lightgrey',
       width,
       height
     };
@@ -82,8 +82,8 @@ class AppContainer extends PureComponent {
     } = this.props;
     return {
       position: 'relative',
-      display: 'inline-block',
-      border: '1px solid black',
+      float: 'left',
+      border: '1px solid lightgrey',
       width,
       height
     };
@@ -94,8 +94,8 @@ class AppContainer extends PureComponent {
     } = this.props;
     return {
       position: 'relative',
-      display: 'inline-block',
-      border: '1px solid black',
+      float: 'left',
+      border: '1px solid lightgrey',
       width,
       height
     };
