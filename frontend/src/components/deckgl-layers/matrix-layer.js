@@ -69,10 +69,6 @@ export default class MatrixLayer extends CompositeLayer {
     //   onClick,
     //   updateTriggers
     // });
-    const triggers = {
-      ...updateTriggers,
-      getFillColor: updateTriggers.getColor
-    };
     return new PolygonLayer({
       id: `${id}-cells`,
       data,
@@ -91,7 +87,10 @@ export default class MatrixLayer extends CompositeLayer {
       getFillColor: getColor,
       onHover,
       onClick,
-      updateTriggers: triggers,
+      updateTriggers: {
+        ...updateTriggers,
+        getFillColor: updateTriggers.getColor
+      },
       getLineWidth: 0
     });
   }
