@@ -53,6 +53,11 @@ export const getRawDistanceMap = createSelector(
   state => state.distanceMap
 );
 
+export const getRawFeatureSelection = createSelector(
+  rootSelector,
+  state => state.featureSelection
+);
+
 export const getNodeLinkViewOptions = createSelector(
   rootSelector,
   state => state.nodeLinkViewOptions
@@ -251,8 +256,8 @@ export const getClusteringMatrixOrder = createSelector(
  * Obtain the flattened hierarchical clustering matrix
  */
 export const getClusteringMatrix = createSelector(
-  [getClusteringMatrixOrder, getId2DistanceFunction],
-  (matrixOrder, id2Distance) => {
+  [getClusteringMatrixOrder, getId2DistanceFunction, getRawFeatureSelection],
+  (matrixOrder, id2Distance, featureSelection) => {
     const matrixData = matrixOrder.map(({rep: {id: rowId}}) =>
       matrixOrder.map(({rep: {id: colId}}) => id2Distance(rowId, colId))
     );
@@ -265,9 +270,11 @@ export const getClusteringMatrix = createSelector(
         .matrix_data(matrixData)
     );
 
+    const featureSelectionSet = new Set(featureSelection);
     const order = matrixOrder.map(({rep: {name}, isCluster}) => ({
       name,
-      isCluster
+      isCluster,
+      isSelection: featureSelectionSet.has(name)
     }));
     return {
       rows: order,

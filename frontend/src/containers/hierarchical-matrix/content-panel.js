@@ -6,17 +6,20 @@ import {
   getHierarchicalClusteringVerticalTreeLayout,
   getHierarchicalClusteringHorizontalTreeLayout,
   getClusteringMatrixCellSize,
-  getClusteringMatrixPaddings
+  getClusteringMatrixPaddings,
+  getRawFeatureSelection
 } from '../../selectors/data';
+import {requestUpdateFeatureSelection} from '../../actions';
 
-const mapDispatchToProps = {};
+const mapDispatchToProps = {requestUpdateFeatureSelection};
 
 const mapStateToProps = state => ({
   colTree: getHierarchicalClusteringVerticalTreeLayout(state),
   rowTree: getHierarchicalClusteringHorizontalTreeLayout(state),
   matrix: getClusteringMatrixLayout(state),
   cellSize: getClusteringMatrixCellSize(state),
-  paddings: getClusteringMatrixPaddings(state)
+  paddings: getClusteringMatrixPaddings(state),
+  featureSelection: getRawFeatureSelection(state)
 });
 
 class ContentPanel extends PureComponent {

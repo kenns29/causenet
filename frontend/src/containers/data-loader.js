@@ -29,6 +29,7 @@ class DataLoader extends PureComponent {
     this.props.fetchModelList();
     await this.props.fetchDistanceMap();
     this.props.fetchHierarchicalClusteringTree();
+    this.props.fetchFeatureSelection();
   }
   render() {
     return null;

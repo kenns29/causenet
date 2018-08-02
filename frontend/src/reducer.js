@@ -10,7 +10,8 @@ import {
   UPDATE_NODE_LINK_VIEW_OPTIONS,
   UPDATE_HIERARCHICAL_CLUSTERING_TREE,
   UPDATE_DISTANCE_MAP,
-  UPDATE_HIERARCHICAL_CLUSTERING_CUT_THRESHOLD
+  UPDATE_HIERARCHICAL_CLUSTERING_CUT_THRESHOLD,
+  UPDATE_FEATURE_SELECTION
 } from './actions';
 
 const DEFAULT_STATE = {
@@ -41,6 +42,11 @@ const DEFAULT_STATE = {
   // the raw distance map:
   // {'id1-id2': (dist), ...} -- id1 < id2
   distanceMap: {},
+  // the raw feature selection list:
+  // null -- select all features
+  // [] -- select no features
+  // [name, ...] -- select the features by name
+  featureSelection: null,
   selectedModel: null,
   modelList: [],
   nodeLinkViewOptions: {
@@ -108,6 +114,11 @@ const handleUpdateHierarchicalClusteringCutThreshold = (state, {payload}) => ({
   hierarchicalClusteringCutThreshold: payload
 });
 
+const handleUpdateFeatureSelection = (state, {payload}) => ({
+  ...state,
+  featureSelection: payload
+});
+
 export default handleActions(
   {
     [UPDATE_SCREEN_SIZE]: handleUpdateScreenSize,
@@ -120,7 +131,8 @@ export default handleActions(
     [UPDATE_NODE_LINK_VIEW_OPTIONS]: handleUpdateNodeLinkViewOptions,
     [UPDATE_HIERARCHICAL_CLUSTERING_TREE]: handleUpdateHierarchicalClusteringTree,
     [UPDATE_DISTANCE_MAP]: handleUpdateDistanceMap,
-    [UPDATE_HIERARCHICAL_CLUSTERING_CUT_THRESHOLD]: handleUpdateHierarchicalClusteringCutThreshold
+    [UPDATE_HIERARCHICAL_CLUSTERING_CUT_THRESHOLD]: handleUpdateHierarchicalClusteringCutThreshold,
+    [UPDATE_FEATURE_SELECTION]: handleUpdateFeatureSelection
   },
   DEFAULT_STATE
 );

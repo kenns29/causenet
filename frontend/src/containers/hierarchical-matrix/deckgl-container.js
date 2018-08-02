@@ -30,6 +30,21 @@ export default class Container extends PureComponent {
         : 50
       : 255;
   };
+  _toggleFeatureSelection = feature => {
+    const {featureSelection} = this.props;
+    if (featureSelection === null) {
+      this.props.requestUpdateFeatureSelection([feature]);
+    } else {
+      const filtered = featureSelection.filter(d => d !== feature);
+      this.props.requestUpdateFeatureSelection(
+        filtered.length
+          ? filtered.length < featureSelection.length
+            ? filtered
+            : featureSelection.concat(feature)
+          : null
+      );
+    }
+  };
   _renderMatrix() {
     const {
       matrix: {rows, cols, cells},
@@ -97,19 +112,25 @@ export default class Container extends PureComponent {
             ? [180, 180, 180, this._getAlpha(name, null)]
             : [255, 255, 255, 50],
         getLineWidth: 0,
-        coordinateSystem: COORDINATE_SYSTEM.IDENTITY
+        coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+        pickable: true,
+        onClick: ({object}) =>
+          object && this._toggleFeatureSelection(object.name)
       }),
       new TextLayer({
         id: PANEL_ID_PREFIX + 'y-axis',
         data,
         getSize: 10,
         getText: ({name}) => name,
-        getColor: ({name, isCluster}) => [
-          ...(isCluster ? [200, 10, 200] : [10, 10, 10]),
+        getColor: ({name, isSelection}) => [
+          ...(isSelection ? [200, 10, 200] : [10, 10, 10]),
           this._getAlpha(name, null)
         ],
         getTextAnchor: 'start',
-        coordinateSystem: COORDINATE_SYSTEM.IDENTITY
+        coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+        pickable: true,
+        onClick: ({object}) =>
+          object && this._toggleFeatureSelection(object.name)
       })
     ];
   }
@@ -146,27 +167,33 @@ export default class Container extends PureComponent {
     });
     return [
       new PolygonLayer({
-        id: PANEL_ID_PREFIX + 'y-axis-cluster',
+        id: PANEL_ID_PREFIX + 'x-axis-cluster',
         data,
         getFillColor: ({name, isCluster}) =>
           isCluster
             ? [180, 180, 180, this._getAlpha(null, name)]
             : [255, 255, 255, 50],
         getLineWidth: 0,
-        coordinateSystem: COORDINATE_SYSTEM.IDENTITY
+        coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+        pickable: true,
+        onClick: ({object}) =>
+          object && this._toggleFeatureSelection(object.name)
       }),
       new TextLayer({
         id: PANEL_ID_PREFIX + 'x-axis',
         data,
         getSize: 10,
         getText: ({name}) => name,
-        getColor: ({name, isCluster}) => [
-          ...(isCluster ? [200, 10, 200] : [10, 10, 10]),
+        getColor: ({name, isSelection}) => [
+          ...(isSelection ? [200, 10, 200] : [10, 10, 10]),
           this._getAlpha(null, name)
         ],
         getAngle: 70,
         getTextAnchor: 'end',
-        coordinateSystem: COORDINATE_SYSTEM.IDENTITY
+        coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+        pickable: true,
+        onClick: ({object}) =>
+          object && this._toggleFeatureSelection(object.name)
       })
     ];
   }

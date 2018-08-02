@@ -15,6 +15,7 @@ export const UPDATE_HIERARCHICAL_CLUSTERING_TREE =
 export const UPDATE_DISTANCE_MAP = 'UPDATE_DISTANCE_MAP';
 export const UPDATE_HIERARCHICAL_CLUSTERING_CUT_THRESHOLD =
   'UPDATE_HIERARCHICAL_CLUSTERING_CUT_THRESHOLD';
+export const UPDATE_FEATURE_SELECTION = 'UPDATE_FEATURE_SELECTION';
 
 export const updateScreenSize = createAction(UPDATE_SCREEN_SIZE);
 export const updateCurrentDatasetName = createAction(
@@ -37,6 +38,7 @@ export const updateDistanceMap = createAction(UPDATE_DISTANCE_MAP);
 export const updateHierarchicalClusteringCutThreshold = createAction(
   UPDATE_HIERARCHICAL_CLUSTERING_CUT_THRESHOLD
 );
+export const updateFeatureSelection = createAction(UPDATE_FEATURE_SELECTION);
 
 export const fetchCurrentDatasetName = () => async dispatch => {
   try {
@@ -148,6 +150,7 @@ export const fetchFeatureSelection = () => async dispatch => {
   try {
     const response = await fetch(`${BACKEND_URL}/load_feature_selection`);
     const data = await response.json();
+    dispatch(updateFeatureSelection(data));
     return Promise.resolve(data);
   } catch (err) {
     throw new Error(err);
@@ -161,7 +164,7 @@ export const requestUpdateFeatureSelection = features => async dispatch => {
       body: JSON.stringify(features)
     });
     const data = await response.json();
-    console.log('feature_Selection', data);
+    dispatch(updateFeatureSelection(data));
     return Promise.resolve(data);
   } catch (err) {
     throw new Error(err);
