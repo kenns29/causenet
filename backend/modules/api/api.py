@@ -103,6 +103,12 @@ def load_model():
     return jsonify(edge_list)
 
 
+@blueprint.route('/load_model_features', methods=['GET'])
+def load_model_features():
+    name = request.args.get('name') if request.args.get('name') else 'model.bin'
+    return jsonify(get_model(name).nodes())
+
+
 @blueprint.route('/delete_model', methods=['GET'])
 def route_delete_model():
     name = request.args.get('name') if request.args.get('name') else 'model.bin'
