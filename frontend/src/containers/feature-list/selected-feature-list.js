@@ -22,6 +22,7 @@ class SelectedFeatureList extends PureComponent {
         dataSource={dataSource}
         size="small"
         renderItem={item => <List.Item>{item}</List.Item>}
+        style={{marginLeft: 5}}
       />
     );
   }
