@@ -1,4 +1,9 @@
-import {LineLayer, CompositeLayer, COORDINATE_SYSTEM} from 'deck.gl';
+import {
+  LineLayer,
+  PolygonLayer,
+  CompositeLayer,
+  COORDINATE_SYSTEM
+} from 'deck.gl';
 
 const DEFAULT_COL_SIZE = 4;
 const DEFAULT_ROW_SIZE = 4;
@@ -42,24 +47,52 @@ export default class MatrixLayer extends CompositeLayer {
       updateTriggers
     } = this.props;
 
-    return new LineLayer({
+    /**
+     * Temporary using the polygon layer until the line stroke width issue is fixed
+     */
+    // return new LineLayer({
+    //   id: `${id}-cells`,
+    //   data,
+    //   getStrokeWidth: dy,
+    //   pickable: Boolean(onHover || onClick),
+    //   coordinateSystem,
+    //   getSourcePosition: d => {
+    //     const p = getPosition(d);
+    //     return [x + p[0], y + p[1] + dy / 2];
+    //   },
+    //   getTargetPosition: d => {
+    //     const p = getPosition(d);
+    //     return [x + p[0] + dx, y + p[1] + dy / 2];
+    //   },
+    //   getColor,
+    //   onHover,
+    //   onClick,
+    //   updateTriggers
+    // });
+    const triggers = {
+      ...updateTriggers,
+      getFillColor: updateTriggers.getColor
+    };
+    return new PolygonLayer({
       id: `${id}-cells`,
       data,
-      getStrokeWidth: dy,
       pickable: Boolean(onHover || onClick),
       coordinateSystem,
-      getSourcePosition: d => {
-        const p = getPosition(d);
-        return [x + p[0], y + p[1] + dy / 2];
+      getPolygon: d => {
+        const [cx, cy] = getPosition(d);
+        return [
+          [x + cx, y + cy],
+          [x + cx, y + cy + dy],
+          [x + cx + dx, y + cy + dy],
+          [x + cx + dx, y + cy],
+          [x + cx, y + cy]
+        ];
       },
-      getTargetPosition: d => {
-        const p = getPosition(d);
-        return [x + p[0] + dx, y + p[1] + dy / 2];
-      },
-      getColor,
+      getFillColor: getColor,
       onHover,
       onClick,
-      updateTriggers
+      updateTriggers: triggers,
+      getLineWidth: 0
     });
   }
 
