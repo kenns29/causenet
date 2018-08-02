@@ -126,7 +126,7 @@ def train_model(data, name):
     filtered_data = data.filter(feature_selection) if feature_selection else data
     edges = blip_learn_structure(filtered_data)
     model = BayesianModel(edges)
-    model.fit(data, estimator=BayesianEstimator, prior_type='BDeu')
+    model.fit(filtered_data, estimator=BayesianEstimator, prior_type='BDeu')
     write_model(model, name)
     return model
 
