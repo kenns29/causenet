@@ -171,13 +171,15 @@ export const getDagLayout = createSelector(
     dag.setGraph({rankdir: 'LR'});
     dag.setDefaultEdgeLabel(() => {});
     nodes.forEach(node => {
-      dag.setNode(node.label, {...node, width: 20, height: 20});
+      dag.setNode(node.label, {...node, width: 30, height: 30});
     });
     links.forEach(({source, target, weight}) => {
       dag.setEdge(source, target, {weight});
     });
     dagre.layout(dag);
-    const layoutNodes = dag.nodes().map(v => dag.node(v));
+    const layoutNodes = dag
+      .nodes()
+      .map(v => Object.assign(dag.node(v), {width: 20, height: 20}));
     const layoutEdges = dag.edges().map(e => ({
       ...dag.edge(e),
       sourceId: e.v,

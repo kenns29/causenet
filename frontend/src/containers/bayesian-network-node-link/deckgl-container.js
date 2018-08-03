@@ -39,11 +39,15 @@ export default class ContentPanel extends PureComponent {
           showLabels
             ? [255, 255, 255, this._getAlpha(label)]
             : [64, 64, 64, this._getAlpha(label)],
-        getStrokeColor: ({label}) => [64, 64, 64, this._getAlpha(label)],
+        getStrokeColor: ({label}) =>
+          showLabels
+            ? [180, 180, 180, this._getAlpha(label)]
+            : [64, 64, 64, this._getAlpha(label)],
         strokeWidth: 2,
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
         updateTriggers: {
-          getFillColor: showLabels || highlightedEdge
+          getFillColor: showLabels || highlightedEdge,
+          getStrokeColor: showLabels || highlightedEdge
         }
       })
     ];
@@ -53,35 +57,42 @@ export default class ContentPanel extends PureComponent {
       data: {edges},
       highlightedEdge
     } = this.props;
-    return [
-      new PathLayer({
-        id: ID + '-path-layer',
-        data: edges,
-        getPath: ({points}) => points.map(({x, y}) => [x, y]),
-        getWidth: () => 1,
-        getColor: ({sourceId, targetId}) => [
-          64,
-          64,
-          64,
-          this._getAlpha(sourceId, targetId)
-        ],
-        coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
-        pickable: true,
-        onHover: ({object}) =>
-          this.props.updateHighlightedBayesianNetworkEdge(
-            object
-              ? {
-                source: object.sourceId,
-                target: object.targetId,
-                weight: object.weight
-              }
-              : null
-          ),
-        updateTriggers: {
-          getColor: highlightedEdge
-        }
-      })
-    ];
+    const pathProps = {
+      id: ID + '-path-layer',
+      data: edges,
+      getPath: ({points}) => points.map(({x, y}) => [x, y]),
+      getWidth: () => 1,
+      getColor: ({sourceId, targetId}) => [
+        64,
+        64,
+        64,
+        this._getAlpha(sourceId, targetId)
+      ],
+      coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+      pickable: true,
+      onHover: ({object}) =>
+        this.props.updateHighlightedBayesianNetworkEdge(
+          object
+            ? {
+              source: object.sourceId,
+              target: object.targetId,
+              weight: object.weight
+            }
+            : null
+        ),
+      updateTriggers: {
+        getColor: highlightedEdge
+      }
+    };
+    const backgroundProps = {
+      ...pathProps,
+      id: ID + '-path-layer-background',
+      getWidth: () => 10,
+      getColor: [255, 255, 255],
+      pickable: true,
+      updateTriggers: {}
+    };
+    return [new PathLayer(backgroundProps), new PathLayer(pathProps)];
   }
   _renderArrows() {
     const {
@@ -121,7 +132,8 @@ export default class ContentPanel extends PureComponent {
   _renderLabels() {
     const {
       data: {nodes},
-      options: {showLabels}
+      options: {showLabels},
+      highlightedEdge
     } = this.props;
     return showLabels
       ? [
@@ -130,9 +142,13 @@ export default class ContentPanel extends PureComponent {
           data: nodes,
           getText: ({label}) => label,
           getPosition: ({x, y}) => [x, y],
+          getColor: ({label}) => [0, 0, 0, this._getAlpha(label)],
           getSize: 10,
           getAngle: 45,
-          coordinateSystem: COORDINATE_SYSTEM.IDENTITY
+          coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+          updateTriggers: {
+            getColor: highlightedEdge
+          }
         })
       ]
       : [];

@@ -12,6 +12,15 @@ const defaultProps = {
   updateTriggers: {}
 };
 
+const copyUpdateTriggers = updateTriggers =>
+  Object.entries(updateTriggers).reduce(
+    (obj, [key, value]) =>
+      key !== 'getFillColor' && key !== 'getStrokeColor'
+        ? Object.assign(obj, {[key]: value})
+        : obj,
+    {}
+  );
+
 export default class StrokedScatterplotLayer extends CompositeLayer {
   _renderFill() {
     const {
@@ -32,7 +41,7 @@ export default class StrokedScatterplotLayer extends CompositeLayer {
       getPosition,
       getRadius,
       updateTriggers: {
-        ...updateTriggers,
+        ...copyUpdateTriggers(updateTriggers),
         getColor: updateTriggers.getFillColor
       }
     });
@@ -58,7 +67,7 @@ export default class StrokedScatterplotLayer extends CompositeLayer {
       getPosition,
       strokeWidth,
       updateTriggers: {
-        ...updateTriggers,
+        ...copyUpdateTriggers(updateTriggers),
         getColor: updateTriggers.getStrokeColor
       }
     });
