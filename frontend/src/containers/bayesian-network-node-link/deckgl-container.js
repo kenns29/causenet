@@ -7,7 +7,8 @@ const ID = 'bayesian-network-node-link';
 export default class ContentPanel extends PureComponent {
   _renderNodes() {
     const {
-      data: {nodes}
+      data: {nodes},
+      options: {showLabels}
     } = this.props;
     return [
       new StrokedScatterplotLayer({
@@ -15,10 +16,13 @@ export default class ContentPanel extends PureComponent {
         data: nodes,
         getPosition: ({x, y}) => [x, y],
         getRadius: ({width, height}) => Math.max(width, height) / 2,
-        getFillColor: () => [0, 100, 0],
-        getStrokeColor: () => [100, 0, 0],
+        getFillColor: () => (showLabels ? [255, 255, 255] : [64, 64, 64]),
+        getStrokeColor: () => [64, 64, 64],
         strokeWidth: 2,
-        coordinateSystem: COORDINATE_SYSTEM.IDENTITY
+        coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+        updateTriggers: {
+          getFillColor: showLabels
+        }
       })
     ];
   }
