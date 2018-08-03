@@ -3,12 +3,31 @@ import {PathLayer, TextLayer, PolygonLayer, COORDINATE_SYSTEM} from 'deck.gl';
 import ZoomableContainer from '../../components/zoomable-container';
 import {StrokedScatterplotLayer} from '../../components/deckgl-layers';
 import {makeLineArrow} from '../../utils';
+
 const ID = 'bayesian-network-node-link';
+
 export default class ContentPanel extends PureComponent {
+  _getAlpha = (source, target) => {
+    const {highlightedEdge} = this.props;
+    if (!highlightedEdge) {
+      return 255;
+    }
+    if (target === null || target === undefined) {
+      return source === highlightedEdge.source ||
+        source === highlightedEdge.target
+        ? 255
+        : 50;
+    }
+    return source === highlightedEdge.source &&
+      target === highlightedEdge.target
+      ? 255
+      : 50;
+  };
   _renderNodes() {
     const {
       data: {nodes},
-      options: {showLabels}
+      options: {showLabels},
+      highlightedEdge
     } = this.props;
     return [
       new StrokedScatterplotLayer({
@@ -16,19 +35,23 @@ export default class ContentPanel extends PureComponent {
         data: nodes,
         getPosition: ({x, y}) => [x, y],
         getRadius: ({width, height}) => Math.max(width, height) / 2,
-        getFillColor: () => (showLabels ? [255, 255, 255] : [64, 64, 64]),
-        getStrokeColor: () => [64, 64, 64],
+        getFillColor: ({label}) =>
+          showLabels
+            ? [255, 255, 255, this._getAlpha(label)]
+            : [64, 64, 64, this._getAlpha(label)],
+        getStrokeColor: ({label}) => [64, 64, 64, this._getAlpha(label)],
         strokeWidth: 2,
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
         updateTriggers: {
-          getFillColor: showLabels
+          getFillColor: showLabels || highlightedEdge
         }
       })
     ];
   }
   _renderEdges() {
     const {
-      data: {edges}
+      data: {edges},
+      highlightedEdge
     } = this.props;
     return [
       new PathLayer({
@@ -36,14 +59,34 @@ export default class ContentPanel extends PureComponent {
         data: edges,
         getPath: ({points}) => points.map(({x, y}) => [x, y]),
         getWidth: () => 1,
-        getColor: () => [64, 64, 64],
-        coordinateSystem: COORDINATE_SYSTEM.IDENTITY
+        getColor: ({sourceId, targetId}) => [
+          64,
+          64,
+          64,
+          this._getAlpha(sourceId, targetId)
+        ],
+        coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+        pickable: true,
+        onHover: ({object}) =>
+          this.props.updateHighlightedBayesianNetworkEdge(
+            object
+              ? {
+                source: object.sourceId,
+                target: object.targetId,
+                weight: object.weight
+              }
+              : null
+          ),
+        updateTriggers: {
+          getColor: highlightedEdge
+        }
       })
     ];
   }
   _renderArrows() {
     const {
-      data: {edges}
+      data: {edges},
+      highlightedEdge
     } = this.props;
     return [
       new PolygonLayer({
@@ -55,9 +98,23 @@ export default class ContentPanel extends PureComponent {
             l: 10,
             w: 5
           }),
-        getFillColor: () => [64, 64, 64],
-        getLineColor: () => [64, 64, 64],
-        coordinateSystem: COORDINATE_SYSTEM.IDENTITY
+        getFillColor: ({sourceId, targetId}) => [
+          64,
+          64,
+          64,
+          this._getAlpha(sourceId, targetId)
+        ],
+        getLineColor: ({sourceId, targetId}) => [
+          64,
+          64,
+          64,
+          this._getAlpha(sourceId, targetId)
+        ],
+        coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+        updateTriggers: {
+          getFillColor: highlightedEdge,
+          getLineColor: highlightedEdge
+        }
       })
     ];
   }
@@ -99,6 +156,7 @@ export default class ContentPanel extends PureComponent {
         bottom={height}
         top={0}
         layers={this._renderLayers()}
+        getCursor={() => 'auto'}
       />
     );
   }

@@ -1,12 +1,19 @@
 import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
-import {getDagLayout, getNodeLinkViewOptions} from '../../selectors/data';
+import {
+  getDagLayout,
+  getNodeLinkViewOptions,
+  getHighlightedBayesianNetworkEdge
+} from '../../selectors/data';
 import DeckGLContainer from './deckgl-container';
-const mapDispatchToProps = {};
+import {updateHighlightedBayesianNetworkEdge} from '../../actions';
+
+const mapDispatchToProps = {updateHighlightedBayesianNetworkEdge};
 
 const mapStateToProps = state => ({
   data: getDagLayout(state),
-  options: getNodeLinkViewOptions(state)
+  options: getNodeLinkViewOptions(state),
+  highlightedEdge: getHighlightedBayesianNetworkEdge(state)
 });
 
 class ContentPanel extends PureComponent {

@@ -43,6 +43,11 @@ export const getRawBayesianModelFeatures = createSelector(
   state => state.bayesianModelFeatures
 );
 
+export const getHighlightedBayesianNetworkEdge = createSelector(
+  rootSelector,
+  state => state.highlightedBayesianNetworkEdge
+);
+
 export const getRawHierarchicalClusteringTree = createSelector(
   rootSelector,
   state => state.hierarchicalClusteringTree
@@ -168,8 +173,8 @@ export const getDagLayout = createSelector(
     nodes.forEach(node => {
       dag.setNode(node.label, {...node, width: 20, height: 20});
     });
-    links.forEach(({source, target}) => {
-      dag.setEdge(source, target, {});
+    links.forEach(({source, target, weight}) => {
+      dag.setEdge(source, target, {weight});
     });
     dagre.layout(dag);
     const layoutNodes = dag.nodes().map(v => dag.node(v));
