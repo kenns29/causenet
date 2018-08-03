@@ -30,7 +30,10 @@ const defaultProps = {
   getPosition: d => [0, 0, 0],
   getColor: d => [0, 128, 0],
   getAltColor: d => [128, 0, 0],
-  updateTriggers: {}
+  updateTriggers: {},
+  stroked: false,
+  getLineWidth: 0,
+  getLineColor: [0, 0, 0, 255]
 };
 
 export default class MatrixLayer extends CompositeLayer {
@@ -44,7 +47,10 @@ export default class MatrixLayer extends CompositeLayer {
       getColor,
       onHover,
       onClick,
-      updateTriggers
+      updateTriggers,
+      stroked,
+      getLineWidth,
+      getLineColor
     } = this.props;
 
     /**
@@ -85,13 +91,15 @@ export default class MatrixLayer extends CompositeLayer {
         ];
       },
       getFillColor: getColor,
+      stroked,
+      getLineWidth,
+      getLineColor,
       onHover,
       onClick,
       updateTriggers: {
         ...updateTriggers,
         getFillColor: updateTriggers.getColor
-      },
-      getLineWidth: 0
+      }
     });
   }
 

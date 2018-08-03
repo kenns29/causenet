@@ -34,6 +34,14 @@ export default class ContentPanel extends PureComponent {
           ...color,
           this._getAlpha(rowId, colId)
         ],
+        getLineWidth: ({value}) => (value > 0 ? 1 : 0),
+        getLineColor: ({row_id: rowId, col_id: colId}) => [
+          150,
+          150,
+          150,
+          this._getAlpha(rowId, colId)
+        ],
+        stroked: true,
         layout: {
           x: paddingH,
           y: paddingV,
