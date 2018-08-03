@@ -114,15 +114,16 @@ def find_na(data):
                 print(key, index, value)
 
 
-data = load_lookalike_full_feature_cut_5_data()
-index2col = get_index2col(data)
-# save_lookalike_full_feature_pdist()
-dist = load_lookalike_full_feature_pdist()
-clustering = linkage(dist)
-normalized_clustering = normalize_clustering_dist(clustering)
-tree = to_tree(normalized_clustering)
-clusters = cut_tree_to_clustering_by_dist(tree, 0.5)
-named_clusters = [[index2col[item] for item in cluster] for cluster in clusters]
-print(named_clusters)
-plot_dendrogram(clustering, index2col)
+if __name__ == '__main__':
+    data = load_lookalike_full_feature_cut_5_data()
+    index2col = get_index2col(data)
+    # save_lookalike_full_feature_pdist()
+    dist = load_lookalike_full_feature_pdist()
+    clustering = linkage(dist)
+    normalized_clustering = normalize_clustering_dist(clustering)
+    tree = to_tree(normalized_clustering)
+    clusters = cut_tree_to_clustering_by_dist(tree, 0.5)
+    named_clusters = [[index2col[item] for item in cluster] for cluster in clusters]
+    print(named_clusters)
+    plot_dendrogram(clustering, index2col)
 
