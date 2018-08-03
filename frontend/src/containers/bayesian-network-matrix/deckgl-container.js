@@ -3,21 +3,37 @@ import {TextLayer, COORDINATE_SYSTEM} from 'deck.gl';
 import {MatrixLayer} from '../../components/deckgl-layers';
 import ZoomableContainer from '../../components/zoomable-container';
 
+const ID = 'bayesian-network-matrix';
+
 export default class ContentPanel extends PureComponent {
+  _getAlpha = (rowId, colId) => {
+    const {highlightedEdge: hc} = this.props;
+    return hc
+      ? ![[rowId, hc.source], [colId, hc.target]].some(
+        ([id, cId]) => id !== null && id !== undefined && id !== cId
+      )
+        ? 255
+        : 50
+      : 255;
+  };
   _renderMatrix() {
     const {
       matrix: {rows, cols, cells},
       cellSize: [w, h],
-      paddings: [paddingH, paddingV]
+      paddings: [paddingH, paddingV],
+      highlightedEdge
     } = this.props;
 
     return [
       new MatrixLayer({
-        id: 'matrix-layer',
+        id: ID + '-matrix-layer',
         data: cells,
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
-        getPosition: d => [d.x, d.y],
-        getColor: d => d.color,
+        getPosition: ({x, y}) => [x, y],
+        getColor: ({color, row_id: rowId, col_id: colId}) => [
+          ...color,
+          this._getAlpha(rowId, colId)
+        ],
         layout: {
           x: paddingH,
           y: paddingV,
@@ -25,6 +41,19 @@ export default class ContentPanel extends PureComponent {
           dy: h,
           width: cols.length * w,
           height: rows.length * h
+        },
+        onHover: ({object}) =>
+          this.props.updateHighlightedBayesianNetworkEdge(
+            object
+              ? {
+                source: object.row_id,
+                target: object.col_id,
+                weight: object.value
+              }
+              : null
+          ),
+        updateTriggers: {
+          getColor: highlightedEdge
         }
       })
     ];
@@ -33,7 +62,8 @@ export default class ContentPanel extends PureComponent {
     const {
       matrix: {rows},
       cellSize,
-      paddings: [paddingH, paddingV]
+      paddings: [paddingH, paddingV],
+      highlightedEdge
     } = this.props;
     const h = cellSize[1];
     const data = rows.map((text, index) => ({
@@ -42,12 +72,15 @@ export default class ContentPanel extends PureComponent {
     }));
     return [
       new TextLayer({
-        id: 'y-axis',
+        id: ID + '-y-axis',
         data,
         getSize: 10,
-        getColor: [10, 10, 10],
+        getColor: ({text}) => [10, 10, 10, this._getAlpha(text, null)],
         getTextAnchor: 'end',
-        coordinateSystem: COORDINATE_SYSTEM.IDENTITY
+        coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+        updateTriggers: {
+          getColor: highlightedEdge
+        }
       })
     ];
   }
@@ -55,7 +88,8 @@ export default class ContentPanel extends PureComponent {
     const {
       matrix: {cols},
       cellSize,
-      paddings: [paddingH, paddingV]
+      paddings: [paddingH, paddingV],
+      highlightedEdge
     } = this.props;
     const w = cellSize[0];
     const data = cols.map((text, index) => ({
@@ -64,13 +98,16 @@ export default class ContentPanel extends PureComponent {
     }));
     return [
       new TextLayer({
-        id: 'x-axis',
+        id: ID + '-x-axis',
         data,
         getSize: 10,
-        getColor: [10, 10, 10],
+        getColor: ({text}) => [10, 10, 10, this._getAlpha(null, text)],
         getAngle: 70,
         getTextAnchor: 'start',
-        coordinateSystem: COORDINATE_SYSTEM.IDENTITY
+        coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+        updateTriggers: {
+          getColor: highlightedEdge
+        }
       })
     ];
   }

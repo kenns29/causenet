@@ -3,15 +3,19 @@ import {connect} from 'react-redux';
 import {
   getMatrixLayout,
   getMatrixCellSize,
-  getMatrixPaddings
+  getMatrixPaddings,
+  getHighlightedBayesianNetworkEdge
 } from '../../selectors/data';
+import {updateHighlightedBayesianNetworkEdge} from '../../actions';
 import DeckGLContainer from './deckgl-container';
-const mapDispatchToProps = {};
+
+const mapDispatchToProps = {updateHighlightedBayesianNetworkEdge};
 
 const mapStateToProps = state => ({
   matrix: getMatrixLayout(state),
   cellSize: getMatrixCellSize(state),
-  paddings: getMatrixPaddings(state)
+  paddings: getMatrixPaddings(state),
+  highlightedEdge: getHighlightedBayesianNetworkEdge(state)
 });
 
 class ContentPanel extends PureComponent {
