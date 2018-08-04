@@ -165,3 +165,15 @@ def get_feature_selection():
         config = json.load(file)
         status = config[get_current_dataset_name()]
         return status['feature_selection'] if 'feature_selection' in status else None
+
+
+def reduce_model(model, values=[]):
+    m = model.copy()
+    for variable, value in values:
+        for node in m.nodes():
+            cpd = m.get_cpds(node)
+            if variable in cpd.get_evidence():
+                cpd.reduce([(variable, value)])
+                m.remove_edge(variable, node)
+        m.remove_node(variable)
+    return m

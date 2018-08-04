@@ -155,8 +155,8 @@ export default class ContentPanel extends PureComponent {
   }
   _renderLayers() {
     return [
-      ...this._renderNodes(),
       ...this._renderEdges(),
+      ...this._renderNodes(),
       ...this._renderArrows(),
       ...this._renderLabels()
     ];

@@ -109,6 +109,13 @@ def load_model_features():
     return jsonify(get_model(name).nodes())
 
 
+@blueprint.route('/load_feature_values_map', methods=['GET'])
+def load_feature_values_map():
+    data = load_data()
+    features = request.args.get('features') if request.args.get('features') else data.keys()
+    return jsonify(dict((key, data[key].cat.categories.tolist()) for key in features))
+
+
 @blueprint.route('/delete_model', methods=['GET'])
 def route_delete_model():
     name = request.args.get('name') if request.args.get('name') else 'model.bin'

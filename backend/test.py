@@ -1,9 +1,7 @@
 from modules.service.edge_weights import get_edge_weights
-from modules.service.model_utils import get_model, blip_learn_structure
-from modules.service.data_utils import get_lookalike_full_feature_raw_data, \
-    filter_lookalike_full_feature_data, get_lookalike_full_feature_cut_5_data, \
-    load_lookalike_full_feature_cut_5_data, lookalike_bool_keys, to_blip_data, blip_data_to_blip_str, \
-    get_blip_value_converters, get_blip_value_inverters, load_lookalike_cut_5_data, get_index2col, get_col2index
+from modules.service.model_utils import get_model, blip_learn_structure, reduce_model
+from modules.service.data_utils import to_blip_data, blip_data_to_blip_str, load_data, \
+    get_blip_value_converters, get_blip_value_inverters, get_index2col, get_col2index
 from setup import data_dir
 from pandas import cut
 import numpy as np
@@ -115,15 +113,19 @@ def find_na(data):
 
 
 if __name__ == '__main__':
-    data = load_lookalike_full_feature_cut_5_data()
-    index2col = get_index2col(data)
-    # save_lookalike_full_feature_pdist()
-    dist = load_lookalike_full_feature_pdist()
-    clustering = linkage(dist)
-    normalized_clustering = normalize_clustering_dist(clustering)
-    tree = to_tree(normalized_clustering)
-    clusters = cut_tree_to_clustering_by_dist(tree, 0.5)
-    named_clusters = [[index2col[item] for item in cluster] for cluster in clusters]
-    print(named_clusters)
-    plot_dendrogram(clustering, index2col)
-
+    # data = load_lookalike_full_feature_cut_5_data()
+    # index2col = get_index2col(data)
+    # # save_lookalike_full_feature_pdist()
+    # dist = load_lookalike_full_feature_pdist()
+    # clustering = linkage(dist)
+    # normalized_clustering = normalize_clustering_dist(clustering)
+    # tree = to_tree(normalized_clustering)
+    # clusters = cut_tree_to_clustering_by_dist(tree, 0.5)
+    # named_clusters = [[index2col[item] for item in cluster] for cluster in clusters]
+    # print(named_clusters)
+    # plot_dendrogram(clustering, index2col)
+    # model = get_model('model-1')
+    # m = reduce_model(model, [('min_distance_to_restaurant', 0)])
+    # print(model)
+    data = load_data()
+    print('---')

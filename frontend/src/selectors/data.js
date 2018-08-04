@@ -68,9 +68,20 @@ export const getRawFeatureSelection = createSelector(
   state => state.featureSelection
 );
 
+export const getRawFeatureValuesMap = createSelector(
+  rootSelector,
+  state => state.featureValuesMap
+);
+
 export const getNodeLinkViewOptions = createSelector(
   rootSelector,
   state => state.nodeLinkViewOptions
+);
+
+export const getBayesianModelFeatures = createSelector(
+  [getRawBayesianModelFeatures, getRawFeatureValuesMap],
+  (features, featureValuesMap) =>
+    features.map(feature => ({feature, values: featureValuesMap[feature]}))
 );
 
 /**

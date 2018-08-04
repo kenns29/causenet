@@ -13,7 +13,8 @@ import {
   UPDATE_HIERARCHICAL_CLUSTERING_TREE,
   UPDATE_DISTANCE_MAP,
   UPDATE_HIERARCHICAL_CLUSTERING_CUT_THRESHOLD,
-  UPDATE_FEATURE_SELECTION
+  UPDATE_FEATURE_SELECTION,
+  UPDATE_FEATURE_VALUES_MAP
 } from './actions';
 
 const DEFAULT_STATE = {
@@ -53,6 +54,10 @@ const DEFAULT_STATE = {
   // [] -- select no features
   // [name, ...] -- select the features by name
   featureSelection: null,
+  // the feature value map maps each feature in the current data to its
+  // list of values:
+  // {feature_name: [value_name, ...], ...}
+  featureValuesMap: {},
   selectedModel: null,
   modelList: [],
   nodeLinkViewOptions: {
@@ -135,6 +140,11 @@ const handleUpdateFeatureSelection = (state, {payload}) => ({
   featureSelection: payload
 });
 
+const handleUpdateFeatureValuesMap = (state, {payload}) => ({
+  ...state,
+  featureValueMap: payload
+});
+
 export default handleActions(
   {
     [UPDATE_SCREEN_SIZE]: handleUpdateScreenSize,
@@ -150,7 +160,8 @@ export default handleActions(
     [UPDATE_HIERARCHICAL_CLUSTERING_TREE]: handleUpdateHierarchicalClusteringTree,
     [UPDATE_DISTANCE_MAP]: handleUpdateDistanceMap,
     [UPDATE_HIERARCHICAL_CLUSTERING_CUT_THRESHOLD]: handleUpdateHierarchicalClusteringCutThreshold,
-    [UPDATE_FEATURE_SELECTION]: handleUpdateFeatureSelection
+    [UPDATE_FEATURE_SELECTION]: handleUpdateFeatureSelection,
+    [UPDATE_FEATURE_VALUES_MAP]: handleUpdateFeatureValuesMap
   },
   DEFAULT_STATE
 );
