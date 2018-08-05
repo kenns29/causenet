@@ -9,6 +9,9 @@ const defaultProps = {
   strokeWidth: 1,
   getFillColor: () => [0, 0, 0, 255],
   getRadius: 1,
+  onClick: () => {},
+  onHover: () => {},
+  pickable: false,
   updateTriggers: {}
 };
 
@@ -30,6 +33,9 @@ export default class StrokedScatterplotLayer extends CompositeLayer {
       getPosition,
       getFillColor,
       getRadius,
+      onClick,
+      onHover,
+      pickable,
       updateTriggers
     } = this.props;
 
@@ -40,6 +46,9 @@ export default class StrokedScatterplotLayer extends CompositeLayer {
       getColor: getFillColor,
       getPosition,
       getRadius,
+      onClick,
+      onHover,
+      pickable,
       updateTriggers: {
         ...copyUpdateTriggers(updateTriggers),
         getColor: updateTriggers.getFillColor
@@ -55,6 +64,9 @@ export default class StrokedScatterplotLayer extends CompositeLayer {
       getStrokeColor,
       strokeWidth,
       getRadius,
+      onClick,
+      onHover,
+      pickable,
       updateTriggers
     } = this.props;
     return new ScatterplotLayer({
@@ -66,6 +78,9 @@ export default class StrokedScatterplotLayer extends CompositeLayer {
       getRadius,
       getPosition,
       strokeWidth,
+      onClick,
+      onHover,
+      pickable,
       updateTriggers: {
         ...copyUpdateTriggers(updateTriggers),
         getColor: updateTriggers.getStrokeColor

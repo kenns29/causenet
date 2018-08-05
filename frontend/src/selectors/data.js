@@ -48,6 +48,11 @@ export const getHighlightedBayesianNetworkEdge = createSelector(
   state => state.highlightedBayesianNetworkEdge
 );
 
+export const getHighlightedBayesianModelFeature = createSelector(
+  rootSelector,
+  state => state.highlightedBayesianModelFeature
+);
+
 export const getRawHierarchicalClusteringTree = createSelector(
   rootSelector,
   state => state.hierarchicalClusteringTree

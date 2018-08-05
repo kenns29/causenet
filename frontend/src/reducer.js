@@ -7,6 +7,7 @@ import {
   UPDATE_BAYESIAN_NETWORK,
   UPDATE_BAYESIAN_MODEL_FEATURES,
   UPDATE_HIGHLIGHTED_BAYESIAN_NETWORK_EDGE,
+  UPDATE_HIGHLIGHTED_BAYESIAN_MODEL_FEATURE,
   UPDATE_MODEL_LIST,
   UPDATE_SELECTED_MODEL,
   UPDATE_NODE_LINK_VIEW_OPTIONS,
@@ -36,6 +37,8 @@ const DEFAULT_STATE = {
   bayesianModelFeatures: [],
   // The highlighted edge in the Bayesian Network: null || {source, target, weight}
   highlightedBayesianNetworkEdge: null,
+  // Controls the node link view, matrix view and the feature list
+  highlightedBayesianModelFeature: null, // null || feature_name
   // the raw hierarchical clustering tree:
   // {
   //  id,
@@ -102,6 +105,11 @@ const handleUpdateHighlightedBayesianNetworkEdge = (state, {payload}) => ({
   highlightedBayesianNetworkEdge: payload
 });
 
+const handleUpdateHighlightedBayesianModelFeature = (state, {payload}) => ({
+  ...state,
+  highlightedBayesianModelFeature: payload
+});
+
 const handleUpdateModelList = (state, {payload}) => ({
   ...state,
   modelList: payload
@@ -154,6 +162,7 @@ export default handleActions(
     [UPDATE_BAYESIAN_NETWORK]: handleUpdateBayesianNetwork,
     [UPDATE_BAYESIAN_MODEL_FEATURES]: handleUpdateBayesianModelFeatures,
     [UPDATE_HIGHLIGHTED_BAYESIAN_NETWORK_EDGE]: handleUpdateHighlightedBayesianNetworkEdge,
+    [UPDATE_HIGHLIGHTED_BAYESIAN_MODEL_FEATURE]: handleUpdateHighlightedBayesianModelFeature,
     [UPDATE_MODEL_LIST]: handleUpdateModelList,
     [UPDATE_SELECTED_MODEL]: handleUpdateSelectedModel,
     [UPDATE_NODE_LINK_VIEW_OPTIONS]: handleUpdateNodeLinkViewOptions,

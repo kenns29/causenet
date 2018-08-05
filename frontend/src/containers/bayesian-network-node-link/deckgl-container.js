@@ -27,7 +27,8 @@ export default class ContentPanel extends PureComponent {
     const {
       data: {nodes},
       options: {showLabels},
-      highlightedEdge
+      highlightedEdge,
+      highlightedFeature
     } = this.props;
     return [
       new StrokedScatterplotLayer({
@@ -41,13 +42,32 @@ export default class ContentPanel extends PureComponent {
             : [64, 64, 64, this._getAlpha(label)],
         getStrokeColor: ({label}) =>
           showLabels
-            ? [180, 180, 180, this._getAlpha(label)]
-            : [64, 64, 64, this._getAlpha(label)],
+            ? [
+              ...(highlightedFeature === label
+                ? [255, 140, 0]
+                : [180, 180, 180]),
+              this._getAlpha(label)
+            ]
+            : [
+              ...(highlightedFeature === label
+                ? [255, 140, 0]
+                : [64, 64, 64]),
+              this._getAlpha(label)
+            ],
         strokeWidth: 2,
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+        pickable: true,
+        onClick: ({object}) =>
+          this.props.updateHighlightedBayesianModelFeature(
+            object
+              ? highlightedFeature && highlightedFeature === object.label
+                ? null
+                : object.label
+              : null
+          ),
         updateTriggers: {
-          getFillColor: showLabels || highlightedEdge,
-          getStrokeColor: showLabels || highlightedEdge
+          getFillColor: [showLabels, highlightedEdge],
+          getStrokeColor: [showLabels, highlightedEdge, highlightedFeature]
         }
       })
     ];
