@@ -1,14 +1,28 @@
 import React, {PureComponent} from 'react';
+import {connect} from 'react-redux';
 import {List, Select} from 'antd';
+import {
+  getBayesianModelFeatures,
+  getHighlightedBayesianModelFeature
+} from '../../selectors/data';
+const mapDispatchToProps = {};
 
-export default class FeatureList extends PureComponent {
+const mapStateToProps = state => ({
+  features: getBayesianModelFeatures(state),
+  highlightedFeature: getHighlightedBayesianModelFeature(state)
+});
+
+class FeatureList extends PureComponent {
   _renderSelect = values => (
     <Select defaultValue="" size="small" style={{width: 200}}>
-      {values.map(value => (
-        <Select.Option key={value} value={value}>
-          {value}
-        </Select.Option>
-      ))}
+      {values.map(value => {
+        const v = typeof value === 'boolean' ? value.toString() : value;
+        return (
+          <Select.Option key={v} value={v}>
+            {v}
+          </Select.Option>
+        );
+      })}
     </Select>
   );
   render() {
@@ -33,3 +47,8 @@ export default class FeatureList extends PureComponent {
     );
   }
 }
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(FeatureList);

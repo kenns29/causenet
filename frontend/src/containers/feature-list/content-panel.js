@@ -32,11 +32,7 @@ class ContentPanel extends PureComponent {
           </Tabs.TabPane>
           {bayesianModelFeatures.length && (
             <Tabs.TabPane tab="Model Features" key="model">
-              <ModelFeatureList
-                width={width}
-                height={height - 100}
-                features={bayesianModelFeatures}
-              />
+              <ModelFeatureList width={width} height={height - 100} />
             </Tabs.TabPane>
           )}
         </Tabs>
