@@ -7,21 +7,22 @@ import {makeLineArrow} from '../../utils';
 const ID = 'bayesian-network-node-link';
 
 export default class ContentPanel extends PureComponent {
+  _isHighlighted = (source, target) => {
+    const {highlightedEdge} = this.props;
+    return (
+      highlightedEdge &&
+      (target
+        ? source === highlightedEdge.source && target === highlightedEdge.target
+        : source === highlightedEdge.source ||
+          source === highlightedEdge.target)
+    );
+  };
   _getAlpha = (source, target) => {
     const {highlightedEdge} = this.props;
     if (!highlightedEdge) {
       return 255;
     }
-    if (target === null || target === undefined) {
-      return source === highlightedEdge.source ||
-        source === highlightedEdge.target
-        ? 255
-        : 50;
-    }
-    return source === highlightedEdge.source &&
-      target === highlightedEdge.target
-      ? 255
-      : 50;
+    return this._isHighlighted(source, target) ? 255 : 50;
   };
   _renderNodes() {
     const {

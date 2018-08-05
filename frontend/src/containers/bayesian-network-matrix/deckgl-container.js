@@ -6,15 +6,21 @@ import ZoomableContainer from '../../components/zoomable-container';
 const ID = 'bayesian-network-matrix';
 
 export default class ContentPanel extends PureComponent {
-  _getAlpha = (rowId, colId) => {
+  _isHighlighted = (rowId, colId) => {
     const {highlightedEdge: hc} = this.props;
-    return hc
-      ? ![[rowId, hc.source], [colId, hc.target]].some(
+    return (
+      hc &&
+      ![[rowId, hc.source], [colId, hc.target]].some(
         ([id, cId]) => id !== null && id !== undefined && id !== cId
       )
-        ? 255
-        : 50
-      : 255;
+    );
+  };
+  _getAlpha = (source, target) => {
+    const {highlightedEdge} = this.props;
+    if (!highlightedEdge) {
+      return 255;
+    }
+    return this._isHighlighted(source, target) ? 255 : 50;
   };
   _renderMatrix() {
     const {
