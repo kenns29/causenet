@@ -19,8 +19,8 @@ class FeatureList extends PureComponent {
     const {features, height, highlightedFeature} = props;
     const {current, prevHighlightedFeature} = state;
     const pageSize = Math.floor(height / ITEM_HEIGHT);
-    if (highlightedFeature === prevHighlightedFeature) {
-      return {current, pageSize, prevHighlightedFeature};
+    if (!highlightedFeature || highlightedFeature === prevHighlightedFeature) {
+      return {current, pageSize, prevHighlightedFeature: highlightedFeature};
     }
     const dataSource = features || [];
     const highlightedFeatureIndex = dataSource.findIndex(
