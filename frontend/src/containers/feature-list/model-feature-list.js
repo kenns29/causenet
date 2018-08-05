@@ -14,7 +14,7 @@ export default class FeatureList extends PureComponent {
         }}
         dataSource={dataSource}
         size="small"
-        renderItem={item => <List.Item>{item}</List.Item>}
+        renderItem={({feature}) => <List.Item>{feature}</List.Item>}
         style={{marginLeft: 5}}
       />
     );

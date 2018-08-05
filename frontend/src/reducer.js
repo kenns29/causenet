@@ -142,7 +142,7 @@ const handleUpdateFeatureSelection = (state, {payload}) => ({
 
 const handleUpdateFeatureValuesMap = (state, {payload}) => ({
   ...state,
-  featureValueMap: payload
+  featureValuesMap: payload
 });
 
 export default handleActions(

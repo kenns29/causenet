@@ -203,7 +203,7 @@ export const fetchFeatureValuesMap = features => async dispatch => {
     const response = await fetch(`${BACKEND_URL}/load_feature_values_map`);
     const data = await response.json();
     dispatch(updateFeatureValuesMap(data));
-    return Promise.resove(data);
+    return Promise.resolve(data);
   } catch (err) {
     throw new Error(err);
   }

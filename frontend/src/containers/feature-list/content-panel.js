@@ -4,12 +4,12 @@ import {Tabs} from 'antd';
 import AllFeatureList from './all-feature-list';
 import SelectedFeatureList from './selected-feature-list';
 import ModelFeatureList from './model-feature-list';
-import {getRawBayesianModelFeatures} from '../../selectors/data';
+import {getBayesianModelFeatures} from '../../selectors/data';
 
 const mapDispatchToProps = {};
 
 const mapStateToProps = state => ({
-  bayesianModelFeatures: getRawBayesianModelFeatures(state)
+  bayesianModelFeatures: getBayesianModelFeatures(state)
 });
 
 class ContentPanel extends PureComponent {
