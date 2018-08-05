@@ -1,7 +1,16 @@
 import React, {PureComponent} from 'react';
-import {List} from 'antd';
+import {List, Select} from 'antd';
 
 export default class FeatureList extends PureComponent {
+  _renderSelect = values => (
+    <Select defaultValue="" size="small" style={{width: 200}}>
+      {values.map(value => (
+        <Select.Option key={value} value={value}>
+          {value}
+        </Select.Option>
+      ))}
+    </Select>
+  );
   render() {
     const {features, height} = this.props;
     const dataSource = features || [];
@@ -14,7 +23,11 @@ export default class FeatureList extends PureComponent {
         }}
         dataSource={dataSource}
         size="small"
-        renderItem={({feature}) => <List.Item>{feature}</List.Item>}
+        renderItem={({feature, values}) => (
+          <List.Item actions={[this._renderSelect(values)]}>
+            {feature}
+          </List.Item>
+        )}
         style={{marginLeft: 5}}
       />
     );
