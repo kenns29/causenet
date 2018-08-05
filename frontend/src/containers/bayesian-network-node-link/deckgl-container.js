@@ -40,7 +40,12 @@ export default class ContentPanel extends PureComponent {
         getFillColor: ({label}) =>
           showLabels
             ? [255, 255, 255, this._getAlpha(label)]
-            : [64, 64, 64, this._getAlpha(label)],
+            : [
+              ...(highlightedFeature === label
+                ? [255, 140, 0]
+                : [64, 64, 64]),
+              this._getAlpha(label)
+            ],
         getStrokeColor: ({label}) =>
           showLabels
             ? [
@@ -67,7 +72,7 @@ export default class ContentPanel extends PureComponent {
               : null
           ),
         updateTriggers: {
-          getFillColor: [showLabels, highlightedEdge],
+          getFillColor: [showLabels, highlightedEdge, highlightedFeature],
           getStrokeColor: [showLabels, highlightedEdge, highlightedFeature]
         }
       })

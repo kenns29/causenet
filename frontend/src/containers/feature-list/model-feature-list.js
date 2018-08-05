@@ -5,7 +5,8 @@ import {
   getBayesianModelFeatures,
   getHighlightedBayesianModelFeature
 } from '../../selectors/data';
-const mapDispatchToProps = {};
+import {updateHighlightedBayesianModelFeature} from '../../actions';
+const mapDispatchToProps = {updateHighlightedBayesianModelFeature};
 
 const mapStateToProps = state => ({
   features: getBayesianModelFeatures(state),
@@ -78,6 +79,13 @@ class FeatureList extends PureComponent {
             style={{
               backgroundColor: highlightedFeature === feature && 'lightgrey'
             }}
+            onClick={() =>
+              this.props.updateHighlightedBayesianModelFeature(
+                highlightedFeature && highlightedFeature === feature
+                  ? null
+                  : feature
+              )
+            }
           >
             {feature}
           </List.Item>
