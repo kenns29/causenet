@@ -152,7 +152,7 @@ def train_bayesian_model():
 
 @blueprint.route('/load_model_list', methods=['GET'])
 def load_model_list():
-    return jsonify(get_model_list())
+    return jsonify([{'name': d['name'], 'model_file': d['model_file']} for d in get_model_list()])
 
 
 @blueprint.route('/load_feature_selection', methods=['GET'])
