@@ -5,6 +5,7 @@ import {
   UPDATE_DATASET_LIST,
   FETCH_BAYESIAN_NETWORK_START,
   UPDATE_BAYESIAN_NETWORK,
+  UPDATE_MODIFIED_BAYSIAN_NETWORK,
   UPDATE_BAYESIAN_MODEL_FEATURES,
   UPDATE_BAYESIAN_MODEL_FEATURE_VALUE_SELECTION_MAP,
   UPDATE_HIGHLIGHTED_BAYESIAN_NETWORK_EDGE,
@@ -34,6 +35,8 @@ const DEFAULT_STATE = {
   //  },
   //  ...]
   bayesianNetwork: [],
+  // The modified Bayesian network after some features are set to fixed values
+  modifiedBayesianNetwork: [],
   // The complete list of features of the selected bayesian model
   bayesianModelFeatures: [],
   bayesianModelFeatureValueSelectionMap: {},
@@ -95,6 +98,11 @@ const handleUpdateBayesianNetwork = (state, {payload}) => ({
   ...state,
   bayesianNetwork: payload,
   isFetchingData: false
+});
+
+const handleUpdateModifiedBayesianNetwork = (state, {payload}) => ({
+  ...state,
+  modifiedBayesianNetwork: payload
 });
 
 const handleUpdateBayesianModelFeatures = (state, {payload}) => ({
@@ -170,6 +178,7 @@ export default handleActions(
     [UPDATE_DATASET_LIST]: handleUpdateDatasetList,
     [FETCH_BAYESIAN_NETWORK_START]: handleFecthBayesianNetworkStart,
     [UPDATE_BAYESIAN_NETWORK]: handleUpdateBayesianNetwork,
+    [UPDATE_MODIFIED_BAYSIAN_NETWORK]: handleUpdateModifiedBayesianNetwork,
     [UPDATE_BAYESIAN_MODEL_FEATURES]: handleUpdateBayesianModelFeatures,
     [UPDATE_BAYESIAN_MODEL_FEATURE_VALUE_SELECTION_MAP]: handleUpdateBayesianModelFeatureValueSelectionMap,
     [UPDATE_HIGHLIGHTED_BAYESIAN_NETWORK_EDGE]: handleUpdateHighlightedBayesianNetworkEdge,

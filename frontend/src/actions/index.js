@@ -7,6 +7,8 @@ export const UPDATE_CURRENT_DATASET_NAME = 'UPDDATE_CURRENT_DATASET_NAME';
 export const UPDATE_DATASET_LIST = 'UPDATE_DATASET_LIST';
 export const FETCH_BAYESIAN_NETWORK_START = 'FETCH_BAYESIAN_NETWORK_START';
 export const UPDATE_BAYESIAN_NETWORK = 'UPDATE_BAYESIAN_NETWORK';
+export const UPDATE_MODIFIED_BAYSIAN_NETWORK =
+  'UPDATE_MODIFIED_BAYSIAN_NETWORK';
 export const UPDATE_BAYESIAN_MODEL_FEATURES = 'UPDATE_BAYESIAN_MODEL_FEATURES';
 export const UPDATE_BAYESIAN_MODEL_FEATURE_VALUE_SELECTION_MAP =
   'UPDATE_BAYESIAN_MODEL_FEATURE_VALUE_SELECTION_MAP';
@@ -35,6 +37,9 @@ export const fetchBayesianNetworkStart = createAction(
   FETCH_BAYESIAN_NETWORK_START
 );
 export const updateBayesianNetwork = createAction(UPDATE_BAYESIAN_NETWORK);
+export const updateModifiedBayesianNetwork = createAction(
+  UPDATE_MODIFIED_BAYSIAN_NETWORK
+);
 export const updateBayesianModelFeatures = createAction(
   UPDATE_BAYESIAN_MODEL_FEATURES
 );
@@ -104,6 +109,21 @@ export const fetchBayesianNetwork = ({name = 'model'}) => async dispatch => {
     const response = await fetch(`${BACKEND_URL}/load_model?name=${name}`);
     const data = await response.json();
     dispatch(updateBayesianNetwork(data));
+    return Promise.resolve(data);
+  } catch (err) {
+    throw new Error(err);
+  }
+};
+
+export const fetchModifiedBayesianNetwork = ({
+  name = 'model'
+}) => async dispatch => {
+  try {
+    const response = await fetch(
+      `${BACKEND_URL}/load_modified_model?name=${name}`
+    );
+    const data = await response.json();
+    dispatch(updateModifiedBayesianNetwork(data));
     return Promise.resolve(data);
   } catch (err) {
     throw new Error(err);

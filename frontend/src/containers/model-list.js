@@ -5,6 +5,7 @@ import {
   requestDeleteModel,
   updateSelectedModel,
   fetchBayesianNetwork,
+  fetchModifiedBayesianNetwork,
   fetchBayesianModelFeatures,
   fetchModelFeatureValueSelectionMap,
   fetchModelList
@@ -15,6 +16,7 @@ const mapDispatchToProps = {
   requestDeleteModel,
   updateSelectedModel,
   fetchBayesianNetwork,
+  fetchModifiedBayesianNetwork,
   fetchBayesianModelFeatures,
   fetchModelFeatureValueSelectionMap,
   fetchModelList
@@ -38,6 +40,7 @@ class ModelList extends PureComponent {
         selectData={key => {
           this.props.updateSelectedModel(key);
           this.props.fetchBayesianNetwork({name: key});
+          this.props.fetchModifiedBayesianNetwork({name: key});
           this.props.fetchBayesianModelFeatures({name: key});
           this.props.fetchModelFeatureValueSelectionMap({name: key});
         }}
