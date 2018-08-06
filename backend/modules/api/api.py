@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request, redirect, url_for, json
 from modules.service.model_utils import get_model, delete_model, blip_learn_structure, train_model, \
     get_weighted_edges, write_weighted_edges, get_model_list, update_feature_selection, get_feature_selection, \
-    update_model_feature_value_selection_map, get_model_feature_value_selection_map
+    update_model_feature_value_selection_map, get_model_feature_value_selection_map, reduce_model
 from modules.service.edge_weights import get_edge_weights
 from modules.service.data_utils import load_data, load_pdist, load_clustering, get_current_dataset_name, \
     get_dataset_config, update_current_dataset_name as update_current_dataset_name_util, get_index2col
@@ -92,7 +92,7 @@ def load_clustering_binary_tree():
 @blueprint.route('/load_model', methods=['GET'])
 def load_model():
     name = request.args.get('name') if request.args.get('name') else 'model.bin'
-    print('loading model {}'.format(name))
+    print('loading model {} ...'.format(name))
     model = get_model(name)
     print('loading edges weights ...')
     weighted_edges = get_weighted_edges(name)
@@ -100,8 +100,20 @@ def load_model():
         print('edge weights not found, calculation edge weights ...')
         weighted_edges = get_edge_weights(model)
         write_weighted_edges(weighted_edges, name)
-    edge_list = [{'source': s, 'target': t, 'weight': w} for (s, t), w in weighted_edges]
-    return jsonify(edge_list)
+    return jsonify([{'source': s, 'target': t, 'weight': w} for (s, t), w in weighted_edges])
+
+
+@blueprint.route('/load_modified_model', methods=['GET'])
+def load_modifed_model():
+    name = request.args.get('name') if request.args.get('name') else 'model.bin'
+    print('loading modified model {} ...'.format(name))
+    model = get_model(name)
+    feature_value_selection_map = get_model_feature_value_selection_map(name)
+    print('reducing the model {} ...'.format(name))
+    reduced_model = reduce_model(model, feature_value_selection_map)
+    print('calculating edge weights for reduced model {} ...'.format(name))
+    weighted_edges = get_edge_weights(reduced_model)
+    return jsonify([{'source': s, 'target': t, 'weight': w} for (s, t), w in weighted_edges])
 
 
 @blueprint.route('/load_model_features', methods=['GET'])

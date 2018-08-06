@@ -238,12 +238,6 @@ export const requestUpdateModelFeatureValueSelectionMap = ({
   name = 'model',
   featureValueSelectionMap
 }) => async dispatch => {
-  console.log(
-    'name',
-    name,
-    'featureValueSelectionMap',
-    featureValueSelectionMap
-  );
   try {
     const response = await fetch(
       `${BACKEND_URL}/update_model_feature_value_selection_map?name=${name}`,

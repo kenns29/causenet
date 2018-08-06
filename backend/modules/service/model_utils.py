@@ -1,7 +1,8 @@
 import os, pickle, subprocess, re, json
 from pgmpy.models import BayesianModel
 from pgmpy.estimators import BayesianEstimator
-from modules.service.data_utils import get_current_dataset_name, to_blip_str, get_index2col
+from modules.service.data_utils import get_current_dataset_name, to_blip_str, get_index2col, \
+    get_col2index, get_blip_value_converters, load_data
 from setup import blip_data_dir, blip_dir, model_dir, model_config_dir
 
 
@@ -168,6 +169,18 @@ def get_feature_selection():
 
 
 def reduce_model(model, values=[]):
+    """
+    reduce the model by setting some features to a fix value
+
+    :param model: the full bayesian model
+    :param values: Array of tuples [(feature_name, value), ...] or a dictionary {feature_name: value, ...}
+    :return: The reduced model
+    """
+    data = load_data()
+    value_converters = get_blip_value_converters(data)
+    col2index = get_col2index(data)
+    values = [(key, value_converters[col2index[key]][value]) for key, value in
+              (values.items() if isinstance(values, dict) else values)]
     m = model.copy()
     for variable, value in values:
         for node in m.nodes():
@@ -176,6 +189,7 @@ def reduce_model(model, values=[]):
                 cpd.reduce([(variable, value)])
                 m.remove_edge(variable, node)
         m.remove_node(variable)
+    m.check_model()
     return m
 
 
