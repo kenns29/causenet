@@ -17,7 +17,10 @@ export default class ContentPanel extends PureComponent {
           source === highlightedEdge.target)
     );
   };
-  _getAlpha = (source, target) => {
+  _getAlpha = (source, target, isRemoved) => {
+    if (isRemoved) {
+      return 50;
+    }
     const {highlightedEdge} = this.props;
     if (!highlightedEdge) {
       return 255;
@@ -37,28 +40,28 @@ export default class ContentPanel extends PureComponent {
         data: nodes,
         getPosition: ({x, y}) => [x, y],
         getRadius: ({width, height}) => Math.max(width, height) / 2,
-        getFillColor: ({label}) =>
+        getFillColor: ({label, isRemoved}) =>
           showLabels
-            ? [255, 255, 255, this._getAlpha(label)]
+            ? [255, 255, 255, this._getAlpha(label, null, isRemoved)]
             : [
               ...(highlightedFeature === label
                 ? [255, 140, 0]
                 : [64, 64, 64]),
-              this._getAlpha(label)
+              this._getAlpha(label, null, isRemoved)
             ],
-        getStrokeColor: ({label}) =>
+        getStrokeColor: ({label, isRemoved}) =>
           showLabels
             ? [
               ...(highlightedFeature === label
                 ? [255, 140, 0]
                 : [180, 180, 180]),
-              this._getAlpha(label)
+              this._getAlpha(label, null, isRemoved)
             ]
             : [
               ...(highlightedFeature === label
                 ? [255, 140, 0]
                 : [64, 64, 64]),
-              this._getAlpha(label)
+              this._getAlpha(label, null, isRemoved)
             ],
         strokeWidth: 2,
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
@@ -88,11 +91,11 @@ export default class ContentPanel extends PureComponent {
       data: edges,
       getPath: ({points}) => points.map(({x, y}) => [x, y]),
       getWidth: () => 1,
-      getColor: ({sourceId, targetId}) => [
+      getColor: ({sourceId, targetId, isRemoved}) => [
         64,
         64,
         64,
-        this._getAlpha(sourceId, targetId)
+        this._getAlpha(sourceId, targetId, isRemoved)
       ],
       coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
       pickable: true,
@@ -135,17 +138,17 @@ export default class ContentPanel extends PureComponent {
             l: 10,
             w: 5
           }),
-        getFillColor: ({sourceId, targetId}) => [
+        getFillColor: ({sourceId, targetId, isRemoved}) => [
           64,
           64,
           64,
-          this._getAlpha(sourceId, targetId)
+          this._getAlpha(sourceId, targetId, isRemoved)
         ],
-        getLineColor: ({sourceId, targetId}) => [
+        getLineColor: ({sourceId, targetId, isRemoved}) => [
           64,
           64,
           64,
-          this._getAlpha(sourceId, targetId)
+          this._getAlpha(sourceId, targetId, isRemoved)
         ],
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
         updateTriggers: {

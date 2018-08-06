@@ -37,12 +37,12 @@ class ModelList extends PureComponent {
           await this.props.requestDeleteModel({name: key});
           this.props.fetchModelList();
         }}
-        selectData={key => {
+        selectData={async key => {
           this.props.updateSelectedModel(key);
-          this.props.fetchBayesianNetwork({name: key});
-          this.props.fetchModifiedBayesianNetwork({name: key});
           this.props.fetchBayesianModelFeatures({name: key});
           this.props.fetchModelFeatureValueSelectionMap({name: key});
+          await this.props.fetchModifiedBayesianNetwork({name: key});
+          this.props.fetchBayesianNetwork({name: key});
         }}
         checked={(text, record) => record.key === selectedModel}
       />
