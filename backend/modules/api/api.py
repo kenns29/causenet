@@ -110,7 +110,7 @@ def load_modifed_model():
     feature_value_selection_map = get_model_feature_value_selection_map(name)
     if not feature_value_selection_map:
         print('no modification on model, loading the full model {} ...'.format(name))
-        return redirect(url_for('.load_model'))
+        return redirect(url_for('.load_model', name=name))
     model = get_model(name)
     print('reducing the model {} ...'.format(name))
     reduced_model = reduce_model(model, feature_value_selection_map)

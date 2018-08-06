@@ -4,6 +4,7 @@ import {
   UPDATE_CURRENT_DATASET_NAME,
   UPDATE_DATASET_LIST,
   FETCH_BAYESIAN_NETWORK_START,
+  FETCH_MODIFIED_BAYESIAN_NETWORK_START,
   UPDATE_BAYESIAN_NETWORK,
   UPDATE_MODIFIED_BAYSIAN_NETWORK,
   UPDATE_BAYESIAN_MODEL_FEATURES,
@@ -23,7 +24,8 @@ import {
 const DEFAULT_STATE = {
   screenWidth: 0,
   screenHeight: 0,
-  isFetchingData: false,
+  isFetchingBayesianNetwork: false,
+  isFetchingModifiedBayesianNetwork: false,
   currentDatasetName: null, // the current dataset name
   datasetList: [], // the names of all the available datasets
   // the raw Bayesian Network data:
@@ -89,20 +91,26 @@ const handleUpdateDatasetList = (state, {payload}) => ({
   datasetList: payload
 });
 
-const handleFecthBayesianNetworkStart = (state, {payload}) => ({
+const handleFetchBayesianNetworkStart = state => ({
   ...state,
-  isFetchingData: true
+  isFetchingBayesianNetwork: true
+});
+
+const handleFetchModifiedBayesianNetworkStart = state => ({
+  ...state,
+  isFetchingModifiedBayesianNetwork: true
 });
 
 const handleUpdateBayesianNetwork = (state, {payload}) => ({
   ...state,
   bayesianNetwork: payload,
-  isFetchingData: false
+  isFetchingBayesianNetwork: false
 });
 
 const handleUpdateModifiedBayesianNetwork = (state, {payload}) => ({
   ...state,
-  modifiedBayesianNetwork: payload
+  modifiedBayesianNetwork: payload,
+  isFetchingModifiedBayesianNetwork: false
 });
 
 const handleUpdateBayesianModelFeatures = (state, {payload}) => ({
@@ -176,7 +184,8 @@ export default handleActions(
     [UPDATE_SCREEN_SIZE]: handleUpdateScreenSize,
     [UPDATE_CURRENT_DATASET_NAME]: handleUpdateCurrentDatasetName,
     [UPDATE_DATASET_LIST]: handleUpdateDatasetList,
-    [FETCH_BAYESIAN_NETWORK_START]: handleFecthBayesianNetworkStart,
+    [FETCH_BAYESIAN_NETWORK_START]: handleFetchBayesianNetworkStart,
+    [FETCH_MODIFIED_BAYESIAN_NETWORK_START]: handleFetchModifiedBayesianNetworkStart,
     [UPDATE_BAYESIAN_NETWORK]: handleUpdateBayesianNetwork,
     [UPDATE_MODIFIED_BAYSIAN_NETWORK]: handleUpdateModifiedBayesianNetwork,
     [UPDATE_BAYESIAN_MODEL_FEATURES]: handleUpdateBayesianModelFeatures,

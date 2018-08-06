@@ -6,6 +6,8 @@ export const UPDATE_SCREEN_SIZE = 'UPDATE_SCREEN_SIZE';
 export const UPDATE_CURRENT_DATASET_NAME = 'UPDDATE_CURRENT_DATASET_NAME';
 export const UPDATE_DATASET_LIST = 'UPDATE_DATASET_LIST';
 export const FETCH_BAYESIAN_NETWORK_START = 'FETCH_BAYESIAN_NETWORK_START';
+export const FETCH_MODIFIED_BAYESIAN_NETWORK_START =
+  'FETCH_MODIFIED_BAYESIAN_NETWORK_START';
 export const UPDATE_BAYESIAN_NETWORK = 'UPDATE_BAYESIAN_NETWORK';
 export const UPDATE_MODIFIED_BAYSIAN_NETWORK =
   'UPDATE_MODIFIED_BAYSIAN_NETWORK';
@@ -35,6 +37,9 @@ export const updateCurrentDatasetName = createAction(
 export const updateDatasetList = createAction(UPDATE_DATASET_LIST);
 export const fetchBayesianNetworkStart = createAction(
   FETCH_BAYESIAN_NETWORK_START
+);
+export const fetchModifiedBayesianNetworkStart = createAction(
+  FETCH_MODIFIED_BAYESIAN_NETWORK_START
 );
 export const updateBayesianNetwork = createAction(UPDATE_BAYESIAN_NETWORK);
 export const updateModifiedBayesianNetwork = createAction(
@@ -119,6 +124,7 @@ export const fetchModifiedBayesianNetwork = ({
   name = 'model'
 }) => async dispatch => {
   try {
+    dispatch(fetchModifiedBayesianNetworkStart());
     const response = await fetch(
       `${BACKEND_URL}/load_modified_model?name=${name}`
     );

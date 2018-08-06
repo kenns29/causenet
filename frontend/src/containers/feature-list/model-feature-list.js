@@ -9,11 +9,13 @@ import {
 } from '../../selectors/data';
 import {
   updateHighlightedBayesianModelFeature,
-  requestUpdateModelFeatureValueSelectionMap
+  requestUpdateModelFeatureValueSelectionMap,
+  fetchModifiedBayesianNetwork
 } from '../../actions';
 const mapDispatchToProps = {
   updateHighlightedBayesianModelFeature,
-  requestUpdateModelFeatureValueSelectionMap
+  requestUpdateModelFeatureValueSelectionMap,
+  fetchModifiedBayesianNetwork
 };
 
 const mapStateToProps = state => ({
@@ -82,8 +84,8 @@ class FeatureList extends PureComponent {
         value={value2str(featureValueSelectionMap[feature])}
         size="small"
         style={{width: 200}}
-        onSelect={value =>
-          this.props.requestUpdateModelFeatureValueSelectionMap({
+        onSelect={async value => {
+          await this.props.requestUpdateModelFeatureValueSelectionMap({
             name: selectedModel,
             featureValueSelectionMap:
               value === 'NONE'
@@ -94,8 +96,9 @@ class FeatureList extends PureComponent {
                   ...featureValueSelectionMap,
                   [feature]: str2value(value)
                 }
-          })
-        }
+          });
+          await this.props.fetchModifiedBayesianNetwork({name: selectedModel});
+        }}
       >
         {['NONE'].concat(values).map(value => {
           const str = value2str(value);

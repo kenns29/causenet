@@ -33,6 +33,11 @@ export const getSelectedModel = createSelector(
   state => state.selectedModel
 );
 
+export const getIsFetchingModifiedBayesianNetwork = createSelector(
+  rootSelector,
+  state => state.isFetchingModifiedBayesianNetwork
+);
+
 export const getRawBayesianNetwork = createSelector(
   rootSelector,
   state => state.bayesianNetwork
@@ -125,7 +130,7 @@ export const getNodeMap = createSelector(getRawBayesianNetwork, data =>
  * cols: matrix columns -- Array of labels
  * cells: matrix cells -- Array of cells
  */
-export const getMatrix = createSelector(getRawBayesianNetwork, data => {
+export const getMatrix = createSelector(getRawModifiedBayesianNetwork, data => {
   const generate = links2generator()
     .links(data)
     .source(d => d.source)
