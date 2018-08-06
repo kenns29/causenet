@@ -107,8 +107,11 @@ def load_model():
 def load_modifed_model():
     name = request.args.get('name') if request.args.get('name') else 'model.bin'
     print('loading modified model {} ...'.format(name))
-    model = get_model(name)
     feature_value_selection_map = get_model_feature_value_selection_map(name)
+    if not feature_value_selection_map:
+        print('no modification on model, loading the full model {} ...'.format(name))
+        return redirect(url_for('.load_model'))
+    model = get_model(name)
     print('reducing the model {} ...'.format(name))
     reduced_model = reduce_model(model, feature_value_selection_map)
     print('calculating edge weights for reduced model {} ...'.format(name))
