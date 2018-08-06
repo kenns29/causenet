@@ -213,3 +213,36 @@ export const fetchFeatureValuesMap = features => async dispatch => {
     throw new Error(err);
   }
 };
+
+export const fetchModelFeatureValueSelection = ({
+  name = 'model'
+}) => async dispatch => {
+  try {
+    const response = await fetch(
+      `${BACKEND_URL}/load_model_feature_value_selection?name=${name}`
+    );
+    const data = await response.json();
+    return Promise.resolve(data);
+  } catch (err) {
+    throw new Error(err);
+  }
+};
+
+export const requestUpdateModelFeatureValueSelection = ({
+  name = 'model',
+  featureValueSelection
+}) => async dispatch => {
+  try {
+    const response = await fetch(
+      `${BACKEND_URL}/update_model_feature_value_selection?name=${name}`,
+      {
+        method: 'POST',
+        body: JSON.stringify(featureValueSelection)
+      }
+    );
+    const data = await response.json();
+    return Promise.resolve(data);
+  } catch (err) {
+    throw new Error(err);
+  }
+};

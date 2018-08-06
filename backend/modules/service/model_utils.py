@@ -177,3 +177,32 @@ def reduce_model(model, values=[]):
                 m.remove_edge(variable, node)
         m.remove_node(variable)
     return m
+
+
+def get_model_feature_value_selection(name):
+    current_dataset_model_dir = get_current_dataset_model_dir()
+    if not os.path.exists(current_dataset_model_dir + '/feature_value_selection.' + name):
+        return {}
+    with open(current_dataset_model_dir + '/feature_value_selection.' + name, mode='r') as file:
+        return json.load(file)
+
+
+def update_model_feature_value_selection(name, feature_value_selection):
+    """
+    Update the model feature value selection
+
+    :param name: Name of the model
+    :param feature_value_selection: the value of features --- dict<str, str || number || boolean>
+    :return: feature_value_selection
+    """
+    with open(get_current_dataset_model_dir() + '/feature_value_selection.' + name, mode='w+') as file:
+        json.dump(feature_value_selection, file, indent='\t')
+    with open(model_config_dir, mode='r+') as file:
+        config = json.load(file)
+        status = config[get_current_dataset_name()]
+        models = status['models']
+        models[name]['feature_value_selection_file'] = 'feature_value_selection.' + name
+        file.seek(0)
+        json.dump(config, file, indent='\t')
+        file.truncate()
+    return feature_value_selection

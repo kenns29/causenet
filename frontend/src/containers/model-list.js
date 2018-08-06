@@ -6,6 +6,8 @@ import {
   updateSelectedModel,
   fetchBayesianNetwork,
   fetchBayesianModelFeatures,
+  fetchModelFeatureValueSelection,
+  requestUpdateModelFeatureValueSelection,
   fetchModelList
 } from '../actions';
 import DataTable from '../components/data-table';
@@ -15,6 +17,8 @@ const mapDispatchToProps = {
   updateSelectedModel,
   fetchBayesianNetwork,
   fetchBayesianModelFeatures,
+  fetchModelFeatureValueSelection,
+  requestUpdateModelFeatureValueSelection,
   fetchModelList
 };
 
@@ -37,6 +41,7 @@ class ModelList extends PureComponent {
           this.props.updateSelectedModel(key);
           this.props.fetchBayesianNetwork({name: key});
           this.props.fetchBayesianModelFeatures({name: key});
+          this.props.fetchModelFeatureValueSelection({name: key});
         }}
         checked={(text, record) => record.key === selectedModel}
       />

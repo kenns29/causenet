@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request, redirect, url_for, json
 from modules.service.model_utils import get_model, delete_model, blip_learn_structure, train_model, \
-    get_weighted_edges, write_weighted_edges, get_model_list, update_feature_selection, get_feature_selection
+    get_weighted_edges, write_weighted_edges, get_model_list, update_feature_selection, get_feature_selection, \
+    update_model_feature_value_selection, get_model_feature_value_selection
 from modules.service.edge_weights import get_edge_weights
 from modules.service.data_utils import load_data, load_pdist, load_clustering, get_current_dataset_name, \
     get_dataset_config, update_current_dataset_name as update_current_dataset_name_util, get_index2col
@@ -163,3 +164,17 @@ def load_feature_selection():
 def route_update_feature_selection():
     update_feature_selection(json.loads(request.data))
     return redirect(url_for('.load_feature_selection'))
+
+
+@blueprint.route('/load_model_feature_value_selection', methods=['GET'])
+def load_model_feature_value_selection():
+    name = request.args.get('name') if request.args.get('name') else 'model.bin'
+    return jsonify(get_model_feature_value_selection(name))
+
+
+@blueprint.route('/update_model_feature_value_selection', methods=['POST'])
+def route_update_model_feature_value_selection():
+    name = request.args.get('name') if request.args.get('name') else 'model.bin'
+    feature_value_selection = json.loads(request.data)
+    update_model_feature_value_selection(name, feature_value_selection)
+    return redirect(url_for('.load_model_feature_value_selection', name=name))
