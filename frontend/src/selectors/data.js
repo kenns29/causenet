@@ -10,7 +10,8 @@ import {
   getTreeLeaves,
   cutTreeByDist,
   getCutTree,
-  findMaxDistancePair
+  findMaxDistancePair,
+  createNodeMap
 } from '../utils';
 
 export const getCurrentDatasetName = createSelector(
@@ -108,18 +109,33 @@ export const getBayesianModelFeatures = createSelector(
 );
 
 /**
- * Obtain a map (label -> Node) in the bayesian network
+ * Obtain a map (label -> Node) in the Bayesian network
  * @param {Array} rawBayesianNetwork
  * @return {Object} the map
  */
-export const getNodeMap = createSelector(getRawBayesianNetwork, data =>
-  data.reduce((map, {source, target}) => {
-    return [source, target].reduce(
-      (m, label) =>
-        m.hasOwnProperty(label) ? m : Object.assign(m, {[label]: {label}}),
-      map
-    );
-  }, {})
+export const getNodeMap = createSelector(getRawBayesianNetwork, createNodeMap);
+
+/**
+ * Obtain a map (label -> Node) in the modified Bayesian network
+ * @param {Array} rawModifiedBayesianNetwork
+ * @return {Object} the map
+ */
+export const getModifiedNodeMap = createSelector(
+  getRawModifiedBayesianNetwork,
+  createNodeMap
+);
+
+/**
+ * Obtain a map ('sourceId-targetId' -> link) in the modified Bayesian network
+ */
+export const getModifiedLinkMap = createSelector(
+  getRawModifiedBayesianNetwork,
+  data =>
+    data.reduce(
+      (map, link) =>
+        Object.assign(map, {[link.source + '-' + link.target]: link}),
+      {}
+    )
 );
 
 /**
@@ -194,21 +210,53 @@ export const getMatrixLayout = createSelector(
 );
 
 /**
+ * Obtain the node-link data for the Bayesian Network
+ */
+export const getBayesianNetworkNodeLink = createSelector(
+  [
+    getRawBayesianNetwork,
+    getModifiedLinkMap,
+    getNodeMap,
+    getModifiedNodeMap,
+    getRawBayesianModelFeatureValueSelectionMap
+  ],
+  (
+    rawLinks,
+    modifiedLinkMap,
+    nodeMap,
+    modifiedNodeMap,
+    featureValueSelectionMap
+  ) => {
+    const nodes = Object.values(nodeMap).map(node => ({
+      ...node,
+      isModified: featureValueSelectionMap.hasOwnProperty(node.label),
+      isRemoved: !modifiedNodeMap.hasOwnProperty(node.label)
+    }));
+    const links = rawLinks.map(({source, target, weight}) => ({
+      source,
+      target,
+      weight,
+      isRemoved: !modifiedLinkMap.hasOwnProperty(source + '-' + target)
+    }));
+    return {nodes, links};
+  }
+);
+
+/**
  * Obtain the Bayesian Network in a direct acyclic graph (DAG) layout using
  * the Dagre JavaScript library <https://github.com/dagrejs/dagre>
  */
 export const getDagLayout = createSelector(
-  [getRawBayesianNetwork, getNodeMap],
-  (links, nodeMap) => {
-    const nodes = Object.values(nodeMap);
+  getBayesianNetworkNodeLink,
+  ({nodes, links}) => {
     const dag = new dagre.graphlib.Graph();
     dag.setGraph({rankdir: 'LR'});
     dag.setDefaultEdgeLabel(() => {});
     nodes.forEach(node => {
       dag.setNode(node.label, {...node, width: 30, height: 30});
     });
-    links.forEach(({source, target, weight}) => {
-      dag.setEdge(source, target, {weight});
+    links.forEach(({source, target, weight, isRemoved}) => {
+      dag.setEdge(source, target, {weight, isRemoved});
     });
     dagre.layout(dag);
     const layoutNodes = dag
