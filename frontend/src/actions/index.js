@@ -236,14 +236,20 @@ export const fetchModelFeatureValueSelectionMap = ({
 
 export const requestUpdateModelFeatureValueSelectionMap = ({
   name = 'model',
-  featureValueSelection
+  featureValueSelectionMap
 }) => async dispatch => {
+  console.log(
+    'name',
+    name,
+    'featureValueSelectionMap',
+    featureValueSelectionMap
+  );
   try {
     const response = await fetch(
       `${BACKEND_URL}/update_model_feature_value_selection_map?name=${name}`,
       {
         method: 'POST',
-        body: JSON.stringify(featureValueSelection)
+        body: JSON.stringify(featureValueSelectionMap)
       }
     );
     const data = await response.json();

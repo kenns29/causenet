@@ -43,6 +43,11 @@ export const getRawBayesianModelFeatures = createSelector(
   state => state.bayesianModelFeatures
 );
 
+export const getRawBayesianModelFeatureValueSelectionMap = createSelector(
+  rootSelector,
+  state => state.bayesianModelFeatureValueSelectionMap
+);
+
 export const getHighlightedBayesianNetworkEdge = createSelector(
   rootSelector,
   state => state.highlightedBayesianNetworkEdge

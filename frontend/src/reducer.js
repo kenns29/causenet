@@ -107,7 +107,7 @@ const handleUpdateBayesianModelFeatureValueSelectionMap = (
   {payload}
 ) => ({
   ...state,
-  updateBayesianModelFeatureValueSelectionMap: payload
+  bayesianModelFeatureValueSelectionMap: payload
 });
 
 const handleUpdateHighlightedBayesianNetworkEdge = (state, {payload}) => ({

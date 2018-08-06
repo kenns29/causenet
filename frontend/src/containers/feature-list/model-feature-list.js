@@ -2,18 +2,49 @@ import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
 import {List, Select} from 'antd';
 import {
+  getSelectedModel,
   getBayesianModelFeatures,
+  getRawBayesianModelFeatureValueSelectionMap,
   getHighlightedBayesianModelFeature
 } from '../../selectors/data';
-import {updateHighlightedBayesianModelFeature} from '../../actions';
-const mapDispatchToProps = {updateHighlightedBayesianModelFeature};
+import {
+  updateHighlightedBayesianModelFeature,
+  requestUpdateModelFeatureValueSelectionMap
+} from '../../actions';
+const mapDispatchToProps = {
+  updateHighlightedBayesianModelFeature,
+  requestUpdateModelFeatureValueSelectionMap
+};
 
 const mapStateToProps = state => ({
+  selectedModel: getSelectedModel(state),
   features: getBayesianModelFeatures(state),
-  highlightedFeature: getHighlightedBayesianModelFeature(state)
+  highlightedFeature: getHighlightedBayesianModelFeature(state),
+  featureValueSelectionMap: getRawBayesianModelFeatureValueSelectionMap(state)
 });
 
 const ITEM_HEIGHT = 40;
+
+const str2value = str => {
+  switch (str) {
+  case 'true':
+    return true;
+  case 'false':
+    return false;
+  default:
+    return str;
+  }
+};
+
+const value2str = value => {
+  switch (value) {
+  case false:
+  case true:
+    return value.toString();
+  default:
+    return value;
+  }
+};
 
 class FeatureList extends PureComponent {
   static getDerivedStateFromProps(props, state) {
@@ -44,18 +75,39 @@ class FeatureList extends PureComponent {
       prevHighlightedFeature: null
     };
   }
-  _renderSelect = values => (
-    <Select defaultValue="" size="small" style={{width: 200}}>
-      {values.map(value => {
-        const v = typeof value === 'boolean' ? value.toString() : value;
-        return (
-          <Select.Option key={v} value={v}>
-            {v}
-          </Select.Option>
-        );
-      })}
-    </Select>
-  );
+  _renderSelect = (feature, values) => {
+    const {selectedModel, featureValueSelectionMap} = this.props;
+    return (
+      <Select
+        value={value2str(featureValueSelectionMap[feature])}
+        size="small"
+        style={{width: 200}}
+        onSelect={value =>
+          this.props.requestUpdateModelFeatureValueSelectionMap({
+            name: selectedModel,
+            featureValueSelectionMap:
+              value === 'NONE'
+                ? Object.entries(featureValueSelectionMap)
+                  .filter(([key]) => key !== feature)
+                  .reduce((m, [key, v]) => Object.assign(m, {[key]: v}), {})
+                : {
+                  ...featureValueSelectionMap,
+                  [feature]: str2value(value)
+                }
+          })
+        }
+      >
+        {['NONE'].concat(values).map(value => {
+          const str = value2str(value);
+          return (
+            <Select.Option key={str} value={str}>
+              {str}
+            </Select.Option>
+          );
+        })}
+      </Select>
+    );
+  };
   render() {
     const {features, highlightedFeature} = this.props;
     const {pageSize} = this.state;
@@ -75,7 +127,7 @@ class FeatureList extends PureComponent {
         size="small"
         renderItem={({feature, values}) => (
           <List.Item
-            actions={[this._renderSelect(values)]}
+            actions={[this._renderSelect(feature, values)]}
             style={{
               backgroundColor: highlightedFeature === feature && 'lightgrey'
             }}
