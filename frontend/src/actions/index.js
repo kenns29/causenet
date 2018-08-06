@@ -8,6 +8,8 @@ export const UPDATE_DATASET_LIST = 'UPDATE_DATASET_LIST';
 export const FETCH_BAYESIAN_NETWORK_START = 'FETCH_BAYESIAN_NETWORK_START';
 export const UPDATE_BAYESIAN_NETWORK = 'UPDATE_BAYESIAN_NETWORK';
 export const UPDATE_BAYESIAN_MODEL_FEATURES = 'UPDATE_BAYESIAN_MODEL_FEATURES';
+export const UPDATE_BAYESIAN_MODEL_FEATURE_VALUE_SELECTION_MAP =
+  'UPDATE_BAYESIAN_MODEL_FEATURE_VALUE_SELECTION_MAP';
 export const UPDATE_HIGHLIGHTED_BAYESIAN_NETWORK_EDGE =
   'UPDATE_HIGHLIGHTED_BAYESIAN_NETWORK_EDGE';
 export const UPDATE_HIGHLIGHTED_BAYESIAN_MODEL_FEATURE =
@@ -35,6 +37,9 @@ export const fetchBayesianNetworkStart = createAction(
 export const updateBayesianNetwork = createAction(UPDATE_BAYESIAN_NETWORK);
 export const updateBayesianModelFeatures = createAction(
   UPDATE_BAYESIAN_MODEL_FEATURES
+);
+export const updateBayesianModelFeatureValueSelectionMap = createAction(
+  UPDATE_BAYESIAN_MODEL_FEATURE_VALUE_SELECTION_MAP
 );
 export const updateHighlightedBayesianNetworkEdge = createAction(
   UPDATE_HIGHLIGHTED_BAYESIAN_NETWORK_EDGE
@@ -214,33 +219,35 @@ export const fetchFeatureValuesMap = features => async dispatch => {
   }
 };
 
-export const fetchModelFeatureValueSelection = ({
+export const fetchModelFeatureValueSelectionMap = ({
   name = 'model'
 }) => async dispatch => {
   try {
     const response = await fetch(
-      `${BACKEND_URL}/load_model_feature_value_selection?name=${name}`
+      `${BACKEND_URL}/load_model_feature_value_selection_map?name=${name}`
     );
     const data = await response.json();
+    dispatch(updateBayesianModelFeatureValueSelectionMap(data));
     return Promise.resolve(data);
   } catch (err) {
     throw new Error(err);
   }
 };
 
-export const requestUpdateModelFeatureValueSelection = ({
+export const requestUpdateModelFeatureValueSelectionMap = ({
   name = 'model',
   featureValueSelection
 }) => async dispatch => {
   try {
     const response = await fetch(
-      `${BACKEND_URL}/update_model_feature_value_selection?name=${name}`,
+      `${BACKEND_URL}/update_model_feature_value_selection_map?name=${name}`,
       {
         method: 'POST',
         body: JSON.stringify(featureValueSelection)
       }
     );
     const data = await response.json();
+    dispatch(updateBayesianModelFeatureValueSelectionMap(data));
     return Promise.resolve(data);
   } catch (err) {
     throw new Error(err);

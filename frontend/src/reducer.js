@@ -6,6 +6,7 @@ import {
   FETCH_BAYESIAN_NETWORK_START,
   UPDATE_BAYESIAN_NETWORK,
   UPDATE_BAYESIAN_MODEL_FEATURES,
+  UPDATE_BAYESIAN_MODEL_FEATURE_VALUE_SELECTION_MAP,
   UPDATE_HIGHLIGHTED_BAYESIAN_NETWORK_EDGE,
   UPDATE_HIGHLIGHTED_BAYESIAN_MODEL_FEATURE,
   UPDATE_MODEL_LIST,
@@ -35,6 +36,7 @@ const DEFAULT_STATE = {
   bayesianNetwork: [],
   // The complete list of features of the selected bayesian model
   bayesianModelFeatures: [],
+  bayesianModelFeatureValueSelectionMap: {},
   // The highlighted edge in the Bayesian Network: null || {source, target, weight}
   highlightedBayesianNetworkEdge: null,
   // Controls the node link view, matrix view and the feature list
@@ -100,6 +102,14 @@ const handleUpdateBayesianModelFeatures = (state, {payload}) => ({
   bayesianModelFeatures: payload
 });
 
+const handleUpdateBayesianModelFeatureValueSelectionMap = (
+  state,
+  {payload}
+) => ({
+  ...state,
+  updateBayesianModelFeatureValueSelectionMap: payload
+});
+
 const handleUpdateHighlightedBayesianNetworkEdge = (state, {payload}) => ({
   ...state,
   highlightedBayesianNetworkEdge: payload
@@ -161,6 +171,7 @@ export default handleActions(
     [FETCH_BAYESIAN_NETWORK_START]: handleFecthBayesianNetworkStart,
     [UPDATE_BAYESIAN_NETWORK]: handleUpdateBayesianNetwork,
     [UPDATE_BAYESIAN_MODEL_FEATURES]: handleUpdateBayesianModelFeatures,
+    [UPDATE_BAYESIAN_MODEL_FEATURE_VALUE_SELECTION_MAP]: handleUpdateBayesianModelFeatureValueSelectionMap,
     [UPDATE_HIGHLIGHTED_BAYESIAN_NETWORK_EDGE]: handleUpdateHighlightedBayesianNetworkEdge,
     [UPDATE_HIGHLIGHTED_BAYESIAN_MODEL_FEATURE]: handleUpdateHighlightedBayesianModelFeature,
     [UPDATE_MODEL_LIST]: handleUpdateModelList,
