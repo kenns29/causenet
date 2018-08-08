@@ -171,7 +171,12 @@ export default class ContentPanel extends PureComponent {
           data: nodes,
           getText: ({label}) => label,
           getPosition: ({x, y}) => [x, y],
-          getColor: ({label}) => [0, 0, 0, this._getAlpha(label)],
+          getColor: ({label, isRemoved}) => [
+            0,
+            0,
+            0,
+            this._getAlpha(label, null, isRemoved)
+          ],
           getSize: 10,
           getAngle: 45,
           coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
