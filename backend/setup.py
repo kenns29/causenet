@@ -4,7 +4,7 @@ version = '0.1.0.dev0'
 
 base_dir = os.path.abspath(os.path.dirname(__file__))
 
-config_dir = base_dir + '/config'
+config_dir = base_dir + '/config.json'
 
 data_dir = base_dir + '/data'
 

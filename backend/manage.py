@@ -1,4 +1,3 @@
-from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager, Server
 from modules import create_app
 from modules.service.initialize import initialize
