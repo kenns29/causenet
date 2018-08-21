@@ -103,14 +103,14 @@ def blip_learn_structure(data):
     index2col = get_index2col(data)
     with open(os.path.join(blip_data_dir, 'input.dat'), mode='w+', encoding='utf-8') as score_file:
         score_file.write(blip_data)
-    subprocess.check_call([
+    subprocess.check_call(
         'java -jar ' + blip_dir + ' scorer.sq -c bdeu -d '
         + os.path.join(blip_data_dir, 'input.dat') + ' -j '
-        + os.path.join(blip_data_dir, 'score.jkl') + ' -n 3 -t 10',
+        + os.path.join(blip_data_dir, 'score.jkl') + ' -n 3 -t 10', shell=True)
+    subprocess.check_call(
         'java -jar ' + blip_dir + ' solver.kg.adv -smp ent -d ' + os.path.join(blip_data_dir, 'input.dat') + ' -j '
         + os.path.join(blip_data_dir, 'score.jkl') + ' -r '
-        + os.path.join(blip_data_dir, 'structure.res') + ' -t 10 -w 4 -v 1'
-    ], shell=True)
+        + os.path.join(blip_data_dir, 'structure.res') + ' -t 10 -w 4 -v 1', shell=True)
 
     with open(os.path.join(blip_data_dir, 'structure.res'), mode='r', encoding='utf-8') as structure_file:
         structure = structure_file.read()
