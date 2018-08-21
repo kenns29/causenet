@@ -1,16 +1,16 @@
-import json, pickle
+import os, json, pickle
 from scipy.spatial.distance import pdist
 from setup import base_dir, data_dir, data_config_dir
 
 
 def get_current_dataset_name():
-    with open(base_dir + '/config.json', mode='r') as file:
+    with open(os.path.join(base_dir, 'config.json'), mode='r') as file:
         config = json.load(file)
         return config['current_dataset']
 
 
 def update_current_dataset_name(name):
-    with open(base_dir + '/config.json', mode='r+') as file:
+    with open(os.path.join(base_dir, 'config.json'), mode='r+') as file:
         config = json.load(file)
         config['current_dataset'] = name
         file.seek(0)
@@ -30,19 +30,19 @@ def get_current_dataset_status():
 
 def load_data():
     status = get_current_dataset_status()
-    with open(data_dir + '/' + status['data_file'], mode='rb') as file:
+    with open(os.path.join(data_dir, status['data_file']), mode='rb') as file:
         return pickle.load(file)
 
 
 def load_pdist():
     status = get_current_dataset_status()
-    with open(data_dir + '/' + status['pdist_file'], mode='rb') as file:
+    with open(os.path.join(data_dir, status['pdist_file']), mode='rb') as file:
         return pickle.load(file)
 
 
 def load_clustering():
     status = get_current_dataset_status()
-    with open(data_dir + '/' + status['clustering_file'], mode='rb') as file:
+    with open(os.path.join(data_dir, status['clustering_file']), mode='rb') as file:
         return pickle.load(file)
 
 

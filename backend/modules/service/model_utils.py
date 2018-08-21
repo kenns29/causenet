@@ -68,16 +68,16 @@ def delete_model(name):
 
 def get_weighted_edges(name):
     current_dataset_model_dir = get_current_dataset_model_dir()
-    if not os.path.exists(current_dataset_model_dir + '/weight.' + name):
+    if not os.path.exists(os.path.join(current_dataset_model_dir, 'weight.' + name)):
         return None
-    with open(current_dataset_model_dir + '/weight.' + name, mode='rb') as file:
+    with open(os.path.join(current_dataset_model_dir, 'weight.' + name), mode='rb') as file:
         return pickle.load(file)
 
 
 def write_weighted_edges(edges, name):
     current_dataset_name = get_current_dataset_name()
     current_dataset_model_dir = get_current_dataset_model_dir()
-    with open(current_dataset_model_dir + '/weight.' + name, mode='wb') as file:
+    with open(os.path.join(current_dataset_model_dir, 'weight.' + name), mode='wb') as file:
         pickle.dump(edges, file)
     with open(model_config_dir, mode='r+', encoding='utf-8') as file:
         config = json.load(file)
@@ -101,16 +101,18 @@ def blip_learn_structure(data):
     """
     blip_data = to_blip_str(data)
     index2col = get_index2col(data)
-    with open(blip_data_dir + '/input.dat', mode='w+', encoding='utf-8') as score_file:
+    with open(os.path.join(blip_data_dir, 'input.dat'), mode='w+', encoding='utf-8') as score_file:
         score_file.write(blip_data)
     subprocess.check_call([
         'java -jar ' + blip_dir + ' scorer.sq -c bdeu -d '
-        + blip_data_dir + '/input.dat -j ' + blip_data_dir + '/score.jkl -n 3 -t 10' + ';'
-        'java -jar ' + blip_dir + ' solver.kg.adv -smp ent -d ' + blip_data_dir + '/input.dat -j '
-        + blip_data_dir + '/score.jkl -r ' + blip_data_dir + '/structure.res -t 10 -w 4 -v 1'
+        + os.path.join(blip_data_dir, 'input.dat') + ' -j '
+        + os.path.join(blip_data_dir, 'score.jkl') + ' -n 3 -t 10' + ';'
+        'java -jar ' + blip_dir + ' solver.kg.adv -smp ent -d ' + os.path.join(blip_data_dir, 'input.dat') + ' -j '
+        + os.path.join(blip_data_dir, 'score.jkl') + ' -r '
+        + os.path.join(blip_data_dir, 'structure.res') + ' -t 10 -w 4 -v 1'
     ], shell=True)
 
-    with open(blip_data_dir + '/structure.res', mode='r', encoding='utf-8') as structure_file:
+    with open(os.path.join(blip_data_dir, 'structure.res'), mode='r', encoding='utf-8') as structure_file:
         structure = structure_file.read()
         # Parse the result from the blip library
         m = re.findall(r'(?:\b(\d+):\s+(?:-?\d+(?:\.\d+)?)\s+(?:\((\d+)(?:,(\d+))*\)))', structure)
@@ -195,9 +197,9 @@ def reduce_model(model, values=[]):
 
 def get_model_feature_value_selection_map(name):
     current_dataset_model_dir = get_current_dataset_model_dir()
-    if not os.path.exists(current_dataset_model_dir + '/feature_value_selection_map.' + name):
+    if not os.path.exists(os.path.join(current_dataset_model_dir, 'feature_value_selection_map.' + name)):
         return {}
-    with open(current_dataset_model_dir + '/feature_value_selection_map.' + name, mode='r') as file:
+    with open(os.path.join(current_dataset_model_dir, 'feature_value_selection_map.' + name), mode='r') as file:
         return json.load(file)
 
 
@@ -209,7 +211,7 @@ def update_model_feature_value_selection_map(name, feature_value_selection_map):
     :param feature_value_selection_map: the value of features --- dict<str, str || number || boolean>
     :return: feature_value_selection_map
     """
-    with open(get_current_dataset_model_dir() + '/feature_value_selection_map.' + name, mode='w+') as file:
+    with open(os.path.join(get_current_dataset_model_dir(), 'feature_value_selection_map.' + name), mode='w+') as file:
         json.dump(feature_value_selection_map, file, indent='\t')
     with open(model_config_dir, mode='r+') as file:
         config = json.load(file)
