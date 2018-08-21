@@ -106,7 +106,7 @@ def blip_learn_structure(data):
     subprocess.check_call([
         'java -jar ' + blip_dir + ' scorer.sq -c bdeu -d '
         + os.path.join(blip_data_dir, 'input.dat') + ' -j '
-        + os.path.join(blip_data_dir, 'score.jkl') + ' -n 3 -t 10' + ';'
+        + os.path.join(blip_data_dir, 'score.jkl') + ' -n 3 -t 10',
         'java -jar ' + blip_dir + ' solver.kg.adv -smp ent -d ' + os.path.join(blip_data_dir, 'input.dat') + ' -j '
         + os.path.join(blip_data_dir, 'score.jkl') + ' -r '
         + os.path.join(blip_data_dir, 'structure.res') + ' -t 10 -w 4 -v 1'
