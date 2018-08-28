@@ -1,7 +1,13 @@
 import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
 import {Input, Select} from 'antd';
-import {getCurrentDatasetName, getDatasetList} from '../../selectors/data';
+
+import {
+  getCurrentDatasetName,
+  getDatasetList,
+  getHierarchicalClusteringOption
+} from '../../selectors/data';
+
 import {
   fetchModelList,
   fetchDistanceMap,
@@ -22,12 +28,17 @@ const mapDispatchToProps = {
 
 const mapStateToProps = state => ({
   currentDatasetName: getCurrentDatasetName(state),
-  datasetList: getDatasetList(state)
+  datasetList: getDatasetList(state),
+  hierarchicalClusteringOption: getHierarchicalClusteringOption(state)
 });
 
 class DataSelect extends PureComponent {
   render() {
-    const {currentDatasetName, datasetList} = this.props;
+    const {
+      currentDatasetName,
+      datasetList,
+      hierarchicalClusteringOption
+    } = this.props;
     return (
       <div>
         <Input.Group compact>
@@ -37,8 +48,10 @@ class DataSelect extends PureComponent {
             onChange={async name => {
               await this.props.requestUpdateCurrentDatasetName(name);
               await this.props.fetchModelList();
-              await this.props.fetchDistanceMap();
-              await this.props.fetchHierarchicalClusteringTree();
+              await this.props.fetchDistanceMap(hierarchicalClusteringOption);
+              await this.props.fetchHierarchicalClusteringTree(
+                hierarchicalClusteringOption
+              );
               this.props.updateSelectedModel(null);
               this.props.updateBayesianNetwork([]);
             }}

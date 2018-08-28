@@ -21,6 +21,8 @@ export const UPDATE_HIGHLIGHTED_BAYESIAN_MODEL_FEATURE =
 export const UPDATE_MODEL_LIST = 'UPDATE_MODEL_LIST';
 export const UPDATE_SELECTED_MODEL = 'UPDATE_SELECTED_MODEL';
 export const UPDATE_NODE_LINK_VIEW_OPTIONS = 'UPDATE_NODE_LINK_VIEW_OPTIONS';
+export const UPDATE_HIERARCHICAL_CLUSTERING_OPTION =
+  'UPDATE_HIERARCHICAL_CLUSTERING_OPTION';
 export const UPDATE_HIERARCHICAL_CLUSTERING_TREE =
   'UPDATE_HIERARCHICAL_CLUSTERING_TREE';
 export const UPDATE_DISTANCE_MAP = 'UPDATE_DISTANCE_MAP';
@@ -61,6 +63,9 @@ export const updateModelList = createAction(UPDATE_MODEL_LIST);
 export const updateSelectedModel = createAction(UPDATE_SELECTED_MODEL);
 export const updateNodeLinkViewOptions = createAction(
   UPDATE_NODE_LINK_VIEW_OPTIONS
+);
+export const updateHierarchicalClusteringOption = createAction(
+  UPDATE_HIERARCHICAL_CLUSTERING_OPTION
 );
 export const updateHierarchicalClusteringTree = createAction(
   UPDATE_HIERARCHICAL_CLUSTERING_TREE
@@ -187,9 +192,11 @@ export const requestTrainBayesianModel = ({
   }
 };
 
-export const fetchHierarchicalClusteringTree = () => async dispatch => {
+export const fetchHierarchicalClusteringTree = clusteringOption => async dispatch => {
   try {
-    const response = await fetch(`${BACKEND_URL}/load_clustering_tree`);
+    const response = await fetch(
+      `${BACKEND_URL}/load_clustering_tree?clustering_option=${clusteringOption}`
+    );
     const data = await response.json();
     dispatch(updateHierarchicalClusteringTree(data));
     return Promise.resolve(data);

@@ -14,12 +14,15 @@ import {
   UPDATE_MODEL_LIST,
   UPDATE_SELECTED_MODEL,
   UPDATE_NODE_LINK_VIEW_OPTIONS,
+  UPDATE_HIERARCHICAL_CLUSTERING_OPTION,
   UPDATE_HIERARCHICAL_CLUSTERING_TREE,
   UPDATE_DISTANCE_MAP,
   UPDATE_HIERARCHICAL_CLUSTERING_CUT_THRESHOLD,
   UPDATE_FEATURE_SELECTION,
   UPDATE_FEATURE_VALUES_MAP
 } from './actions';
+
+import {HIERARICAL_CLUSTERING_OPTION} from './constants';
 
 const DEFAULT_STATE = {
   screenWidth: 0,
@@ -46,6 +49,13 @@ const DEFAULT_STATE = {
   highlightedBayesianNetworkEdge: null,
   // Controls the node link view, matrix view and the feature list
   highlightedBayesianModelFeature: null, // null || feature_name
+  // the hierarchical clustering option:
+  // raw -- clustering for all features as is
+  // base -- group the features by the base variable name, temporal features of
+  //         with the save base variable are grouped in a list
+  // base_sum -- group the features by the base variable name, temporal features of
+  //         with the save base variable are grouped by sum
+  hierarchicalClusteringOption: HIERARICAL_CLUSTERING_OPTION.RAW,
   // the raw hierarchical clustering tree:
   // {
   //  id,
@@ -154,6 +164,11 @@ const handleUpdateNodeLinkViewOptions = (state, {payload}) => ({
   }
 });
 
+const handleUpdateHierarchicalClusteringOption = (state, {payload}) => ({
+  ...state,
+  hierarchicalClusteringOption: payload
+});
+
 const handleUpdateHierarchicalClusteringTree = (state, {payload}) => ({
   ...state,
   hierarchicalClusteringTree: payload
@@ -195,6 +210,7 @@ export default handleActions(
     [UPDATE_MODEL_LIST]: handleUpdateModelList,
     [UPDATE_SELECTED_MODEL]: handleUpdateSelectedModel,
     [UPDATE_NODE_LINK_VIEW_OPTIONS]: handleUpdateNodeLinkViewOptions,
+    [UPDATE_HIERARCHICAL_CLUSTERING_OPTION]: handleUpdateHierarchicalClusteringOption,
     [UPDATE_HIERARCHICAL_CLUSTERING_TREE]: handleUpdateHierarchicalClusteringTree,
     [UPDATE_DISTANCE_MAP]: handleUpdateDistanceMap,
     [UPDATE_HIERARCHICAL_CLUSTERING_CUT_THRESHOLD]: handleUpdateHierarchicalClusteringCutThreshold,

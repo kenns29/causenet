@@ -69,6 +69,11 @@ export const getHighlightedBayesianModelFeature = createSelector(
   state => state.highlightedBayesianModelFeature
 );
 
+export const getHierarchicalClusteringOption = createSelector(
+  rootSelector,
+  state => state.hierarchicalClusteringOption
+);
+
 export const getRawHierarchicalClusteringTree = createSelector(
   rootSelector,
   state => state.hierarchicalClusteringTree

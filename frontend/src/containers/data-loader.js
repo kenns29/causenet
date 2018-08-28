@@ -1,5 +1,6 @@
 import {PureComponent} from 'react';
 import {connect} from 'react-redux';
+import {getHierarchicalClusteringOption} from '../selectors/data';
 import {
   fetchCurrentDatasetName,
   fetchDatasetList,
@@ -20,17 +21,20 @@ const mapDispatchToProps = {
   fetchFeatureValuesMap
 };
 
-const mapStateToProps = state => ({});
+const mapStateToProps = state => ({
+  hierarchicalClusteringOption: getHierarchicalClusteringOption(state)
+});
 
 class DataLoader extends PureComponent {
   async componentDidMount() {
+    const {hierarchicalClusteringOption} = this.props;
     await Promise.all([
       this.props.fetchDatasetList(),
       this.props.fetchCurrentDatasetName()
     ]);
     this.props.fetchModelList();
-    await this.props.fetchDistanceMap();
-    this.props.fetchHierarchicalClusteringTree();
+    await this.props.fetchDistanceMap(hierarchicalClusteringOption);
+    this.props.fetchHierarchicalClusteringTree(hierarchicalClusteringOption);
     await this.props.fetchFeatureValuesMap();
     this.props.fetchFeatureSelection();
   }
