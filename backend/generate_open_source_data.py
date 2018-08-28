@@ -5,10 +5,31 @@ from setup import data_dir, metadata_dir, model_dir, data_config_dir, config_dir
 from modules.service.data_utils import get_feature_pdist
 
 
+data_config = {
+    'test_0': {
+        'data_file': 'test_0.bin',
+        'pdist_file': 'test_0_pdist.bin',
+        'clustering_file': 'test_0_clustering.bin'
+    },
+    'fao_fused_spatio_temporal_cut_10': {
+        'data_file': 'fao_fused_spatio_temporal_cut_10.bin',
+        'pdist_file': 'fao_fused_spatio_temporal_cut_10_pdsit.bin',
+        'clustering_file': 'fao_fused_spatio_temporal_cut_10_clustering.bin'
+    }
+}
+
+
 def load_test_0_data():
-    data = read_csv(filepath_or_buffer=metadata_dir + '/test.csv')
+    data = read_csv(os.path.join(metadata_dir, 'test.csv'))
     for key in data:
         data[key] = data[key].astype('str').astype('category')
+    return data
+
+
+def load_fused_fao_spatio_temporal_data():
+    data = read_csv(os.path.join(metadata_dir, 'fused_spatio_temporal_bn_data.csv'), index_col=0)
+    for key in data:
+        data[key] = cut(data[key], 10)
     return data
 
 
@@ -21,20 +42,6 @@ def save_binary_to_data_dir(data, name):
     with open(data_dir + '/' + name, mode='wb') as file:
         pickle.dump(data, file)
     return data
-
-
-data_config = {
-    'test_0': {
-        'data_file': 'test_0.bin',
-        'pdist_file': 'test_0_pdist.bin',
-        'clustering_file': 'test_0_clustering.bin'
-    }
-}
-
-
-initial_model_config = {
-    'test_0': {}
-}
 
 
 def save_data_config():
@@ -56,26 +63,36 @@ def init_model_dir():
 
 
 def init_model_config():
-    if not os.path.exists(model_config_dir):
-        with open(model_config_dir, mode='w') as file:
-            json.dump(initial_model_config, file, indent='\t')
+    with open(model_config_dir, mode='r+') as file:
+        config = json.load(file)
+        for key in data_config.keys():
+            config[key] = {} if key not in config else config[key]
+        file.seek(0)
+        json.dump(config, file, indent='\t')
+        file.truncate()
 
 
 def init_model_sub_dirs():
-    for key, _ in initial_model_config.items():
+    for key in data_config.keys():
         if not os.path.exists(model_dir + '/' + key):
             os.makedirs(model_dir + '/' + key)
 
 
-def make_datas():
-    # make test 0 data
-    config = data_config['test_0']
-    data = load_test_0_data()
+def make_data(config, load_data):
+    data = load_data()
     save_binary_to_data_dir(data, config['data_file'])
     dist = get_feature_pdist(data)
     save_binary_to_data_dir(dist, config['pdist_file'])
     clustering = linkage(dist, preserve_input=False)
     save_binary_to_data_dir(clustering, config['clustering_file'])
+
+
+def make_datas():
+    # make test 0 data
+    make_data(data_config['test_0'], load_test_0_data)
+
+    # make fused spatio temporal data
+    make_data(data_config['fao_fused_spatio_temporal_cut_10'], load_fused_fao_spatio_temporal_data)
 
 
 if __name__ == '__main__':
