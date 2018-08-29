@@ -1,5 +1,6 @@
-import os, json, pickle
+import os, json, pickle, re
 from scipy.spatial.distance import pdist
+from pandas import DataFrame
 from setup import base_dir, data_dir, data_config_dir
 
 
@@ -46,6 +47,19 @@ def load_clustering():
         return pickle.load(file)
 
 
+def get_times(data):
+    time_set = set()
+    for key in data.keys():
+        finds = re.findall(r'.+~(\d{4})', key)
+        if finds:
+            time_set.add(int(finds[0]))
+    return list(time_set)
+
+
+def get_base_features(data):
+    return list(set(re.sub(r'~\d{4}', '', key) for key in data.keys()))
+
+
 def get_feature_pdist(data):
     """
     Compute the correlation distance [0, 2] between each features in the data.
@@ -58,6 +72,12 @@ def get_feature_pdist(data):
     blip_data = to_blip_data(data, value_converters)
     matrix = blip_data.values.astype('double').transpose()
     return pdist(matrix, metric='correlation')
+
+
+def get_base_feature_pdist(data):
+    times = get_times(data)
+    base_features = get_base_features(data)
+    return None
 
 
 def get_blip_value_converters(data):

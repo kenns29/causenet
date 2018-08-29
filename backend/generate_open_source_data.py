@@ -2,19 +2,23 @@ import os, pickle, json
 from fastcluster import linkage
 from pandas import read_csv, cut, qcut
 from setup import data_dir, metadata_dir, model_dir, data_config_dir, config_dir, model_config_dir
-from modules.service.data_utils import get_feature_pdist
+from modules.service.data_utils import get_feature_pdist, get_base_feature_pdist
 
 
 data_config = {
     'test_0': {
         'data_file': 'test_0.bin',
         'pdist_file': 'test_0_pdist.bin',
-        'clustering_file': 'test_0_clustering.bin'
+        'clustering_file': 'test_0_clustering.bin',
+        'base_pdist_file': 'test_0_base_pdist.bin',
+        'base_clustering_file': 'test_0_base_clustering.bin',
     },
     'fao_fused_spatio_temporal_cut_10': {
         'data_file': 'fao_fused_spatio_temporal_cut_10.bin',
         'pdist_file': 'fao_fused_spatio_temporal_cut_10_pdsit.bin',
-        'clustering_file': 'fao_fused_spatio_temporal_cut_10_clustering.bin'
+        'clustering_file': 'fao_fused_spatio_temporal_cut_10_clustering.bin',
+        'base_pdist_file': 'fao_fused_spatio_temporal_cut_10_base_pdist.bin',
+        'base_clustering_file': 'fao_fused_spatio_temporal_cut_10_base_clustering.bin'
     }
 }
 
@@ -80,12 +84,12 @@ def init_model_sub_dirs():
 
 def make_data(config, load_data):
     data = load_data()
-    save_binary_to_data_dir(data, config['data_file'])
-    dist = get_feature_pdist(data)
-    save_binary_to_data_dir(dist, config['pdist_file'])
-    clustering = linkage(dist, preserve_input=False)
-    save_binary_to_data_dir(clustering, config['clustering_file'])
-
+    # save_binary_to_data_dir(data, config['data_file'])
+    # dist = get_feature_pdist(data)
+    # save_binary_to_data_dir(dist, config['pdist_file'])
+    # clustering = linkage(dist, preserve_input=False)
+    # save_binary_to_data_dir(clustering, config['clustering_file'])
+    dist = get_base_feature_pdist(data)
 
 def make_datas():
     # make test 0 data
