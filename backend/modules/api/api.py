@@ -48,7 +48,7 @@ def route_load_clustering():
 @blueprint.route('/load_distances', methods=['GET'])
 def load_distances():
     distances = load_pdist()
-    index2col = get_index2col(load_data())
+    index2col = get_index2col(load_data('base_avg_data_file'))
     n_len = len(index2col)
     return jsonify([
         {
@@ -66,26 +66,26 @@ def load_distances():
 
 @blueprint.route('/load_id2name', methods=['GET'])
 def load_id2name():
-    return jsonify(get_index2col(load_data()))
+    return jsonify(get_index2col(load_data('data_file')))
 
 
 @blueprint.route('/load_distance_map', methods=['GET'])
 def load_distance_map():
     distances = load_pdist()
-    n_len = load_data().shape[1]
+    n_len = load_data('base_avg_data_file').shape[1]
     return jsonify(dict((str(s) + '-' + str(t), distances[i])
                         for i, (s, t) in enumerate(combinations(range(n_len), 2))))
 
 
 @blueprint.route('/load_clustering_tree', methods=['GET'])
 def load_clustering_tree():
-    index2col = get_index2col(load_data())
+    index2col = get_index2col(load_data('base_avg_data_file'))
     return jsonify(tree_to_non_binary_dict(to_tree(load_clustering()), index2col))
 
 
 @blueprint.route('/load_clustering_binary_tree', methods=['GET'])
 def load_clustering_binary_tree():
-    index2col = get_index2col(load_data())
+    index2col = get_index2col(load_data('base_avg_data_file'))
     return jsonify(tree2dict(to_tree(load_clustering()), index2col))
 
 

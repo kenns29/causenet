@@ -8,5 +8,5 @@ export const LAYOUT = {
 export const HIERARICAL_CLUSTERING_OPTION = {
   RAW: 'raw',
   BASE: 'base',
-  BASE_SUM: 'base_sum'
+  BASE_AVG: 'base_avg'
 };

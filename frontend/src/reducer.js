@@ -53,7 +53,7 @@ const DEFAULT_STATE = {
   // raw -- clustering for all features as is
   // base -- group the features by the base variable name, temporal features of
   //         with the save base variable are grouped in a list
-  // base_sum -- group the features by the base variable name, temporal features of
+  // base_avg -- group the features by the base variable name, temporal features of
   //         with the save base variable are grouped by sum
   hierarchicalClusteringOption: HIERARICAL_CLUSTERING_OPTION.RAW,
   // the raw hierarchical clustering tree:

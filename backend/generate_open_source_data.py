@@ -1,40 +1,42 @@
 import os, pickle, json
 from fastcluster import linkage
-from pandas import read_csv, cut, qcut
+from pandas import DataFrame, read_csv, cut, qcut
 from setup import data_dir, metadata_dir, model_dir, data_config_dir, config_dir, model_config_dir
-from modules.service.data_utils import get_feature_pdist, get_base_feature_pdist
+from modules.service.data_utils import get_feature_pdist, get_base_avg_data
 
 
 data_config = {
     'test_0': {
+        'raw_data_file': 'test_0_raw.bin',
         'data_file': 'test_0.bin',
+        'base_avg_data_file': 'test_0_base_avg.bin',
         'pdist_file': 'test_0_pdist.bin',
         'clustering_file': 'test_0_clustering.bin',
-        'base_pdist_file': 'test_0_base_pdist.bin',
-        'base_clustering_file': 'test_0_base_clustering.bin',
     },
     'fao_fused_spatio_temporal_cut_10': {
+        'raw_data_file': 'fao_fused_spatio_temporal_cut_10_raw.bin',
         'data_file': 'fao_fused_spatio_temporal_cut_10.bin',
+        'base_avg_data_file': 'fao_fused_spatio_temporal_cut_10_base_avg.bin',
         'pdist_file': 'fao_fused_spatio_temporal_cut_10_pdsit.bin',
         'clustering_file': 'fao_fused_spatio_temporal_cut_10_clustering.bin',
-        'base_pdist_file': 'fao_fused_spatio_temporal_cut_10_base_pdist.bin',
-        'base_clustering_file': 'fao_fused_spatio_temporal_cut_10_base_clustering.bin'
     }
 }
 
 
 def load_test_0_data():
-    data = read_csv(os.path.join(metadata_dir, 'test.csv'))
+    raw_data = read_csv(os.path.join(metadata_dir, 'test.csv'))
+    data = raw_data.copy()
     for key in data:
         data[key] = data[key].astype('str').astype('category')
-    return data
+    return raw_data, data
 
 
-def load_fused_fao_spatio_temporal_data():
-    data = read_csv(os.path.join(metadata_dir, 'fused_spatio_temporal_bn_data.csv'), index_col=0)
+def load_fused_fao_spatio_temporal_cut_10_data():
+    raw_data = read_csv(os.path.join(metadata_dir, 'fused_spatio_temporal_bn_data.csv'), index_col=0)
+    data = raw_data.copy()
     for key in data:
         data[key] = cut(data[key], 10)
-    return data
+    return raw_data, data
 
 
 def init_data_dir():
@@ -83,20 +85,22 @@ def init_model_sub_dirs():
 
 
 def make_data(config, load_data):
-    data = load_data()
-    # save_binary_to_data_dir(data, config['data_file'])
-    # dist = get_feature_pdist(data)
-    # save_binary_to_data_dir(dist, config['pdist_file'])
-    # clustering = linkage(dist, preserve_input=False)
-    # save_binary_to_data_dir(clustering, config['clustering_file'])
-    dist = get_base_feature_pdist(data)
+    raw_data, data = load_data()
+    save_binary_to_data_dir(raw_data, config['raw_data_file'])
+    save_binary_to_data_dir(data, config['data_file'])
+    base_avg_data = get_base_avg_data(raw_data)
+    save_binary_to_data_dir(base_avg_data, config['base_avg_data_file'])
+    dist = get_feature_pdist(base_avg_data)
+    save_binary_to_data_dir(dist, config['pdist_file'])
+    clustering = linkage(dist, preserve_input=False)
+    save_binary_to_data_dir(clustering, config['clustering_file'])
+
 
 def make_datas():
     # make test 0 data
     make_data(data_config['test_0'], load_test_0_data)
-
     # make fused spatio temporal data
-    make_data(data_config['fao_fused_spatio_temporal_cut_10'], load_fused_fao_spatio_temporal_data)
+    make_data(data_config['fao_fused_spatio_temporal_cut_10'], load_fused_fao_spatio_temporal_cut_10_data)
 
 
 if __name__ == '__main__':

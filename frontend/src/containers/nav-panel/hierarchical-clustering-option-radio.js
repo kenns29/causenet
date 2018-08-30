@@ -15,7 +15,7 @@ const mapStateToProps = state => ({
 class HierarchicalClusteringOptionRadio extends PureComponent {
   render() {
     const {clusteringOption} = this.props;
-    const {RAW, BASE, BASE_SUM} = HIERARICAL_CLUSTERING_OPTION;
+    const {RAW, BASE, BASE_AVG} = HIERARICAL_CLUSTERING_OPTION;
     return (
       <div>
         <span>{`Select Clustering Option `}</span>
@@ -29,7 +29,7 @@ class HierarchicalClusteringOptionRadio extends PureComponent {
         >
           <Radio.Button value={RAW}>Raw</Radio.Button>
           <Radio.Button value={BASE}>Base</Radio.Button>
-          <Radio.Button value={BASE_SUM}>Base Sum</Radio.Button>
+          <Radio.Button value={BASE_AVG}>Base Average</Radio.Button>
         </Radio.Group>
       </div>
     );

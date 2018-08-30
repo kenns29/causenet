@@ -29,9 +29,9 @@ def get_current_dataset_status():
     return get_dataset_config()[get_current_dataset_name()]
 
 
-def load_data():
+def load_data(data_type='data_file'):
     status = get_current_dataset_status()
-    with open(os.path.join(data_dir, status['data_file']), mode='rb') as file:
+    with open(os.path.join(data_dir, status[data_type]), mode='rb') as file:
         return pickle.load(file)
 
 
@@ -47,10 +47,14 @@ def load_clustering():
         return pickle.load(file)
 
 
-def get_times(data):
+def get_times(data, base_feature=None):
     time_set = set()
     for key in data.keys():
-        finds = re.findall(r'.+~(\d{4})', key)
+        finds = None
+        if base_feature is None:
+            finds = re.findall(r'.+~(\d{4})', key)
+        elif re.match('\d{4}', key.replace(base_feature + '~', '')):
+            finds = re.findall(r'(\d{4})', key.replace(base_feature + '~', ''))
         if finds:
             time_set.add(int(finds[0]))
     return list(time_set)
@@ -60,24 +64,39 @@ def get_base_features(data):
     return list(set(re.sub(r'~\d{4}', '', key) for key in data.keys()))
 
 
-def get_feature_pdist(data):
+def get_base_avg_data(data):
+    """
+    Compute the base feature dataset aggregated using average
+
+    :param data: the (un-binned) original data frame
+    :return: the aggregated data
+    """
+    times = get_times(data)
+    if not times:
+        return data
+    base_features = get_base_features(data)
+    r_data = DataFrame(columns=base_features, index=data.index)
+    for key in r_data.keys():
+        times = get_times(data, key)
+        r_data[key] = data.filter(['{}~{}'.format(key, time) for time in times]).mean(axis=1)
+    return r_data
+
+
+def get_feature_pdist(data, convert_categorical=False):
     """
     Compute the correlation distance [0, 2] between each features in the data.
     Converts the categorical data to numerical values before the computation
 
     :param data: input data -- DataFrame
+    :param convert_categorical: specify if convert the categorical variables to numerical one
     :return: the condensed SciPy distance matrix
     """
-    value_converters = get_blip_value_converters(data)
-    blip_data = to_blip_data(data, value_converters)
-    matrix = blip_data.values.astype('double').transpose()
+    r_data = data
+    if convert_categorical:
+        value_converters = get_blip_value_converters(data)
+        r_data = to_blip_data(data, value_converters)
+    matrix = r_data.values.astype('double').transpose()
     return pdist(matrix, metric='correlation')
-
-
-def get_base_feature_pdist(data):
-    times = get_times(data)
-    base_features = get_base_features(data)
-    return None
 
 
 def get_blip_value_converters(data):
