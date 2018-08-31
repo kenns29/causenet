@@ -141,11 +141,31 @@ def to_blip_str(data, value_converters=None):
     :return: the blip input string
     """
     val_converters = get_blip_value_converters(data) if not value_converters else value_converters
-    header = ' '.join(data.keys())
+    header = ' '.join([key.replace(' ', '$SPACE$') for key in data.keys()])
     cards = ' '.join([str(data[col].cat.categories.size) for col in data])
     values = '\n'.join([' '.join([str(val_converters[index][value])
                                   for index, value in enumerate(row.get_values())]) for index, row in data.iterrows()])
     return '\n'.join([header, cards, values])
+
+
+def to_blip_array(data, value_converters=None):
+    """
+    Convert the data frame to the string format that blip recognizes:
+    * First line: list of variables names, separated by space;
+    * Second line: list of variables cardinalities, separated by space;
+    * Following lines: list of values taken by the variables in each datapoint, separated by space.
+
+    :param data: input data -- DataFrame
+    :param value_converters: (Optional) converts the categorical values in each feature to an integer
+    representation -- list<dict>
+    :return: the blip input string
+    """
+    val_converters = get_blip_value_converters(data) if not value_converters else value_converters
+    header = [key.replace(' ', '$SPACE$') for key in data.keys()]
+    cards = [str(data[col].cat.categories.size) for col in data]
+    values = [[str(val_converters[index][value]) for index, value in enumerate(row.get_values())]
+              for index, row in data.iterrows()]
+    return [header, cards, *values]
 
 
 def to_blip_data(data, value_converters=None):
@@ -158,7 +178,7 @@ def to_blip_data(data, value_converters=None):
 
 
 def blip_data_to_blip_str(data):
-    header = ' '.join(data.keys())
+    header = ' '.join([key.replace(' ', '$SPACE$') for key in data.keys()])
     cards = ' '.join([str(data[col].cat.categories.size) for col in data])
     values = '\n'.join([' '.join([str(value) for value in row.get_values()]) for index, row in data.iterrows()])
     return '\n'.join([header, cards, values])

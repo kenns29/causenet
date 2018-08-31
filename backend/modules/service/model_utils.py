@@ -1,8 +1,8 @@
-import os, pickle, subprocess, re, json
+import os, pickle, subprocess, re, json, csv
 from pgmpy.models import BayesianModel
 from pgmpy.estimators import BayesianEstimator
 from modules.service.data_utils import get_current_dataset_name, to_blip_str, get_index2col, \
-    get_col2index, get_blip_value_converters, load_data, is_temporal_data, is_temporal_feature, get_times, to_blip_data
+    get_col2index, get_blip_value_converters, load_data, is_temporal_data, is_temporal_feature, get_times, to_blip_data, blip_data_to_blip_str, to_blip_array
 from setup import blip_data_dir, blip_dir, model_dir, model_config_dir
 
 
@@ -99,10 +99,11 @@ def blip_learn_structure(data):
     :param data: Pandas DataFrame
     :return: edges in list of tuples
     """
-    blip_data = to_blip_str(data)
+    blip_data = to_blip_array(data)
     index2col = get_index2col(data)
     with open(os.path.join(blip_data_dir, 'input.dat'), mode='w+', encoding='utf-8') as score_file:
-        score_file.write(blip_data)
+        writer = csv.writer(score_file, delimiter=' ', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        writer.writerows(blip_data)
     subprocess.check_call(
         'java -jar ' + blip_dir + ' scorer.sq -c bdeu -d '
         + os.path.join(blip_data_dir, 'input.dat') + ' -j '
