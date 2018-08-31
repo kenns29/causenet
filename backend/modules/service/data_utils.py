@@ -60,6 +60,19 @@ def get_times(data, base_feature=None):
     return list(time_set)
 
 
+def is_temporal_data(data):
+    return bool(get_times(data))
+
+
+def is_temporal_feature(feature):
+    return re.match(r'.+~\d{4}', feature)
+
+
+def split_feature(feature):
+    base, time, location = feature.split('~')
+    return base, int(time), location
+
+
 def get_base_features(data):
     return list(set(re.sub(r'~\d{4}', '', key) for key in data.keys()))
 

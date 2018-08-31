@@ -2,7 +2,7 @@ import os, pickle, subprocess, re, json
 from pgmpy.models import BayesianModel
 from pgmpy.estimators import BayesianEstimator
 from modules.service.data_utils import get_current_dataset_name, to_blip_str, get_index2col, \
-    get_col2index, get_blip_value_converters, load_data
+    get_col2index, get_blip_value_converters, load_data, is_temporal_data, is_temporal_feature, get_times, to_blip_data
 from setup import blip_data_dir, blip_dir, model_dir, model_config_dir
 
 
@@ -126,7 +126,11 @@ def blip_learn_structure(data):
 
 def train_model(data, name):
     feature_selection = get_feature_selection()
-    filtered_data = data.filter(feature_selection) if feature_selection else data
+    if is_temporal_data(data):
+        feature_selection = [feature + '~' + str(time)
+                             for feature in feature_selection for time in get_times(data, feature)] \
+            if feature_selection is not None else None
+    filtered_data = data.filter(feature_selection) if feature_selection is not None else data
     edges = blip_learn_structure(filtered_data)
     model = BayesianModel(edges)
     model.fit(filtered_data, estimator=BayesianEstimator, prior_type='BDeu')
