@@ -11,6 +11,7 @@ import {
 import {
   fetchModelList,
   fetchDistanceMap,
+  fetchFeatureSelection,
   fetchHierarchicalClusteringTree,
   requestUpdateCurrentDatasetName,
   updateBayesianNetwork,
@@ -20,6 +21,7 @@ import {
 const mapDispatchToProps = {
   fetchModelList,
   fetchDistanceMap,
+  fetchFeatureSelection,
   fetchHierarchicalClusteringTree,
   requestUpdateCurrentDatasetName,
   updateBayesianNetwork,
@@ -48,6 +50,7 @@ class DataSelect extends PureComponent {
             onChange={async name => {
               await this.props.requestUpdateCurrentDatasetName(name);
               await this.props.fetchModelList();
+              await this.props.fetchFeatureSelection();
               await this.props.fetchDistanceMap(hierarchicalClusteringOption);
               await this.props.fetchHierarchicalClusteringTree(
                 hierarchicalClusteringOption
