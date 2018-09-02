@@ -255,7 +255,7 @@ export const getDagLayout = createSelector(
   getBayesianNetworkNodeLink,
   ({nodes, links}) => {
     const dag = new dagre.graphlib.Graph();
-    dag.setGraph({rankdir: 'LR'});
+    dag.setGraph({rankdir: 'LR', ranker: 'tight-tree'});
     dag.setDefaultEdgeLabel(() => {});
     nodes.forEach(node => {
       dag.setNode(node.label, {...node, width: 30, height: 30});
