@@ -43,21 +43,21 @@ export const getContentPanelCenterPosition = createSelector(
 );
 
 export const getTopLeftSubPanelSize = createSelector(
-  [getContentPanelWidth, getContentPanelHeight],
-  (width, height) => [width / 2, height / 2]
+  getContentPanelCenterPosition,
+  position => position
 );
 
 export const getTopRightSubPanelSize = createSelector(
-  [getContentPanelWidth, getContentPanelHeight],
-  (width, height) => [width / 2, height / 2]
+  [getContentPanelCenterPosition, getContentPanelWidth],
+  ([x, y], width) => [width - x, y]
 );
 
 export const getBottomLeftSubPanelSize = createSelector(
-  [getContentPanelWidth, getContentPanelHeight],
-  (width, height) => [width / 2, height / 2]
+  [getContentPanelCenterPosition, getContentPanelHeight],
+  ([x, y], height) => [x, height - y]
 );
 
 export const getBottomRightSubPanelSize = createSelector(
-  [getContentPanelWidth, getContentPanelHeight],
-  (width, height) => [width / 2, height / 2]
+  [getContentPanelCenterPosition, getContentPanelWidth, getContentPanelHeight],
+  ([x, y], width, height) => [width - x, height - y]
 );

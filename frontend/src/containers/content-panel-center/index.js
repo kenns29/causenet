@@ -33,8 +33,7 @@ class ContentPanelCenter extends PureComponent {
         enableResizing={false}
         bounds="parent"
         style={{
-          position: 'absolute',
-          backgroundColor: 'black'
+          position: 'absolute'
         }}
         onDrag={(_, d) =>
           this.props.updateContentPanelCenter([

@@ -82,7 +82,7 @@ class AppContainer extends PureComponent {
   }
   get bottomLeftSubPanelStyle() {
     const {
-      topLeftSubPanelSize: [width, height]
+      bottomLeftSubPanelSize: [width, height]
     } = this.props;
     return {
       position: 'relative',
