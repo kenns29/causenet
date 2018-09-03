@@ -27,6 +27,8 @@ import {HIERARICAL_CLUSTERING_OPTION} from './constants';
 const DEFAULT_STATE = {
   screenWidth: 0,
   screenHeight: 0,
+  navPanelWidth: 500,
+  contentPanelCenter: [0.5, 0.5],
   isFetchingBayesianNetwork: false,
   isFetchingModifiedBayesianNetwork: false,
   currentDatasetName: null, // the current dataset name

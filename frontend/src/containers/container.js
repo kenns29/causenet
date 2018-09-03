@@ -12,6 +12,7 @@ import FeatureList from './feature-list';
 import {updateScreenSize} from '../actions';
 import {LAYOUT} from '../constants';
 import {
+  getNavPanelWidth,
   getTopLeftSubPanelSize,
   getTopRightSubPanelSize,
   getBottomLeftSubPanelSize,
@@ -21,6 +22,7 @@ import {
 const mapDispatchToProps = {updateScreenSize};
 
 const mapStateToProps = state => ({
+  navPanelWidth: getNavPanelWidth(state),
   topLeftSubPanelSize: getTopLeftSubPanelSize(state),
   topRightSubPanelSize: getTopRightSubPanelSize(state),
   bottomLeftSubPanelSize: getBottomLeftSubPanelSize(state),
@@ -116,14 +118,14 @@ class AppContainer extends PureComponent {
     });
   };
   render() {
-    const {NAV_PANEL_WIDTH} = LAYOUT;
+    const {navPanelWidth} = this.props;
     return (
       <React.Fragment>
         <ProgressBar />
         <DataLoader />
         <Layout>
           <Layout.Content style={this.containerStyle}>
-            <Layout.Sider width={NAV_PANEL_WIDTH} style={this.navPanelStyle}>
+            <Layout.Sider width={navPanelWidth} style={this.navPanelStyle}>
               <NavPanel />
             </Layout.Sider>
             <Layout.Content style={this.contentPanelStyle}>

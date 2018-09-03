@@ -14,10 +14,23 @@ export const getScreenHeight = createSelector(
   state => state.screenHeight
 );
 
-export const getContentPanelWidth = createSelector(getScreenWidth, width => {
-  const {NAV_PANEL_WIDTH, CONTAINER_PADDING} = LAYOUT;
-  return width - CONTAINER_PADDING * 2 - NAV_PANEL_WIDTH;
-});
+export const getNavPanelWidth = createSelector(
+  rootSelector,
+  state => state.navPanelWidth
+);
+
+export const getContentPanelCenter = createSelector(
+  rootSelector,
+  state => state.contentPanelCenter
+);
+
+export const getContentPanelWidth = createSelector(
+  [getScreenWidth, getNavPanelWidth],
+  (screenWidth, navPanelWidth) => {
+    const {CONTAINER_PADDING} = LAYOUT;
+    return screenWidth - CONTAINER_PADDING * 2 - navPanelWidth;
+  }
+);
 
 export const getContentPanelHeight = createSelector(getScreenHeight, height => {
   const {CONTAINER_PADDING} = LAYOUT;
