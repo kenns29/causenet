@@ -1,8 +1,12 @@
 import {progressFetch as fetch} from '../utils';
 import {createAction} from 'redux-actions';
 import {BACKEND_URL} from '../constants';
-// Action Ids
+
+// UI action ids
 export const UPDATE_SCREEN_SIZE = 'UPDATE_SCREEN_SIZE';
+export const UPDATE_CONTENT_PANEL_CENTER = 'UPDATE_CONTENT_PANEL_CENTER';
+
+// data Action ids
 export const UPDATE_CURRENT_DATASET_NAME = 'UPDDATE_CURRENT_DATASET_NAME';
 export const UPDATE_DATASET_LIST = 'UPDATE_DATASET_LIST';
 export const FETCH_BAYESIAN_NETWORK_START = 'FETCH_BAYESIAN_NETWORK_START';
@@ -32,7 +36,13 @@ export const UPDATE_FEATURE_LIST = 'UPDATE_FEATURE_LIST';
 export const UPDATE_FEATURE_SELECTION = 'UPDATE_FEATURE_SELECTION';
 export const UPDATE_FEATURE_VALUES_MAP = 'UPDATE_FEATURE_VALUE_MAP';
 
+// UI actions
 export const updateScreenSize = createAction(UPDATE_SCREEN_SIZE);
+export const updateContentPanelCenter = createAction(
+  UPDATE_CONTENT_PANEL_CENTER
+);
+
+// data actions
 export const updateCurrentDatasetName = createAction(
   UPDATE_CURRENT_DATASET_NAME
 );
@@ -77,6 +87,7 @@ export const updateHierarchicalClusteringCutThreshold = createAction(
 export const updateFeatureSelection = createAction(UPDATE_FEATURE_SELECTION);
 export const updateFeatureValuesMap = createAction(UPDATE_FEATURE_VALUES_MAP);
 
+// async actions
 export const fetchCurrentDatasetName = () => async dispatch => {
   try {
     const response = await fetch(`${BACKEND_URL}/load_current_dataset_name`);

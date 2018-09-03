@@ -9,6 +9,7 @@ import HierarchicalMatrix from './hierarchical-matrix';
 import BayesianNetworkMatrix from './bayesian-network-matrix';
 import BayesianNetworkNodeLink from './bayesian-network-node-link';
 import FeatureList from './feature-list';
+import ContentPanelCenter from './content-panel-center';
 import {updateScreenSize} from '../actions';
 import {LAYOUT} from '../constants';
 import {
@@ -153,6 +154,7 @@ class AppContainer extends PureComponent {
                   height={this.props.bottomRightSubPanelSize[1]}
                 />
               </Layout.Content>
+              <ContentPanelCenter />
             </Layout.Content>
           </Layout.Content>
         </Layout>

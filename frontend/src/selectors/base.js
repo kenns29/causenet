@@ -37,6 +37,11 @@ export const getContentPanelHeight = createSelector(getScreenHeight, height => {
   return height - CONTAINER_PADDING * 2;
 });
 
+export const getContentPanelCenterPosition = createSelector(
+  [getContentPanelCenter, getContentPanelWidth, getContentPanelHeight],
+  ([x, y], width, height) => [width * x, height * y]
+);
+
 export const getTopLeftSubPanelSize = createSelector(
   [getContentPanelWidth, getContentPanelHeight],
   (width, height) => [width / 2, height / 2]
