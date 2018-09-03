@@ -13,18 +13,20 @@ class FeatureList extends PureComponent {
     const {features, height} = this.props;
     const dataSource = features || [];
     return (
-      <List
-        itemLayout="horizontal"
-        pagination={{
-          size: 'small',
-          pageSize: Math.floor(height / 40),
-          showSizeChanger: true
-        }}
-        size="small"
-        dataSource={dataSource}
-        renderItem={item => <List.Item>{item}</List.Item>}
-        style={{marginLeft: 5}}
-      />
+      <div style={{height, overflow: 'auto'}}>
+        <List
+          itemLayout="horizontal"
+          pagination={{
+            size: 'small',
+            pageSize: Math.floor(height / 40),
+            showSizeChanger: true
+          }}
+          size="small"
+          dataSource={dataSource}
+          renderItem={item => <List.Item>{item}</List.Item>}
+          style={{marginLeft: 5}}
+        />
+      </div>
     );
   }
 }

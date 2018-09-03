@@ -112,41 +112,43 @@ class FeatureList extends PureComponent {
     );
   };
   render() {
-    const {features, highlightedFeature} = this.props;
+    const {height, features, highlightedFeature} = this.props;
     const {pageSize} = this.state;
     const dataSource = features || [];
     return (
-      <List
-        itemLayout="horizontal"
-        pagination={{
-          size: 'small',
-          pageSize,
-          current: this.state.current,
-          onChange: (current, size) => {
-            this.setState({current});
-          }
-        }}
-        dataSource={dataSource}
-        size="small"
-        renderItem={({feature, values}) => (
-          <List.Item
-            actions={[this._renderSelect(feature, values)]}
-            style={{
-              backgroundColor: highlightedFeature === feature && 'lightgrey'
-            }}
-            onClick={() =>
-              this.props.updateHighlightedBayesianModelFeature(
-                highlightedFeature && highlightedFeature === feature
-                  ? null
-                  : feature
-              )
+      <div style={{height, overflow: 'auto'}}>
+        <List
+          itemLayout="horizontal"
+          pagination={{
+            size: 'small',
+            pageSize,
+            current: this.state.current,
+            onChange: (current, size) => {
+              this.setState({current});
             }
-          >
-            {feature}
-          </List.Item>
-        )}
-        style={{marginLeft: 5}}
-      />
+          }}
+          dataSource={dataSource}
+          size="small"
+          renderItem={({feature, values}) => (
+            <List.Item
+              actions={[this._renderSelect(feature, values)]}
+              style={{
+                backgroundColor: highlightedFeature === feature && 'lightgrey'
+              }}
+              onClick={() =>
+                this.props.updateHighlightedBayesianModelFeature(
+                  highlightedFeature && highlightedFeature === feature
+                    ? null
+                    : feature
+                )
+              }
+            >
+              {feature}
+            </List.Item>
+          )}
+          style={{marginLeft: 5}}
+        />
+      </div>
     );
   }
 }
