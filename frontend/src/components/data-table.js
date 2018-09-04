@@ -28,7 +28,7 @@ export default class DataTable extends PureComponent {
       }))
       .concat([
         {
-          title: 'Action',
+          title: 'Select',
           dataIndex: 'select',
           key: 'select',
           render: (text, record) => {
@@ -42,7 +42,7 @@ export default class DataTable extends PureComponent {
           }
         },
         {
-          title: 'Action',
+          title: 'Delete',
           dataIndex: 'delete',
           key: 'delete',
           render: (text, record) => {
