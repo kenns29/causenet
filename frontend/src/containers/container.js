@@ -9,9 +9,11 @@ import HierarchicalMatrix from './hierarchical-matrix';
 import BayesianNetworkMatrix from './bayesian-network-matrix';
 import BayesianNetworkNodeLink from './bayesian-network-node-link';
 import FeatureList from './feature-list';
+import ContentPanelCenter from './content-panel-center';
 import {updateScreenSize} from '../actions';
 import {LAYOUT} from '../constants';
 import {
+  getNavPanelWidth,
   getTopLeftSubPanelSize,
   getTopRightSubPanelSize,
   getBottomLeftSubPanelSize,
@@ -21,6 +23,7 @@ import {
 const mapDispatchToProps = {updateScreenSize};
 
 const mapStateToProps = state => ({
+  navPanelWidth: getNavPanelWidth(state),
   topLeftSubPanelSize: getTopLeftSubPanelSize(state),
   topRightSubPanelSize: getTopRightSubPanelSize(state),
   bottomLeftSubPanelSize: getBottomLeftSubPanelSize(state),
@@ -79,7 +82,7 @@ class AppContainer extends PureComponent {
   }
   get bottomLeftSubPanelStyle() {
     const {
-      topLeftSubPanelSize: [width, height]
+      bottomLeftSubPanelSize: [width, height]
     } = this.props;
     return {
       position: 'relative',
@@ -116,14 +119,14 @@ class AppContainer extends PureComponent {
     });
   };
   render() {
-    const {NAV_PANEL_WIDTH} = LAYOUT;
+    const {navPanelWidth} = this.props;
     return (
       <React.Fragment>
         <ProgressBar />
         <DataLoader />
         <Layout>
           <Layout.Content style={this.containerStyle}>
-            <Layout.Sider width={NAV_PANEL_WIDTH} style={this.navPanelStyle}>
+            <Layout.Sider width={navPanelWidth} style={this.navPanelStyle}>
               <NavPanel />
             </Layout.Sider>
             <Layout.Content style={this.contentPanelStyle}>
@@ -151,6 +154,7 @@ class AppContainer extends PureComponent {
                   height={this.props.bottomRightSubPanelSize[1]}
                 />
               </Layout.Content>
+              <ContentPanelCenter />
             </Layout.Content>
           </Layout.Content>
         </Layout>

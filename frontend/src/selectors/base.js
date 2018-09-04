@@ -14,32 +14,50 @@ export const getScreenHeight = createSelector(
   state => state.screenHeight
 );
 
-export const getContentPanelWidth = createSelector(getScreenWidth, width => {
-  const {NAV_PANEL_WIDTH, CONTAINER_PADDING} = LAYOUT;
-  return width - CONTAINER_PADDING * 2 - NAV_PANEL_WIDTH;
-});
+export const getNavPanelWidth = createSelector(
+  rootSelector,
+  state => state.navPanelWidth
+);
+
+export const getContentPanelCenter = createSelector(
+  rootSelector,
+  state => state.contentPanelCenter
+);
+
+export const getContentPanelWidth = createSelector(
+  [getScreenWidth, getNavPanelWidth],
+  (screenWidth, navPanelWidth) => {
+    const {CONTAINER_PADDING} = LAYOUT;
+    return screenWidth - CONTAINER_PADDING * 2 - navPanelWidth;
+  }
+);
 
 export const getContentPanelHeight = createSelector(getScreenHeight, height => {
   const {CONTAINER_PADDING} = LAYOUT;
   return height - CONTAINER_PADDING * 2;
 });
 
+export const getContentPanelCenterPosition = createSelector(
+  [getContentPanelCenter, getContentPanelWidth, getContentPanelHeight],
+  ([x, y], width, height) => [width * x, height * y]
+);
+
 export const getTopLeftSubPanelSize = createSelector(
-  [getContentPanelWidth, getContentPanelHeight],
-  (width, height) => [width / 2, height / 2]
+  getContentPanelCenterPosition,
+  position => position
 );
 
 export const getTopRightSubPanelSize = createSelector(
-  [getContentPanelWidth, getContentPanelHeight],
-  (width, height) => [width / 2, height / 2]
+  [getContentPanelCenterPosition, getContentPanelWidth],
+  ([x, y], width) => [width - x, y]
 );
 
 export const getBottomLeftSubPanelSize = createSelector(
-  [getContentPanelWidth, getContentPanelHeight],
-  (width, height) => [width / 2, height / 2]
+  [getContentPanelCenterPosition, getContentPanelHeight],
+  ([x, y], height) => [x, height - y]
 );
 
 export const getBottomRightSubPanelSize = createSelector(
-  [getContentPanelWidth, getContentPanelHeight],
-  (width, height) => [width / 2, height / 2]
+  [getContentPanelCenterPosition, getContentPanelWidth, getContentPanelHeight],
+  ([x, y], width, height) => [width - x, height - y]
 );

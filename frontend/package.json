@@ -21,6 +21,7 @@
     "react-dom": "^16.2.0",
     "react-fetch-progressbar": "0.0.3",
     "react-redux": "^5.0.6",
+    "react-rnd": "^9.0.2",
     "redux": "^3.7.2",
     "redux-actions": "^2.2.1",
     "redux-logger": "^3.0.6",

@@ -1,6 +1,8 @@
 import {handleActions} from 'redux-actions';
 import {
   UPDATE_SCREEN_SIZE,
+  UPDATE_NAV_PANEL_WIDTH,
+  UPDATE_CONTENT_PANEL_CENTER,
   UPDATE_CURRENT_DATASET_NAME,
   UPDATE_DATASET_LIST,
   FETCH_BAYESIAN_NETWORK_START,
@@ -27,6 +29,8 @@ import {HIERARICAL_CLUSTERING_OPTION} from './constants';
 const DEFAULT_STATE = {
   screenWidth: 0,
   screenHeight: 0,
+  navPanelWidth: 500,
+  contentPanelCenter: [0.5, 0.5],
   isFetchingBayesianNetwork: false,
   isFetchingModifiedBayesianNetwork: false,
   currentDatasetName: null, // the current dataset name
@@ -89,6 +93,16 @@ const handleUpdateScreenSize = (state, {payload}) => ({
   ...state,
   screenWidth: payload.width,
   screenHeight: payload.height
+});
+
+const handleUpdateNavPanelWidth = (state, {payload}) => ({
+  ...state,
+  navPanelWidth: payload
+});
+
+const handleUpdateContentPanelCenter = (state, {payload}) => ({
+  ...state,
+  contentPanelCenter: payload
 });
 
 const handleUpdateCurrentDatasetName = (state, {payload}) => ({
@@ -197,6 +211,8 @@ const handleUpdateFeatureValuesMap = (state, {payload}) => ({
 export default handleActions(
   {
     [UPDATE_SCREEN_SIZE]: handleUpdateScreenSize,
+    [UPDATE_NAV_PANEL_WIDTH]: handleUpdateNavPanelWidth,
+    [UPDATE_CONTENT_PANEL_CENTER]: handleUpdateContentPanelCenter,
     [UPDATE_CURRENT_DATASET_NAME]: handleUpdateCurrentDatasetName,
     [UPDATE_DATASET_LIST]: handleUpdateDatasetList,
     [FETCH_BAYESIAN_NETWORK_START]: handleFetchBayesianNetworkStart,

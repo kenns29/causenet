@@ -23,19 +23,21 @@ class ContentPanel extends PureComponent {
     const {width, height, bayesianModelFeatures} = this.props;
     return (
       <div style={this.containerStyle} width={width} height={height}>
-        <Tabs defaultActiveKey="all">
-          <Tabs.TabPane tab="All Features" key="all">
-            <AllFeatureList width={width} height={height - 100} />
-          </Tabs.TabPane>
-          <Tabs.TabPane tab="Selected Features" key="selected">
-            <SelectedFeatureList width={width} height={height - 100} />
-          </Tabs.TabPane>
-          {bayesianModelFeatures.length && (
-            <Tabs.TabPane tab="Model Features" key="model">
-              <ModelFeatureList width={width} height={height - 100} />
+        {height > 100 && (
+          <Tabs defaultActiveKey="all">
+            <Tabs.TabPane tab="All Features" key="all">
+              <AllFeatureList width={width} height={height - 100} />
             </Tabs.TabPane>
-          )}
-        </Tabs>
+            <Tabs.TabPane tab="Selected Features" key="selected">
+              <SelectedFeatureList width={width} height={height - 100} />
+            </Tabs.TabPane>
+            {bayesianModelFeatures.length && (
+              <Tabs.TabPane tab="Model Features" key="model">
+                <ModelFeatureList width={width} height={height - 100} />
+              </Tabs.TabPane>
+            )}
+          </Tabs>
+        )}
       </div>
     );
   }
