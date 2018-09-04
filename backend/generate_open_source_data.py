@@ -1,6 +1,6 @@
 import os, pickle, json
 from fastcluster import linkage
-from pandas import DataFrame, read_csv, cut, qcut
+from pandas import read_csv, cut
 from setup import data_dir, metadata_dir, model_dir, data_config_dir, config_dir, model_config_dir
 from modules.service.data_utils import get_feature_pdist, get_base_avg_data
 
@@ -69,6 +69,9 @@ def init_model_dir():
 
 
 def init_model_config():
+    if not os.path.exists(model_config_dir):
+        with open(model_config_dir, mode='w') as file:
+            json.dump(dict((key, {}) for key in data_config.keys), file, indent='\t')
     with open(model_config_dir, mode='r+') as file:
         config = json.load(file)
         for key in data_config.keys():
