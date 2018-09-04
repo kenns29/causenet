@@ -178,7 +178,7 @@ export default class ContentPanel extends PureComponent {
             this._getAlpha(label, null, isRemoved)
           ],
           getSize: 10,
-          getAngle: 45,
+          getAngle: 30,
           coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
           updateTriggers: {
             getColor: highlightedEdge
