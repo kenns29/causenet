@@ -4,6 +4,7 @@ import {BACKEND_URL} from '../constants';
 
 // UI action ids
 export const UPDATE_SCREEN_SIZE = 'UPDATE_SCREEN_SIZE';
+export const UPDATE_NAV_PANEL_WIDTH = 'UPDATE_NAV_PANEL_WIDTH';
 export const UPDATE_CONTENT_PANEL_CENTER = 'UPDATE_CONTENT_PANEL_CENTER';
 
 // data Action ids
@@ -38,6 +39,7 @@ export const UPDATE_FEATURE_VALUES_MAP = 'UPDATE_FEATURE_VALUE_MAP';
 
 // UI actions
 export const updateScreenSize = createAction(UPDATE_SCREEN_SIZE);
+export const updateNavPanelWidth = createAction(UPDATE_NAV_PANEL_WIDTH);
 export const updateContentPanelCenter = createAction(
   UPDATE_CONTENT_PANEL_CENTER
 );
