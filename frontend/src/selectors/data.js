@@ -295,7 +295,25 @@ export const getDagLayout = createSelector(
 
 export const getTemporalDagLayout = createSelector(
   getBayesianNetworkNodeLink,
-  ({nodes, links}) => {}
+  ({nodes, links}) => {
+    let [minYear, maxYear] = [Infinity, -Infinity];
+    // group nodes based on base feature
+    nodeGroups = nodes.reduce((groups, node) => {
+      const [baseFeature, yearStr] = node.label.split('~');
+      const year = Number(yearStr);
+
+      // update min max year
+      minYear = Math.min(year, minYear);
+      maxYear = Math.max(year, maxYear);
+
+      if (!groups.hasOwnProperty(baseFeature)) {
+        groups[baseFeature] = {};
+      }
+      return (groups[baseFeature][year] = {...node, year}), groups;
+    }, {});
+
+    const [nodeWidth, nodeHeight, groupVerticalSpace] = [20, 20, 20];
+  }
 );
 
 export const getId2DistanceFunction = createSelector(
