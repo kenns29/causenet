@@ -104,6 +104,14 @@ export const getNodeLinkViewOptions = createSelector(
   state => state.nodeLinkViewOptions
 );
 
+export const getIsTemporalBayesianNetwork = createSelector(
+  getRawBayesianNetwork,
+  rawBayesianNetwork =>
+    !rawBayesianNetwork.some(
+      ({source, target}) => !source.includes('~') || !target.includes('~')
+    )
+);
+
 export const getBayesianModelFeatures = createSelector(
   [getRawBayesianModelFeatures, getRawFeatureValuesMap],
   (features, featureValuesMap) =>
@@ -232,14 +240,21 @@ export const getBayesianNetworkNodeLink = createSelector(
     modifiedNodeMap,
     featureValueSelectionMap
   ) => {
-    const nodes = Object.values(nodeMap).map(node => ({
-      ...node,
-      isModified: featureValueSelectionMap.hasOwnProperty(node.label),
-      isRemoved: !modifiedNodeMap.hasOwnProperty(node.label)
-    }));
+    const newNodeMap = Object.entries(nodeMap).reduce(
+      (map, [key, node]) =>
+        Object.assign(map, {
+          [key]: {
+            ...node,
+            isModified: featureValueSelectionMap.hasOwnProperty(node.label),
+            isRemoved: !modifiedNodeMap.hasOwnProperty(node.label)
+          }
+        }),
+      {}
+    );
+    const nodes = Object.values(newNodeMap);
     const links = rawLinks.map(({source, target, weight}) => ({
-      source,
-      target,
+      source: newNodeMap[source],
+      target: newNodeMap[target],
       weight,
       isRemoved: !modifiedLinkMap.hasOwnProperty(source + '-' + target)
     }));
@@ -261,7 +276,7 @@ export const getDagLayout = createSelector(
       dag.setNode(node.label, {...node, width: 30, height: 30});
     });
     links.forEach(({source, target, weight, isRemoved}) => {
-      dag.setEdge(source, target, {weight, isRemoved});
+      dag.setEdge(source.label, target.label, {weight, isRemoved});
     });
     dagre.layout(dag);
     const layoutNodes = dag
@@ -276,6 +291,11 @@ export const getDagLayout = createSelector(
     }));
     return {nodes: layoutNodes, edges: layoutEdges};
   }
+);
+
+export const getTemporalDagLayout = createSelector(
+  getBayesianNetworkNodeLink,
+  ({nodes, links}) => {}
 );
 
 export const getId2DistanceFunction = createSelector(
