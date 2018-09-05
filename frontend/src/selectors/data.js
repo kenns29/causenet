@@ -293,9 +293,14 @@ export const getDagLayout = createSelector(
   }
 );
 
+export const getFeatureList = createSelector(
+  getRawHierarchicalClusteringTree,
+  tree => getTreeLeaves(tree).map(d => d.name)
+);
+
 export const getTemporalDagLayout = createSelector(
-  getBayesianNetworkNodeLink,
-  ({nodes, links}) => {
+  [getBayesianNetworkNodeLink, getFeatureList],
+  ({nodes, links}, features) => {
     let [minYear, maxYear] = [Infinity, -Infinity];
     // group nodes based on base feature
     nodeGroups = nodes.reduce((groups, node) => {
@@ -311,7 +316,6 @@ export const getTemporalDagLayout = createSelector(
       }
       return (groups[baseFeature][year] = {...node, year}), groups;
     }, {});
-
     const [nodeWidth, nodeHeight, groupVerticalSpace] = [20, 20, 20];
   }
 );
@@ -326,11 +330,6 @@ export const getId2DistanceFunction = createSelector(
     }
     return 0;
   }
-);
-
-export const getFeatureList = createSelector(
-  getRawHierarchicalClusteringTree,
-  tree => getTreeLeaves(tree).map(d => d.name)
 );
 
 export const getHierachicalClusteringCut = createSelector(
