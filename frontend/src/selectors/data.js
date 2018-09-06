@@ -302,8 +302,8 @@ export const getTemporalDagLayout = createSelector(
   [getBayesianNetworkNodeLink, getFeatureList],
   ({nodes, links}, features) => {
     let [minYear, maxYear] = [Infinity, -Infinity];
-    // group nodes based on base feature
-    nodeGroups = nodes.reduce((groups, node) => {
+    // group nodes based on the base feature
+    const nodeGroups = nodes.reduce((groups, node) => {
       const [baseFeature, yearStr] = node.label.split('~');
       const year = Number(yearStr);
 
@@ -314,9 +314,36 @@ export const getTemporalDagLayout = createSelector(
       if (!groups.hasOwnProperty(baseFeature)) {
         groups[baseFeature] = {};
       }
-      return (groups[baseFeature][year] = {...node, year}), groups;
+      groups[baseFeature][year] = node;
+      return groups;
     }, {});
-    const [nodeWidth, nodeHeight, groupVerticalSpace] = [20, 20, 20];
+    const [w, h, hSpace, vSpace] = [20, 20, 10, 40];
+    const layoutNodes = [].concat(
+      ...features
+        .filter(feature => nodeGroups.hasOwnProperty(feature))
+        .map((feature, index) =>
+          Object.entries(nodeGroups[feature]).map(([year, node]) => ({
+            ...node,
+            year,
+            x: (w + hSpace) * (year - minYear),
+            y: (h + vSpace) * index,
+            w,
+            h
+          }))
+        )
+    );
+    const layoutNodeMap = layoutNodes.reduce(
+      (map, node) => Object.assign(map, ([node.label]: node)),
+      {}
+    );
+    const layoutEdges = links.map(({source, target, weight}) => ({
+      sourceId: source,
+      targetId: target,
+      source: layoutNodeMap[source],
+      target: layoutNodeMap[target],
+      weight
+    }));
+    return {nodes: layoutNodes, edges: layoutEdges};
   }
 );
 
