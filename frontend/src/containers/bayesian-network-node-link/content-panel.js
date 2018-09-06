@@ -2,7 +2,7 @@ import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
 import {Spin} from 'antd';
 import {
-  getDagLayout,
+  getBayesianNetworkNodeLinkLayout,
   getNodeLinkViewOptions,
   getHighlightedBayesianNetworkEdge,
   getHighlightedBayesianModelFeature,
@@ -20,7 +20,7 @@ const mapDispatchToProps = {
 };
 
 const mapStateToProps = state => ({
-  data: getDagLayout(state),
+  data: getBayesianNetworkNodeLinkLayout(state),
   options: getNodeLinkViewOptions(state),
   highlightedEdge: getHighlightedBayesianNetworkEdge(state),
   highlightedFeature: getHighlightedBayesianModelFeature(state),

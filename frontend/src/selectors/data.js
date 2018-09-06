@@ -11,7 +11,8 @@ import {
   cutTreeByDist,
   getCutTree,
   findMaxDistancePair,
-  createNodeMap
+  createNodeMap,
+  clipLine
 } from '../utils';
 
 export const getCurrentDatasetName = createSelector(
@@ -282,13 +283,17 @@ export const getDagLayout = createSelector(
     const layoutNodes = dag
       .nodes()
       .map(v => Object.assign(dag.node(v), {width: 20, height: 20}));
-    const layoutEdges = dag.edges().map(e => ({
-      ...dag.edge(e),
-      sourceId: e.v,
-      targetId: e.w,
-      source: dag.node(e.v),
-      target: dag.node(e.w)
-    }));
+    const layoutEdges = dag.edges().map(e => {
+      const edge = dag.edge(e);
+      return {
+        ...edge,
+        sourceId: e.v,
+        targetId: e.w,
+        source: dag.node(e.v),
+        target: dag.node(e.w),
+        points: edge.points.map(({x, y}) => [x, y, 0])
+      };
+    });
     return {nodes: layoutNodes, edges: layoutEdges};
   }
 );
@@ -317,7 +322,7 @@ export const getTemporalDagLayout = createSelector(
       groups[baseFeature][year] = node;
       return groups;
     }, {});
-    const [w, h, hSpace, vSpace] = [20, 20, 10, 40];
+    const [width, height, hSpace, vSpace] = [20, 20, 40, 40];
     const layoutNodes = [].concat(
       ...features
         .filter(feature => nodeGroups.hasOwnProperty(feature))
@@ -325,26 +330,41 @@ export const getTemporalDagLayout = createSelector(
           Object.entries(nodeGroups[feature]).map(([year, node]) => ({
             ...node,
             year,
-            x: (w + hSpace) * (year - minYear),
-            y: (h + vSpace) * index,
-            w,
-            h
+            x: (width + hSpace) * (year - minYear) + width / 2,
+            y: (height + vSpace) * index + height / 2,
+            width,
+            height
           }))
         )
     );
     const layoutNodeMap = layoutNodes.reduce(
-      (map, node) => Object.assign(map, ([node.label]: node)),
+      (map, node) => Object.assign(map, {[node.label]: node}),
       {}
     );
-    const layoutEdges = links.map(({source, target, weight}) => ({
-      sourceId: source,
-      targetId: target,
-      source: layoutNodeMap[source],
-      target: layoutNodeMap[target],
-      weight
-    }));
+    const layoutEdges = links.map(
+      ({source: {label: sourceId}, target: {label: targetId}, ...rest}) => {
+        const [source, target] = [sourceId, targetId].map(
+          id => layoutNodeMap[id]
+        );
+        const points = [source, target].map(({x, y}) => [x, y, 0]);
+        return {
+          ...rest,
+          sourceId,
+          targetId,
+          source,
+          target,
+          points: clipLine({line: points, clipLengths: [10, 10]})
+        };
+      }
+    );
     return {nodes: layoutNodes, edges: layoutEdges};
   }
+);
+
+export const getBayesianNetworkNodeLinkLayout = createSelector(
+  [getIsTemporalBayesianNetwork, getDagLayout, getTemporalDagLayout],
+  (isTemporalBayesianNetwork, dagLayout, temporalDagLayout) =>
+    isTemporalBayesianNetwork ? temporalDagLayout : dagLayout
 );
 
 export const getId2DistanceFunction = createSelector(

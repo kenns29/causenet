@@ -89,7 +89,7 @@ export default class ContentPanel extends PureComponent {
     const pathProps = {
       id: ID + '-path-layer',
       data: edges,
-      getPath: ({points}) => points.map(({x, y}) => [x, y]),
+      getPath: ({points}) => points,
       getWidth: () => 1,
       getColor: ({sourceId, targetId, isRemoved}) => [
         64,
@@ -134,7 +134,7 @@ export default class ContentPanel extends PureComponent {
         data: edges,
         getPolygon: ({points}) =>
           makeLineArrow({
-            line: points.slice(points.length - 2).map(({x, y}) => [x, y]),
+            line: points.slice(points.length - 2),
             l: 10,
             w: 5
           }),
