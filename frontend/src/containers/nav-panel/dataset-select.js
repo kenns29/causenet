@@ -15,6 +15,7 @@ import {
   fetchHierarchicalClusteringTree,
   requestUpdateCurrentDatasetName,
   updateBayesianNetwork,
+  updateModifiedBayesianNetwork,
   updateSelectedModel
 } from '../../actions';
 
@@ -25,6 +26,7 @@ const mapDispatchToProps = {
   fetchHierarchicalClusteringTree,
   requestUpdateCurrentDatasetName,
   updateBayesianNetwork,
+  updateModifiedBayesianNetwork,
   updateSelectedModel
 };
 
@@ -48,6 +50,8 @@ class DataSelect extends PureComponent {
           <Select
             value={currentDatasetName}
             onChange={async name => {
+              this.props.updateModifiedBayesianNetwork([]);
+              this.props.updateBayesianNetwork([]);
               await this.props.requestUpdateCurrentDatasetName(name);
               await this.props.fetchModelList();
               await this.props.fetchFeatureSelection();
@@ -56,7 +60,6 @@ class DataSelect extends PureComponent {
                 hierarchicalClusteringOption
               );
               this.props.updateSelectedModel(null);
-              this.props.updateBayesianNetwork([]);
             }}
             style={{width: '50%'}}
           >

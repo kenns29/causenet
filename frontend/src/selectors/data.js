@@ -11,7 +11,8 @@ import {
   cutTreeByDist,
   getCutTree,
   findMaxDistancePair,
-  createNodeMap
+  createNodeMap,
+  clipLine
 } from '../utils';
 
 export const getCurrentDatasetName = createSelector(
@@ -102,6 +103,14 @@ export const getRawFeatureValuesMap = createSelector(
 export const getNodeLinkViewOptions = createSelector(
   rootSelector,
   state => state.nodeLinkViewOptions
+);
+
+export const getIsTemporalBayesianNetwork = createSelector(
+  getRawBayesianNetwork,
+  rawBayesianNetwork =>
+    !rawBayesianNetwork.some(
+      ({source, target}) => !source.includes('~') || !target.includes('~')
+    )
 );
 
 export const getBayesianModelFeatures = createSelector(
@@ -232,14 +241,21 @@ export const getBayesianNetworkNodeLink = createSelector(
     modifiedNodeMap,
     featureValueSelectionMap
   ) => {
-    const nodes = Object.values(nodeMap).map(node => ({
-      ...node,
-      isModified: featureValueSelectionMap.hasOwnProperty(node.label),
-      isRemoved: !modifiedNodeMap.hasOwnProperty(node.label)
-    }));
+    const newNodeMap = Object.entries(nodeMap).reduce(
+      (map, [key, node]) =>
+        Object.assign(map, {
+          [key]: {
+            ...node,
+            isModified: featureValueSelectionMap.hasOwnProperty(node.label),
+            isRemoved: !modifiedNodeMap.hasOwnProperty(node.label)
+          }
+        }),
+      {}
+    );
+    const nodes = Object.values(newNodeMap);
     const links = rawLinks.map(({source, target, weight}) => ({
-      source,
-      target,
+      source: newNodeMap[source],
+      target: newNodeMap[target],
       weight,
       isRemoved: !modifiedLinkMap.hasOwnProperty(source + '-' + target)
     }));
@@ -261,21 +277,94 @@ export const getDagLayout = createSelector(
       dag.setNode(node.label, {...node, width: 30, height: 30});
     });
     links.forEach(({source, target, weight, isRemoved}) => {
-      dag.setEdge(source, target, {weight, isRemoved});
+      dag.setEdge(source.label, target.label, {weight, isRemoved});
     });
     dagre.layout(dag);
     const layoutNodes = dag
       .nodes()
       .map(v => Object.assign(dag.node(v), {width: 20, height: 20}));
-    const layoutEdges = dag.edges().map(e => ({
-      ...dag.edge(e),
-      sourceId: e.v,
-      targetId: e.w,
-      source: dag.node(e.v),
-      target: dag.node(e.w)
-    }));
+    const layoutEdges = dag.edges().map(e => {
+      const edge = dag.edge(e);
+      return {
+        ...edge,
+        sourceId: e.v,
+        targetId: e.w,
+        source: dag.node(e.v),
+        target: dag.node(e.w),
+        points: edge.points.map(({x, y}) => [x, y, 0])
+      };
+    });
     return {nodes: layoutNodes, edges: layoutEdges};
   }
+);
+
+export const getFeatureList = createSelector(
+  getRawHierarchicalClusteringTree,
+  tree => getTreeLeaves(tree).map(d => d.name)
+);
+
+export const getTemporalDagLayout = createSelector(
+  [getBayesianNetworkNodeLink, getFeatureList],
+  ({nodes, links}, features) => {
+    let [minYear, maxYear] = [Infinity, -Infinity];
+    // group nodes based on the base feature
+    const nodeGroups = nodes.reduce((groups, node) => {
+      const [baseFeature, yearStr] = node.label.split('~');
+      const year = Number(yearStr);
+
+      // update min max year
+      minYear = Math.min(year, minYear);
+      maxYear = Math.max(year, maxYear);
+
+      if (!groups.hasOwnProperty(baseFeature)) {
+        groups[baseFeature] = {};
+      }
+      groups[baseFeature][year] = node;
+      return groups;
+    }, {});
+    const [width, height, hSpace, vSpace] = [20, 20, 40, 40];
+    const layoutNodes = [].concat(
+      ...features
+        .filter(feature => nodeGroups.hasOwnProperty(feature))
+        .map((feature, index) =>
+          Object.entries(nodeGroups[feature]).map(([year, node]) => ({
+            ...node,
+            year,
+            x: (width + hSpace) * (year - minYear) + width / 2,
+            y: (height + vSpace) * index + height / 2,
+            width,
+            height
+          }))
+        )
+    );
+    const layoutNodeMap = layoutNodes.reduce(
+      (map, node) => Object.assign(map, {[node.label]: node}),
+      {}
+    );
+    const layoutEdges = links.map(
+      ({source: {label: sourceId}, target: {label: targetId}, ...rest}) => {
+        const [source, target] = [sourceId, targetId].map(
+          id => layoutNodeMap[id]
+        );
+        const points = [source, target].map(({x, y}) => [x, y, 0]);
+        return {
+          ...rest,
+          sourceId,
+          targetId,
+          source,
+          target,
+          points: clipLine({line: points, clipLengths: [10, 10]})
+        };
+      }
+    );
+    return {nodes: layoutNodes, edges: layoutEdges};
+  }
+);
+
+export const getBayesianNetworkNodeLinkLayout = createSelector(
+  [getIsTemporalBayesianNetwork, getDagLayout, getTemporalDagLayout],
+  (isTemporalBayesianNetwork, dagLayout, temporalDagLayout) =>
+    isTemporalBayesianNetwork ? temporalDagLayout : dagLayout
 );
 
 export const getId2DistanceFunction = createSelector(
@@ -288,11 +377,6 @@ export const getId2DistanceFunction = createSelector(
     }
     return 0;
   }
-);
-
-export const getFeatureList = createSelector(
-  getRawHierarchicalClusteringTree,
-  tree => getTreeLeaves(tree).map(d => d.name)
 );
 
 export const getHierachicalClusteringCut = createSelector(
