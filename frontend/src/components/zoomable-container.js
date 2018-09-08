@@ -12,6 +12,7 @@ export default class ZoomableContainer extends PureComponent {
     height: 0,
     layers: [],
     style: {},
+    overlay: null,
     onZoom: () => {},
     onMove: () => {}
   };
@@ -108,7 +109,8 @@ export default class ZoomableContainer extends PureComponent {
       height,
       layers,
       style,
-      getCursor
+      getCursor,
+      overlay
     } = this.props;
     const {
       zoomScale,
@@ -147,6 +149,7 @@ export default class ZoomableContainer extends PureComponent {
               child => child && React.cloneElement(child)
             )}
         </DeckGL>
+        {overlay}
       </div>
     );
   }

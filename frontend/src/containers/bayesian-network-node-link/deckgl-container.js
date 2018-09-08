@@ -74,6 +74,7 @@ export default class ContentPanel extends PureComponent {
                 : object.label
               : null
           ),
+        onHover: ({object}) => {},
         updateTriggers: {
           getFillColor: [showLabels, highlightedEdge, highlightedFeature],
           getStrokeColor: [showLabels, highlightedEdge, highlightedFeature]
@@ -195,6 +196,7 @@ export default class ContentPanel extends PureComponent {
       ...this._renderLabels()
     ];
   }
+  _renderTooltip() {}
   render() {
     const {width, height} = this.props;
     return (
