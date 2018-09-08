@@ -6,7 +6,26 @@ import {makeLineArrow} from '../../utils';
 
 const ID = 'bayesian-network-node-link';
 
+const tooltipStyle = {
+  position: 'absolute',
+  padding: '4px',
+  background: 'rgba(0, 0, 0, 0.8)',
+  color: '#fff',
+  maxWidth: '300px',
+  fontSize: '10px',
+  zIndex: 9,
+  pointerEvents: 'none'
+};
+
 export default class ContentPanel extends PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = {
+      hoveredNodes: [],
+      zoomScale: 1,
+      zoomOffset: [0, 0]
+    };
+  }
   _isHighlighted = (source, target) => {
     const {highlightedEdge} = this.props;
     return (
@@ -74,7 +93,8 @@ export default class ContentPanel extends PureComponent {
                 : object.label
               : null
           ),
-        onHover: ({object}) => {},
+        onHover: ({object}) =>
+          this.setState({hoveredNodes: object ? [object] : []}),
         updateTriggers: {
           getFillColor: [showLabels, highlightedEdge, highlightedFeature],
           getStrokeColor: [showLabels, highlightedEdge, highlightedFeature]
@@ -196,11 +216,30 @@ export default class ContentPanel extends PureComponent {
       ...this._renderLabels()
     ];
   }
-  _renderTooltip() {}
+  _renderTooltip() {
+    const {hoveredNodes} = this.state;
+    if (this.container && this.container.deck && hoveredNodes.length) {
+      const {deck} = this.container.deck;
+      return (
+        <React.Fragment>
+          {hoveredNodes.map(({label, x, y}) => {
+            const [left, top] = deck.getViewports()[0].project([x, y]);
+            return (
+              <div key={label} style={{...tooltipStyle, left, top}}>
+                {label}
+              </div>
+            );
+          })}
+        </React.Fragment>
+      );
+    }
+    return null;
+  }
   render() {
     const {width, height} = this.props;
     return (
       <ZoomableContainer
+        ref={input => (this.container = input)}
         width={width}
         height={height}
         left={0}
@@ -208,7 +247,14 @@ export default class ContentPanel extends PureComponent {
         bottom={height}
         top={0}
         layers={this._renderLayers()}
+        overlay={this._renderTooltip()}
         getCursor={() => 'auto'}
+        onZoom={zoomScale => {
+          this.setState({zoomScale});
+        }}
+        onMove={zoomOffset => {
+          this.setState({zoomOffset});
+        }}
       />
     );
   }
