@@ -225,7 +225,10 @@ export default class ContentPanel extends PureComponent {
           {hoveredNodes.map(({label, x, y}) => {
             const [left, top] = deck.getViewports()[0].project([x, y]);
             return (
-              <div key={label} style={{...tooltipStyle, left, top}}>
+              <div
+                key={label}
+                style={{...tooltipStyle, left: left + 10, top: top - 20}}
+              >
                 {label}
               </div>
             );
