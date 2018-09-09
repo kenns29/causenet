@@ -12,6 +12,7 @@ export default class ZoomableContainer extends PureComponent {
     height: 0,
     layers: [],
     style: {},
+    overlay: null,
     onZoom: () => {},
     onMove: () => {}
   };
@@ -32,7 +33,7 @@ export default class ZoomableContainer extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      zoomScale: 1, // zoomScale < 1 for zoom out, zoomScale > 1 for zoom out
+      zoomScale: 1, // zoomScale < 1 for zoom in, zoomScale > 1 for zoom out
       zoomOffset: [0, 0], // the panning offset -- [x offset, y offset]
       drag: {
         move: null // drag start mouse position - [x, y]
@@ -108,7 +109,8 @@ export default class ZoomableContainer extends PureComponent {
       height,
       layers,
       style,
-      getCursor
+      getCursor,
+      overlay
     } = this.props;
     const {
       zoomScale,
@@ -134,6 +136,7 @@ export default class ZoomableContainer extends PureComponent {
         onWheel={this._handleWheel}
       >
         <DeckGL
+          ref={input => (this.deck = input)}
           width={width}
           height={height}
           views={views}
@@ -147,6 +150,7 @@ export default class ZoomableContainer extends PureComponent {
               child => child && React.cloneElement(child)
             )}
         </DeckGL>
+        {overlay}
       </div>
     );
   }
