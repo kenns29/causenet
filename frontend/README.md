@@ -4,12 +4,12 @@ Clone the repository from [sortable-matrix](https://github.com/kenns29/sortable-
 
 Afterwards, go to the `/frontend` directory and do
 
-```
+```bash
 npm install
 ```
 
 ### Run
 
-```
+```bash
 npm start
 ```
