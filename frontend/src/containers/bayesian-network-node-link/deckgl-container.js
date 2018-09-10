@@ -21,9 +21,7 @@ export default class ContentPanel extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      hoveredNodes: [],
-      zoomScale: 1,
-      zoomOffset: [0, 0]
+      hoveredNodes: []
     };
   }
   _isHighlighted = (source, target) => {
@@ -252,12 +250,6 @@ export default class ContentPanel extends PureComponent {
         layers={this._renderLayers()}
         overlay={this._renderTooltip()}
         getCursor={() => 'auto'}
-        onZoom={zoomScale => {
-          this.setState({zoomScale});
-        }}
-        onMove={zoomOffset => {
-          this.setState({zoomOffset});
-        }}
       />
     );
   }
