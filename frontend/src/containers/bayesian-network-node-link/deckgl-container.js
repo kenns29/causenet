@@ -1,7 +1,10 @@
 import React, {PureComponent} from 'react';
 import {PathLayer, TextLayer, PolygonLayer, COORDINATE_SYSTEM} from 'deck.gl';
 import ZoomableContainer from '../../components/zoomable-container';
-import {StrokedScatterplotLayer} from '../../components/deckgl-layers';
+import {
+  StrokedScatterplotLayer,
+  SplineLayer
+} from '../../components/deckgl-layers';
 import {makeLineArrow} from '../../utils';
 
 const ID = 'bayesian-network-node-link';
@@ -102,6 +105,48 @@ export default class ContentPanel extends PureComponent {
       })
     ];
   }
+  // _renderEdges() {
+  //   const {
+  //     data: {edges},
+  //     highlightedEdge
+  //   } = this.props;
+  //   const pathProps = {
+  //     id: ID + '-path-layer',
+  //     data: edges,
+  //     getPath: ({points}) => points,
+  //     getWidth: () => 1,
+  //     getColor: ({sourceId, targetId, isRemoved}) => [
+  //       64,
+  //       64,
+  //       64,
+  //       this._getAlpha(sourceId, targetId, isRemoved)
+  //     ],
+  //     coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+  //     pickable: true,
+  //     onHover: ({object}) =>
+  //       this.props.updateHighlightedBayesianNetworkEdge(
+  //         object
+  //           ? {
+  //             source: object.sourceId,
+  //             target: object.targetId,
+  //             weight: object.weight
+  //           }
+  //           : null
+  //       ),
+  //     updateTriggers: {
+  //       getColor: highlightedEdge
+  //     }
+  //   };
+  //   const backgroundProps = {
+  //     ...pathProps,
+  //     id: ID + '-path-layer-background',
+  //     getWidth: () => 10,
+  //     getColor: [255, 255, 255],
+  //     pickable: true,
+  //     updateTriggers: {}
+  //   };
+  //   return [new PathLayer(backgroundProps), new PathLayer(pathProps)];
+  // }
   _renderEdges() {
     const {
       data: {edges},
@@ -110,7 +155,10 @@ export default class ContentPanel extends PureComponent {
     const pathProps = {
       id: ID + '-path-layer',
       data: edges,
-      getPath: ({points}) => points,
+      getSourcePosition: ({points}) => points[0].slice(0, 2),
+      getTargetPosition: ({points}) => points[points.length - 1].slice(0, 2),
+      getControlPoints: ({points}) =>
+        points.slice(1, points.length - 1).map(([x, y, z]) => [x, y]),
       getWidth: () => 1,
       getColor: ({sourceId, targetId, isRemoved}) => [
         64,
@@ -142,7 +190,7 @@ export default class ContentPanel extends PureComponent {
       pickable: true,
       updateTriggers: {}
     };
-    return [new PathLayer(backgroundProps), new PathLayer(pathProps)];
+    return [new SplineLayer(backgroundProps), new SplineLayer(pathProps)];
   }
   _renderArrows() {
     const {
