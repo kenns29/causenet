@@ -152,7 +152,6 @@ export default class ContentPanel extends PureComponent {
       data: {edges},
       highlightedEdge
     } = this.props;
-    console.log('edges', edges);
     const pathProps = {
       id: ID + '-path-layer',
       data: edges,
