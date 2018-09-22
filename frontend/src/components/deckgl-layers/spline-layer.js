@@ -1,6 +1,7 @@
 import {COORDINATE_SYSTEM, CompositeLayer} from 'deck.gl';
 import {LineLayer} from 'deck.gl';
 import {getCurvePoints} from 'cardinal-spline-js';
+export const functor = v => (typeof v === 'function' ? v : () => v);
 
 /* Constants */
 const defaultProps = {
@@ -29,7 +30,10 @@ export default class SplineLayer extends CompositeLayer {
       this.updateSplineData(props);
     }
   }
-
+  getPickingInfo({info}) {
+    info.object = info.object && info.object.data;
+    return info;
+  }
   updateSplineData() {
     const {data} = this.props;
     const paths = data.reduce((res, d) => {
@@ -46,9 +50,9 @@ export default class SplineLayer extends CompositeLayer {
       );
       for (var i = 0, l = path.length - 2; i < l; i += 2) {
         res.push({
-          edgeId: d.id,
           source: [path[i], path[i + 1]],
-          target: [path[i + 2], path[i + 3]]
+          target: [path[i + 2], path[i + 3]],
+          data: d
         });
       }
       return res;
@@ -60,21 +64,23 @@ export default class SplineLayer extends CompositeLayer {
     const {
       coordinateSystem,
       getColor,
-      strokeWidth,
+      getStrokeWidth,
       id,
-      updateTriggers
+      updateTriggers,
+      pickable
     } = this.props;
     const {paths} = this.state;
-
+    const _getColor = functor(getColor);
     return new LineLayer({
       id: `${id}-splines`,
       data: paths,
       getSourcePosition: e => e.source,
       getTargetPosition: e => e.target,
-      getColor,
-      strokeWidth,
+      getColor: ({data}) => _getColor(data),
+      getStrokeWidth,
       coordinateSystem,
-      updateTriggers
+      updateTriggers,
+      pickable
     });
   }
 }
