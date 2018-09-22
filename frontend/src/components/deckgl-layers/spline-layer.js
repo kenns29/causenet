@@ -1,7 +1,8 @@
 import {COORDINATE_SYSTEM, CompositeLayer} from 'deck.gl';
 import {LineLayer} from 'deck.gl';
 import {getCurvePoints} from 'cardinal-spline-js';
-export const functor = v => (typeof v === 'function' ? v : () => v);
+
+const functor = v => (typeof v === 'function' ? v : () => v);
 
 /* Constants */
 const defaultProps = {
