@@ -36,6 +36,15 @@ const defaultProps = {
   getLineColor: [0, 0, 0, 255]
 };
 
+const copyUpdateTriggers = updateTriggers =>
+  Object.entries(updateTriggers).reduce(
+    (obj, [key, value]) =>
+      key !== 'getColor' && key !== 'getAltColor'
+        ? Object.assign(obj, {[key]: value})
+        : obj,
+    {}
+  );
+
 export default class MatrixLayer extends CompositeLayer {
   _renderMatrixCells() {
     const {
@@ -97,7 +106,7 @@ export default class MatrixLayer extends CompositeLayer {
       onHover,
       onClick,
       updateTriggers: {
-        ...updateTriggers,
+        ...copyUpdateTriggers(updateTriggers),
         getFillColor: updateTriggers.getColor
       }
     });

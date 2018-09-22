@@ -7,6 +7,7 @@ import {interpolateGreys, interpolateRdBu} from 'd3-scale-chromatic';
 import {rgb} from 'd3-color';
 import {hierarchy as d3Hierarchy, cluster as d3Cluster} from 'd3-hierarchy';
 import {
+  array2Object,
   getTreeLeaves,
   cutTreeByDist,
   getCutTree,
@@ -337,23 +338,24 @@ export const getTemporalDagLayout = createSelector(
           }))
         )
     );
-    const layoutNodeMap = layoutNodes.reduce(
-      (map, node) => Object.assign(map, {[node.label]: node}),
-      {}
-    );
+    const layoutNodeMap = array2Object(layoutNodes, d => d.label);
     const layoutEdges = links.map(
       ({source: {label: sourceId}, target: {label: targetId}, ...rest}) => {
         const [source, target] = [sourceId, targetId].map(
           id => layoutNodeMap[id]
         );
-        const points = [source, target].map(({x, y}) => [x, y, 0]);
+        const [[sx, sy], [tx, ty]] = clipLine({
+          line: [source, target].map(({x, y}) => [x, y, 0]),
+          clipLengths: [10, 10]
+        });
+        const [mx, my] = [(sx + tx) / 2, (sy + ty) / 2];
         return {
           ...rest,
           sourceId,
           targetId,
           source,
           target,
-          points: clipLine({line: points, clipLengths: [10, 10]})
+          points: [[sx, sy, 0], [mx, my, 0], [tx, ty, 0]]
         };
       }
     );
