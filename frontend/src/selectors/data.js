@@ -13,7 +13,8 @@ import {
   getCutTree,
   findMaxDistancePair,
   createNodeMap,
-  clipLine
+  clipLine,
+  getPointOnPerpendicularBisector
 } from '../utils';
 
 export const getCurrentDatasetName = createSelector(
@@ -348,7 +349,11 @@ export const getTemporalDagLayout = createSelector(
           line: [source, target].map(({x, y}) => [x, y, 0]),
           clipLengths: [10, 10]
         });
-        const [mx, my] = [(sx + tx) / 2, (sy + ty) / 2];
+        const [mx, my] = getPointOnPerpendicularBisector({
+          line: [[sx, sy, 0], [tx, ty, 0]],
+          distance: 15
+        });
+
         return {
           ...rest,
           sourceId,

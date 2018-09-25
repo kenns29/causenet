@@ -59,3 +59,23 @@ export const clipLine = ({
     [tx - cos * tc, ty - sin * tc, tz]
   ];
 };
+
+export const getPointOnPerpendicularBisector = ({
+  line: [[sx = 0, sy = 0, sz = 0], [tx = 0, ty = 0, tz = 0]],
+  // distance of the point to the line. The point offsets the line in clockwise
+  // direction by default, but in counter clockwise if distance has negative value
+  distance = 0
+}) => {
+  const hyp = Math.sqrt(
+    (tx - sx) * (tx - sx) + (ty - sy) * (ty - sy) + (tz - sz) * (tz - sz)
+  );
+  const sin = (ty - sy) / hyp;
+  const cos = (tx - sx) / hyp;
+
+  const [rx, ry, rz] = rotatePointOnZ({
+    point: [hyp / 2, distance, 0],
+    sin,
+    cos
+  });
+  return [rx + sx, ry + sy, rz + sz];
+};
