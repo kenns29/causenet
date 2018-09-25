@@ -14,6 +14,7 @@ import {
   findMaxDistancePair,
   createNodeMap,
   clipLine,
+  getLineLength,
   getPointOnPerpendicularBisector
 } from '../utils';
 
@@ -351,7 +352,7 @@ export const getTemporalDagLayout = createSelector(
         });
         const [mx, my] = getPointOnPerpendicularBisector({
           line: [[sx, sy, 0], [tx, ty, 0]],
-          distance: 15
+          distance: getLineLength({line: [[sx, sy, 0], [tx, ty, 0]]}) / 4
         });
 
         return {

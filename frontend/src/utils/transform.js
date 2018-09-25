@@ -1,5 +1,12 @@
 import {isNull} from './base';
 
+export const getLineLength = ({
+  line: [[sx = 0, sy = 0, sz = 0], [tx = 0, ty = 0, tz = 0]]
+}) =>
+  Math.sqrt(
+    (tx - sx) * (tx - sx) + (ty - sy) * (ty - sy) + (tz - sz) * (tz - sz)
+  );
+
 // rotate the point on Z axis
 export const rotatePointOnZ = ({
   point: [x, y, z],
@@ -26,9 +33,9 @@ export const makeLineArrow = ({
   l, // the length of the arrow
   w // the width of the arrow
 }) => {
-  const hyp = Math.sqrt(
-    (tx - sx) * (tx - sx) + (ty - sy) * (ty - sy) + (tz - sz) * (tz - sz)
-  );
+  const hyp = getLineLength({
+    line: [[sx, sy, sz], [tx, ty, tz]]
+  });
   const sin = (ty - sy) / hyp;
   const cos = (tx - sx) / hyp;
   const trig = [
@@ -49,9 +56,9 @@ export const clipLine = ({
   line: [[sx = 0, sy = 0, sz = 0], [tx = 0, ty = 0, tz = 0]],
   clipLengths: [sc = 0, tc = 0]
 }) => {
-  const hyp = Math.sqrt(
-    (tx - sx) * (tx - sx) + (ty - sy) * (ty - sy) + (tz - sz) * (tz - sz)
-  );
+  const hyp = getLineLength({
+    line: [[sx, sy, sz], [tx, ty, tz]]
+  });
   const sin = (ty - sy) / hyp;
   const cos = (tx - sx) / hyp;
   return [
@@ -66,9 +73,9 @@ export const getPointOnPerpendicularBisector = ({
   // direction by default, but in counter clockwise if distance has negative value
   distance = 0
 }) => {
-  const hyp = Math.sqrt(
-    (tx - sx) * (tx - sx) + (ty - sy) * (ty - sy) + (tz - sz) * (tz - sz)
-  );
+  const hyp = getLineLength({
+    line: [[sx, sy, sz], [tx, ty, tz]]
+  });
   const sin = (ty - sy) / hyp;
   const cos = (tx - sx) / hyp;
 
