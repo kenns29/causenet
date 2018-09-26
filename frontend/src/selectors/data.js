@@ -18,6 +18,10 @@ import {
   getPointOnPerpendicularBisector
 } from '../utils';
 
+// These are temporary constants to act as a placeholder for the corresponding states
+const BAYESIAN_NETWORK_MATRIX_PADDINGS = [100, 100];
+const BAYESIAN_NETWORK_MATRIX_CELL_SIZE = [20, 20];
+
 export const getCurrentDatasetName = createSelector(
   rootSelector,
   state => state.currentDatasetName
@@ -191,15 +195,15 @@ export const getMatrixDomain = createSelector(
   }
 );
 
-export const getMatrixPaddings = createSelector(rootSelector, state => [
-  100,
-  100
-]);
+export const getMatrixPaddings = createSelector(
+  rootSelector,
+  state => BAYESIAN_NETWORK_MATRIX_PADDINGS
+);
 
-export const getMatrixCellSize = createSelector(rootSelector, state => [
-  20,
-  20
-]);
+export const getMatrixCellSize = createSelector(
+  rootSelector,
+  state => BAYESIAN_NETWORK_MATRIX_CELL_SIZE
+);
 
 /**
  * Obtain the Bayesian Network matrix layout
