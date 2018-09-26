@@ -43,13 +43,12 @@ export const makeLineArrow = ({
     [hyp - l / 2, w / 2, tz],
     [hyp, 0, tz]
   ];
-  const rotTrig = rotatePolygonOnZ({
+  return rotatePolygonOnZ({
     points: trig,
     origin: [0, 0, 0],
     cos,
     sin
-  });
-  return rotTrig.map(([rx, ry, rz]) => [rx + sx, ry + sy, rz + sz]);
+  }).map(([rx, ry, rz]) => [rx + sx, ry + sy, rz + sz]);
 };
 
 export const clipLine = ({
