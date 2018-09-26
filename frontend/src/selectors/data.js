@@ -21,6 +21,8 @@ import {
 // These are temporary constants to act as a placeholder for the corresponding states
 const BAYESIAN_NETWORK_MATRIX_PADDINGS = [100, 100];
 const BAYESIAN_NETWORK_MATRIX_CELL_SIZE = [20, 20];
+const CLUSTERING_MATRIX_PADDINGS = [100, 100];
+const CLUSTERING_MATRIX_CELL_SIZE = [10, 10];
 
 export const getCurrentDatasetName = createSelector(
   rootSelector,
@@ -486,12 +488,12 @@ export const getClusteringMatrix = createSelector(
 
 export const getClusteringMatrixPaddings = createSelector(
   rootSelector,
-  state => [100, 100]
+  state => CLUSTERING_MATRIX_PADDINGS
 );
 
 export const getClusteringMatrixCellSize = createSelector(
   rootSelector,
-  state => [10, 10]
+  state => CLUSTERING_MATRIX_CELL_SIZE
 );
 
 /**
