@@ -85,6 +85,9 @@ export const createTemporalDagLayout = ({nodes, links}, features) => {
       const [source, target] = [sourceId, targetId].map(
         id => layoutNodeMap[id]
       );
+      const [sourceTime, targetTime] = [sourceId, targetId].map(id =>
+        Number(id.split('~')[1])
+      );
       const [[sx, sy], [tx, ty]] = clipLine({
         line: [source, target].map(({x, y}) => [x, y, 0]),
         clipLengths: [10, 10]
@@ -100,7 +103,8 @@ export const createTemporalDagLayout = ({nodes, links}, features) => {
         targetId,
         source,
         target,
-        points: [[sx, sy, 0], [mx, my, 0], [tx, ty, 0]]
+        points: [[sx, sy, 0], [mx, my, 0], [tx, ty, 0]],
+        isBackward: sourceTime > targetTime
       };
     }
   );

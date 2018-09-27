@@ -20,6 +20,9 @@ const tooltipStyle = {
   pointerEvents: 'none'
 };
 
+const FORWARD_EDGE_COLOR = [8, 200, 8];
+const BACKWARD_EDGE_COLOR = [200, 8, 8];
+
 export default class ContentPanel extends PureComponent {
   constructor(props) {
     super(props);
@@ -118,10 +121,8 @@ export default class ContentPanel extends PureComponent {
       getControlPoints: ({points}) =>
         points.slice(1, points.length - 1).map(([x, y, z]) => [x, y]),
       getStrokeWidth: 1,
-      getColor: ({sourceId, targetId, isRemoved}) => [
-        64,
-        64,
-        64,
+      getColor: ({sourceId, targetId, isRemoved, isBackward}) => [
+        ...(isBackward ? BACKWARD_EDGE_COLOR : FORWARD_EDGE_COLOR),
         this._getAlpha(sourceId, targetId, isRemoved)
       ],
       coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
@@ -165,16 +166,12 @@ export default class ContentPanel extends PureComponent {
             l: 10,
             w: 5
           }),
-        getFillColor: ({sourceId, targetId, isRemoved}) => [
-          64,
-          64,
-          64,
+        getFillColor: ({sourceId, targetId, isRemoved, isBackward}) => [
+          ...(isBackward ? BACKWARD_EDGE_COLOR : FORWARD_EDGE_COLOR),
           this._getAlpha(sourceId, targetId, isRemoved)
         ],
-        getLineColor: ({sourceId, targetId, isRemoved}) => [
-          64,
-          64,
-          64,
+        getLineColor: ({sourceId, targetId, isRemoved, isBackward}) => [
+          ...(isBackward ? BACKWARD_EDGE_COLOR : FORWARD_EDGE_COLOR),
           this._getAlpha(sourceId, targetId, isRemoved)
         ],
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
