@@ -93,6 +93,15 @@ def enumerate_cpd_evidence_dicts(cpd):
     return enumerate_evidence_dicts(ev, card)
 
 
+def get_enumeration_index(enumeration, cards):
+    index = enumeration[0]
+    prod = 1
+    for i in range(1, len(cards)):
+        index += cards[i - 1] * prod * enumeration[i]
+        prod *= cards[i - 1]
+    return index
+
+
 def get_edge_weight(edge, model, priors):
     """
     Compute the weight of the edge based on the fitted CPDs. This is an implementation of the equation
@@ -106,23 +115,31 @@ def get_edge_weight(edge, model, priors):
     (x, y) = edge
     cpd = model.get_cpds(y)
     evidences = cpd.get_evidence()
-    card = cpd.get_cardinality(evidences)
+    cards = cpd.get_cardinality(evidences)
     table = cpd.get_values()
-    parentsY = [p for p in model.get_parents(y) if p != x]
-    prX = priors[x]
+    pr_x = priors[x]
     weight = 0
-    XZ = enumerate_cpd_evidences(cpd)
-    xz2index = get_evidence_enumeration2index(XZ)
-    Z = enumerate_evidence_dicts(parentsY, card)
-    for z in Z if Z else [{}]:
-        prz = reduce(lambda pre, cur: pre * cur, [priors[key][value] for key, value in z.items()]) if z else 1
-        xi2xz = [enumeration_dict2tuple(evidences, {x: xi, **z}) for xi in range(len(prX))]
-        yj2pyz = [sum([t_row[xz2index[xi2xz[k]]] for k in range(card[x])]) / card[x] for t_row in table]
-        pp = sum([prx *
-                  sum([p * math.log(p / yj2pyz[j]) for j, p in
-                       [(j, t_row[xz2index[xi2xz[xi]]]) for j, t_row in enumerate(table)]])
-                  for xi, prx in enumerate(prX)])
-        weight += prz * pp
+
+    ei2card = [cards[e] for e in evidences]
+    ei2prior = [priors[e] for e in evidences]
+    xei = evidences.index(x)
+    ev = list(range(0, len(evidences)))
+    yev = [ei for ei in ev if ei != xei]
+    ei2yei = dict((ei, yei) for yei, ei in enumerate(yev))
+
+    Z = enumerate_evidences(yev, ei2card)
+
+    for z in Z if Z else [None]:
+        prz = reduce(lambda pre, cur: pre * cur, [ei2prior[yev[e]][c] for e, c in enumerate(z)]) if z else 1
+        zenum = [z[ei2yei[ei]] if ei != xei else -1 for ei in ev]
+        xi2ti = [None] * cards[x]
+        for xi in range(cards[x]):
+            zenum[xei] = xi
+            xi2ti[xi] = get_enumeration_index(zenum, ei2card)
+        yj2pyz = [sum([t_row[xi2ti[xi]] for xi in range(cards[x])]) / cards[x] for t_row in table]
+        weight += prz * sum([prx * sum([p * math.log(p / yj2pyz[j]) for j, p in
+                                        [(j, t_row[xi2ti[xi]]) for j, t_row in enumerate(table)]])
+                             for xi, prx in enumerate(pr_x)])
     return weight
 
 
