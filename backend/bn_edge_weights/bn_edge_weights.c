@@ -1,6 +1,6 @@
 #include <Python.h>
 
-static PyObject* test(PyObject *self, PyObject *args){
+static PyObject * test(PyObject *self, PyObject *args){
     const char *command;
     int sts;
     if(!PyArg_ParseTuple(args, "s", &command))
@@ -9,8 +9,29 @@ static PyObject* test(PyObject *self, PyObject *args){
     return PyLong_FromLong(sts);
 }
 
-static PyObject* helloworld(PyObject *self){
+static PyObject * helloworld(PyObject *self){
     return Py_BuildValue("s", "Hello World.");
+}
+
+static get_perm_index(int[] perm, int[] cards, int n){
+    int index = perm[0], prod = 1;
+    for(int i = 1; i < n; i++){
+        index += cards[i - 1] * prod * perm[i];
+        prod *= cards[i - 1];
+    }
+    return index;
+}
+
+static int[][] permute_cards(int[] cards, int n){
+
+}
+
+static PyObject * get_edge_weight(PyObject *self, PyObject *args){
+    const PyObject *cpd;
+    const PyObject *cards;
+    int x;
+
+
 }
 
 static char bn_edge_weights_doc[] = "test(): test it. helloworld(): helloworld";
