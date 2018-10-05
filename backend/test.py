@@ -101,7 +101,7 @@ def test_bn_edge_weights():
     ei2prior = [priors[e] for e in evidences]
     xei = evidences.index(x)
 
-    return get_edge_weight(xei, table, ei2card, ei2prior)
+    return get_edge_weight(xei, table.tolist(), ei2card, ei2prior)
 
 
 if __name__ == '__main__':

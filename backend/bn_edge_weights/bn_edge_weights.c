@@ -92,9 +92,7 @@ PyObject * parse_2d_double_list(PyObject *list){
     if(n == 0)
         return Py_BuildValue("z", NULL);
     double **array = (double **) malloc(sizeof(double *) * n);
-
     PyObject *first_item = PyList_GetItem(list , 0);
-    return first_item;
     const int m = PyObject_Length(first_item);
     if(m == 0)
         return array;
@@ -122,8 +120,10 @@ void free_2d_double_array(double ** array, int n){
 PyObject * perms2list(int **perms, int perm_size, int n){
     int i, j;
     PyObject *list = PyList_New(perm_size);
+    Py_INCREF(list);
     for(i = 0; i < perm_size; i++){
         PyObject *perm_list = PyList_New(n);
+        Py_INCREF(perm_list);
         for(j = 0; j < n; j++){
             PyList_SetItem(perm_list, j, Py_BuildValue("i", perms[i][j]));
         }
@@ -134,6 +134,7 @@ PyObject * perms2list(int **perms, int perm_size, int n){
 
 PyObject * int_array2list(int *array, int len){
     PyObject *list = PyList_New(len);
+    Py_INCREF(list);
     int i;
     for(i = 0; i < len; i++){
         PyList_SetItem(list, i, Py_BuildValue("i", array[i]));
@@ -143,6 +144,7 @@ PyObject * int_array2list(int *array, int len){
 
 PyObject * n2d_double_array2list(double **array, int n, int m){
     PyObject *list = PyList_New(n);
+    Py_INCREF(list);
     int i, j;
     for(i = 0; i < n; i++){
         PyObject *sub_list = PyList_New(m);
@@ -162,20 +164,12 @@ static PyObject * get_edge_weight(PyObject *self, PyObject *args){
     if(!PyArg_ParseTuple(args, "iOOO", &x, &cpd_obj, &cards_obj, &priors_obj)){
         return NULL;
     }
-
-    double **cpd;
-    return parse_2d_double_list(cpd_obj);
-
-    return Py_BuildValue("O", cpd_obj);
+    double **cpd = parse_2d_double_list(cpd_obj);
     int *cards = parse_int_list(cards_obj);
     double **priors = parse_2d_double_list(priors_obj);
 
     int n, m;
     get_2d_list_size(cpd_obj, &n, &m);
-
-    return Py_BuildValue("i", n);
-
-    return n2d_double_array2list(cpd, n, m);
 
     int cards_len = PyObject_Length(cards_obj);
     int perm_size = get_perm_size(cards, cards_len);
