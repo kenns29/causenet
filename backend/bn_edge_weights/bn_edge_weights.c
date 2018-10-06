@@ -82,7 +82,7 @@ double estimate_mutual_info(
     int cpd_m,
     int *cards,
     int cards_len,
-    double **priors // the prior probabilities of x
+    double **priors // the prior probabilities
     ){
 
     int i, j, k;
