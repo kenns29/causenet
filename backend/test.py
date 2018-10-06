@@ -116,8 +116,14 @@ def test_bn_edge_weights():
     return get_edge_weights(model);
 
 
+def test_cards_permutation():
+    from bn_edge_weights import get_cards_permutation
+    return get_cards_permutation([4, 5, 6])
+
+
 if __name__ == '__main__':
     # print(bn.get_edge_weight(0, [], [4, 5, 6], []))
     # print(test_bn_edge_weight())
     print(test_bn_edge_weights())
+    print(test_cards_permutation())
     print('---')

@@ -46,13 +46,6 @@ def get_edge_weight(edge, model, priors):
     ei2prior = [priors[e] for e in evidences]
     xei = evidences.index(x)
 
-    print('Each edge weight ...')
-    print(edge)
-    print(xei)
-    print(table)
-    print(ei2card)
-    print(ei2prior)
-
     return edge_weight(xei, table, ei2card, ei2prior)
 
 

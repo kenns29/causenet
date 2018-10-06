@@ -210,40 +210,19 @@ double ** parse_2d_double_list(PyObject *list){
 }
 
 PyObject * perms2list(int **perms, int perm_size, int n){
-    int i, j;
     PyObject *list = PyList_New(perm_size);
     Py_INCREF(list);
-    for(i = 0; i < perm_size; i++){
-        PyObject *perm_list = PyList_New(n);
-        Py_INCREF(perm_list);
-        for(j = 0; j < n; j++){
-            PyList_SetItem(perm_list, j, Py_BuildValue("i", perms[i][j]));
-        }
-        PyList_SetItem(list, i, perm_list);
-    }
-    return list;
-}
 
-PyObject * int_array2list(int *array, int len){
-    PyObject *list = PyList_New(len);
-    Py_INCREF(list);
-    int i;
-    for(i = 0; i < len; i++){
-        PyList_SetItem(list, i, Py_BuildValue("i", array[i]));
-    }
-    return list;
-}
+    if(perm_size == 0 || n == 0)
+        return list;
 
-PyObject * n2d_double_array2list(double **array, int n, int m){
-    PyObject *list = PyList_New(n);
-    Py_INCREF(list);
     int i, j;
-    for(i = 0; i < n; i++){
-        PyObject *sub_list = PyList_New(m);
-        for(j = 0; j < m; j++){
-            PyList_SetItem(sub_list, j, Py_BuildValue("d", array[i][j]));
+    for(i = 0; i < perm_size; i++){
+        PyObject *perm_tuple = PyTuple_New(n);
+        for(j = 0; j < n; j++){
+            PyTuple_SetItem(perm_tuple, j, Py_BuildValue("i", perms[i][j]));
         }
-        PyList_SetItem(list, i, sub_list);
+        PyList_SetItem(list, i, perm_tuple);
     }
     return list;
 }
@@ -275,10 +254,29 @@ static PyObject * get_edge_weight(PyObject *self, PyObject *args){
     return PyFloat_FromDouble(weight);
 }
 
+static PyObject * get_cards_permutation(PyObject *self, PyObject *args){
+    PyObject *cards_obj;
+    if(!PyArg_ParseTuple(args, "O", &cards_obj)){
+        return NULL;
+    }
+    int *cards = parse_int_list(cards_obj);
+    int cards_len = PyObject_Length(cards_obj);
+    int perm_size = get_perm_size(cards, cards_len);
 
-static char bn_edge_weights_doc[] = "test(): test it. helloworld(): helloworld";
+    int **perms = permute_cards(cards, cards_len, perm_size);
+    PyObject * perm_list = perms2list(perms, perm_size, cards_len);
+
+    free_2d_int_array(perms, perm_size);
+
+    return perm_list;
+}
+
+static char bn_edge_weights_doc[] = "";
 
 static PyMethodDef bn_edge_weights_methods[] = {
+    {
+        "get_cards_permutation", get_cards_permutation, METH_VARARGS, "get cardinality permutations"
+    },
     {
         "get_edge_weight", get_edge_weight, METH_VARARGS, "get edge weight"
     },
