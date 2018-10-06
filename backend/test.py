@@ -60,7 +60,7 @@ def get_bn_test_model():
     return model
 
 
-def test_bn_edge_weights():
+def test_bn_edge_weight():
     from bn_edge_weights import get_edge_weight
 
     def row(i, table):
@@ -95,16 +95,29 @@ def test_bn_edge_weights():
     cpd = model.get_cpds(y)
     evidences = cpd.get_evidence()
     cards = cpd.get_cardinality(evidences)
-    table = cpd.get_values()
+    table = cpd.get_values().tolist()
 
     ei2card = [cards[e] for e in evidences]
     ei2prior = [priors[e] for e in evidences]
     xei = evidences.index(x)
 
-    return get_edge_weight(xei, table.tolist(), ei2card, ei2prior)
+    print('parameters')
+    print(xei)
+    print(table)
+    print(ei2card)
+    print(ei2prior)
+
+    return get_edge_weight(xei, table, ei2card, ei2prior)
+
+
+def test_bn_edge_weights():
+    from modules.service.edge_weights import get_edge_weights
+    model = get_bn_test_model()
+    return get_edge_weights(model);
 
 
 if __name__ == '__main__':
-    print(bn.get_edge_weight(0, [], [4, 5, 6], []))
+    # print(bn.get_edge_weight(0, [], [4, 5, 6], []))
+    # print(test_bn_edge_weight())
     print(test_bn_edge_weights())
     print('---')
