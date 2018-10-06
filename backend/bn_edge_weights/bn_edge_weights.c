@@ -1,24 +1,12 @@
 #include <Python.h>
 #include <math.h>
 
-static PyObject * test(PyObject *self, PyObject *args){
-    const char *command;
-    int sts;
-    if(!PyArg_ParseTuple(args, "s", &command))
-        return NULL;
-    sts = system(command);
-    return PyLong_FromLong(sts);
-}
-
-static PyObject * helloworld(PyObject *self, PyObject *args){
-    return Py_BuildValue("s", "Hello World.");
-}
-
 void free_2d_double_array(double ** array, int n){
     if(array != NULL){
         int i;
         for(i = 0; i < n; i++){
-            free(array[i]);
+            if(array[i] != NULL)
+                free(array[i]);
         }
         free(array);
     }
@@ -28,7 +16,8 @@ void free_2d_int_array(int ** array, int n){
     if(array != NULL){
         int i;
         for(i = 0; i < n; i++){
-            free(array[i]);
+            if(array[i] != NULL)
+                free(array[i]);
         }
         free(array);
     }
@@ -93,7 +82,7 @@ double estimate_mutual_info(
     int cpd_m,
     int *cards,
     int cards_len,
-    double *pr_x // the prior probabilities of x
+    double **priors // the prior probabilities of x
     ){
 
     int i, j, k;
@@ -123,12 +112,12 @@ double estimate_mutual_info(
     int yp_perm_i = 0;
     do {
         // obtain the estimated prior probability of the permutation
-        int prz = 1;
+        double prz = 1;
         if(yp_perm_size > 0){
-            int e;
-            for(e = 0; e < cards_len - 1; e++){
-                if(e != x)
-                    prz *= yp_perms[yp_perm_i][e];
+            for(i = 0; i < cards_len - 1; i++){
+                int ei = ypi2ei[i];
+                int v = yp_perms[yp_perm_i][i];
+                prz *= priors[ei][v];
             }
         }
 
@@ -157,7 +146,6 @@ double estimate_mutual_info(
             y2py_z[i] = py_z / x_card;
         }
 
-
         // obtain a piece of the the mutual info
         double ppp = 0;
         for(k = 0; k < x_card; k++){
@@ -166,7 +154,7 @@ double estimate_mutual_info(
                 double p = cpd[i][x2pi[k]];
                 pp += p * log(p / y2py_z[i]);
             }
-            ppp += pr_x[k] * pp;
+            ppp += priors[x][k] * pp;
         }
 
         weight += prz * ppp;
@@ -204,18 +192,18 @@ double ** parse_2d_double_list(PyObject *list){
     if(n == 0)
         return NULL;
     double **array = (double **) malloc(sizeof(double *) * n);
-    PyObject *first_item = PyList_GetItem(list , 0);
-    const int m = PyObject_Length(first_item);
-    if(m == 0)
-        return array;
-
     int i, j;
     for(i = 0; i < n; i++){
         PyObject *sub_list = PyList_GetItem(list, i);
-        array[i] = (double *) malloc(sizeof(double) * m);
-        for(j = 0; j < m; j++){
-            PyObject *item = PyList_GetItem(sub_list, j);
-            array[i][j] = PyFloat_AsDouble(item);
+        const int m = PyObject_Length(sub_list);
+        if(m > 0){
+            array[i] = (double *) malloc(sizeof(double) * m);
+            for(j = 0; j < m; j++){
+                PyObject *item = PyList_GetItem(sub_list, j);
+                array[i][j] = PyFloat_AsDouble(item);
+            }
+        } else {
+            array[i] = NULL;
         }
     }
     return array;
@@ -272,13 +260,13 @@ static PyObject * get_edge_weight(PyObject *self, PyObject *args){
     int *cards = parse_int_list(cards_obj);
     double **priors = parse_2d_double_list(priors_obj);
 
-    int cpd_n, cpd_m, pr_n, pr_m;
-    get_2d_list_size(cpd_obj, &cpd_n, &cpd_m);
-    get_2d_list_size(priors_obj, &pr_n, &pr_m);
-
     int cards_len = PyObject_Length(cards_obj);
+    int pr_n = PyObject_Length(priors_obj);
 
-    double weight = estimate_mutual_info(x, cpd, cpd_n, cpd_m, cards, cards_len, priors[x]);
+    int cpd_n, cpd_m;
+    get_2d_list_size(cpd_obj, &cpd_n, &cpd_m);
+
+    double weight = estimate_mutual_info(x, cpd, cpd_n, cpd_m, cards, cards_len, priors);
 
     free(cards);
     free_2d_double_array(cpd, cpd_n);
@@ -291,12 +279,6 @@ static PyObject * get_edge_weight(PyObject *self, PyObject *args){
 static char bn_edge_weights_doc[] = "test(): test it. helloworld(): helloworld";
 
 static PyMethodDef bn_edge_weights_methods[] = {
-    {
-        "test", test, METH_VARARGS, "test it"
-    },
-    {
-        "helloworld", helloworld, METH_VARARGS, "hello world"
-    },
     {
         "get_edge_weight", get_edge_weight, METH_VARARGS, "get edge weight"
     },

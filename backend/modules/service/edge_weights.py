@@ -41,7 +41,7 @@ def get_edge_weight(edge, model, priors):
     cpd = model.get_cpds(y)
     evidences = cpd.get_evidence()
     cards = cpd.get_cardinality(evidences)
-    table = cpd.get_values()
+    table = cpd.get_values().tolist()
     ei2card = [cards[e] for e in evidences]
     ei2prior = [priors[e] for e in evidences]
     xei = evidences.index(x)
@@ -52,9 +52,8 @@ def get_edge_weight(edge, model, priors):
     print(table)
     print(ei2card)
     print(ei2prior)
-    print(len(ei2card))
 
-    return edge_weight(xei, table.tolist(), ei2card, ei2prior)
+    return edge_weight(xei, table, ei2card, ei2prior)
 
 
 def get_edge_weights(model):
