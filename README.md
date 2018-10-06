@@ -6,6 +6,8 @@
 
 Make sure python version 3.6.5 is installed.
 
+#### Setup virtual environment and install dependencies
+
 For Mac users, go to the `/backend` directory and do
 
 ```bash
@@ -23,6 +25,16 @@ activate.bat
 cd ../../
 pip install -r requirements.txt
 ```
+
+#### Install the C extension package
+
+Under the virtual environment, go to the `backend/bn_edge_weights` directory and do
+
+```bash
+python setup.py install
+```
+
+#### Pre-generate the data
 
 Currently the data loading process is hard coded. You need to download the data from the [google drive folder](https://drive.google.com/drive/folders/1ZokWnnJ_i91MmtZ2z3uog4s02XAKe-Q6?usp=sharing). Copy the `/metadata` folder and place it in the `/backend` directory, then do
 
