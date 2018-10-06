@@ -138,3 +138,7 @@ ENV/
 
 # PyCharm
 .idea
+
+#C
+test
+*.dSYM
