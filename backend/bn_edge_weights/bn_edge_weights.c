@@ -41,7 +41,7 @@ int get_perm_size(int *cards, int n){
     return size;
 }
 
-void permute_cards_recurse(int *cards, int n, int i, int *stack, int *s, int **perms, int *order){
+void permute_cards_recurse(int *cards, int n, int i, int *stack, int *s, int *order, int perms[][n]){
     int k;
     if(i >= n){
         for(k = 0; k < n; k++)
@@ -52,14 +52,14 @@ void permute_cards_recurse(int *cards, int n, int i, int *stack, int *s, int **p
     int c = cards[n - i - 1];
     for(k = 0; k < c; k++){
         stack[(*s)++] = k;
-        permute_cards_recurse(cards, n, i + 1, stack, s, perms, order);
+        permute_cards_recurse(cards, n, i + 1, stack, s, order, perms);
         --(*s);
     }
 }
 
-int ** permute_cards(int *cards, int n, int perm_size){
+void permute_cards(int *cards, int n, int perm_size, int perms[][n]){
     if(n == 0 || perm_size == 0)
-        return NULL;
+        return;
     int i;
     int rev_cards[n];
     for(i = 0; i < n; i++)
@@ -68,11 +68,7 @@ int ** permute_cards(int *cards, int n, int perm_size){
     int stack[n];
     int s = 0, order = 0;
 
-    int **perms = (int **) malloc(sizeof(int *) * perm_size);
-    for(i = 0; i < perm_size; i++)
-        perms[i] = (int *) malloc(sizeof(int) * n);
-    permute_cards_recurse(cards, n, 0, stack, &s, perms, &order);
-    return perms;
+    permute_cards_recurse(cards, n, 0, stack, &s, &order, perms);
 }
 
 double estimate_mutual_info(
@@ -106,7 +102,8 @@ double estimate_mutual_info(
 
     // obtain the permutations of variable assignments excluding x
     int yp_perm_size = get_perm_size(yp_cards, cards_len - 1);
-    int **yp_perms = permute_cards(yp_cards, cards_len - 1, yp_perm_size);
+    int yp_perms[yp_perm_size][cards_len - 1];
+    permute_cards(yp_cards, cards_len - 1, yp_perm_size, yp_perms);
 
     double weight = 0;
     int yp_perm_i = 0;
@@ -161,7 +158,6 @@ double estimate_mutual_info(
         ++yp_perm_i;
     } while(yp_perm_i < yp_perm_size);
 
-    free_2d_int_array(yp_perms, yp_perm_size);
     return weight;
 }
 
@@ -263,10 +259,10 @@ static PyObject * get_cards_permutation(PyObject *self, PyObject *args){
     int cards_len = PyObject_Length(cards_obj);
     int perm_size = get_perm_size(cards, cards_len);
 
-    int **perms = permute_cards(cards, cards_len, perm_size);
-    PyObject * perm_list = perms2list(perms, perm_size, cards_len);
+    int perms[perm_size][cards_len];
+    permute_cards(cards, cards_len, perm_size, perms);
 
-    free_2d_int_array(perms, perm_size);
+    PyObject * perm_list = perms2list(perms, perm_size, cards_len);
 
     return perm_list;
 }
