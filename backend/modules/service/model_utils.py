@@ -99,6 +99,7 @@ def blip_learn_structure(data):
     :param data: Pandas DataFrame
     :return: edges in list of tuples
     """
+    print('generating inputs ...')
     blip_data = to_blip_array(data)
     index2col = get_index2col(data)
     with open(os.path.join(blip_data_dir, 'input.dat'), mode='w+', encoding='utf-8') as score_file:
@@ -134,6 +135,7 @@ def train_model(data, name):
     filtered_data = data.filter(feature_selection) if feature_selection is not None else data
     edges = blip_learn_structure(filtered_data)
     model = BayesianModel(edges)
+    print('Fitting the data to obtain the CPDs ...')
     model.fit(filtered_data, estimator=BayesianEstimator, prior_type='BDeu')
     write_model(model, name)
     return model

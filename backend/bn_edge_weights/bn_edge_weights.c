@@ -12,7 +12,7 @@ void free_2d_double_array(double ** array, int n){
     }
 }
 
-int get_perm_index(int *perm, int *cards, int n){
+int get_perm_index(int perm[], int cards[], int n){
     int i, index = perm[0], prod = 1;
     for(i = 1; i < n; i++){
         index += cards[i - 1] * prod * perm[i];
@@ -21,7 +21,7 @@ int get_perm_index(int *perm, int *cards, int n){
     return index;
 }
 
-int get_perm_size(int *cards, int n){
+int get_perm_size(int cards[], int n){
     if(n == 0)
         return 0;
     int i, size = 1;
@@ -30,7 +30,7 @@ int get_perm_size(int *cards, int n){
     return size;
 }
 
-void permute_cards_recurse(int *cards, int n, int i, int *stack, int *s, int *order, int perms[][n]){
+void permute_cards_recurse(int cards[], int n, int i, int stack[], int *s, int *order, int perms[][n]){
     int k;
     if(i >= n){
         for(k = 0; k < n; k++)
@@ -46,7 +46,7 @@ void permute_cards_recurse(int *cards, int n, int i, int *stack, int *s, int *or
     }
 }
 
-void permute_cards(int *cards, int n, int perm_size, int perms[][n]){
+void permute_cards(int cards[], int n, int perm_size, int perms[][n]){
     if(n == 0 || perm_size == 0)
         return;
     int i;

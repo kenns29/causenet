@@ -64,10 +64,10 @@ def test_bn_edge_weights():
 
 def test_cards_permutation():
     from bn_edge_weights import get_cards_permutation
-    return get_cards_permutation([10, 10, 10, 12, 12, 12, 12, 12, 12, 12])
+    return get_cards_permutation([10, 10, 10, 12])
 
 
 if __name__ == '__main__':
-    # print(test_bn_edge_weights())
-    print(test_cards_permutation())
+    print(test_bn_edge_weights())
+    # print(test_cards_permutation())
     print('---')
