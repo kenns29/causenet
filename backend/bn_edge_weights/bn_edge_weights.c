@@ -12,17 +12,6 @@ void free_2d_double_array(double ** array, int n){
     }
 }
 
-void free_2d_int_array(int ** array, int n){
-    if(array != NULL){
-        int i;
-        for(i = 0; i < n; i++){
-            if(array[i] != NULL)
-                free(array[i]);
-        }
-        free(array);
-    }
-}
-
 int get_perm_index(int *perm, int *cards, int n){
     int i, index = perm[0], prod = 1;
     for(i = 1; i < n; i++){
@@ -205,7 +194,7 @@ double ** parse_2d_double_list(PyObject *list){
     return array;
 }
 
-PyObject * perms2list(int **perms, int perm_size, int n){
+PyObject * perms2list(int perm_size, int n, int perms[][n]){
     PyObject *list = PyList_New(perm_size);
     Py_INCREF(list);
 
@@ -262,7 +251,7 @@ static PyObject * get_cards_permutation(PyObject *self, PyObject *args){
     int perms[perm_size][cards_len];
     permute_cards(cards, cards_len, perm_size, perms);
 
-    PyObject * perm_list = perms2list(perms, perm_size, cards_len);
+    PyObject * perm_list = perms2list(perm_size, cards_len, perms);
 
     return perm_list;
 }
