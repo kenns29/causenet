@@ -45,8 +45,8 @@ void permute_cards_recurse(
         int perm[n];
         for(k = 0; k < n; k++){
             perm[k] = stack[n - k - 1];
-            callback(perm, n, *order, callback_args);
         }
+        callback(perm, n, *order, callback_args);
         ++(*order);
         return;
     }
@@ -76,6 +76,7 @@ struct GetEdgeWeightsPermuteArgs{
     int x;
     double *cpd;
     int cpd_n;
+    int cpd_m;
     int *cards;
     int cards_len;
     double **priors;
@@ -93,6 +94,7 @@ void estimate_mutual_info_each_perm(int yp_perm[], int n, int order, void *args)
     int x = permute_args->x;
     double *cpd = permute_args->cpd;
     int cpd_n = permute_args->cpd_n;
+    int cpd_m = permute_args->cpd_m;
     int *cards = permute_args->cards;
     int cards_len = permute_args->cards_len;
     double **priors = permute_args->priors;
@@ -115,8 +117,9 @@ void estimate_mutual_info_each_perm(int yp_perm[], int n, int order, void *args)
 
     // the original permutation, the variable assignment of in the original cpd given the current z and x
     int perm[cards_len];
-    for(i = 0; yp_perm_size > 0 && i < cards_len; i++)
-        perm[i] = i != x ? yp_perm[ei2ypi[i]] : -1;
+    if(yp_perm_size > 0)
+        for(i = 0; i < cards_len; i++)
+            perm[i] = i != x ? yp_perm[ei2ypi[i]] : -1;
 
     // cardinality of x
     int x_card = cards[x];
@@ -134,7 +137,7 @@ void estimate_mutual_info_each_perm(int yp_perm[], int n, int order, void *args)
         // the marginal probability of P(y | z)
         double py_z = 0;
         for(k = 0; k < x_card; k++)
-            py_z += *(cpd + i * cpd_n + x2pi[k]);
+            py_z += *(cpd + i * cpd_m + x2pi[k]);
         y2py_z[i] = py_z / x_card;
     }
 
@@ -143,7 +146,7 @@ void estimate_mutual_info_each_perm(int yp_perm[], int n, int order, void *args)
     for(k = 0; k < x_card; k++){
         double pp = 0;
         for(i = 0; i < cpd_n; i++){
-            double p = *(cpd + i * cpd_n + x2pi[k]);
+            double p = *(cpd + i * cpd_m + x2pi[k]);
             pp += p * log(p / y2py_z[i]);
         }
         ppp += priors[x][k] * pp;
@@ -157,7 +160,7 @@ double estimate_mutual_info(
     double *cpd,
     int cpd_n,
     int cpd_m,
-    int *cards,
+    int cards[],
     int cards_len,
     double **priors // the prior probabilities
     ){
@@ -187,6 +190,7 @@ double estimate_mutual_info(
     permute_args.x = x;
     permute_args.cpd = cpd;
     permute_args.cpd_n = cpd_n;
+    permute_args.cpd_m = cpd_m;
     permute_args.cards = cards;
     permute_args.cards_len = cards_len;
     permute_args.priors = priors;
@@ -196,101 +200,14 @@ double estimate_mutual_info(
     permute_args.yp_perm_size = get_perm_size(yp_cards, cards_len - 1);
     permute_args.weight = 0;
 
-    // permute each variable assignment excluding x
-    permute_cards(yp_cards, cards_len - 1, estimate_mutual_info_each_perm, &permute_args);
+    if(permute_args.yp_perm_size == 0)
+        estimate_mutual_info_each_perm(yp_cards, cards_len - 1, 0, &permute_args);
+    else
+        // permute each variable assignment excluding x
+        permute_cards(yp_cards, cards_len - 1, estimate_mutual_info_each_perm, &permute_args);
 
     return permute_args.weight;
 }
-
-//double estimate_mutual_info(
-//    int x,  // the index of x of the edge (x, y)
-//    double **cpd,
-//    int cpd_n,
-//    int cpd_m,
-//    int *cards,
-//    int cards_len,
-//    double **priors // the prior probabilities
-//    ){
-//
-//    int i, j, k;
-//
-//    // the cardinality array excluding the x
-//    int yp_cards[cards_len - 1];
-//    for(i = 0, j = 0; i < cards_len; i++)
-//        if(i != x)
-//            yp_cards[j++] = cards[i];
-//
-//    // the mapping from original evidence index to the index of evidence array excluding x
-//    int ei2ypi[cards_len];
-//    for(i = 0, j = 0; i < cards_len; i++)
-//        ei2ypi[i] = i != x ? j++ : -1;
-//
-//    // the mapping vice versa
-//    int ypi2ei[cards_len - 1];
-//    for(i = 0, j = 0; i < cards_len; i++)
-//        if(i != x)
-//            ypi2ei[j++] = i;
-//
-//    // obtain the permutations of variable assignments excluding x
-//    int yp_perm_size = get_perm_size(yp_cards, cards_len - 1);
-//    int yp_perms[yp_perm_size][cards_len - 1];
-//    permute_cards(yp_cards, cards_len - 1, yp_perm_size, yp_perms);
-//
-//    double weight = 0;
-//    int yp_perm_i = 0;
-//    do {
-//        // obtain the estimated prior probability of the permutation
-//        double prz = 1;
-//        if(yp_perm_size > 0){
-//            for(i = 0; i < cards_len - 1; i++){
-//                int ei = ypi2ei[i];
-//                int v = yp_perms[yp_perm_i][i];
-//                prz *= priors[ei][v];
-//            }
-//        }
-//
-//        // the original permutation, the variable assignment of in the original cpd given the current z and x
-//        int perm[cards_len];
-//        for(i = 0; yp_perm_size > 0 && i < cards_len; i++)
-//            perm[i] = i != x ? yp_perms[yp_perm_i][ei2ypi[i]] : -1;
-//
-//        // cardinality of x
-//        int x_card = cards[x];
-//
-//        // the mapping from the x value to the permutation index
-//        int x2pi[x_card];
-//        for(i = 0; i < x_card; i++){
-//            perm[x] = i;
-//            x2pi[i] = get_perm_index(perm, cards, cards_len);
-//        }
-//
-//        // the mapping from the y value to P(y | z);
-//        double y2py_z[cpd_n];
-//        for(i = 0; i < cpd_n; i++){
-//            // the marginal probability of P(y | z)
-//            double py_z = 0;
-//            for(k = 0; k < x_card; k++)
-//                py_z += cpd[i][x2pi[k]];
-//            y2py_z[i] = py_z / x_card;
-//        }
-//
-//        // obtain a piece of the the mutual info
-//        double ppp = 0;
-//        for(k = 0; k < x_card; k++){
-//            double pp = 0;
-//            for(i = 0; i < cpd_n; i++){
-//                double p = cpd[i][x2pi[k]];
-//                pp += p * log(p / y2py_z[i]);
-//            }
-//            ppp += priors[x][k] * pp;
-//        }
-//
-//        weight += prz * ppp;
-//        ++yp_perm_i;
-//    } while(yp_perm_i < yp_perm_size);
-//
-//    return weight;
-//}
 
 int * parse_int_list(PyObject *list){
     const int len = PyObject_Length(list);
@@ -351,7 +268,7 @@ double * parse_2d_eq_size_item_double_list(PyObject *list){
         PyObject *sub_list = PyList_GetItem(list, i);
         for(j = 0; j < m; j++){
             PyObject *item = PyList_GetItem(sub_list, j);
-            *(array + i * n + j) = PyFloat_AsDouble(item);
+            *(array + i * m + j) = PyFloat_AsDouble(item);
         }
     }
     return array;
@@ -390,7 +307,7 @@ struct GetCardsPermutationPermuteArgs {
 
 void get_cards_permutation_callback(int perms[], int n, int order, void *args){
     struct GetCardsPermutationPermuteArgs *permute_args = (struct GetCardsPermutationPermuteArgs*) args;
-    PyObject *perm_list = (*permute_args).perm_list;
+    PyObject *perm_list = permute_args->perm_list;
     PyObject *perm_tuple = PyTuple_New(n);
 
     int i;
@@ -410,8 +327,10 @@ static PyObject * get_cards_permutation(PyObject *self, PyObject *args){
     int perm_size = get_perm_size(cards, cards_len);
 
     struct GetCardsPermutationPermuteArgs permute_args;
+
     permute_args.perm_list = PyList_New(perm_size);
     Py_INCREF(permute_args.perm_list);
+
     permute_cards(cards, cards_len, get_cards_permutation_callback, &permute_args);
 
     return permute_args.perm_list;

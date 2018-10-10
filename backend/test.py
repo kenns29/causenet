@@ -59,15 +59,15 @@ def get_bn_test_model():
 def test_bn_edge_weights():
     from modules.service.edge_weights import get_edge_weights
     model = get_bn_test_model()
-    return get_edge_weights(model);
+    return get_edge_weights(model)
 
 
 def test_cards_permutation():
     from bn_edge_weights import get_cards_permutation
-    return get_cards_permutation([10, 10, 10, 10, 10])
+    return get_cards_permutation([6, 7, 8])
 
 
 if __name__ == '__main__':
     print(test_bn_edge_weights())
-    # print(test_cards_permutation())
+    print(test_cards_permutation())
     print('---')
