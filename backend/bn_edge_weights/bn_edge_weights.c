@@ -333,6 +333,8 @@ static PyObject * get_cards_permutation(PyObject *self, PyObject *args){
 
     permute_cards(cards, cards_len, get_cards_permutation_callback, &permute_args);
 
+    free(cards);
+    
     return permute_args.perm_list;
 }
 
