@@ -61,11 +61,6 @@ void permute_cards_recurse(
 void permute_cards(int cards[], int n, void (*callback)(int[], int, int, void*), void *callback_args){
     if(n == 0)
         return;
-    int i;
-    int rev_cards[n];
-    for(i = 0; i < n; i++)
-        rev_cards[n - i - 1] = cards[i];
-
     int stack[n];
     int s = 0, order = 0;
 
