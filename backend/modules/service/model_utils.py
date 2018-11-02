@@ -120,10 +120,20 @@ def blip_learn_structure(data):
         m = re.findall(r'(?:\b(\d+):\s+(?:-?\d+(?:\.\d+)?)\s+(?:\((\d+)(?:,(\d+))*\)))', structure)
         edges = []
         for t in m:
-            parent = index2col[int(t[0])]
-            for child in [index2col[int(value)] for index, value in enumerate(t[1:]) if value]:
+            child = index2col[int(t[0])]
+            for parent in [index2col[int(value)] for index, value in enumerate(t[1:]) if value]:
                 edges.append((parent, child))
         return edges
+
+
+def blip_learn_parameters(data=None, edges=None):
+    if data is not None:
+        blip_data = to_blip_array(data)
+        with open(os.path.join(blip_data_dir, 'input.dat'), mode='w+', encoding='utf-8') as score_file:
+            writer = csv.writer(score_file, delimiter=' ', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            writer.writerows(blip_data)
+    if edges is not None:
+        return None
 
 
 def train_model(data, name):
