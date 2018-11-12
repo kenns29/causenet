@@ -136,23 +136,21 @@ def parse_blip_parameters_uai(index2name=None):
         cpd_index = 0
 
         for line_number, line in enumerate(parameters_file):
-            if line_number == 1:
+            if line_number == 2:
                 cards = [int(v) for v in line.split(' ')]
             if line_number < 4:
                 continue
             if not is_reading_cpds:
                 if not line.strip():
                     is_reading_cpds = True
-                    cpd_index = 0
                     continue
-                variables = [int(v) for v in line.split(r'\t')]
-                variable = variables[0]
-                evidence = [int(v) for i, v in enumerate(variables) if i > 0]
-                cpds[cpd_index] = {'variable': variable,
-                                   'variable_card': cards[variables],
-                                   'evidence': evidence,
-                                   'evidence_card': [cards[e] for e in evidence]}
-                ++cpd_index
+                variables = [int(v) for v in line.split('\t')]
+                variable = variables[-1]
+                evidence = [int(v) for i, v in enumerate(variables) if 0 < i < len(variables) - 1]
+                cpds.append({'variable': variable,
+                             'variable_card': cards[variable],
+                             'evidence': evidence,
+                             'evidence_card': [cards[e] for e in evidence]})
             if is_reading_cpds:
                 if not is_reading_cpd_table:
                     is_reading_cpd_table = True
@@ -160,11 +158,11 @@ def parse_blip_parameters_uai(index2name=None):
                 if is_reading_cpd_table:
                     if not line.strip():
                         is_reading_cpd_table = False
-                        ++cpd_index
+                        cpd_index += 1
                         continue
-                    if not cpds[cpd_index]['values']:
+                    if 'values' not in cpds[cpd_index]:
                         cpds[cpd_index]['values'] = []
-                    cpds[cpd_index]['values'].append([float(v) for v in line.trim().split(' ')])
+                    cpds[cpd_index]['values'].append([float(v) for v in line.strip().split(' ')])
         if index2name is not None:
             for cpd in cpds:
                 cpd['variable'] = index2name[cpd['variable']]
@@ -172,7 +170,7 @@ def parse_blip_parameters_uai(index2name=None):
         return cpds
 
 
-def blip_learn_parameters(data=None, edges=None, index2col=None):
+def blip_learn_parameters(index2col=None, data=None, edges=None):
     if data is not None:
         blip_data = to_blip_array(data)
         with open(os.path.join(blip_data_dir, 'input.dat'), mode='w+') as score_file:
@@ -191,8 +189,8 @@ def blip_learn_parameters(data=None, edges=None, index2col=None):
     subprocess.check_call('java -jar ' + blip_dir + ' parle -d '
                           + os.path.join(blip_data_dir, 'input.dat') + ' -r '
                           + os.path.join(blip_data_dir, 'structure.res') + ' -n '
-                          + os.path.join(blip_data_dir, 'parameters.res'), shell=True)
-    
+                          + os.path.join(blip_data_dir, 'parameters.uai'), shell=True)
+
     return parse_blip_parameters_uai(index2col)
 
 
