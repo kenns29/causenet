@@ -1,4 +1,5 @@
 import os, pickle, subprocess, re, json, csv
+from pgmpy.factors.discrete.CPD import TabularCPD
 from pgmpy.models import BayesianModel
 from pgmpy.estimators import BayesianEstimator
 from modules.service.data_utils import get_current_dataset_name, to_blip_str, get_index2col, \
@@ -194,6 +195,20 @@ def blip_learn_parameters(index2col=None, data=None, edges=None):
     return parse_blip_parameters_uai(index2col)
 
 
+def blip_cpds_to_pgmpy_cpds(cpds):
+    for cpd in cpds:
+        cpd['values'] = [*zip(*cpd['values'])]
+    return [TabularCPD(**cpd) for cpd in cpds]
+
+
+def filter_cpds_by_edges(cpds, edges):
+    node_set = set()
+    for s, t in edges:
+        node_set.add(s)
+        node_set.add(t)
+    return [cpd for cpd in cpds if cpd.variable in node_set and all(e in node_set for e in cpd.get_evidence())]
+
+
 def train_model(data, name):
     feature_selection = get_feature_selection()
     if is_temporal_data(data):
@@ -204,7 +219,10 @@ def train_model(data, name):
     edges = blip_learn_structure(filtered_data)
     model = BayesianModel(edges)
     print('Fitting the data to obtain the CPDs ...')
-    model.fit(filtered_data, estimator=BayesianEstimator, prior_type='BDeu')
+    cpds = blip_cpds_to_pgmpy_cpds(blip_learn_parameters(get_index2col(data)))
+    filtered_cpds = filter_cpds_by_edges(cpds, edges)
+    model.add_cpds(*filtered_cpds)
+    model.check_model()
     write_model(model, name)
     return model
 
