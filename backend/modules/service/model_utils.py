@@ -206,7 +206,7 @@ def filter_cpds_by_edges(cpds, edges):
     for s, t in edges:
         node_set.add(s)
         node_set.add(t)
-    return [cpd for cpd in cpds if cpd.variable in node_set and all(e in node_set for e in cpd.get_evidence())]
+    return [cpd for cpd in cpds if cpd.variable in node_set]
 
 
 def train_model(data, name):
@@ -219,7 +219,7 @@ def train_model(data, name):
     edges = blip_learn_structure(filtered_data)
     model = BayesianModel(edges)
     print('Fitting the data to obtain the CPDs ...')
-    cpds = blip_cpds_to_pgmpy_cpds(blip_learn_parameters(get_index2col(data)))
+    cpds = blip_cpds_to_pgmpy_cpds(blip_learn_parameters(get_index2col(filtered_data)))
     filtered_cpds = filter_cpds_by_edges(cpds, edges)
     model.add_cpds(*filtered_cpds)
     model.check_model()
