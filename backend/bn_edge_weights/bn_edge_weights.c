@@ -324,7 +324,6 @@ static PyObject * get_cards_permutation(PyObject *self, PyObject *args){
     struct GetCardsPermutationPermuteArgs permute_args;
 
     permute_args.perm_list = PyList_New(perm_size);
-    Py_INCREF(permute_args.perm_list);
 
     permute_cards(cards, cards_len, get_cards_permutation_callback, &permute_args);
 

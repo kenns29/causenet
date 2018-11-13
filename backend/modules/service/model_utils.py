@@ -92,6 +92,27 @@ def write_weighted_edges(edges, name):
     return edges
 
 
+def parse_blip_edges(index2col, with_score=False):
+    with open(os.path.join(blip_data_dir, 'structure.res'), mode='r', encoding='utf-8') as structure_file:
+        structure = structure_file.read()
+        # Parse the result from the blip library
+        edges = []
+        if not with_score:
+            m = re.findall(r'(?:\b(\d+):\s+(?:-?\d+(?:\.\d+)?)\s+(?:\((\d+)(?:,(\d+))*\)))', structure)
+            for t in m:
+                child = index2col[int(t[0])]
+                for parent in [index2col[int(value)] for index, value in enumerate(t[1:]) if value]:
+                    edges.append((parent, child))
+        else:
+            m = re.findall(r'(?:\b(\d+):\s+(-?\d+(?:\.\d+)?)\s+(?:\((\d+)(?:,(\d+))*\)))', structure)
+            for t in m:
+                child = index2col[int(t[0])]
+                score = float(t[1])
+                for parent in [index2col[int(value)] for index, value in enumerate(t[2:]) if value]:
+                    edges.append((parent, child, score))
+        return edges
+
+
 def blip_learn_structure(data):
     """
     Learn the Bayesian Network Structure using the blip java library:
@@ -101,9 +122,8 @@ def blip_learn_structure(data):
     :param data: Pandas DataFrame
     :return: edges in list of tuples
     """
-    print('generating inputs ...')
+    print('Generating inputs ...')
     blip_data = to_blip_array(data)
-    index2col = get_index2col(data)
     with open(os.path.join(blip_data_dir, 'input.dat'), mode='w+', encoding='utf-8') as score_file:
         writer = csv.writer(score_file, delimiter=' ', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         writer.writerows(blip_data)
@@ -116,16 +136,18 @@ def blip_learn_structure(data):
         + os.path.join(blip_data_dir, 'score.jkl') + ' -r '
         + os.path.join(blip_data_dir, 'structure.res') + ' -t 10 -w 4 -v 1', shell=True)
 
-    with open(os.path.join(blip_data_dir, 'structure.res'), mode='r', encoding='utf-8') as structure_file:
-        structure = structure_file.read()
-        # Parse the result from the blip library
-        m = re.findall(r'(?:\b(\d+):\s+(?:-?\d+(?:\.\d+)?)\s+(?:\((\d+)(?:,(\d+))*\)))', structure)
-        edges = []
-        for t in m:
-            child = index2col[int(t[0])]
-            for parent in [index2col[int(value)] for index, value in enumerate(t[1:]) if value]:
-                edges.append((parent, child))
-        return edges
+
+def bilp_filter_backward_edges(index2col):
+    print('Filtering backward edges ...')
+    if not index2col or not index2col[0].match('.+~\d{4}'):
+        print('Non-temporal variables detected, skip filtering ...')
+        return
+
+
+def learn_structure(data, index2col=None):
+    blip_learn_structure(data)
+    index2col = index2col if index2col is not None else get_index2col(data)
+    return parse_blip_edges(index2col)
 
 
 def parse_blip_parameters_uai(index2name=None):
@@ -171,7 +193,7 @@ def parse_blip_parameters_uai(index2name=None):
         return cpds
 
 
-def blip_learn_parameters(index2col=None, data=None, edges=None):
+def blip_learn_parameters(data=None, edges=None):
     if data is not None:
         blip_data = to_blip_array(data)
         with open(os.path.join(blip_data_dir, 'input.dat'), mode='w+') as score_file:
@@ -192,6 +214,9 @@ def blip_learn_parameters(index2col=None, data=None, edges=None):
                           + os.path.join(blip_data_dir, 'structure.res') + ' -n '
                           + os.path.join(blip_data_dir, 'parameters.uai'), shell=True)
 
+
+def learn_parameters(index2col, data=None, edges=None):
+    blip_learn_parameters(data, edges)
     return parse_blip_parameters_uai(index2col)
 
 
@@ -216,10 +241,11 @@ def train_model(data, name):
                              for feature in feature_selection for time in get_times(data, feature)] \
             if feature_selection is not None else None
     filtered_data = data.filter(feature_selection) if feature_selection is not None else data
-    edges = blip_learn_structure(filtered_data)
+    index2col = get_index2col(filtered_data)
+    edges = learn_structure(filtered_data, index2col)
     model = BayesianModel(edges)
     print('Fitting the data to obtain the CPDs ...')
-    cpds = blip_cpds_to_pgmpy_cpds(blip_learn_parameters(get_index2col(filtered_data)))
+    cpds = blip_cpds_to_pgmpy_cpds(learn_parameters(index2col))
     filtered_cpds = filter_cpds_by_edges(cpds, edges)
     model.add_cpds(*filtered_cpds)
     model.check_model()

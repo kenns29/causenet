@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request, redirect, url_for, json
-from modules.service.model_utils import get_model, delete_model, blip_learn_structure, train_model, \
+from modules.service.model_utils import get_model, delete_model, learn_structure, train_model, \
     get_weighted_edges, write_weighted_edges, get_model_list, update_feature_selection, get_feature_selection, \
     update_model_feature_value_selection_map, get_model_feature_value_selection_map, reduce_model
 from modules.service.edge_weights import get_edge_weights
@@ -140,9 +140,9 @@ def route_delete_model():
 
 
 @blueprint.route('/learn_structure', methods=['GET'])
-def learn_structure():
+def route_learn_structure():
     data = load_data()
-    edges = blip_learn_structure(data)
+    edges = learn_structure(data)
     edge_list = [{'source': s, 'target': t} for s, t in edges]
     return jsonify(edge_list)
 
