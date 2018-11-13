@@ -1,8 +1,10 @@
 import os, pickle, subprocess, re, json, csv
+from pgmpy.factors.discrete.CPD import TabularCPD
 from pgmpy.models import BayesianModel
 from pgmpy.estimators import BayesianEstimator
 from modules.service.data_utils import get_current_dataset_name, to_blip_str, get_index2col, \
     get_col2index, get_blip_value_converters, load_data, is_temporal_data, is_temporal_feature, get_times, to_blip_data, blip_data_to_blip_str, to_blip_array
+from modules.service.utils import edges_to_child_adjacency_dict
 from setup import blip_data_dir, blip_dir, model_dir, model_config_dir
 
 
@@ -120,10 +122,91 @@ def blip_learn_structure(data):
         m = re.findall(r'(?:\b(\d+):\s+(?:-?\d+(?:\.\d+)?)\s+(?:\((\d+)(?:,(\d+))*\)))', structure)
         edges = []
         for t in m:
-            parent = index2col[int(t[0])]
-            for child in [index2col[int(value)] for index, value in enumerate(t[1:]) if value]:
+            child = index2col[int(t[0])]
+            for parent in [index2col[int(value)] for index, value in enumerate(t[1:]) if value]:
                 edges.append((parent, child))
         return edges
+
+
+def parse_blip_parameters_uai(index2name=None):
+    with open(os.path.join(blip_data_dir, 'parameters.uai'), mode='r') as parameters_file:
+        cards = []
+        cpds = []
+        is_reading_cpds = False
+        is_reading_cpd_table = False
+        cpd_index = 0
+
+        for line_number, line in enumerate(parameters_file):
+            if line_number == 2:
+                cards = [int(v) for v in line.split(' ')]
+            if line_number < 4:
+                continue
+            if not is_reading_cpds:
+                if not line.strip():
+                    is_reading_cpds = True
+                    continue
+                variables = [int(v) for v in line.split('\t')]
+                variable = variables[-1]
+                evidence = [int(v) for i, v in enumerate(variables) if 0 < i < len(variables) - 1]
+                cpds.append({'variable': variable,
+                             'variable_card': cards[variable],
+                             'evidence': evidence,
+                             'evidence_card': [cards[e] for e in evidence]})
+            if is_reading_cpds:
+                if not is_reading_cpd_table:
+                    is_reading_cpd_table = True
+                    continue
+                if is_reading_cpd_table:
+                    if not line.strip():
+                        is_reading_cpd_table = False
+                        cpd_index += 1
+                        continue
+                    if 'values' not in cpds[cpd_index]:
+                        cpds[cpd_index]['values'] = []
+                    cpds[cpd_index]['values'].append([float(v) for v in line.strip().split(' ')])
+        if index2name is not None:
+            for cpd in cpds:
+                cpd['variable'] = index2name[cpd['variable']]
+                cpd['evidence'] = [index2name[e] for e in cpd['evidence']]
+        return cpds
+
+
+def blip_learn_parameters(index2col=None, data=None, edges=None):
+    if data is not None:
+        blip_data = to_blip_array(data)
+        with open(os.path.join(blip_data_dir, 'input.dat'), mode='w+') as score_file:
+            writer = csv.writer(score_file, delimiter=' ', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            writer.writerows(blip_data)
+    if edges is not None:
+        if data is None:
+            raise ValueError('data must be not None when edges are specified in the arguments.')
+        col2index = get_col2index(data)
+        child_adjacency_dict = edges_to_child_adjacency_dict(edges)
+        with open(os.path.jsoin(blip_data_dir, 'structures.res'), mode='w+') as structure_file:
+            for child, parent_set in child_adjacency_dict.items():
+                structure_file.write(str(col2index[child]) + ': -200 ('
+                                     + ','.join(str(col2index[p]) for p in parent_set))
+
+    subprocess.check_call('java -jar ' + blip_dir + ' parle -d '
+                          + os.path.join(blip_data_dir, 'input.dat') + ' -r '
+                          + os.path.join(blip_data_dir, 'structure.res') + ' -n '
+                          + os.path.join(blip_data_dir, 'parameters.uai'), shell=True)
+
+    return parse_blip_parameters_uai(index2col)
+
+
+def blip_cpds_to_pgmpy_cpds(cpds):
+    for cpd in cpds:
+        cpd['values'] = [*zip(*cpd['values'])]
+    return [TabularCPD(**cpd) for cpd in cpds]
+
+
+def filter_cpds_by_edges(cpds, edges):
+    node_set = set()
+    for s, t in edges:
+        node_set.add(s)
+        node_set.add(t)
+    return [cpd for cpd in cpds if cpd.variable in node_set]
 
 
 def train_model(data, name):
@@ -136,7 +219,10 @@ def train_model(data, name):
     edges = blip_learn_structure(filtered_data)
     model = BayesianModel(edges)
     print('Fitting the data to obtain the CPDs ...')
-    model.fit(filtered_data, estimator=BayesianEstimator, prior_type='BDeu')
+    cpds = blip_cpds_to_pgmpy_cpds(blip_learn_parameters(get_index2col(filtered_data)))
+    filtered_cpds = filter_cpds_by_edges(cpds, edges)
+    model.add_cpds(*filtered_cpds)
+    model.check_model()
     write_model(model, name)
     return model
 

@@ -67,7 +67,17 @@ def test_cards_permutation():
     return get_cards_permutation([6, 7, 8])
 
 
+def test_blip_learn_parameters():
+    from modules.service.model_utils import blip_learn_parameters
+    from modules.service.data_utils import load_data, get_index2col
+    index2col = get_index2col(load_data())
+    parameters = blip_learn_parameters(index2col)
+    return parameters
+
+
 if __name__ == '__main__':
+    import json
     print(test_bn_edge_weights())
     print(test_cards_permutation())
+    print(json.dumps(test_blip_learn_parameters(), indent=4))
     print('---')

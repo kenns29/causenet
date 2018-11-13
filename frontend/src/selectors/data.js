@@ -1,6 +1,5 @@
 import {createSelector} from 'reselect';
 import {rootSelector} from './base';
-import dagre from 'dagre';
 import Matrix, {links2generator, flattener, sort2d} from 'sortable-matrix';
 import {scaleSequential, scaleDiverging} from 'd3-scale';
 import {interpolateGreys, interpolateRdBu} from 'd3-scale-chromatic';
