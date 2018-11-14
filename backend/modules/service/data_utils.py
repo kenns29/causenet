@@ -1,5 +1,5 @@
 import os, json, pickle, re, csv
-import pandas as pd, numpy as np
+import numpy as np
 from scipy.spatial.distance import pdist
 from pandas import DataFrame
 from setup import base_dir, data_dir, data_config_dir, blip_data_dir
