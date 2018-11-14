@@ -1,7 +1,7 @@
 import os, pickle, subprocess, re, json, csv
+from collections import OrderedDict
 from pgmpy.factors.discrete.CPD import TabularCPD
 from pgmpy.models import BayesianModel
-from pgmpy.estimators import BayesianEstimator
 from modules.service.data_utils import get_current_dataset_name, to_blip_str, get_index2col, \
     get_col2index, get_blip_value_converters, load_data, is_temporal_data, is_temporal_feature, get_times, to_blip_data, blip_data_to_blip_str, to_blip_array
 from modules.service.utils import edges_to_child_adjacency_dict
@@ -92,27 +92,6 @@ def write_weighted_edges(edges, name):
     return edges
 
 
-def parse_blip_edges(index2col, with_score=False):
-    with open(os.path.join(blip_data_dir, 'structure.res'), mode='r', encoding='utf-8') as structure_file:
-        structure = structure_file.read()
-        # Parse the result from the blip library
-        edges = []
-        if not with_score:
-            m = re.findall(r'(?:\b(\d+):\s+(?:-?\d+(?:\.\d+)?)\s+(?:\((\d+)(?:,(\d+))*\)))', structure)
-            for t in m:
-                child = index2col[int(t[0])]
-                for parent in [index2col[int(value)] for index, value in enumerate(t[1:]) if value]:
-                    edges.append((parent, child))
-        else:
-            m = re.findall(r'(?:\b(\d+):\s+(-?\d+(?:\.\d+)?)\s+(?:\((\d+)(?:,(\d+))*\)))', structure)
-            for t in m:
-                child = index2col[int(t[0])]
-                score = float(t[1])
-                for parent in [index2col[int(value)] for index, value in enumerate(t[2:]) if value]:
-                    edges.append((parent, child, score))
-        return edges
-
-
 def blip_learn_structure(data):
     """
     Learn the Bayesian Network Structure using the blip java library:
@@ -137,11 +116,62 @@ def blip_learn_structure(data):
         + os.path.join(blip_data_dir, 'structure.res') + ' -t 10 -w 4 -v 1', shell=True)
 
 
-def bilp_filter_backward_edges(index2col):
+def parse_blip_edges(index2col, with_score=False, with_overall_score=False, output_format='edges'):
+    if output_format != 'edges' and output_format != 'child_adjacency_ordered_dict':
+        raise ValueError('output_format should be either edges or child_adjacency_ordered_dict')
+
+    with open(os.path.join(blip_data_dir, 'structure.res'), mode='r', encoding='utf-8') as structure_file:
+        # Parse the result from the blip library
+        structure = [] if output_format == 'edges' else OrderedDict()
+        line = structure_file.readline()
+        while line and line != '\n':
+            m = re.findall(r'(?:\b(\d+):\s+(-?\d+(?:\.\d+)?)\s+(?:\((\d+)(?:,(\d+))*\))?)', line)
+            t = m[0]
+            child = index2col[int(t[0])]
+            score = float(t[1])
+            if output_format == 'edges':
+                for parent in [index2col[int(value)] for index, value in enumerate(t[2:]) if value]:
+                    structure.append((parent, child, score) if with_score else (parent, child))
+            elif output_format == 'child_adjacency_ordered_dict':
+                structure[child] = {
+                    'parents': [index2col[int(value)] for index, value in enumerate(t[2:]) if value]
+                }
+                if with_score:
+                    structure[child]['score'] = score
+            line = structure_file.readline()
+
+        line = structure_file.readline()
+        m = re.search(re.compile(r'-?\d+(?:\.\d+)?'), line)
+        overall_score = float(m.group())
+    return structure if not with_overall_score else (structure, overall_score)
+
+
+def bilp_filter_backward_edges(index2col, col2index):
     print('Filtering backward edges ...')
     if not index2col or not index2col[0].match('.+~\d{4}'):
         print('Non-temporal variables detected, skip filtering ...')
         return
+    structure = parse_blip_edges(index2col,
+                                 with_score=True,
+                                 with_overall_score=True,
+                                 output_format='child_adjacency_ordered_dict')
+    with open(os.path.join(blip_data_dir, 'structure.res'), mode='w', encoding='utf-8') as structure_file:
+        for child, parents_info in structure:
+            parents = parents_info['parents']
+            score = parents_info['score']
+            child_year = int(child.split('~')[1])
+            child_index = col2index(child)
+            filtered_parent_indexes = []
+            for parent in parents:
+                parent_year = int(parent.split('~')[1])
+                if parent_year <= child_year:
+                    filtered_parent_indexes.append(col2index(parent))
+
+            structure_file.write('{}: {} '.format(child_index, score))
+            if filtered_parent_indexes:
+                structure_file.write(' (')
+                for i, parent_index in enumerate(filtered_parent_indexes):
+                    structure_file.write(('{}' if i == 0 else ',{}').format(parent_index))
 
 
 def learn_structure(data, index2col=None):
