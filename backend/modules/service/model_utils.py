@@ -101,7 +101,7 @@ def blip_learn_structure(data):
     :param data: Pandas DataFrame
     :return: edges in list of tuples
     """
-    print('Generating inputs ...')
+    print('generating inputs ...')
     blip_data = to_blip_array(data)
     with open(os.path.join(blip_data_dir, 'input.dat'), mode='w+', encoding='utf-8') as score_file:
         writer = csv.writer(score_file, delimiter=' ', quotechar='"', quoting=csv.QUOTE_MINIMAL)
@@ -147,36 +147,41 @@ def parse_blip_edges(index2col, with_score=False, with_overall_score=False, outp
 
 
 def bilp_filter_backward_edges(index2col, col2index):
-    print('Filtering backward edges ...')
-    if not index2col or not index2col[0].match('.+~\d{4}'):
-        print('Non-temporal variables detected, skip filtering ...')
+    print('filtering backward edges ...')
+    if not index2col or not re.match(re.compile(r'.+~\d{4}'), index2col[0]):
+        print('non-temporal variables detected, skip filtering ...')
         return
-    structure = parse_blip_edges(index2col,
-                                 with_score=True,
-                                 with_overall_score=True,
-                                 output_format='child_adjacency_ordered_dict')
+    structure, overall_score = parse_blip_edges(index2col,
+                                                with_score=True,
+                                                with_overall_score=True,
+                                                output_format='child_adjacency_ordered_dict')
     with open(os.path.join(blip_data_dir, 'structure.res'), mode='w', encoding='utf-8') as structure_file:
-        for child, parents_info in structure:
+        for child, parents_info in structure.items():
             parents = parents_info['parents']
             score = parents_info['score']
             child_year = int(child.split('~')[1])
-            child_index = col2index(child)
+            child_index = col2index[child]
             filtered_parent_indexes = []
             for parent in parents:
                 parent_year = int(parent.split('~')[1])
                 if parent_year <= child_year:
-                    filtered_parent_indexes.append(col2index(parent))
+                    filtered_parent_indexes.append(col2index[parent])
 
             structure_file.write('{}: {} '.format(child_index, score))
             if filtered_parent_indexes:
                 structure_file.write(' (')
                 for i, parent_index in enumerate(filtered_parent_indexes):
                     structure_file.write(('{}' if i == 0 else ',{}').format(parent_index))
+                structure_file.write(')')
+            structure_file.write('\n')
+        structure_file.write('\nScore: {} '.format(overall_score))
 
 
-def learn_structure(data, index2col=None):
+def learn_structure(data, index2col=None, col2index=None):
     blip_learn_structure(data)
     index2col = index2col if index2col is not None else get_index2col(data)
+    col2index = col2index if col2index is not None else get_col2index(data)
+    bilp_filter_backward_edges(index2col, col2index)
     return parse_blip_edges(index2col)
 
 
@@ -272,9 +277,10 @@ def train_model(data, name):
             if feature_selection is not None else None
     filtered_data = data.filter(feature_selection) if feature_selection is not None else data
     index2col = get_index2col(filtered_data)
-    edges = learn_structure(filtered_data, index2col)
+    col2index = get_col2index(filtered_data)
+    edges = learn_structure(filtered_data, index2col, col2index)
     model = BayesianModel(edges)
-    print('Fitting the data to obtain the CPDs ...')
+    print('fitting the data to obtain the CPDs ...')
     cpds = blip_cpds_to_pgmpy_cpds(learn_parameters(index2col))
     filtered_cpds = filter_cpds_by_edges(cpds, edges)
     model.add_cpds(*filtered_cpds)
