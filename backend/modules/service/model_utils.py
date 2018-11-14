@@ -169,10 +169,8 @@ def bilp_filter_backward_edges(index2col, col2index):
 
             structure_file.write('{}: {} '.format(child_index, score))
             if filtered_parent_indexes:
-                structure_file.write(' (')
-                for i, parent_index in enumerate(filtered_parent_indexes):
-                    structure_file.write(('{}' if i == 0 else ',{}').format(parent_index))
-                structure_file.write(')')
+                structure_file.write(' ({})'.format(','.join([str(parent_index)
+                                                              for parent_index in filtered_parent_indexes])))
             structure_file.write('\n')
         structure_file.write('\nScore: {} '.format(overall_score))
 
@@ -239,10 +237,10 @@ def blip_learn_parameters(data=None, edges=None):
             raise ValueError('data must be not None when edges are specified in the arguments.')
         col2index = get_col2index(data)
         child_adjacency_dict = edges_to_child_adjacency_dict(edges)
-        with open(os.path.jsoin(blip_data_dir, 'structures.res'), mode='w+') as structure_file:
+        with open(os.path.join(blip_data_dir, 'structures.res'), mode='w+') as structure_file:
             for child, parent_set in child_adjacency_dict.items():
                 structure_file.write(str(col2index[child]) + ': -200 ('
-                                     + ','.join(str(col2index[p]) for p in parent_set))
+                                     + ','.join(str(col2index[p]) for p in parent_set) + ')')
 
     subprocess.check_call('java -jar ' + blip_dir + ' parle -d '
                           + os.path.join(blip_data_dir, 'input.dat') + ' -r '

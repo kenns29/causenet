@@ -79,5 +79,5 @@ if __name__ == '__main__':
     import json
     print(test_bn_edge_weights())
     print(test_cards_permutation())
-    print(json.dumps(test_learn_parameters(), indent=4))
+    print(json.dumps(test_learn_parameters(), indent='\t'))
     print('---')
