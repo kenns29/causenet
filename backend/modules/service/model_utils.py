@@ -3,7 +3,7 @@ from collections import OrderedDict
 from pgmpy.factors.discrete.CPD import TabularCPD
 from pgmpy.models import BayesianModel
 from modules.service.data_utils import get_current_dataset_name, to_blip_str, get_index2col, \
-    get_col2index, get_blip_value_converters, load_data, is_temporal_data, is_temporal_feature, get_times, to_blip_data, blip_data_to_blip_str, to_blip_array
+    get_col2index, get_blip_value_converters, load_data, is_temporal_data, is_temporal_feature, get_times, to_blip_data, blip_data_to_blip_str, to_blip_array, to_blip_csv
 from modules.service.utils import edges_to_child_adjacency_dict
 from setup import blip_data_dir, blip_dir, model_dir, model_config_dir
 
@@ -102,14 +102,13 @@ def blip_learn_structure(data):
     :return: edges in list of tuples
     """
     print('generating inputs ...')
-    blip_data = to_blip_array(data)
-    with open(os.path.join(blip_data_dir, 'input.dat'), mode='w+', encoding='utf-8') as score_file:
-        writer = csv.writer(score_file, delimiter=' ', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-        writer.writerows(blip_data)
+    to_blip_csv(data)
+    print('computing tree-width ...')
     subprocess.check_call(
         'java -jar ' + blip_dir + ' scorer.sq -c bdeu -d '
         + os.path.join(blip_data_dir, 'input.dat') + ' -j '
         + os.path.join(blip_data_dir, 'score.jkl') + ' -n 3 -t 10', shell=True)
+    print('learning the structure ...')
     subprocess.check_call(
         'java -jar ' + blip_dir + ' solver.kg.adv -smp ent -d ' + os.path.join(blip_data_dir, 'input.dat') + ' -j '
         + os.path.join(blip_data_dir, 'score.jkl') + ' -r '
