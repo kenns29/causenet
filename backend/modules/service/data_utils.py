@@ -161,10 +161,10 @@ def to_blip_array(data, value_converters=None):
     :return: the blip input string
     """
     val_converters = get_blip_value_converters(data) if not value_converters else value_converters
-    header = [key.replace(' ', '$SPACE$') for key in data.keys()]
+    header = [index for index, key in enumerate(data.keys())]
     cards = [str(data[col].cat.categories.size) for col in data]
-    values = [[str(val_converters[index][value]) for index, value in enumerate(row.get_values())]
-              for index, row in data.iterrows()]
+    values = [[str(val_converters[index][value]) for index, value in enumerate(data.loc[index].get_values())]
+              for index in data.index]
     return [header, cards, *values]
 
 
