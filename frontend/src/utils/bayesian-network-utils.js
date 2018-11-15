@@ -47,7 +47,10 @@ export const createDagLayout = ({nodes, links}) => {
   return {nodes: layoutNodes, edges: layoutEdges};
 };
 
-export const createTemporalDagLayout = ({nodes, links}, features) => {
+export const createTemporalDagLayout = (
+  {nodes, links},
+  features // list of all available features according to the clustering
+) => {
   let [minYear, maxYear] = [Infinity, -Infinity];
   // group nodes based on the base feature
   const nodeGroups = nodes.reduce((groups, node) => {

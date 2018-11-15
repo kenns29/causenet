@@ -7,6 +7,7 @@ import TrainModelButton from './train-model-button';
 import ToggleNodeLinkViewLabels from './toggle-node-link-view-labels';
 import HierarchicalClusteringCutThresholdSlider from './hierarchical-clustering-cut-threshold-slider';
 import HierarchicalClusteringOptionRadio from './hierarchical-clustering-option-radio';
+import FeatureSelectionControl from './feature-selection-control';
 
 import {updateNavPanelWidth} from '../../actions';
 import {getNavPanelWidth, getContentPanelHeight} from '../../selectors/base';
@@ -45,6 +46,7 @@ class NavPanel extends PureComponent {
         <ToggleNodeLinkViewLabels />
         <HierarchicalClusteringCutThresholdSlider />
         <HierarchicalClusteringOptionRadio />
+        <FeatureSelectionControl />
       </Rnd>
     );
   }
