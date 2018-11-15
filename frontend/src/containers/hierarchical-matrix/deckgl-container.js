@@ -30,21 +30,11 @@ export default class Container extends PureComponent {
         : 50
       : 255;
   };
-  _toggleFeatureSelection = feature => {
-    const {featureSelection} = this.props;
-    if (featureSelection === null) {
-      this.props.requestUpdateFeatureSelection([feature]);
-    } else {
-      const filtered = featureSelection.filter(d => d !== feature);
-      this.props.requestUpdateFeatureSelection(
-        filtered.length
-          ? filtered.length < featureSelection.length
-            ? filtered
-            : featureSelection.concat(feature)
-          : null
-      );
-    }
-  };
+  _toggleFeatureSelection = feature =>
+    this.props.requestToggleFeatureSelection(
+      feature,
+      this.props.featureSelection
+    );
   _renderMatrix() {
     const {
       matrix: {rows, cols, cells},

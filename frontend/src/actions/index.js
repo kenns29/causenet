@@ -254,6 +254,31 @@ export const requestUpdateFeatureSelection = features => async dispatch => {
   }
 };
 
+export const requestToggleFeatureSelection = (
+  feature,
+  features
+) => async dispatch => {
+  try {
+    if (features === null || features === undefined) {
+      dispatch(requestUpdateFeatureSelection([feature]));
+    } else {
+      const filtered = features.filter(d => d !== feature);
+      dispatch(
+        requestUpdateFeatureSelection(
+          filtered.length
+            ? filtered.length < features.length
+              ? filtered
+              : features.concat(feature)
+            : null
+        )
+      );
+    }
+    return Promise.resolve('SUCCESS');
+  } catch (err) {
+    return new Error(err);
+  }
+};
+
 export const fetchFeatureValuesMap = features => async dispatch => {
   try {
     const response = await fetch(`${BACKEND_URL}/load_feature_values_map`);
