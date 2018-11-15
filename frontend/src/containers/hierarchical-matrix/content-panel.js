@@ -9,9 +9,11 @@ import {
   getClusteringMatrixPaddings,
   getRawFeatureSelection
 } from '../../selectors/data';
-import {requestUpdateFeatureSelection} from '../../actions';
+import {requestToggleFeatureSelection} from '../../actions';
 
-const mapDispatchToProps = {requestUpdateFeatureSelection};
+const mapDispatchToProps = {
+  requestToggleFeatureSelection
+};
 
 const mapStateToProps = state => ({
   colTree: getHierarchicalClusteringVerticalTreeLayout(state),

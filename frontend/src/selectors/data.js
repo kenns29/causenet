@@ -268,6 +268,11 @@ export const getBayesianNetworkNodeLink = createSelector(
   }
 );
 
+/**
+ * Obtain the list of all available features ordered acccording to the clustering
+ * @param {Object} rawHierarchicalClusteringTree
+ * @return {Array} -- this list of ordered features
+ */
 export const getFeatureList = createSelector(
   getRawHierarchicalClusteringTree,
   tree => getTreeLeaves(tree).map(d => d.name)

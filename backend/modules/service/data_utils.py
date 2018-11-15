@@ -1,7 +1,8 @@
-import os, json, pickle, re
+import os, json, pickle, re, csv
+import numpy as np
 from scipy.spatial.distance import pdist
 from pandas import DataFrame
-from setup import base_dir, data_dir, data_config_dir
+from setup import base_dir, data_dir, data_config_dir, blip_data_dir
 
 
 def get_current_dataset_name():
@@ -161,10 +162,10 @@ def to_blip_array(data, value_converters=None):
     :return: the blip input string
     """
     val_converters = get_blip_value_converters(data) if not value_converters else value_converters
-    header = [key.replace(' ', '$SPACE$') for key in data.keys()]
+    header = [index for index, key in enumerate(data.keys())]
     cards = [str(data[col].cat.categories.size) for col in data]
-    values = [[str(val_converters[index][value]) for index, value in enumerate(row.get_values())]
-              for index, row in data.iterrows()]
+    values = [[str(val_converters[index][value]) for index, value in enumerate(data.loc[index].get_values())]
+              for index in data.index]
     return [header, cards, *values]
 
 
@@ -182,3 +183,16 @@ def blip_data_to_blip_str(data):
     cards = ' '.join([str(data[col].cat.categories.size) for col in data])
     values = '\n'.join([' '.join([str(value) for value in row.get_values()]) for index, row in data.iterrows()])
     return '\n'.join([header, cards, values])
+
+
+def to_blip_csv(data, value_converters=None):
+    value_converters = get_blip_value_converters(data) if not value_converters else value_converters
+    blip_data = to_blip_data(data, value_converters)
+    keys = [index for index, key in enumerate(blip_data.keys())]
+    blip_data.columns = keys
+    card_data = DataFrame([[blip_data[col].cat.categories.size for col in blip_data]],
+                          index=['cards'], columns=keys, dtype='category')
+    joint_data = DataFrame(np.concatenate((card_data.values, blip_data.values)),
+                           index=['cards', *blip_data.index.tolist()], columns=keys)
+    joint_data.to_csv(os.path.join(blip_data_dir, 'input.dat'),
+                      sep=' ', quotechar='"', quoting=csv.QUOTE_MINIMAL, index=False)
