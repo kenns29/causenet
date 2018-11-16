@@ -103,6 +103,11 @@ export default class ZoomableContainer extends PureComponent {
       this.props.onMove(this.state.zoomOffset);
     }
   };
+  getDeckObj = () => this.deck;
+  project = ([x, y]) =>
+    this.deck ? this.deck.deck.getViewports()[0].project([x, y]) : [x, y];
+  unproject = ([x, y]) =>
+    this.deck ? this.deck.deck.getViewports()[0].unproject([x, y]) : [x, y];
   render() {
     const {
       left,

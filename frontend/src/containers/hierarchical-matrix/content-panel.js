@@ -33,6 +33,39 @@ class ContentPanel extends PureComponent {
       height
     };
   }
+  _toggleFeatureSelection = feature =>
+    this.props.requestToggleFeatureSelection(
+      feature,
+      this.props.featureSelection
+    );
+  _getEventMouse = event => {
+    const {clientX, clientY} = event;
+    const {left, top} = this.container.getBoundingClientRect();
+    return [clientX - left, clientY - top];
+  };
+  onContextMenu = event => {
+    if (
+      this.deckGLContainer &&
+      this.deckGLContainer.container &&
+      this.deckGLContainer.container.deck
+    ) {
+      const {deck} = this.deckGLContainer.container.deck;
+      const [left, top] = this._getEventMouse(event);
+      const info = deck.pickObject({
+        x: left,
+        y: top,
+        radius: 0,
+        layerIds: [
+          'clustering-matrix-x-axis',
+          'clustering-matrix-x-axis-cluster',
+          'clustering-matrix-y-axis',
+          'clustering-matrix-y-axis-cluster'
+        ]
+      });
+    }
+    event.preventDefault();
+    event.stopPropagation();
+  };
   onClick = event => {
     if (
       this.deckGLContainer &&
@@ -40,19 +73,40 @@ class ContentPanel extends PureComponent {
       this.deckGLContainer.container.deck
     ) {
       const {deck} = this.deckGLContainer.container.deck;
-      console.log('deck', deck);
+      const [left, top] = this._getEventMouse(event);
+      const info = deck.pickObject({
+        x: left,
+        y: top,
+        radius: 0,
+        layerIds: [
+          'clustering-matrix-x-axis',
+          'clustering-matrix-x-axis-cluster',
+          'clustering-matrix-y-axis',
+          'clustering-matrix-y-axis-cluster'
+        ]
+      });
+      if (info && info.object) {
+        this._toggleFeatureSelection(info.object.name);
+      }
     }
+    event.preventDefault();
+    event.stopPropagation();
   };
   render() {
     const {matrix, colTree, rowTree} = this.props;
     return (
-      <div style={this.containerStyle} onClick={this.onClick}>
+      <div
+        ref={input => (this.container = input)}
+        style={this.containerStyle}
+        onClick={this.onClick}
+        onContextMenu={this.onContextMenu}
+      >
         {matrix &&
           colTree &&
           rowTree && (
           <DeckGLContainer
-            ref={input => (this.deckGLContainer = input)}
             {...this.props}
+            ref={input => (this.deckGLContainer = input)}
           />
         )}
       </div>

@@ -31,11 +31,6 @@ export default class Container extends PureComponent {
         : 50
       : 255;
   };
-  _toggleFeatureSelection = feature =>
-    this.props.requestToggleFeatureSelection(
-      feature,
-      this.props.featureSelection
-    );
   _renderMatrix() {
     const {
       matrix: {rows, cols, cells},
@@ -104,9 +99,7 @@ export default class Container extends PureComponent {
             : [255, 255, 255, 50],
         getLineWidth: 0,
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
-        pickable: true,
-        onClick: ({object}) =>
-          object && this._toggleFeatureSelection(object.name)
+        pickable: true
       }),
       new TextLayer({
         id: PANEL_ID_PREFIX + 'y-axis',
@@ -119,9 +112,7 @@ export default class Container extends PureComponent {
         ],
         getTextAnchor: 'start',
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
-        pickable: true,
-        onClick: ({object}) =>
-          object && this._toggleFeatureSelection(object.name)
+        pickable: true
       })
     ];
   }
@@ -166,9 +157,7 @@ export default class Container extends PureComponent {
             : [255, 255, 255, 50],
         getLineWidth: 0,
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
-        pickable: true,
-        onClick: ({object}) =>
-          object && this._toggleFeatureSelection(object.name)
+        pickable: true
       }),
       new TextLayer({
         id: PANEL_ID_PREFIX + 'x-axis',
@@ -182,9 +171,7 @@ export default class Container extends PureComponent {
         getAngle: 70,
         getTextAnchor: 'end',
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
-        pickable: true,
-        onClick: ({object}) =>
-          object && this._toggleFeatureSelection(object.name)
+        pickable: true
       })
     ];
   }
