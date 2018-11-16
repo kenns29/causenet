@@ -16,7 +16,8 @@ export default class Container extends PureComponent {
     super(props);
     this.state = {
       highlightedCell: null,
-      zoomScale: 1
+      zoomScale: 1,
+      zoomOffset: [0, 0]
     };
   }
   _computeTextLength = makeTextLengthComputer({fontSize: 10});
@@ -271,9 +272,8 @@ export default class Container extends PureComponent {
         top={0}
         layers={this._renderLayers()}
         getCursor={() => 'pointer'}
-        onZoom={zoomScale => {
-          this.setState({zoomScale});
-        }}
+        onZoom={zoomScale => this.setState({zoomScale})}
+        onMove={zoomOffset => this.setState({zoomOffset})}
       />
     );
   }

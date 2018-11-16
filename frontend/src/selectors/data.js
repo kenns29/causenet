@@ -353,7 +353,8 @@ export const getClusteringMatrixOrder = createSelector(
       id,
       name,
       rep,
-      isCluster: cluster.length > 1
+      isCluster: cluster.length > 1,
+      cluster
     }))
 );
 
@@ -376,9 +377,10 @@ export const getClusteringMatrix = createSelector(
     );
 
     const featureSelectionSet = new Set(featureSelection);
-    const order = matrixOrder.map(({rep: {name}, isCluster}) => ({
+    const order = matrixOrder.map(({rep: {name}, isCluster, cluster}) => ({
       name,
       isCluster,
+      cluster,
       isSelection: featureSelectionSet.has(name)
     }));
     return {

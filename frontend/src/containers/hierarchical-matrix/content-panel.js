@@ -33,12 +33,28 @@ class ContentPanel extends PureComponent {
       height
     };
   }
-
+  onClick = event => {
+    if (
+      this.deckGLContainer &&
+      this.deckGLContainer.container &&
+      this.deckGLContainer.container.deck
+    ) {
+      const {deck} = this.deckGLContainer.container.deck;
+      console.log('deck', deck);
+    }
+  };
   render() {
     const {matrix, colTree, rowTree} = this.props;
     return (
-      <div style={this.containerStyle}>
-        {matrix && colTree && rowTree && <DeckGLContainer {...this.props} />}
+      <div style={this.containerStyle} onClick={this.onClick}>
+        {matrix &&
+          colTree &&
+          rowTree && (
+          <DeckGLContainer
+            ref={input => (this.deckGLContainer = input)}
+            {...this.props}
+          />
+        )}
       </div>
     );
   }
