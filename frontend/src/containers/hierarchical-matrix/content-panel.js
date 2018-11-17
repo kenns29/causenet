@@ -1,6 +1,7 @@
 import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
 import DeckGLContainer from './deckgl-container';
+import {array2Object, isArray} from '../../utils';
 import {
   getClusteringMatrixLayout,
   getHierarchicalClusteringVerticalTreeLayout,
@@ -9,10 +10,14 @@ import {
   getClusteringMatrixPaddings,
   getRawFeatureSelection
 } from '../../selectors/data';
-import {requestToggleFeatureSelection} from '../../actions';
+import {
+  requestToggleFeatureSelection,
+  reqeustUpdateFeatureSelection
+} from '../../actions';
 
 const mapDispatchToProps = {
-  requestToggleFeatureSelection
+  requestToggleFeatureSelection,
+  reqeustUpdateFeatureSelection
 };
 
 const mapStateToProps = state => ({
@@ -38,6 +43,50 @@ class ContentPanel extends PureComponent {
       feature,
       this.props.featureSelection
     );
+  /**
+   * Toggle the feature cluster, this ignores non-cluster features and will
+   * the cluster in the feature selection list if the cluster matches exactly
+   * with the one in the parameter. If no exact match was found, the function
+   * will add the cluster by performing the following steps:
+   *  1) remove all non-cluster features found in the parameter cluster from
+   *     the feature selection list
+   *  2) remove any of the features found in the paramter cluster from every
+   *     cluster features in the feature selection list
+   *  3) append the parameter cluster to the feature selection list
+   */
+  _toggleFeatureCluster = ({isCluster, cluster}) => {
+    if (!isCluster) {
+      return;
+    }
+    const {featureSelection} = this.props;
+    let features = [];
+    if (featureSelection) {
+      const clusterMap = array2Object(cluster, d => d.name);
+      const filteredFeatures = featureSelection.filter(
+        d => !isArray(d) || !d.some(name => !clusterMap.hasOwnProperty(name))
+      );
+      if (filteredFeatures.length === featureSelection.length) {
+        filteredFeatures.forEach(d => {
+          if (isArray(d)) {
+            const filteredCluster = d.filter(
+              name => !clusterMap.hasOwnProperty(name)
+            );
+            if (filteredCluster.length) {
+              features.push(filteredCluster);
+            }
+          } else if (!clusterMap.hasOwnProperty(d)) {
+            features.push(d);
+          }
+        });
+        features.push(cluster.map(({name}) => name));
+      } else {
+        features = filteredFeatures;
+      }
+    } else {
+      features = [[cluster.map(({name}) => name)]];
+    }
+    console.log('features', features);
+  };
   _getEventMouse = event => {
     const {clientX, clientY} = event;
     const {left, top} = this.container.getBoundingClientRect();
@@ -62,6 +111,10 @@ class ContentPanel extends PureComponent {
           'clustering-matrix-y-axis-cluster'
         ]
       });
+      if (info && info.object) {
+        console.log(info.object);
+        this._toggleFeatureCluster(info.object);
+      }
     }
     event.preventDefault();
     event.stopPropagation();

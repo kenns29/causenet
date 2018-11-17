@@ -9,3 +9,6 @@ export const array2Object = (array, key, value) => {
   const [fk, fv] = [key, value].map(makeAccessor);
   return array.reduce((m, v) => Object.assign(m, {[fk(v)]: fv(v)}), {});
 };
+
+export const isArray = v =>
+  Object.prototype.toString.call(v) === '[object Array]';
