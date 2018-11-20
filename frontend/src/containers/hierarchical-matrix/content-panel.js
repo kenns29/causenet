@@ -1,7 +1,7 @@
 import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
 import DeckGLContainer from './deckgl-container';
-import {array2Object, isArray} from '../../utils';
+import {isArray} from '../../utils';
 import {
   getClusteringMatrixLayout,
   getHierarchicalClusteringVerticalTreeLayout,
@@ -12,12 +12,12 @@ import {
 } from '../../selectors/data';
 import {
   requestToggleFeatureSelection,
-  reqeustUpdateFeatureSelection
+  requestUpdateFeatureSelection
 } from '../../actions';
 
 const mapDispatchToProps = {
   requestToggleFeatureSelection,
-  reqeustUpdateFeatureSelection
+  requestUpdateFeatureSelection
 };
 
 const mapStateToProps = state => ({
@@ -44,7 +44,8 @@ class ContentPanel extends PureComponent {
       this.props.featureSelection
     );
   /**
-   * Toggle the feature cluster, this ignores non-cluster features and will
+   * Toggle the feature cluster, if non cluster feature is observed in the
+   * parameter, the feature will be treated as a cluster. The function removes
    * the cluster in the feature selection list if the cluster matches exactly
    * with the one in the parameter. If no exact match was found, the function
    * will add the cluster by performing the following steps:
@@ -54,38 +55,37 @@ class ContentPanel extends PureComponent {
    *     cluster features in the feature selection list
    *  3) append the parameter cluster to the feature selection list
    */
-  _toggleFeatureCluster = ({isCluster, cluster}) => {
-    if (!isCluster) {
-      return;
-    }
-    const {featureSelection} = this.props;
+  _toggleFeatureCluster = ({name: feature, isCluster, cluster}) => {
     let features = [];
-    if (featureSelection) {
-      const clusterMap = array2Object(cluster, d => d.name);
+    const {featureSelection} = this.props;
+    const clusterFeatures = cluster.map(({name}) => name);
+    if (!featureSelection) {
+      features = isCluster ? [clusterFeatures] : [feature];
+    } else {
+      const featureSet = new Set(isCluster ? clusterFeatures : [feature]);
       const filteredFeatures = featureSelection.filter(
-        d => !isArray(d) || !d.some(name => !clusterMap.hasOwnProperty(name))
+        d =>
+          isArray(d) ? d.some(name => !featureSet.has(name)) : feature !== d
       );
       if (filteredFeatures.length === featureSelection.length) {
         filteredFeatures.forEach(d => {
           if (isArray(d)) {
-            const filteredCluster = d.filter(
-              name => !clusterMap.hasOwnProperty(name)
-            );
-            if (filteredCluster.length) {
+            const filteredCluster = d.filter(name => !featureSet.has(name));
+            if (filteredCluster.length > 1) {
               features.push(filteredCluster);
+            } else if (filteredCluster.length > 0) {
+              features.push(filteredCluster[0]);
             }
-          } else if (!clusterMap.hasOwnProperty(d)) {
+          } else if (!featureSet.has(d)) {
             features.push(d);
           }
         });
-        features.push(cluster.map(({name}) => name));
+        features.push(isCluster ? clusterFeatures : feature);
       } else {
         features = filteredFeatures;
       }
-    } else {
-      features = [[cluster.map(({name}) => name)]];
     }
-    console.log('features', features);
+    this.props.requestUpdateFeatureSelection(features);
   };
   _getEventMouse = event => {
     const {clientX, clientY} = event;
@@ -112,7 +112,6 @@ class ContentPanel extends PureComponent {
         ]
       });
       if (info && info.object) {
-        console.log(info.object);
         this._toggleFeatureCluster(info.object);
       }
     }
