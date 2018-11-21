@@ -19,6 +19,13 @@ data_config = {
         'base_avg_data_file': 'fao_fused_spatio_temporal_cut_10_base_avg.bin',
         'pdist_file': 'fao_fused_spatio_temporal_cut_10_pdsit.bin',
         'clustering_file': 'fao_fused_spatio_temporal_cut_10_clustering.bin',
+    },
+    'fao_fused_bn_data_2013_cut_10': {
+        'raw_data_file': 'fao_fused_bn_data_2013_cut_10_raw.bin',
+        'data_file': 'fao_fused_bn_data_2013_cut_10.bin',
+        'base_avg_data_file': 'fao_fused_bn_data_2013_cut_10_base_avg.bin',
+        'pdist_file': 'fao_fused_bn_data_2013_cut_10_pdsit.bin',
+        'clustering_file': 'fao_fused_bn_data_2013_cut_10_clustering.bin',
     }
 }
 
@@ -33,6 +40,14 @@ def load_test_0_data():
 
 def load_fused_fao_spatio_temporal_cut_10_data():
     raw_data = read_csv(os.path.join(metadata_dir, 'fused_spatio_temporal_bn_data.csv'), index_col=0)
+    data = raw_data.copy()
+    for key in data:
+        data[key] = cut(data[key], 10)
+    return raw_data, data
+
+
+def load_fused_fao_bn_2013_cut_10_data():
+    raw_data = read_csv(os.path.join(metadata_dir, 'fused_bn_data_2013.csv'), index_col=0)
     data = raw_data.copy()
     for key in data:
         data[key] = cut(data[key], 10)
@@ -104,6 +119,8 @@ def make_datas():
     make_data(data_config['test_0'], load_test_0_data)
     # make fused spatio temporal data
     make_data(data_config['fao_fused_spatio_temporal_cut_10'], load_fused_fao_spatio_temporal_cut_10_data)
+    # make fused fao 2013 data
+    make_data(data_config['fao_fused_bn_data_2013_cut_10'], load_fused_fao_bn_2013_cut_10_data)
 
 
 if __name__ == '__main__':
