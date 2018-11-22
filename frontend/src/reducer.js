@@ -85,7 +85,8 @@ const DEFAULT_STATE = {
   selectedModel: null,
   modelList: [],
   nodeLinkViewOptions: {
-    showLabels: false
+    showLabels: false,
+    useHierarchy: false
   }
 };
 
