@@ -96,6 +96,29 @@ def get_base_avg_data(data):
     return r_data
 
 
+def get_raw_categorical_column_value_converter(data, key):
+    index = 0
+    r_dict = dict()
+    for value in data[key]:
+        if value not in r_dict:
+            r_dict[value] = index
+            index += 1
+    return r_dict
+
+
+def get_column_normalized_data(data, range=[0, 1]):
+    r_data = data.copy()
+    for key in data.keys():
+        if not np.issubdtype(r_data[key].dtype, np.number):
+            value_converter = get_raw_categorical_column_value_converter(r_data, key)
+            r_data[key].replace(value_converter, inplace=True)
+        min = r_data[key].min()
+        max = r_data[key].max()
+        if min < max:
+            r_data[key] = range[0] + (r_data[key] - min) / (max - min) * (range[1] - range[0])
+    return r_data
+
+
 def get_feature_pdist(data, convert_categorical=False):
     """
     Compute the correlation distance [0, 2] between each features in the data.
@@ -105,10 +128,12 @@ def get_feature_pdist(data, convert_categorical=False):
     :param convert_categorical: specify if convert the categorical variables to numerical one
     :return: the condensed SciPy distance matrix
     """
-    r_data = data
+    r_data = data.copy()
     if convert_categorical:
-        value_converters = get_blip_value_converters(data)
-        r_data = to_blip_data(data, value_converters)
+        for key in r_data.keys():
+            if not np.issubdtype(r_data[key].dtype, np.number):
+                value_converter = get_raw_categorical_column_value_converter(r_data, key)
+                r_data[key].replace(value_converter, inplace=True)
     matrix = r_data.values.astype('double').transpose()
     return pdist(matrix, metric='correlation')
 
