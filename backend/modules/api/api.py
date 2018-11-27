@@ -165,6 +165,11 @@ def train_bayesian_model():
         return jsonify([{'source': s, 'target': t} for s, t in edges])
 
 
+@blueprint.route('/train_cluster_bayesian_model', methods=['GET'])
+def train_cluster_bayesian_model():
+    return None
+
+
 @blueprint.route('/load_model_list', methods=['GET'])
 def load_model_list():
     return jsonify([{'name': d['name'], 'model_file': d['model_file']} for d in get_model_list()])

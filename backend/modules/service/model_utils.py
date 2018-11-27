@@ -1,5 +1,6 @@
 import os, pickle, subprocess, re, json, csv
 from collections import OrderedDict
+from pandas import DataFrame, cut
 from pgmpy.factors.discrete.CPD import TabularCPD
 from pgmpy.models import BayesianModel
 from modules.service.data_utils import get_current_dataset_name, get_index2col, \
@@ -275,6 +276,28 @@ def train_model(data, name):
     edges = learn_structure(filtered_data, index2col, col2index)
     model = BayesianModel(edges)
     print('fitting the data to obtain the CPDs ...')
+    cpds = blip_cpds_to_pgmpy_cpds(learn_parameters(index2col))
+    filtered_cpds = filter_cpds_by_edges(cpds, edges)
+    model.add_cpds(*filtered_cpds)
+    model.check_model()
+    write_model(model, name)
+    return model
+
+
+def train_model_on_clusters(clusters, name, base_avg_data=None):
+    if base_avg_data is None:
+        base_avg_data = load_data(data_type='base_avg_data_file')
+    data = DataFrame(columns=range(len(clusters)), index=base_avg_data.index)
+    for key, cluster in enumerate(clusters):
+        data[key] = base_avg_data.filter(cluster).mean(axis=1)
+    # temporally hard code the number of cut to 10
+    cut_n = 10
+    for key in data:
+        data[key] = cut(data[key], cut_n)
+    index2col = get_index2col(data)
+    col2index = get_col2index(data)
+    edges = learn_structure(data, index2col, col2index)
+    model = BayesianModel(edges)
     cpds = blip_cpds_to_pgmpy_cpds(learn_parameters(index2col))
     filtered_cpds = filter_cpds_by_edges(cpds, edges)
     model.add_cpds(*filtered_cpds)
