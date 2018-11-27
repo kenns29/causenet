@@ -1,7 +1,8 @@
 from flask import Blueprint, jsonify, request, redirect, url_for, json
 from modules.service.model_utils import get_model, delete_model, learn_structure, train_model, \
     get_weighted_edges, write_weighted_edges, get_model_list, update_feature_selection, get_feature_selection, \
-    update_model_feature_value_selection_map, get_model_feature_value_selection_map, reduce_model
+    update_model_feature_value_selection_map, get_model_feature_value_selection_map, reduce_model, \
+    train_model_on_clusters
 from modules.service.edge_weights import get_edge_weights
 from modules.service.data_utils import load_data, load_pdist, load_clustering, get_current_dataset_name, \
     get_dataset_config, update_current_dataset_name as update_current_dataset_name_util, get_index2col
@@ -165,9 +166,25 @@ def train_bayesian_model():
         return jsonify([{'source': s, 'target': t} for s, t in edges])
 
 
-@blueprint.route('/train_cluster_bayesian_model', methods=['GET'])
+@blueprint.route('/train_cluster_bayesian_model', methods=['GET', 'POST'])
 def train_cluster_bayesian_model():
-    return None
+    name = request.args.get('name') if request.args.get('name') else 'model.bin'
+    calc_edge_weights = str2bool(request.args.get('calc_edge_weights')) \
+        if request.args.get('calc_edge_weights') else True
+    clusters = json.loads(request.data) if request.method == 'POST' else request.args.get('clusters')
+    if clusters is None:
+        raise ValueError('clusters cannot be None')
+    print('training model on clusters ...')
+    base_avg_data = load_data(data_type='base_avg_data_file')
+    model = train_model_on_clusters(clusters, name, base_avg_data)
+    if calc_edge_weights:
+        print('calculating edge weights ...')
+        weighted_edges = get_edge_weights(model)
+        write_weighted_edges(weighted_edges, name)
+        return jsonify([{'source': s, 'target': t, 'weight': w} for (s, t), w in weighted_edges])
+    else:
+        edges = model.edges()
+        return jsonify([{'source': s, 'target': t} for s, t in edges])
 
 
 @blueprint.route('/load_model_list', methods=['GET'])
