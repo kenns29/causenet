@@ -23,6 +23,8 @@ export const UPDATE_HIGHLIGHTED_BAYESIAN_NETWORK_EDGE =
   'UPDATE_HIGHLIGHTED_BAYESIAN_NETWORK_EDGE';
 export const UPDATE_HIGHLIGHTED_BAYESIAN_MODEL_FEATURE =
   'UPDATE_HIGHLIGHTED_BAYESIAN_MODEL_FEATURE';
+export const UPDATE_CLUSTER_BAYESIAN_MODEL_FEATURE =
+  'UPDATE_CLUSTER_BAYESIAN_MODEL_FEATURE';
 export const UPDATE_MODEL_LIST = 'UPDATE_MODEL_LIST';
 export const UPDATE_SELECTED_MODEL = 'UPDATE_SELECTED_MODEL';
 export const UPDATE_NODE_LINK_VIEW_OPTIONS = 'UPDATE_NODE_LINK_VIEW_OPTIONS';
@@ -70,6 +72,9 @@ export const updateHighlightedBayesianNetworkEdge = createAction(
 );
 export const updateHighlightedBayesianModelFeature = createAction(
   UPDATE_HIGHLIGHTED_BAYESIAN_MODEL_FEATURE
+);
+export const updateClusterBaysianModelFeatue = createAction(
+  UPDATE_CLUSTER_BAYESIAN_MODEL_FEATURE
 );
 export const updateModelList = createAction(UPDATE_MODEL_LIST);
 export const updateSelectedModel = createAction(UPDATE_SELECTED_MODEL);
@@ -197,6 +202,25 @@ export const requestTrainBayesianModel = ({
   try {
     const response = await fetch(
       `${BACKEND_URL}/train_bayesian_model?name=${name}`
+    );
+    const data = await response.json();
+    return Promise.resolve(data);
+  } catch (err) {
+    throw new Error(err);
+  }
+};
+
+export const requestTrainClusterBayesianModel = ({
+  name = 'model',
+  clusters
+}) => async dispatch => {
+  try {
+    const response = await fetch(
+      `${BACKEND_URL}/train_cluster_bayesian_model?name=${name}`,
+      {
+        method: 'POST',
+        body: JSON.stringify(clusters)
+      }
     );
     const data = await response.json();
     return Promise.resolve(data);

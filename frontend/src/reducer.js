@@ -53,6 +53,15 @@ const DEFAULT_STATE = {
   highlightedBayesianNetworkEdge: null,
   // Controls the node link view, matrix view and the feature list
   highlightedBayesianModelFeature: null, // null || feature_name
+  // the raw cluster Bayesian Network data:
+  // [
+  //  {
+  //  source: (the source cluster id),
+  //  target: (the target cluster id),
+  //  weight: (the edge weight)
+  //  },
+  //  ...]
+  clusterBayesianNetwork: [],
   // the hierarchical clustering option:
   // raw -- clustering for all features as is
   // base -- group the features by the base variable name, temporal features of

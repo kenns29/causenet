@@ -24,13 +24,13 @@ def get_current_dataset_model_dir():
 
 
 def get_model(name):
-    with open(get_current_dataset_model_dir() + '/' + name, mode='rb') as file:
+    with open(os.path.join(get_current_dataset_model_dir(), name), mode='rb') as file:
         return pickle.load(file)
 
 
 def write_model(model, name):
     current_dataset_name = get_current_dataset_name()
-    with open(get_current_dataset_model_dir() + '/' + name, mode='wb') as file:
+    with open(os.path.join(get_current_dataset_model_dir(), name), mode='wb') as file:
         pickle.dump(model, file)
     with open(model_config_dir, mode='r+', encoding='utf-8') as file:
         config = json.load(file)
@@ -62,10 +62,10 @@ def delete_model(name):
             file.seek(0)
             json.dump(config, file, indent='\t')
             file.truncate()
-        if os.path.exists(current_dataset_model_dir + '/' + name):
-            os.remove(current_dataset_model_dir + '/' + name)
-        if os.path.exists(current_dataset_model_dir + '/weight.' + name):
-            os.remove(current_dataset_model_dir + '/weight.' + name)
+        if os.path.exists(os.path.join(current_dataset_model_dir, name)):
+            os.remove(os.path.join(current_dataset_model_dir, name))
+        if os.path.exists(os.path.join(current_dataset_model_dir, 'weight.' + name)):
+            os.remove(os.path.join(current_dataset_model_dir, 'weight.' + name))
         return model_stat
 
 
@@ -91,6 +91,27 @@ def write_weighted_edges(edges, name):
         json.dump(config, file, indent='\t')
         file.truncate()
     return edges
+
+
+def write_sub_models_within_cluster(model_dict, model_name):
+    if not model_dict:
+        return model_dict
+    current_dataset_name = get_current_dataset_name()
+    sub_models_dir = os.path.join(get_current_dataset_model_dir(), 'sub-models.' + model_name)
+    if not os.path.exists(sub_models_dir):
+        os.makedirs(sub_models_dir)
+    for key, model in model_dict.items():
+        with open(os.path.join(sub_models_dir, key), mode='wb') as file:
+            pickle.dump(model, file)
+    with open(model_config_dir, mode='r+', encoding='utf-8') as file:
+        config = json.load(file)
+        status = config[current_dataset_name]
+        models = status['models']
+        models[model_name]['sub-models-folder'] = 'sub-models.' + model_name
+        file.seek(0)
+        json.dump(config, file, indent='\t')
+        file.truncate()
+    return model_dict
 
 
 def blip_learn_structure(data):
@@ -264,8 +285,8 @@ def filter_cpds_by_edges(cpds, edges):
     return [cpd for cpd in cpds if cpd.variable in node_set]
 
 
-def train_model(data, name):
-    feature_selection = get_feature_selection()
+def train_model(data, name=None, feature_selection=None, do_write_model=True):
+    feature_selection = get_feature_selection() if feature_selection is None else feature_selection
     if is_temporal_data(data):
         feature_selection = [feature + '~' + str(time)
                              for feature in feature_selection for time in get_times(data, feature)] \
@@ -280,15 +301,15 @@ def train_model(data, name):
     filtered_cpds = filter_cpds_by_edges(cpds, edges)
     model.add_cpds(*filtered_cpds)
     model.check_model()
-    write_model(model, name)
+    if do_write_model:
+        write_model(model, name)
     return model
 
 
 def train_model_on_clusters(clusters, name, base_avg_data=None):
-    if base_avg_data is None:
-        base_avg_data = load_data(data_type='base_avg_data_file')
+    base_avg_data = load_data('base_avg_data_file') if base_avg_data is None else base_avg_data
     data = DataFrame(columns=range(len(clusters)), index=base_avg_data.index)
-    for key, cluster in enumerate(clusters):
+    for key, cluster in enumerate(clusters) if type(clusters) is list else clusters.items():
         data[key] = base_avg_data.filter(cluster).mean(axis=1)
     # temporally hard code the number of cut to 10
     cut_n = 10
@@ -304,6 +325,14 @@ def train_model_on_clusters(clusters, name, base_avg_data=None):
     model.check_model()
     write_model(model, name)
     return model
+
+
+def train_sub_model_within_clusters(clusters, data=None, name=None):
+    data = load_data() if data is None else data
+    model_dict = dict((key, train_model(data, feature_selection=cluster, do_write_model=False))
+                      for key, cluster in (enumerate(clusters) if type(clusters) is list else clusters.items()))
+    write_sub_models_within_cluster(model_dict, name)
+    return model_dict
 
 
 def get_model_list():

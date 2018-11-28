@@ -151,11 +151,12 @@ def route_learn_structure():
 @blueprint.route('/train_bayesian_model', methods=['GET'])
 def train_bayesian_model():
     name = request.args.get('name') if request.args.get('name') else 'model.bin'
+    feature_selection = request.args.get('feature_selection')
     calc_edge_weights = str2bool(request.args.get('calc_edge_weights')) \
         if request.args.get('calc_edge_weights') else True
     data = load_data()
     print('training models ...')
-    model = train_model(data, name)
+    model = train_model(data, name, feature_selection)
     if calc_edge_weights:
         print('calculating edge weights ...')
         weighted_edges = get_edge_weights(model)
@@ -172,10 +173,10 @@ def train_cluster_bayesian_model():
     calc_edge_weights = str2bool(request.args.get('calc_edge_weights')) \
         if request.args.get('calc_edge_weights') else True
     clusters = json.loads(request.data) if request.method == 'POST' else request.args.get('clusters')
-    if clusters is None:
-        raise ValueError('clusters cannot be None')
+    if clusters is None or type(clusters) is not dict or list:
+        raise ValueError('clusters has to be either dict or list')
     print('training model on clusters ...')
-    base_avg_data = load_data(data_type='base_avg_data_file')
+    base_avg_data = load_data('base_avg_data_file')
     model = train_model_on_clusters(clusters, name, base_avg_data)
     if calc_edge_weights:
         print('calculating edge weights ...')
