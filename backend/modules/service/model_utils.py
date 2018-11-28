@@ -93,6 +93,16 @@ def write_weighted_edges(edges, name):
     return edges
 
 
+def get_sub_models(name):
+    sub_models_dir = os.path.join(get_current_dataset_model_dir(), 'sub-models.' + name)
+    model_dict = dict()
+    for subdir, dirs, files in os.walk(sub_models_dir):
+        for key in files:
+            with open(os.path.join(sub_models_dir, key), mode='rb') as file:
+                model_dict[key] = pickle.load(file)
+    return model_dict
+
+
 def write_sub_models_within_cluster(model_dict, model_name):
     if not model_dict:
         return model_dict
@@ -112,6 +122,16 @@ def write_sub_models_within_cluster(model_dict, model_name):
         json.dump(config, file, indent='\t')
         file.truncate()
     return model_dict
+
+
+def write_sub_models_edge_weights(weighted_edges_dict, model_name):
+    sub_models_dir = os.path.join(get_current_dataset_model_dir(), 'sub-models.' + model_name)
+    if not os.path.exists(sub_models_dir):
+        os.makedirs(sub_models_dir)
+    for key, weighted_edges in weighted_edges_dict.items():
+        with open(os.path.join(sub_models_dir, 'weight.' + key), mode='wb') as file:
+            pickle.dump(weighted_edges, file)
+    return weighted_edges_dict
 
 
 def blip_learn_structure(data):
@@ -333,6 +353,14 @@ def train_sub_model_within_clusters(clusters, data=None, name=None):
                       for key, cluster in (enumerate(clusters) if type(clusters) is list else clusters.items()))
     write_sub_models_within_cluster(model_dict, name)
     return model_dict
+
+
+def calc_sub_models_edge_weights(model_dict, model_name):
+    if not model_dict:
+        return model_dict
+    weighted_edges_dict = dict((key, get_weighted_edges(model)) for key, model in model_dict.items())
+    write_sub_models_edge_weights(weighted_edges_dict, model_name)
+    return weighted_edges_dict
 
 
 def get_model_list():

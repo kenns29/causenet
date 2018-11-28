@@ -9,6 +9,8 @@ import {
   FETCH_MODIFIED_BAYESIAN_NETWORK_START,
   UPDATE_BAYESIAN_NETWORK,
   UPDATE_MODIFIED_BAYSIAN_NETWORK,
+  UPDATE_CLUSTER_BAYESIAN_NETWORK,
+  UPDATE_SUB_BAYESIAN_NETWORKS,
   UPDATE_BAYESIAN_MODEL_FEATURES,
   UPDATE_BAYESIAN_MODEL_FEATURE_VALUE_SELECTION_MAP,
   UPDATE_HIGHLIGHTED_BAYESIAN_NETWORK_EDGE,
@@ -62,6 +64,18 @@ const DEFAULT_STATE = {
   //  },
   //  ...]
   clusterBayesianNetwork: [],
+  // the sub Bayesian Network within the clusters:
+  // {
+  //  cluster_id: [
+  //    {
+  //      source: (the source name),
+  //      target: (the target name),
+  //      weight: (the edge weight)
+  //    },
+  //    ...
+  //  ],
+  // ...}
+  subBayesianNetworks: {},
   // the hierarchical clustering option:
   // raw -- clustering for all features as is
   // base -- group the features by the base variable name, temporal features of
@@ -145,6 +159,16 @@ const handleUpdateModifiedBayesianNetwork = (state, {payload}) => ({
   ...state,
   modifiedBayesianNetwork: payload,
   isFetchingModifiedBayesianNetwork: false
+});
+
+const handleUpdateClusterBayesianNetwork = (state, {payload}) => ({
+  ...state,
+  clusterBayesianNetwork: payload
+});
+
+const handleUpdateSubBayesianNetworks = (state, {payload}) => ({
+  ...state,
+  subBayesianNetworks: payload
 });
 
 const handleUpdateBayesianModelFeatures = (state, {payload}) => ({

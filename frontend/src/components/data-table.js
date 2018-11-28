@@ -15,7 +15,12 @@ export default class DataTable extends PureComponent {
     selectData: () => {}
   };
   render() {
-    const {data} = this.props;
+    const data = this.props.data.map(d =>
+      Object.entries(d).reduce(
+        (o, [key, value]) => Object.assign(o, {[key]: value.toString()}),
+        {}
+      )
+    );
     if (data.length === 0) {
       return <Table size="small" columns={[]} dataSource={data} />;
     }

@@ -8,6 +8,7 @@ import {hierarchy as d3Hierarchy, cluster as d3Cluster} from 'd3-hierarchy';
 import {
   getTreeLeaves,
   cutTreeByDist,
+  cutTreeByDistToClustering,
   getCutTree,
   findMaxDistancePair,
   createNodeMap,
@@ -296,11 +297,14 @@ export const getId2DistanceFunction = createSelector(
   }
 );
 
+export const getHierarchicalClusteringCutClusters = createSelector(
+  [getRawHierarchicalClusteringTree, getHierarchicalClusteringCutThreshold],
+  cutTreeByDistToClustering
+);
+
 export const getHierachicalClusteringCut = createSelector(
   [getRawHierarchicalClusteringTree, getHierarchicalClusteringCutThreshold],
-  (tree, threshold) => {
-    return cutTreeByDist(tree, threshold);
-  }
+  cutTreeByDist
 );
 
 export const getHierachicalClusteringCutTree = createSelector(
