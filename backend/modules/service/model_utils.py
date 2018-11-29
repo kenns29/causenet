@@ -98,9 +98,12 @@ def get_sub_models(name):
     sub_models_dir = os.path.join(get_current_dataset_model_dir(), 'sub-models.' + name)
     model_dict = dict()
     for subdir, dirs, files in os.walk(sub_models_dir):
-        for key in files:
-            with open(os.path.join(sub_models_dir, key), mode='rb') as file:
-                model_dict[key] = pickle.load(file)
+        for file_name in files:
+            with open(os.path.join(sub_models_dir, file_name), mode='rb') as file:
+                s = file_name.split('.')
+                key = s[0] if len(s) < 2 else s[1]
+                model_dict[key] = {} if key not in model_dict else model_dict[key]
+                model_dict[key]['model' if len(s) < 2 else 'weighted_edges'] = pickle.load(file)
     return model_dict
 
 
@@ -183,8 +186,10 @@ def parse_blip_edges(index2col, with_score=False, with_overall_score=False, outp
             line = structure_file.readline()
 
         line = structure_file.readline()
-        m = re.search(re.compile(r'-?\d+(?:\.\d+)?'), line)
-        overall_score = float(m.group())
+        overall_score = 0
+        if line:
+            m = re.search(re.compile(r'-?\d+(?:\.\d+)?'), line)
+            overall_score = float(m.group())
     return structure if not with_overall_score else (structure, overall_score)
 
 

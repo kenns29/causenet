@@ -123,7 +123,18 @@ def load_modifed_model():
 @blueprint.route('/load_sub_models', methods=['GET'])
 def load_sub_models():
     name = request.args.get('name') if request.args.get('name') else 'model.bin'
-    return jsonify(get_sub_models(name))
+    model_dict = get_sub_models(name)
+    return jsonify(dict((key, [{
+                                'source': s,
+                                'target': t,
+                                'weight': w
+                               } for (s, t), w in item['weighted_edges']]
+                        if 'weighted_edges' in item else
+                              [{
+                                'source': s,
+                                'target': t
+                               } for s, t in item['model'].edges()])
+                        for key, item in model_dict.items()))
 
 
 @blueprint.route('/load_model_features', methods=['GET'])

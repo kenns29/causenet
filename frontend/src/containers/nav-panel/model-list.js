@@ -7,6 +7,8 @@ import {
   updateSelectedModel,
   fetchBayesianNetwork,
   fetchModifiedBayesianNetwork,
+  fetchClusterBayesianNetwork,
+  fetchSubBayesianNetworks,
   fetchBayesianModelFeatures,
   fetchModelFeatureValueSelectionMap,
   fetchModelList
@@ -17,6 +19,8 @@ const mapDispatchToProps = {
   updateSelectedModel,
   fetchBayesianNetwork,
   fetchModifiedBayesianNetwork,
+  fetchClusterBayesianNetwork,
+  fetchSubBayesianNetworks,
   fetchBayesianModelFeatures,
   fetchModelFeatureValueSelectionMap,
   fetchModelList
@@ -33,16 +37,24 @@ class ModelList extends PureComponent {
     return (
       <DataTable
         data={modelList.map(d => ({...d, key: d.name}))}
-        removeData={async key => {
-          await this.props.requestDeleteModel({name: key});
+        removeData={async({key: name}) => {
+          await this.props.requestDeleteModel({name});
           this.props.fetchModelList();
         }}
-        selectData={async key => {
-          this.props.updateSelectedModel(key);
-          this.props.fetchBayesianModelFeatures({name: key});
-          this.props.fetchModelFeatureValueSelectionMap({name: key});
-          await this.props.fetchModifiedBayesianNetwork({name: key});
-          this.props.fetchBayesianNetwork({name: key});
+        selectData={async({key: name, is_cluster_model: isClusterModel}) => {
+          if (isClusterModel === 'true') {
+            this.props.updateSelectedModel(name);
+            await Promise.all([
+              this.props.fetchClusterBayesianNetwork({name}),
+              this.props.fetchSubBayesianNetworks({name})
+            ]);
+          } else {
+            this.props.updateSelectedModel(name);
+            this.props.fetchBayesianModelFeatures({name});
+            this.props.fetchModelFeatureValueSelectionMap({name});
+            await this.props.fetchModifiedBayesianNetwork({name});
+            this.props.fetchBayesianNetwork({name});
+          }
         }}
         checked={(text, record) => record.key === selectedModel}
       />

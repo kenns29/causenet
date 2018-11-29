@@ -41,7 +41,7 @@ export default class DataTable extends PureComponent {
               <Radio
                 checked={this.props.checked(text, record)}
                 value={record.key}
-                onClick={event => this.props.selectData(record.key)}
+                onClick={event => this.props.selectData(record)}
               />
             );
           }
@@ -54,7 +54,7 @@ export default class DataTable extends PureComponent {
             return (
               <Button
                 size="small"
-                onClick={() => this.props.removeData(record.key)}
+                onClick={() => this.props.removeData(record)}
               >
                 <Icon type="delete" />
               </Button>
