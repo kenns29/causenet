@@ -101,7 +101,7 @@ def load_model():
         print('edge weights not found, calculation edge weights ...')
         weighted_edges = get_edge_weights(model)
         write_weighted_edges(weighted_edges, name)
-    return jsonify([{'source': s, 'target': t, 'weight': w} for (s, t), w in weighted_edges])
+    return jsonify([{'source': str(s), 'target': str(t), 'weight': w} for (s, t), w in weighted_edges])
 
 
 @blueprint.route('/load_modified_model', methods=['GET'])
@@ -117,7 +117,7 @@ def load_modifed_model():
     reduced_model = reduce_model(model, feature_value_selection_map)
     print('calculating edge weights for reduced model {} ...'.format(name))
     weighted_edges = get_edge_weights(reduced_model)
-    return jsonify([{'source': s, 'target': t, 'weight': w} for (s, t), w in weighted_edges])
+    return jsonify([{'source': str(s), 'target': str(t), 'weight': w} for (s, t), w in weighted_edges])
 
 
 @blueprint.route('/load_sub_models', methods=['GET'])
