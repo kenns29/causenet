@@ -221,12 +221,11 @@ export default class ContentPanel extends PureComponent {
   }
   _renderTooltip() {
     const {hoveredNodes} = this.state;
-    if (this.container && this.container.deck && hoveredNodes.length) {
-      const {deck} = this.container.deck;
+    if (this.container && this.container.getDeckObj()) {
       return (
         <React.Fragment>
           {hoveredNodes.map(({label, x, y}) => {
-            const [left, top] = deck.getViewports()[0].project([x, y]);
+            const [left, top] = this.container.project([x, y]);
             return (
               <div
                 key={label}

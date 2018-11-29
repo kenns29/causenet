@@ -75,9 +75,18 @@ def test_learn_parameters():
     return parameters
 
 
+def load_data_test():
+    from modules.service.data_utils import load_data
+    raw_data = load_data('raw_data_file')
+    normalized_data = load_data('normalized_raw_data_file')
+    data = load_data()
+    return raw_data, normalized_data, data
+
+
 if __name__ == '__main__':
-    import json
-    print(test_bn_edge_weights())
-    print(test_cards_permutation())
-    print(json.dumps(test_learn_parameters(), indent='\t'))
+    # import json
+    # # print(test_bn_edge_weights())
+    # # print(test_cards_permutation())
+    # # print(json.dumps(test_learn_parameters(), indent='\t'))
+    raw_data, normalized_data, data = load_data_test()
     print('---')

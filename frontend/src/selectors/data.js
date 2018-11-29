@@ -8,6 +8,7 @@ import {hierarchy as d3Hierarchy, cluster as d3Cluster} from 'd3-hierarchy';
 import {
   getTreeLeaves,
   cutTreeByDist,
+  cutTreeByDistToClustering,
   getCutTree,
   findMaxDistancePair,
   createNodeMap,
@@ -296,11 +297,19 @@ export const getId2DistanceFunction = createSelector(
   }
 );
 
+export const getHierarchicalClusteringCutClusters = createSelector(
+  [getRawHierarchicalClusteringTree, getHierarchicalClusteringCutThreshold],
+  cutTreeByDistToClustering
+);
+
+export const getHierachicalClusteringCutClusterNames = createSelector(
+  getHierarchicalClusteringCutClusters,
+  clusters => clusters.map(cluster => cluster.map(({name}) => name))
+);
+
 export const getHierachicalClusteringCut = createSelector(
   [getRawHierarchicalClusteringTree, getHierarchicalClusteringCutThreshold],
-  (tree, threshold) => {
-    return cutTreeByDist(tree, threshold);
-  }
+  cutTreeByDist
 );
 
 export const getHierachicalClusteringCutTree = createSelector(
@@ -353,7 +362,8 @@ export const getClusteringMatrixOrder = createSelector(
       id,
       name,
       rep,
-      isCluster: cluster.length > 1
+      isCluster: cluster.length > 1,
+      cluster
     }))
 );
 
@@ -376,9 +386,10 @@ export const getClusteringMatrix = createSelector(
     );
 
     const featureSelectionSet = new Set(featureSelection);
-    const order = matrixOrder.map(({rep: {name}, isCluster}) => ({
+    const order = matrixOrder.map(({rep: {name}, isCluster, cluster}) => ({
       name,
       isCluster,
+      cluster,
       isSelection: featureSelectionSet.has(name)
     }));
     return {

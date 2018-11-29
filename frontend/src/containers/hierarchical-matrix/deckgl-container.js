@@ -16,7 +16,8 @@ export default class Container extends PureComponent {
     super(props);
     this.state = {
       highlightedCell: null,
-      zoomScale: 1
+      zoomScale: 1,
+      zoomOffset: [0, 0]
     };
   }
   _computeTextLength = makeTextLengthComputer({fontSize: 10});
@@ -30,11 +31,6 @@ export default class Container extends PureComponent {
         : 50
       : 255;
   };
-  _toggleFeatureSelection = feature =>
-    this.props.requestToggleFeatureSelection(
-      feature,
-      this.props.featureSelection
-    );
   _renderMatrix() {
     const {
       matrix: {rows, cols, cells},
@@ -103,9 +99,7 @@ export default class Container extends PureComponent {
             : [255, 255, 255, 50],
         getLineWidth: 0,
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
-        pickable: true,
-        onClick: ({object}) =>
-          object && this._toggleFeatureSelection(object.name)
+        pickable: true
       }),
       new TextLayer({
         id: PANEL_ID_PREFIX + 'y-axis',
@@ -118,9 +112,7 @@ export default class Container extends PureComponent {
         ],
         getTextAnchor: 'start',
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
-        pickable: true,
-        onClick: ({object}) =>
-          object && this._toggleFeatureSelection(object.name)
+        pickable: true
       })
     ];
   }
@@ -165,9 +157,7 @@ export default class Container extends PureComponent {
             : [255, 255, 255, 50],
         getLineWidth: 0,
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
-        pickable: true,
-        onClick: ({object}) =>
-          object && this._toggleFeatureSelection(object.name)
+        pickable: true
       }),
       new TextLayer({
         id: PANEL_ID_PREFIX + 'x-axis',
@@ -181,9 +171,7 @@ export default class Container extends PureComponent {
         getAngle: 70,
         getTextAnchor: 'end',
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
-        pickable: true,
-        onClick: ({object}) =>
-          object && this._toggleFeatureSelection(object.name)
+        pickable: true
       })
     ];
   }
@@ -271,9 +259,8 @@ export default class Container extends PureComponent {
         top={0}
         layers={this._renderLayers()}
         getCursor={() => 'pointer'}
-        onZoom={zoomScale => {
-          this.setState({zoomScale});
-        }}
+        onZoom={zoomScale => this.setState({zoomScale})}
+        onMove={zoomOffset => this.setState({zoomOffset})}
       />
     );
   }

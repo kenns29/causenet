@@ -8,6 +8,7 @@ import NavPanel from './nav-panel';
 import HierarchicalMatrix from './hierarchical-matrix';
 import BayesianNetworkMatrix from './bayesian-network-matrix';
 import BayesianNetworkNodeLink from './bayesian-network-node-link';
+import BayesianNetworkNodeLinkView from './bayesian-network-node-link-view';
 import FeatureList from './feature-list';
 import ContentPanelCenter from './content-panel-center';
 import {updateScreenSize} from '../actions';
@@ -149,7 +150,7 @@ class AppContainer extends PureComponent {
                 />
               </Layout.Content>
               <Layout.Content style={this.bottomRightSubPanelStyle}>
-                <BayesianNetworkNodeLink
+                <BayesianNetworkNodeLinkView
                   width={this.props.bottomRightSubPanelSize[0]}
                   height={this.props.bottomRightSubPanelSize[1]}
                 />

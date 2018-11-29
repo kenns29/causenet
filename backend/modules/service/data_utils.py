@@ -96,6 +96,29 @@ def get_base_avg_data(data):
     return r_data
 
 
+def get_raw_categorical_column_value_converter(data, key):
+    index = 0
+    r_dict = dict()
+    for value in data[key]:
+        if value not in r_dict:
+            r_dict[value] = index
+            index += 1
+    return r_dict
+
+
+def get_column_normalized_data(data, range=[0, 1]):
+    r_data = data.copy()
+    for key in data.keys():
+        if not np.issubdtype(r_data[key].dtype, np.number):
+            value_converter = get_raw_categorical_column_value_converter(r_data, key)
+            r_data[key].replace(value_converter, inplace=True)
+        min = r_data[key].min()
+        max = r_data[key].max()
+        if min < max:
+            r_data[key] = range[0] + (r_data[key] - min) / (max - min) * (range[1] - range[0])
+    return r_data
+
+
 def get_feature_pdist(data, convert_categorical=False):
     """
     Compute the correlation distance [0, 2] between each features in the data.
@@ -105,10 +128,12 @@ def get_feature_pdist(data, convert_categorical=False):
     :param convert_categorical: specify if convert the categorical variables to numerical one
     :return: the condensed SciPy distance matrix
     """
-    r_data = data
+    r_data = data.copy()
     if convert_categorical:
-        value_converters = get_blip_value_converters(data)
-        r_data = to_blip_data(data, value_converters)
+        for key in r_data.keys():
+            if not np.issubdtype(r_data[key].dtype, np.number):
+                value_converter = get_raw_categorical_column_value_converter(r_data, key)
+                r_data[key].replace(value_converter, inplace=True)
     matrix = r_data.values.astype('double').transpose()
     return pdist(matrix, metric='correlation')
 
@@ -129,29 +154,9 @@ def get_index2col(data):
     return dict((index, value) for index, value in enumerate(data.keys()))
 
 
-def to_blip_str(data, value_converters=None):
-    """
-    Convert the data frame to the string format that blip recognizes:
-    * First line: list of variables names, separated by space;
-    * Second line: list of variables cardinalities, separated by space;
-    * Following lines: list of values taken by the variables in each datapoint, separated by space.
-
-    :param data: input data -- DataFrame
-    :param value_converters: (Optional) converts the categorical values in each feature to an integer
-    representation -- list<dict>
-    :return: the blip input string
-    """
-    val_converters = get_blip_value_converters(data) if not value_converters else value_converters
-    header = ' '.join([key.replace(' ', '$SPACE$') for key in data.keys()])
-    cards = ' '.join([str(data[col].cat.categories.size) for col in data])
-    values = '\n'.join([' '.join([str(val_converters[index][value])
-                                  for index, value in enumerate(row.get_values())]) for index, row in data.iterrows()])
-    return '\n'.join([header, cards, values])
-
-
 def to_blip_array(data, value_converters=None):
     """
-    Convert the data frame to the string format that blip recognizes:
+    Convert the data frame to the format that blip recognizes:
     * First line: list of variables names, separated by space;
     * Second line: list of variables cardinalities, separated by space;
     * Following lines: list of values taken by the variables in each datapoint, separated by space.
@@ -159,7 +164,7 @@ def to_blip_array(data, value_converters=None):
     :param data: input data -- DataFrame
     :param value_converters: (Optional) converts the categorical values in each feature to an integer
     representation -- list<dict>
-    :return: the blip input string
+    :return: the blip array
     """
     val_converters = get_blip_value_converters(data) if not value_converters else value_converters
     header = [index for index, key in enumerate(data.keys())]
@@ -169,7 +174,15 @@ def to_blip_array(data, value_converters=None):
     return [header, cards, *values]
 
 
-def to_blip_data(data, value_converters=None):
+def convert_data_values(data, value_converters=None):
+    """
+    Convert the values in the data frame to integers based on the value_converters
+
+    :param data: input data -- DataFrame
+    :param value_converters: (Optional) converts the categorical values in each feature to an integer
+    representation -- list<dict>
+    :return: the new data frame
+    """
     value_converters = get_blip_value_converters(data) if not value_converters else value_converters
     new_data = data.copy()
     keys = new_data.keys()
@@ -178,21 +191,17 @@ def to_blip_data(data, value_converters=None):
     return new_data
 
 
-def blip_data_to_blip_str(data):
-    header = ' '.join([key.replace(' ', '$SPACE$') for key in data.keys()])
-    cards = ' '.join([str(data[col].cat.categories.size) for col in data])
-    values = '\n'.join([' '.join([str(value) for value in row.get_values()]) for index, row in data.iterrows()])
-    return '\n'.join([header, cards, values])
+def to_blip_data(data, value_converters=None, convert_keys=False):
+    value_converters = get_blip_value_converters(data) if not value_converters else value_converters
+    converted_data = convert_data_values(data, value_converters)
+    keys = [index for index, key in enumerate(converted_data.keys())] if convert_keys else converted_data.keys()
+    card_data = DataFrame([[converted_data[col].cat.categories.size for col in converted_data]],
+                          index=['cards'], columns=keys, dtype='category')
+    return DataFrame(np.concatenate((card_data.values, converted_data.values)),
+                     index=['cards', *converted_data.index.tolist()], columns=keys)
 
 
 def to_blip_csv(data, value_converters=None):
-    value_converters = get_blip_value_converters(data) if not value_converters else value_converters
-    blip_data = to_blip_data(data, value_converters)
-    keys = [index for index, key in enumerate(blip_data.keys())]
-    blip_data.columns = keys
-    card_data = DataFrame([[blip_data[col].cat.categories.size for col in blip_data]],
-                          index=['cards'], columns=keys, dtype='category')
-    joint_data = DataFrame(np.concatenate((card_data.values, blip_data.values)),
-                           index=['cards', *blip_data.index.tolist()], columns=keys)
-    joint_data.to_csv(os.path.join(blip_data_dir, 'input.dat'),
-                      sep=' ', quotechar='"', quoting=csv.QUOTE_MINIMAL, index=False)
+    blip_data = to_blip_data(data, value_converters, convert_keys=True)
+    blip_data.to_csv(os.path.join(blip_data_dir, 'input.dat'),
+                     sep=' ', quotechar='"', quoting=csv.QUOTE_MINIMAL, index=False)

@@ -2,12 +2,13 @@ import os, pickle, json
 from fastcluster import linkage
 from pandas import read_csv, cut
 from setup import data_dir, metadata_dir, model_dir, data_config_dir, config_dir, model_config_dir
-from modules.service.data_utils import get_feature_pdist, get_base_avg_data
+from modules.service.data_utils import get_feature_pdist, get_base_avg_data, get_column_normalized_data
 
 
 data_config = {
     'test_0': {
         'raw_data_file': 'test_0_raw.bin',
+        'normalized_raw_data_file': 'test_0_normalized_raw.bin',
         'data_file': 'test_0.bin',
         'base_avg_data_file': 'test_0_base_avg.bin',
         'pdist_file': 'test_0_pdist.bin',
@@ -15,28 +16,48 @@ data_config = {
     },
     'fao_fused_spatio_temporal_cut_10': {
         'raw_data_file': 'fao_fused_spatio_temporal_cut_10_raw.bin',
+        'normalized_raw_data_file': 'fao_fused_spatio_temporal_cut_10_normalized_raw.bin',
         'data_file': 'fao_fused_spatio_temporal_cut_10.bin',
         'base_avg_data_file': 'fao_fused_spatio_temporal_cut_10_base_avg.bin',
         'pdist_file': 'fao_fused_spatio_temporal_cut_10_pdsit.bin',
         'clustering_file': 'fao_fused_spatio_temporal_cut_10_clustering.bin',
+    },
+    'fao_fused_bn_data_2013_cut_10': {
+        'raw_data_file': 'fao_fused_bn_data_2013_cut_10_raw.bin',
+        'normalized_raw_data_file': 'fao_fused_bn_data_2013_cut_10_normalized_raw.bin',
+        'data_file': 'fao_fused_bn_data_2013_cut_10.bin',
+        'base_avg_data_file': 'fao_fused_bn_data_2013_cut_10_base_avg.bin',
+        'pdist_file': 'fao_fused_bn_data_2013_cut_10_pdsit.bin',
+        'clustering_file': 'fao_fused_bn_data_2013_cut_10_clustering.bin',
     }
 }
 
 
 def load_test_0_data():
     raw_data = read_csv(os.path.join(metadata_dir, 'test.csv'))
-    data = raw_data.copy()
+    normalized_data = get_column_normalized_data(raw_data)
+    data = normalized_data.copy()
     for key in data:
         data[key] = data[key].astype('str').astype('category')
-    return raw_data, data
+    return raw_data, normalized_data, data
 
 
 def load_fused_fao_spatio_temporal_cut_10_data():
     raw_data = read_csv(os.path.join(metadata_dir, 'fused_spatio_temporal_bn_data.csv'), index_col=0)
-    data = raw_data.copy()
+    normalized_data = get_column_normalized_data(raw_data)
+    data = normalized_data.copy()
     for key in data:
         data[key] = cut(data[key], 10)
-    return raw_data, data
+    return raw_data, normalized_data, data
+
+
+def load_fused_fao_bn_2013_cut_10_data():
+    raw_data = read_csv(os.path.join(metadata_dir, 'fused_bn_data_2013.csv'), index_col=0)
+    normalized_data = get_column_normalized_data(raw_data)
+    data = normalized_data.copy()
+    for key in data:
+        data[key] = cut(data[key], 10)
+    return raw_data, normalized_data, data
 
 
 def init_data_dir():
@@ -88,10 +109,11 @@ def init_model_sub_dirs():
 
 
 def make_data(config, load_data):
-    raw_data, data = load_data()
+    raw_data, normalized_raw_data, data = load_data()
     save_binary_to_data_dir(raw_data, config['raw_data_file'])
+    save_binary_to_data_dir(normalized_raw_data, config['normalized_raw_data_file'])
     save_binary_to_data_dir(data, config['data_file'])
-    base_avg_data = get_base_avg_data(raw_data)
+    base_avg_data = get_base_avg_data(normalized_raw_data)
     save_binary_to_data_dir(base_avg_data, config['base_avg_data_file'])
     dist = get_feature_pdist(base_avg_data)
     save_binary_to_data_dir(dist, config['pdist_file'])
@@ -104,6 +126,8 @@ def make_datas():
     make_data(data_config['test_0'], load_test_0_data)
     # make fused spatio temporal data
     make_data(data_config['fao_fused_spatio_temporal_cut_10'], load_fused_fao_spatio_temporal_cut_10_data)
+    # make fused fao 2013 data
+    make_data(data_config['fao_fused_bn_data_2013_cut_10'], load_fused_fao_bn_2013_cut_10_data)
 
 
 if __name__ == '__main__':

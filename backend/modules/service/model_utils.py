@@ -1,10 +1,12 @@
 import os, pickle, subprocess, re, json, csv
 from collections import OrderedDict
+from pandas import DataFrame, cut
 from pgmpy.factors.discrete.CPD import TabularCPD
 from pgmpy.models import BayesianModel
 from modules.service.data_utils import get_current_dataset_name, get_index2col, \
     get_col2index, get_blip_value_converters, load_data, is_temporal_data, get_times, to_blip_csv
 from modules.service.utils import edges_to_child_adjacency_dict
+from modules.service.edge_weights import get_edge_weights
 from setup import blip_data_dir, blip_dir, model_dir, model_config_dir
 
 
@@ -23,13 +25,13 @@ def get_current_dataset_model_dir():
 
 
 def get_model(name):
-    with open(get_current_dataset_model_dir() + '/' + name, mode='rb') as file:
+    with open(os.path.join(get_current_dataset_model_dir(), name), mode='rb') as file:
         return pickle.load(file)
 
 
 def write_model(model, name):
     current_dataset_name = get_current_dataset_name()
-    with open(get_current_dataset_model_dir() + '/' + name, mode='wb') as file:
+    with open(os.path.join(get_current_dataset_model_dir(), name), mode='wb') as file:
         pickle.dump(model, file)
     with open(model_config_dir, mode='r+', encoding='utf-8') as file:
         config = json.load(file)
@@ -61,10 +63,10 @@ def delete_model(name):
             file.seek(0)
             json.dump(config, file, indent='\t')
             file.truncate()
-        if os.path.exists(current_dataset_model_dir + '/' + name):
-            os.remove(current_dataset_model_dir + '/' + name)
-        if os.path.exists(current_dataset_model_dir + '/weight.' + name):
-            os.remove(current_dataset_model_dir + '/weight.' + name)
+        if os.path.exists(os.path.join(current_dataset_model_dir, name)):
+            os.remove(os.path.join(current_dataset_model_dir, name))
+        if os.path.exists(os.path.join(current_dataset_model_dir, 'weight.' + name)):
+            os.remove(os.path.join(current_dataset_model_dir, 'weight.' + name))
         return model_stat
 
 
@@ -90,6 +92,47 @@ def write_weighted_edges(edges, name):
         json.dump(config, file, indent='\t')
         file.truncate()
     return edges
+
+
+def get_sub_models(name):
+    sub_models_dir = os.path.join(get_current_dataset_model_dir(), 'sub-models.' + name)
+    model_dict = dict()
+    for subdir, dirs, files in os.walk(sub_models_dir):
+        for key in files:
+            with open(os.path.join(sub_models_dir, key), mode='rb') as file:
+                model_dict[key] = pickle.load(file)
+    return model_dict
+
+
+def write_sub_models_within_cluster(model_dict, model_name):
+    if not model_dict:
+        return model_dict
+    current_dataset_name = get_current_dataset_name()
+    sub_models_dir = os.path.join(get_current_dataset_model_dir(), 'sub-models.' + model_name)
+    if not os.path.exists(sub_models_dir):
+        os.makedirs(sub_models_dir)
+    for key, model in model_dict.items():
+        with open(os.path.join(sub_models_dir, str(key)), mode='wb') as file:
+            pickle.dump(model, file)
+    with open(model_config_dir, mode='r+', encoding='utf-8') as file:
+        config = json.load(file)
+        status = config[current_dataset_name]
+        models = status['models']
+        models[model_name]['sub-models-folder'] = 'sub-models.' + model_name
+        file.seek(0)
+        json.dump(config, file, indent='\t')
+        file.truncate()
+    return model_dict
+
+
+def write_sub_models_edge_weights(weighted_edges_dict, model_name):
+    sub_models_dir = os.path.join(get_current_dataset_model_dir(), 'sub-models.' + str(model_name))
+    if not os.path.exists(sub_models_dir):
+        os.makedirs(sub_models_dir)
+    for key, weighted_edges in weighted_edges_dict.items():
+        with open(os.path.join(sub_models_dir, 'weight.' + str(key)), mode='wb') as file:
+            pickle.dump(weighted_edges, file)
+    return weighted_edges_dict
 
 
 def blip_learn_structure(data):
@@ -147,7 +190,7 @@ def parse_blip_edges(index2col, with_score=False, with_overall_score=False, outp
 
 def bilp_filter_backward_edges(index2col, col2index):
     print('filtering backward edges ...')
-    if not index2col or not re.match(re.compile(r'.+~\d{4}'), index2col[0]):
+    if not index2col or type(index2col[0]) is not str or not re.match(re.compile(r'.+~\d{4}'), index2col[0]):
         print('non-temporal variables detected, skip filtering ...')
         return
     structure, overall_score = parse_blip_edges(index2col,
@@ -263,13 +306,16 @@ def filter_cpds_by_edges(cpds, edges):
     return [cpd for cpd in cpds if cpd.variable in node_set]
 
 
-def train_model(data, name):
-    feature_selection = get_feature_selection()
+def train_model(data, name=None, feature_selection=None, do_write_model=True):
+    feature_selection = get_feature_selection() if feature_selection is None else feature_selection
     if is_temporal_data(data):
         feature_selection = [feature + '~' + str(time)
                              for feature in feature_selection for time in get_times(data, feature)] \
             if feature_selection is not None else None
     filtered_data = data.filter(feature_selection) if feature_selection is not None else data
+    if filtered_data.shape[1] < 2:
+        print('number of features < 2, skip training ...')
+        return None
     index2col = get_index2col(filtered_data)
     col2index = get_col2index(filtered_data)
     edges = learn_structure(filtered_data, index2col, col2index)
@@ -279,8 +325,53 @@ def train_model(data, name):
     filtered_cpds = filter_cpds_by_edges(cpds, edges)
     model.add_cpds(*filtered_cpds)
     model.check_model()
+    if do_write_model:
+        write_model(model, name)
+    return model
+
+
+def train_model_on_clusters(clusters, name, base_avg_data=None):
+    base_avg_data = load_data('base_avg_data_file') if base_avg_data is None else base_avg_data
+    data = DataFrame(columns=range(len(clusters)), index=base_avg_data.index)
+    for key, cluster in enumerate(clusters) if type(clusters) is list else clusters.items():
+        data[key] = base_avg_data.filter(cluster).mean(axis=1)
+    if data.shape[1] < 2:
+        print('number of features < 2, skip training ...')
+        return None
+    # temporally hard code the number of cut to 10
+    cut_n = 10
+    for key in data:
+        data[key] = cut(data[key], cut_n)
+    index2col = get_index2col(data)
+    col2index = get_col2index(data)
+    edges = learn_structure(data, index2col, col2index)
+    model = BayesianModel(edges)
+    cpds = blip_cpds_to_pgmpy_cpds(learn_parameters(index2col))
+    filtered_cpds = filter_cpds_by_edges(cpds, edges)
+    model.add_cpds(*filtered_cpds)
+    model.check_model()
     write_model(model, name)
     return model
+
+
+def train_sub_model_within_clusters(clusters, data=None, name=None):
+    data = load_data() if data is None else data
+    model_dict = dict()
+    for key, cluster in enumerate(clusters) if type(clusters) is list else clusters.items():
+        model = train_model(data, feature_selection=cluster, do_write_model=False)
+        if model:
+            model_dict[key] = model
+    if model_dict:
+        write_sub_models_within_cluster(model_dict, name)
+    return model_dict
+
+
+def calc_sub_models_edge_weights(model_dict, model_name):
+    if not model_dict:
+        return model_dict
+    weighted_edges_dict = dict((key, get_edge_weights(model)) for key, model in model_dict.items())
+    write_sub_models_edge_weights(weighted_edges_dict, model_name)
+    return weighted_edges_dict
 
 
 def get_model_list():

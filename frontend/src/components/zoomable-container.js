@@ -81,15 +81,19 @@ export default class ZoomableContainer extends PureComponent {
     } else {
       this._zoomOut();
     }
+    event.stopPropagation();
   };
   _handleMouseDown = event => {
     this._moveStart(event);
+    event.stopPropagation();
   };
   _handleMouseMove = event => {
     this._moveOn(event);
+    event.stopPropagation();
   };
   _handleMouseUp = event => {
     this._moveEnd();
+    event.stopPropagation();
   };
   componentDidUpdate = (prevProps, prevState) => {
     if (this.state.zoomScale !== prevState.zoomScale) {
@@ -99,6 +103,11 @@ export default class ZoomableContainer extends PureComponent {
       this.props.onMove(this.state.zoomOffset);
     }
   };
+  getDeckObj = () => this.deck;
+  project = ([x, y]) =>
+    this.deck ? this.deck.deck.getViewports()[0].project([x, y]) : [x, y];
+  unproject = ([x, y]) =>
+    this.deck ? this.deck.deck.getViewports()[0].unproject([x, y]) : [x, y];
   render() {
     const {
       left,
