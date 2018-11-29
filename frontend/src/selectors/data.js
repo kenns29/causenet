@@ -302,6 +302,11 @@ export const getHierarchicalClusteringCutClusters = createSelector(
   cutTreeByDistToClustering
 );
 
+export const getHierachicalClusteringCutClusterNames = createSelector(
+  getHierarchicalClusteringCutClusters,
+  clusters => clusters.map(cluster => cluster.map(({name}) => name))
+);
+
 export const getHierachicalClusteringCut = createSelector(
   [getRawHierarchicalClusteringTree, getHierarchicalClusteringCutThreshold],
   cutTreeByDist

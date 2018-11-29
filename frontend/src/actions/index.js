@@ -270,7 +270,7 @@ export const requestTrainSubBayesianModelsWithinCluster = ({
 }) => async dispatch => {
   try {
     const response = await fetch(
-      `${BACKEND_URL}/train_sub_bayesian_model_within_clusters`,
+      `${BACKEND_URL}/train_sub_bayesian_model_within_clusters?name=${name}`,
       {
         method: 'POST',
         body: JSON.stringify(clusters)

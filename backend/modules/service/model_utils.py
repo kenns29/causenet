@@ -6,6 +6,7 @@ from pgmpy.models import BayesianModel
 from modules.service.data_utils import get_current_dataset_name, get_index2col, \
     get_col2index, get_blip_value_converters, load_data, is_temporal_data, get_times, to_blip_csv
 from modules.service.utils import edges_to_child_adjacency_dict
+from modules.service.edge_weights import get_edge_weights
 from setup import blip_data_dir, blip_dir, model_dir, model_config_dir
 
 
@@ -111,7 +112,7 @@ def write_sub_models_within_cluster(model_dict, model_name):
     if not os.path.exists(sub_models_dir):
         os.makedirs(sub_models_dir)
     for key, model in model_dict.items():
-        with open(os.path.join(sub_models_dir, key), mode='wb') as file:
+        with open(os.path.join(sub_models_dir, str(key)), mode='wb') as file:
             pickle.dump(model, file)
     with open(model_config_dir, mode='r+', encoding='utf-8') as file:
         config = json.load(file)
@@ -125,11 +126,11 @@ def write_sub_models_within_cluster(model_dict, model_name):
 
 
 def write_sub_models_edge_weights(weighted_edges_dict, model_name):
-    sub_models_dir = os.path.join(get_current_dataset_model_dir(), 'sub-models.' + model_name)
+    sub_models_dir = os.path.join(get_current_dataset_model_dir(), 'sub-models.' + str(model_name))
     if not os.path.exists(sub_models_dir):
         os.makedirs(sub_models_dir)
     for key, weighted_edges in weighted_edges_dict.items():
-        with open(os.path.join(sub_models_dir, 'weight.' + key), mode='wb') as file:
+        with open(os.path.join(sub_models_dir, 'weight.' + str(key)), mode='wb') as file:
             pickle.dump(weighted_edges, file)
     return weighted_edges_dict
 
@@ -189,7 +190,7 @@ def parse_blip_edges(index2col, with_score=False, with_overall_score=False, outp
 
 def bilp_filter_backward_edges(index2col, col2index):
     print('filtering backward edges ...')
-    if not index2col or not re.match(re.compile(r'.+~\d{4}'), index2col[0]):
+    if not index2col or type(index2col[0]) is not str or not re.match(re.compile(r'.+~\d{4}'), index2col[0]):
         print('non-temporal variables detected, skip filtering ...')
         return
     structure, overall_score = parse_blip_edges(index2col,
@@ -312,6 +313,9 @@ def train_model(data, name=None, feature_selection=None, do_write_model=True):
                              for feature in feature_selection for time in get_times(data, feature)] \
             if feature_selection is not None else None
     filtered_data = data.filter(feature_selection) if feature_selection is not None else data
+    if filtered_data.shape[1] < 2:
+        print('number of features < 2, skip training ...')
+        return None
     index2col = get_index2col(filtered_data)
     col2index = get_col2index(filtered_data)
     edges = learn_structure(filtered_data, index2col, col2index)
@@ -331,6 +335,9 @@ def train_model_on_clusters(clusters, name, base_avg_data=None):
     data = DataFrame(columns=range(len(clusters)), index=base_avg_data.index)
     for key, cluster in enumerate(clusters) if type(clusters) is list else clusters.items():
         data[key] = base_avg_data.filter(cluster).mean(axis=1)
+    if data.shape[1] < 2:
+        print('number of features < 2, skip training ...')
+        return None
     # temporally hard code the number of cut to 10
     cut_n = 10
     for key in data:
@@ -349,16 +356,20 @@ def train_model_on_clusters(clusters, name, base_avg_data=None):
 
 def train_sub_model_within_clusters(clusters, data=None, name=None):
     data = load_data() if data is None else data
-    model_dict = dict((key, train_model(data, feature_selection=cluster, do_write_model=False))
-                      for key, cluster in (enumerate(clusters) if type(clusters) is list else clusters.items()))
-    write_sub_models_within_cluster(model_dict, name)
+    model_dict = dict()
+    for key, cluster in enumerate(clusters) if type(clusters) is list else clusters.items():
+        model = train_model(data, feature_selection=cluster, do_write_model=False)
+        if model:
+            model_dict[key] = model
+    if model_dict:
+        write_sub_models_within_cluster(model_dict, name)
     return model_dict
 
 
 def calc_sub_models_edge_weights(model_dict, model_name):
     if not model_dict:
         return model_dict
-    weighted_edges_dict = dict((key, get_weighted_edges(model)) for key, model in model_dict.items())
+    weighted_edges_dict = dict((key, get_edge_weights(model)) for key, model in model_dict.items())
     write_sub_models_edge_weights(weighted_edges_dict, model_name)
     return weighted_edges_dict
 
