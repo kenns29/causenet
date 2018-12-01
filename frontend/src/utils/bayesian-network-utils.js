@@ -24,15 +24,17 @@ export const createDagLayout = ({nodes, links}) => {
   dag.setGraph({rankdir: 'LR', ranker: 'tight-tree'});
   dag.setDefaultEdgeLabel(() => {});
   nodes.forEach(node => {
-    dag.setNode(node.label, {...node, width: 30, height: 30});
+    dag.setNode(node.label, {
+      ...node,
+      width: node.width + 10,
+      height: node.height + 10
+    });
   });
-  links.forEach(({source, target, weight, isRemoved}) => {
-    dag.setEdge(source.label, target.label, {weight, isRemoved});
+  links.forEach(({source, target, ...rest}) => {
+    dag.setEdge(source.label, target.label, {...rest});
   });
   dagre.layout(dag);
-  const layoutNodes = dag
-    .nodes()
-    .map(v => Object.assign(dag.node(v), {width: 20, height: 20}));
+  const layoutNodes = dag.nodes().map(v => Object.assign(dag.node(v)));
   const layoutEdges = dag.edges().map(e => {
     const edge = dag.edge(e);
     return {

@@ -124,16 +124,19 @@ def load_modifed_model():
 def load_sub_models():
     name = request.args.get('name') if request.args.get('name') else 'model.bin'
     model_dict = get_sub_models(name)
-    return jsonify(dict((key, [{
-                                'source': s,
-                                'target': t,
-                                'weight': w
-                               } for (s, t), w in item['weighted_edges']]
-                        if 'weighted_edges' in item else
-                              [{
-                                'source': s,
-                                'target': t
-                               } for s, t in item['model'].edges()])
+    return jsonify(dict((key, {
+        'edges': [{
+            'source': s,
+            'target': t,
+            'weight': w
+        } for (s, t), w in item['weighted_edges']]
+        if 'weighted_edges' in item else
+        [{
+            'source': s,
+            'target': t
+        } for s, t in item['model'].edges()],
+        'nodes': item['model'].nodes()
+    })
                         for key, item in model_dict.items()))
 
 
