@@ -83,10 +83,17 @@ def load_data_test():
     return raw_data, normalized_data, data
 
 
+def load_full_features_test():
+    from modules.service.model_utils import get_full_model_features
+    features = get_full_model_features('model-1')
+    return features
+
+
 if __name__ == '__main__':
     # import json
     # # print(test_bn_edge_weights())
     # # print(test_cards_permutation())
     # # print(json.dumps(test_learn_parameters(), indent='\t'))
-    raw_data, normalized_data, data = load_data_test()
+    # raw_data, normalized_data, data = load_data_test()
+    features = load_full_features_test()
     print('---')

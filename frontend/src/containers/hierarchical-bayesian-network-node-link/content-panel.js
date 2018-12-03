@@ -1,12 +1,19 @@
 import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
 import {Spin} from 'antd';
-import {getIsFetchingModifiedBayesianNetwork} from '../../selectors/data';
+import DeckGLContainer from './deckgl-container';
+import {
+  getIsFetchingModifiedBayesianNetwork,
+  getClusterBayesianNetworkNodeLinkLayout
+} from '../../selectors/data';
 
 const mapDispatchToProps = {};
 
 const mapStateToProps = state => ({
-  isFetchingModifiedBayesianNetwork: getIsFetchingModifiedBayesianNetwork(state)
+  isFetchingModifiedBayesianNetwork: getIsFetchingModifiedBayesianNetwork(
+    state
+  ),
+  clusterNodeLink: getClusterBayesianNetworkNodeLinkLayout(state)
 });
 
 class ContentPanel extends PureComponent {
@@ -27,6 +34,7 @@ class ContentPanel extends PureComponent {
             style={{position: 'absolute', left: width / 2, top: height / 2}}
           />
         )}
+        <DeckGLContainer {...this.props} />
       </div>
     );
   }

@@ -1,8 +1,7 @@
 import {createSelector} from 'reselect';
-import {rootSelector} from './base';
 import Matrix, {links2generator, flattener, sort2d} from 'sortable-matrix';
-import {scaleSequential, scaleDiverging} from 'd3-scale';
-import {interpolateGreys, interpolateRdBu} from 'd3-scale-chromatic';
+import {scaleDiverging} from 'd3-scale';
+import {interpolateRdBu} from 'd3-scale-chromatic';
 import {rgb} from 'd3-color';
 import {hierarchy as d3Hierarchy, cluster as d3Cluster} from 'd3-hierarchy';
 import {
@@ -10,264 +9,18 @@ import {
   cutTreeByDist,
   cutTreeByDistToClustering,
   getCutTree,
-  findMaxDistancePair,
-  createNodeMap,
-  createBayesianNetworkNodeLinkLayout
-} from '../utils';
+  findMaxDistancePair
+} from '../../utils';
+import {rootSelector} from '../base';
+import {
+  getRawHierarchicalClusteringTree,
+  getRawDistanceMap,
+  getRawFeatureSelection,
+  getHierarchicalClusteringCutThreshold
+} from './raw.js';
 
-// These are temporary constants to act as a placeholder for the corresponding states
-const BAYESIAN_NETWORK_MATRIX_PADDINGS = [100, 100];
-const BAYESIAN_NETWORK_MATRIX_CELL_SIZE = [20, 20];
 const CLUSTERING_MATRIX_PADDINGS = [100, 100];
 const CLUSTERING_MATRIX_CELL_SIZE = [10, 10];
-
-export const getCurrentDatasetName = createSelector(
-  rootSelector,
-  state => state.currentDatasetName
-);
-
-export const getDatasetList = createSelector(
-  rootSelector,
-  state => state.datasetList
-);
-
-export const getModelList = createSelector(
-  rootSelector,
-  state => state.modelList
-);
-
-export const getSelectedModel = createSelector(
-  rootSelector,
-  state => state.selectedModel
-);
-
-export const getIsFetchingModifiedBayesianNetwork = createSelector(
-  rootSelector,
-  state => state.isFetchingModifiedBayesianNetwork
-);
-
-export const getRawBayesianNetwork = createSelector(
-  rootSelector,
-  state => state.bayesianNetwork
-);
-
-export const getRawModifiedBayesianNetwork = createSelector(
-  rootSelector,
-  state => state.modifiedBayesianNetwork
-);
-
-export const getRawBayesianModelFeatures = createSelector(
-  rootSelector,
-  state => state.bayesianModelFeatures
-);
-
-export const getRawBayesianModelFeatureValueSelectionMap = createSelector(
-  rootSelector,
-  state => state.bayesianModelFeatureValueSelectionMap
-);
-
-export const getHighlightedBayesianNetworkEdge = createSelector(
-  rootSelector,
-  state => state.highlightedBayesianNetworkEdge
-);
-
-export const getHighlightedBayesianModelFeature = createSelector(
-  rootSelector,
-  state => state.highlightedBayesianModelFeature
-);
-
-export const getHierarchicalClusteringOption = createSelector(
-  rootSelector,
-  state => state.hierarchicalClusteringOption
-);
-
-export const getRawHierarchicalClusteringTree = createSelector(
-  rootSelector,
-  state => state.hierarchicalClusteringTree
-);
-
-export const getHierarchicalClusteringCutThreshold = createSelector(
-  rootSelector,
-  state => state.hierarchicalClusteringCutThreshold
-);
-
-export const getRawDistanceMap = createSelector(
-  rootSelector,
-  state => state.distanceMap
-);
-
-export const getRawFeatureSelection = createSelector(
-  rootSelector,
-  state => state.featureSelection
-);
-
-export const getRawFeatureValuesMap = createSelector(
-  rootSelector,
-  state => state.featureValuesMap
-);
-
-export const getNodeLinkViewOptions = createSelector(
-  rootSelector,
-  state => state.nodeLinkViewOptions
-);
-
-export const getIsTemporalBayesianNetwork = createSelector(
-  getRawBayesianNetwork,
-  rawBayesianNetwork =>
-    !rawBayesianNetwork.some(
-      ({source, target}) => !source.includes('~') || !target.includes('~')
-    )
-);
-
-export const getBayesianModelFeatures = createSelector(
-  [getRawBayesianModelFeatures, getRawFeatureValuesMap],
-  (features, featureValuesMap) =>
-    features.map(feature => ({
-      feature,
-      values: featureValuesMap[feature]
-    }))
-);
-
-/**
- * Obtain a map (label -> Node) in the Bayesian network
- * @param {Array} rawBayesianNetwork
- * @return {Object} the map
- */
-export const getNodeMap = createSelector(getRawBayesianNetwork, createNodeMap);
-
-/**
- * Obtain a map (label -> Node) in the modified Bayesian network
- * @param {Array} rawModifiedBayesianNetwork
- * @return {Object} the map
- */
-export const getModifiedNodeMap = createSelector(
-  getRawModifiedBayesianNetwork,
-  createNodeMap
-);
-
-/**
- * Obtain a map ('sourceId-targetId' -> link) in the modified Bayesian network
- */
-export const getModifiedLinkMap = createSelector(
-  getRawModifiedBayesianNetwork,
-  data =>
-    data.reduce(
-      (map, link) =>
-        Object.assign(map, {[link.source + '-' + link.target]: link}),
-      {}
-    )
-);
-
-/**
- * Obtain the Bayesian Network in matrix form. The resulting matrix is flattened
- * @param {Array} rawBayesianNetwork
- * @return {Object} the flattened matrix:
- * rows: matrix rows -- Array of labels
- * cols: matrix columns -- Array of labels
- * cells: matrix cells -- Array of cells
- */
-export const getMatrix = createSelector(getRawModifiedBayesianNetwork, data => {
-  const generate = links2generator()
-    .links(data)
-    .source(d => d.source)
-    .target(d => d.target)
-    .value(d => d.weight)
-    .null(0);
-  const matrix = sort2d(generate());
-  const {rows, cols, cells} = flattener().matrix(matrix);
-  return {rows: rows(), cols: cols(), cells: cells()};
-});
-
-export const getMatrixDomain = createSelector(
-  getMatrix,
-  ({rows, cols, cells}) => {
-    let [min, max] = [Infinity, -Infinity];
-    cells.forEach(({value}) => {
-      if (min > value) {
-        min = value;
-      }
-      if (max < value) {
-        max = value;
-      }
-    });
-    return [min, max];
-  }
-);
-
-export const getMatrixPaddings = createSelector(
-  rootSelector,
-  state => BAYESIAN_NETWORK_MATRIX_PADDINGS
-);
-
-export const getMatrixCellSize = createSelector(
-  rootSelector,
-  state => BAYESIAN_NETWORK_MATRIX_CELL_SIZE
-);
-
-/**
- * Obtain the Bayesian Network matrix layout
- */
-export const getMatrixLayout = createSelector(
-  [getMatrix, getMatrixCellSize, getMatrixDomain],
-  ({rows, cols, cells}, [w, h], [min, max]) => {
-    const scale = scaleSequential(interpolateGreys).domain([0, max]);
-    return {
-      rows,
-      cols,
-      cells: cells.map(cell => {
-        const {r, g, b} = rgb(scale(cell.value));
-        return {
-          ...cell,
-          x: cell.col_index * w,
-          y: cell.row_index * h,
-          w,
-          h,
-          color: [r, g, b]
-        };
-      })
-    };
-  }
-);
-
-/**
- * Obtain the node-link data for the Bayesian Network
- */
-export const getBayesianNetworkNodeLink = createSelector(
-  [
-    getRawBayesianNetwork,
-    getModifiedLinkMap,
-    getNodeMap,
-    getModifiedNodeMap,
-    getRawBayesianModelFeatureValueSelectionMap
-  ],
-  (
-    rawLinks,
-    modifiedLinkMap,
-    nodeMap,
-    modifiedNodeMap,
-    featureValueSelectionMap
-  ) => {
-    const newNodeMap = Object.entries(nodeMap).reduce(
-      (map, [key, node]) =>
-        Object.assign(map, {
-          [key]: {
-            ...node,
-            isModified: featureValueSelectionMap.hasOwnProperty(node.label),
-            isRemoved: !modifiedNodeMap.hasOwnProperty(node.label)
-          }
-        }),
-      {}
-    );
-    const nodes = Object.values(newNodeMap);
-    const links = rawLinks.map(({source, target, weight}) => ({
-      source: newNodeMap[source],
-      target: newNodeMap[target],
-      weight,
-      isRemoved: !modifiedLinkMap.hasOwnProperty(source + '-' + target)
-    }));
-    return {nodes, links};
-  }
-);
 
 /**
  * Obtain the list of all available features ordered acccording to the clustering
@@ -277,12 +30,6 @@ export const getBayesianNetworkNodeLink = createSelector(
 export const getFeatureList = createSelector(
   getRawHierarchicalClusteringTree,
   tree => getTreeLeaves(tree).map(d => d.name)
-);
-
-export const getBayesianNetworkNodeLinkLayout = createSelector(
-  [getBayesianNetworkNodeLink, getFeatureList, getIsTemporalBayesianNetwork],
-  (nodeLink, features, isTemporal) =>
-    createBayesianNetworkNodeLinkLayout(nodeLink, features, isTemporal)
 );
 
 export const getId2DistanceFunction = createSelector(
