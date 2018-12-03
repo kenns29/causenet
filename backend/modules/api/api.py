@@ -143,7 +143,7 @@ def load_sub_models():
 @blueprint.route('/load_model_features', methods=['GET'])
 def load_model_features():
     name = request.args.get('name') if request.args.get('name') else 'model.bin'
-    return jsonify(get_model(name).nodes())
+    return jsonify([str(node) for node in get_model(name).nodes()])
 
 
 @blueprint.route('/load_feature_values_map', methods=['GET'])

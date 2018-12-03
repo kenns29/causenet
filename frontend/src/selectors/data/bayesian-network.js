@@ -98,7 +98,7 @@ export const getBayesianNetworkNodeLink = createSelector(
 export const getBayesianNetworkNodeLinkLayoutData = createSelector(
   getBayesianNetworkNodeLink,
   ({nodes, links}) => ({
-    nodes: nodes.map(node => ({...node, width: 20, height: 20})),
+    nodes: nodes.map(node => Object.assign(node, {width: 20, height: 20})),
     links
   })
 );

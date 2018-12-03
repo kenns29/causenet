@@ -8,6 +8,7 @@ import {
   fetchBayesianNetwork,
   fetchModifiedBayesianNetwork,
   fetchClusterBayesianNetwork,
+  fetchClusterBayesianModelFeatures,
   fetchSubBayesianNetworks,
   fetchBayesianModelFeatures,
   fetchModelFeatureValueSelectionMap,
@@ -20,6 +21,7 @@ const mapDispatchToProps = {
   fetchBayesianNetwork,
   fetchModifiedBayesianNetwork,
   fetchClusterBayesianNetwork,
+  fetchClusterBayesianModelFeatures,
   fetchSubBayesianNetworks,
   fetchBayesianModelFeatures,
   fetchModelFeatureValueSelectionMap,
@@ -44,10 +46,9 @@ class ModelList extends PureComponent {
         selectData={async({key: name, is_cluster_model: isClusterModel}) => {
           if (isClusterModel === 'true') {
             this.props.updateSelectedModel(name);
-            await Promise.all([
-              this.props.fetchClusterBayesianNetwork({name}),
-              this.props.fetchSubBayesianNetworks({name})
-            ]);
+            this.props.fetchClusterBayesianNetwork({name});
+            this.props.fetchClusterBayesianModelFeatures({name});
+            this.props.fetchSubBayesianNetworks({name});
           } else {
             this.props.updateSelectedModel(name);
             this.props.fetchBayesianModelFeatures({name});

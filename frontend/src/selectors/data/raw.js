@@ -41,6 +41,11 @@ export const getRawClusterBayesianNetwork = createSelector(
   state => state.clusterBayesianNetwork
 );
 
+export const getRawClusterBayesianModelFeatures = createSelector(
+  rootSelector,
+  state => state.clusterBayesianModelFeatures
+);
+
 export const getRawSubBayesianNetworkMap = createSelector(
   rootSelector,
   state => state.subBayesianNetworkMap

@@ -29,8 +29,33 @@ export default class ContentPanel extends PureComponent {
       zoomOffset: [0, 0]
     };
   }
+  _renderClusterNodes() {
+    const {
+      clusterNodeLink: {nodes}
+    } = this.props;
+    return [
+      new PolygonLayer({
+        id: ID + '-stroked-scatterplot-layer',
+        data: nodes,
+        getPolygon: ({x, y, width: w, height: h}) => [
+          [x - w / 2, y - h / 2],
+          [x + w / 2, y - h / 2],
+          [x + w / 2, y + h / 2],
+          [x - w / 2, y + h / 2],
+          [x - w / 2, y - h / 2]
+        ],
+        getFillColor: () => [255, 255, 255, 255],
+        getLineColor: () => [64, 64, 64, 255],
+        getLineWidth: 2,
+        coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+        pickable: true,
+        onHover: ({object}) =>
+          this.setState({hoveredNodes: object ? [object] : []})
+      })
+    ];
+  }
   _renderLayers() {
-    return [];
+    return [...this._renderClusterNodes()];
   }
   render() {
     const {width, height} = this.props;

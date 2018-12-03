@@ -10,6 +10,7 @@ import {
   UPDATE_BAYESIAN_NETWORK,
   UPDATE_MODIFIED_BAYSIAN_NETWORK,
   UPDATE_CLUSTER_BAYESIAN_NETWORK,
+  UPDATE_CLUSTER_BAYESIAN_MODEL_FEATURES,
   UPDATE_SUB_BAYESIAN_NETWORK_MAP,
   UPDATE_SUB_BAYESIAN_MODEL_FEATURES_MAP,
   UPDATE_BAYESIAN_MODEL_FEATURES,
@@ -65,7 +66,9 @@ const DEFAULT_STATE = {
   //  },
   //  ...]
   clusterBayesianNetwork: [],
-  // the sub Bayesian Network within the clusters:
+  // The complete list of features of the selected cluster bayesian model
+  clusterBayesianModelFeatures: [],
+  // the sub Bayesian Network within the clusters, omits one item clusters
   // {
   //  cluster_id: [
   //    {
@@ -77,7 +80,7 @@ const DEFAULT_STATE = {
   //  ],
   // ...}
   subBayesianNetworkMap: {},
-  // the sub Bayesian Network features:
+  // the sub Bayesian Network features, omits one item clusters
   // {
   //  cluster_id: [
   //    feature_name,
@@ -175,6 +178,11 @@ const handleUpdateClusterBayesianNetwork = (state, {payload}) => ({
   clusterBayesianNetwork: payload
 });
 
+const handleUpdateClusterBayesianModelFeatures = (state, {payload}) => ({
+  ...state,
+  clusterBayesianModelFeatures: payload
+});
+
 const handleUpdateSubBayesianNetworkMap = (state, {payload}) => ({
   ...state,
   subBayesianNetworkMap: payload
@@ -269,6 +277,7 @@ export default handleActions(
     [UPDATE_MODIFIED_BAYSIAN_NETWORK]: handleUpdateModifiedBayesianNetwork,
     [UPDATE_BAYESIAN_MODEL_FEATURES]: handleUpdateBayesianModelFeatures,
     [UPDATE_CLUSTER_BAYESIAN_NETWORK]: handleUpdateClusterBayesianNetwork,
+    [UPDATE_CLUSTER_BAYESIAN_MODEL_FEATURES]: handleUpdateClusterBayesianModelFeatures,
     [UPDATE_SUB_BAYESIAN_NETWORK_MAP]: handleUpdateSubBayesianNetworkMap,
     [UPDATE_SUB_BAYESIAN_MODEL_FEATURES_MAP]: handleUpdateSubBayesianModelFeaturesMap,
     [UPDATE_BAYESIAN_MODEL_FEATURE_VALUE_SELECTION_MAP]: handleUpdateBayesianModelFeatureValueSelectionMap,

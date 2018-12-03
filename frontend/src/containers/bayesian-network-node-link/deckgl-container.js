@@ -20,7 +20,7 @@ const tooltipStyle = {
   pointerEvents: 'none'
 };
 
-const FORWARD_EDGE_COLOR = [8, 200, 8];
+const FORWARD_EDGE_COLOR = [8, 8, 8];
 const BACKWARD_EDGE_COLOR = [200, 8, 8];
 
 export default class ContentPanel extends PureComponent {

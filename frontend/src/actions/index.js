@@ -18,6 +18,8 @@ export const UPDATE_MODIFIED_BAYSIAN_NETWORK =
   'UPDATE_MODIFIED_BAYSIAN_NETWORK';
 export const UPDATE_CLUSTER_BAYESIAN_NETWORK =
   'UPDATE_CLUSTER_BAYESIAN_NETWORK';
+export const UPDATE_CLUSTER_BAYESIAN_MODEL_FEATURES =
+  'UPDATE_CLUSTER_BAYESIAN_MODEL_FEATURES';
 export const UPDATE_SUB_BAYESIAN_NETWORK_MAP =
   'UPDATE_SUB_BAYESIAN_NETWORK_MAP';
 export const UPDATE_SUB_BAYESIAN_MODEL_FEATURES_MAP =
@@ -69,6 +71,9 @@ export const updateModifiedBayesianNetwork = createAction(
 );
 export const updateClusterBayesianNetwork = createAction(
   UPDATE_CLUSTER_BAYESIAN_NETWORK
+);
+export const updateClusterBayesianModelFeatures = createAction(
+  UPDATE_CLUSTER_BAYESIAN_MODEL_FEATURES
 );
 export const updateSubBayesianNetworkMap = createAction(
   UPDATE_SUB_BAYESIAN_NETWORK_MAP
@@ -181,6 +186,21 @@ export const fetchClusterBayesianNetwork = ({
     const response = await fetch(`${BACKEND_URL}/load_model?name=${name}`);
     const data = await response.json();
     dispatch(updateClusterBayesianNetwork(data));
+    return Promise.resolve(data);
+  } catch (err) {
+    throw new Error(err);
+  }
+};
+
+export const fetchClusterBayesianModelFeatures = ({
+  name = 'model'
+}) => async dispatch => {
+  try {
+    const response = await fetch(
+      `${BACKEND_URL}/load_model_features?name=${name}`
+    );
+    const data = await response.json();
+    dispatch(updateClusterBayesianModelFeatures(data));
     return Promise.resolve(data);
   } catch (err) {
     throw new Error(err);
