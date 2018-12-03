@@ -76,8 +76,8 @@ export const getClusterBayesianNetworkNodeLinkLayoutData = createSelector(
   ({nodes, links}) => ({
     nodes: nodes.map(node =>
       Object.assign(node, {
-        width: node.cluster.length * 20,
-        height: node.cluster.length * 20
+        width: Math.log(node.cluster.length) * 20,
+        height: Math.log(node.cluster.length) * 20
       })
     ),
     links

@@ -1,5 +1,5 @@
 import React, {PureComponent} from 'react';
-import {TextLayer, PolygonLayer, COORDINATE_SYSTEM} from 'deck.gl';
+import {TextLayer, PolygonLayer, PathLayer, COORDINATE_SYSTEM} from 'deck.gl';
 import ZoomableContainer from '../../components/zoomable-container';
 import {
   StrokedScatterplotLayer,
@@ -54,8 +54,57 @@ export default class ContentPanel extends PureComponent {
       })
     ];
   }
+  _renderClusterEdges() {
+    const {
+      clusterNodeLink: {edges}
+    } = this.props;
+    return [
+      new PathLayer({
+        id: ID + '-path-layer',
+        data: edges,
+        getPath: ({points}) => points,
+        getColor: [64, 64, 64, 255],
+        getWidth: () => 2,
+        coordinateSystem: COORDINATE_SYSTEM.IDENTITY
+      })
+    ];
+  }
+  _renderArrows() {
+    const {
+      clusterNodeLink: {edges}
+    } = this.props;
+    return [
+      new PolygonLayer({
+        id: ID + '-arrow-layer',
+        data: edges,
+        getPolygon: ({points}) =>
+          makeLineArrow({
+            line: points.slice(points.length - 2),
+            l: 10,
+            w: 5
+          }),
+        getFillColor: ({sourceId, targetId, isRemoved, isBackward}) => [
+          64,
+          64,
+          64,
+          255
+        ],
+        getLineColor: ({sourceId, targetId, isRemoved, isBackward}) => [
+          64,
+          64,
+          64,
+          255
+        ],
+        coordinateSystem: COORDINATE_SYSTEM.IDENTITY
+      })
+    ];
+  }
   _renderLayers() {
-    return [...this._renderClusterNodes()];
+    return [
+      ...this._renderClusterNodes(),
+      ...this._renderClusterEdges(),
+      ...this._renderArrows()
+    ];
   }
   render() {
     const {width, height} = this.props;
