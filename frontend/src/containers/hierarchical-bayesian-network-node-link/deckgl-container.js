@@ -9,17 +9,6 @@ import {makeLineArrow} from '../../utils';
 
 const ID = 'hierarchical-bayesian-network-node-link';
 
-const tooltipStyle = {
-  position: 'absolute',
-  padding: '4px',
-  background: 'rgba(0, 0, 0, 0.8)',
-  color: '#fff',
-  maxWidth: '300px',
-  fontSize: '10px',
-  zIndex: 9,
-  pointerEvents: 'none'
-};
-
 export default class ContentPanel extends PureComponent {
   constructor(props) {
     super(props);
@@ -35,7 +24,7 @@ export default class ContentPanel extends PureComponent {
     } = this.props;
     return [
       new PolygonLayer({
-        id: ID + '-stroked-scatterplot-layer',
+        id: ID + '-nodes-layer',
         data: nodes,
         getPolygon: ({x, y, width: w, height: h}) => [
           [x - w / 2, y - h / 2],
@@ -48,9 +37,7 @@ export default class ContentPanel extends PureComponent {
         getLineColor: () => [64, 64, 64, 255],
         getLineWidth: 2,
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
-        pickable: true,
-        onHover: ({object}) =>
-          this.setState({hoveredNodes: object ? [object] : []})
+        pickable: true
       })
     ];
   }
@@ -106,29 +93,6 @@ export default class ContentPanel extends PureComponent {
       ...this._renderArrows()
     ];
   }
-  _renderTooltip() {
-    const {hoveredNodes} = this.state;
-    if (this.container && this.container.getDeckObj()) {
-      return (
-        <React.Fragment>
-          {hoveredNodes.map(({label, x, y, cluster}) => {
-            const [left, top] = this.container.project([x, y]);
-            return (
-              <div
-                key={label}
-                style={{...tooltipStyle, left: left + 10, top: top - 20}}
-              >
-                {cluster.map(feature => (
-                  <div key={feature}>{`${feature}`}</div>
-                ))}
-              </div>
-            );
-          })}
-        </React.Fragment>
-      );
-    }
-    return null;
-  }
   render() {
     const {width, height} = this.props;
     return (
@@ -141,7 +105,6 @@ export default class ContentPanel extends PureComponent {
         bottom={height}
         top={0}
         layers={this._renderLayers()}
-        overlay={this._renderTooltip()}
         getCursor={() => 'auto'}
         onZoom={zoomScale => this.setState({zoomScale})}
         onMove={zoomOffset => this.setState({zoomOffset})}

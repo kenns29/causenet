@@ -81,19 +81,15 @@ export default class ZoomableContainer extends PureComponent {
     } else {
       this._zoomOut();
     }
-    event.stopPropagation();
   };
   _handleMouseDown = event => {
     this._moveStart(event);
-    event.stopPropagation();
   };
   _handleMouseMove = event => {
     this._moveOn(event);
-    event.stopPropagation();
   };
   _handleMouseUp = event => {
     this._moveEnd();
-    event.stopPropagation();
   };
   componentDidUpdate = (prevProps, prevState) => {
     if (this.state.zoomScale !== prevState.zoomScale) {
