@@ -24,9 +24,7 @@ export const getSubBayesianModelFeaturesMap = createSelector(
     clusterFeatures.reduce(
       (map, feature) =>
         Object.assign(map, {
-          [feature]: rawSubBayesianModelFeaturesMap.hasOwnProperty(feature)
-            ? rawSubBayesianModelFeaturesMap[feature]
-            : [feature]
+          [feature]: rawSubBayesianModelFeaturesMap[feature]
         }),
       {}
     )

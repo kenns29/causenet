@@ -2,7 +2,8 @@ from flask import Blueprint, jsonify, request, redirect, url_for, json
 from modules.service.model_utils import get_model, delete_model, learn_structure, train_model, \
     get_weighted_edges, write_weighted_edges, get_model_list, update_feature_selection, get_feature_selection, \
     update_model_feature_value_selection_map, get_model_feature_value_selection_map, reduce_model, \
-    train_model_on_clusters, train_sub_model_within_clusters, calc_sub_models_edge_weights, get_sub_models
+    train_model_on_clusters, train_sub_model_within_clusters, calc_sub_models_edge_weights, get_sub_models, \
+    get_full_model_features, get_model_clusters
 from modules.service.edge_weights import get_edge_weights
 from modules.service.data_utils import load_data, load_pdist, load_clustering, get_current_dataset_name, \
     get_dataset_config, update_current_dataset_name as update_current_dataset_name_util, get_index2col
@@ -144,6 +145,18 @@ def load_sub_models():
 def load_model_features():
     name = request.args.get('name') if request.args.get('name') else 'model.bin'
     return jsonify([str(node) for node in get_model(name).nodes()])
+
+
+@blueprint.route('/load_full_model_features', methods=['GET'])
+def load_full_model_features():
+    name = request.args.get('name') if request.args.get('name') else 'model.bin'
+    return jsonify([str(feature) for feature in get_full_model_features(name)])
+
+
+@blueprint.route('/load_model_clusters', methods=['GET'])
+def load_model_clusters():
+    name = request.args.get('name') if request.args.get('name') else 'model.bin'
+    return jsonify(dict((str(key), cluster) for key, cluster in get_model_clusters(name).items()))
 
 
 @blueprint.route('/load_feature_values_map', methods=['GET'])

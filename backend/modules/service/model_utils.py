@@ -1,4 +1,4 @@
-import os, pickle, subprocess, re, json, csv
+import os, pickle, subprocess, re, json, csv, shutil
 from collections import OrderedDict
 from pandas import DataFrame, cut
 from pgmpy.factors.discrete.CPD import TabularCPD
@@ -67,6 +67,12 @@ def delete_model(name):
             os.remove(os.path.join(current_dataset_model_dir, name))
         if os.path.exists(os.path.join(current_dataset_model_dir, 'weight.' + name)):
             os.remove(os.path.join(current_dataset_model_dir, 'weight.' + name))
+        if os.path.exists(os.path.join(current_dataset_model_dir, 'features.' + name)):
+            os.remove(os.path.join(current_dataset_model_dir, 'features.' + name))
+        if os.path.exists(os.path.join(current_dataset_model_dir, 'clusters.' + name)):
+            os.remove(os.path.join(current_dataset_model_dir, 'clusters.' + name))
+        if os.path.exists(os.path.join(current_dataset_model_dir, 'sub-models.' + name)):
+            shutil.rmtree(os.path.join(current_dataset_model_dir, 'sub-models.' + name))
         return model_stat
 
 
@@ -94,6 +100,55 @@ def write_weighted_edges(edges, name):
     return edges
 
 
+def get_full_model_features(name):
+    current_dataset_model_dir = get_current_dataset_model_dir()
+    if not os.path.exists(os.path.join(current_dataset_model_dir, 'features.' + name)):
+        raise ValueError('full features for model {} is not found'.format(name))
+    with open(os.path.join(current_dataset_model_dir, 'features.' + name), mode='rb') as file:
+        return pickle.load(file)
+
+
+def write_full_model_features(features, name):
+    current_dataset_name = get_current_dataset_name()
+    with open(os.path.join(get_current_dataset_model_dir(), 'features.' + name), mode='wb') as file:
+        pickle.dump(features, file)
+    with open(model_config_dir, mode='r+', encoding='utf-8') as file:
+        config = json.load(file)
+        status = config[current_dataset_name]
+        models = status['models']
+        models[name]['features_file'] = 'features.' + name
+        file.seek(0)
+        json.dump(config, file, indent='\t')
+        file.truncate()
+    return features
+
+
+def get_model_clusters(name):
+    current_dataset_model_dir = get_current_dataset_model_dir()
+    if not os.path.exists(os.path.join(current_dataset_model_dir, 'clusters.' + name)):
+        raise ValueError('clusters for model {} is not found'.format(name))
+    with open(os.path.join(current_dataset_model_dir, 'clusters.' + name), mode='rb') as file:
+        return pickle.load(file)
+
+
+def write_clusters(clusters, name):
+    if not clusters:
+        return
+    cluster_dict = clusters if type(clusters) is dict else dict((key, cluster) for key, cluster in enumerate(clusters))
+    current_dataset_name = get_current_dataset_name()
+    with open(os.path.join(get_current_dataset_model_dir(), 'clusters.' + name), mode='wb') as file:
+        pickle.dump(cluster_dict, file)
+    with open(model_config_dir, mode='r+', encoding='utf-8') as file:
+        config = json.load(file)
+        status = config[current_dataset_name]
+        models = status['models']
+        models[name]['clusters_file'] = 'clusters.' + name
+        file.seek(0)
+        json.dump(config, file, indent='\t')
+        file.truncate()
+    return cluster_dict
+
+
 def get_sub_models(name):
     sub_models_dir = os.path.join(get_current_dataset_model_dir(), 'sub-models.' + name)
     model_dict = dict()
@@ -103,7 +158,8 @@ def get_sub_models(name):
                 s = file_name.split('.')
                 key = s[0] if len(s) < 2 else s[1]
                 model_dict[key] = {} if key not in model_dict else model_dict[key]
-                model_dict[key]['model' if len(s) < 2 else 'weighted_edges'] = pickle.load(file)
+                model_dict[key]['model' if len(s) < 2
+                                else 'weighted_edges' if s[0] == 'weight' else 'features'] = pickle.load(file)
     return model_dict
 
 
@@ -136,6 +192,16 @@ def write_sub_models_edge_weights(weighted_edges_dict, model_name):
         with open(os.path.join(sub_models_dir, 'weight.' + str(key)), mode='wb') as file:
             pickle.dump(weighted_edges, file)
     return weighted_edges_dict
+
+
+def write_sub_models_full_features(full_features_dict, model_name):
+    sub_models_dir = os.path.join(get_current_dataset_model_dir(), 'sub-models.' + str(model_name))
+    if not os.path.exists(sub_models_dir):
+        os.makedirs(sub_models_dir)
+    for key, full_features in full_features_dict.items():
+        with open(os.path.join(sub_models_dir, 'features.' + str(key)), mode='wb') as file:
+            pickle.dump(full_features, file)
+    return full_features_dict
 
 
 def blip_learn_structure(data):
@@ -332,6 +398,7 @@ def train_model(data, name=None, feature_selection=None, do_write_model=True):
     model.check_model()
     if do_write_model:
         write_model(model, name)
+        write_full_model_features(filtered_data.keys().tolist(), name)
     return model
 
 
@@ -356,18 +423,23 @@ def train_model_on_clusters(clusters, name, base_avg_data=None):
     model.add_cpds(*filtered_cpds)
     model.check_model()
     write_model(model, name)
+    write_full_model_features(data.keys().tolist(), name)
+    write_clusters(clusters, name)
     return model
 
 
 def train_sub_model_within_clusters(clusters, data=None, name=None):
     data = load_data() if data is None else data
     model_dict = dict()
+    full_features_dict = dict()
     for key, cluster in enumerate(clusters) if type(clusters) is list else clusters.items():
         model = train_model(data, feature_selection=cluster, do_write_model=False)
         if model:
             model_dict[key] = model
+            full_features_dict[key] = cluster
     if model_dict:
         write_sub_models_within_cluster(model_dict, name)
+        write_sub_models_full_features(full_features_dict, name)
     return model_dict
 
 

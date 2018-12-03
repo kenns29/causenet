@@ -106,6 +106,29 @@ export default class ContentPanel extends PureComponent {
       ...this._renderArrows()
     ];
   }
+  _renderTooltip() {
+    const {hoveredNodes} = this.state;
+    if (this.container && this.container.getDeckObj()) {
+      return (
+        <React.Fragment>
+          {hoveredNodes.map(({label, x, y, cluster}) => {
+            const [left, top] = this.container.project([x, y]);
+            return (
+              <div
+                key={label}
+                style={{...tooltipStyle, left: left + 10, top: top - 20}}
+              >
+                {cluster.map(feature => (
+                  <div key={feature}>{`${feature}`}</div>
+                ))}
+              </div>
+            );
+          })}
+        </React.Fragment>
+      );
+    }
+    return null;
+  }
   render() {
     const {width, height} = this.props;
     return (
@@ -118,6 +141,7 @@ export default class ContentPanel extends PureComponent {
         bottom={height}
         top={0}
         layers={this._renderLayers()}
+        overlay={this._renderTooltip()}
         getCursor={() => 'auto'}
         onZoom={zoomScale => this.setState({zoomScale})}
         onMove={zoomOffset => this.setState({zoomOffset})}
