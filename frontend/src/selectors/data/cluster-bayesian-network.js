@@ -1,5 +1,5 @@
 import {createSelector} from 'reselect';
-import {createNodeMap, createDagLayout} from '../../utils';
+import {createNodeMap, createDagLayout, array2Object} from '../../utils';
 import {
   getRawClusterBayesianNetwork,
   getRawClusterBayesianModelFeatures,
@@ -168,4 +168,46 @@ export const getClusterBayesianNetworkNodeLinkLayoutData = createSelector(
 export const getClusterBayesianNetworkNodeLinkLayout = createSelector(
   getClusterBayesianNetworkNodeLinkLayoutData,
   createDagLayout
+);
+
+export const getShiftedSubBayesianNetworkNodeLinkLayoutMap = createSelector(
+  [
+    getSubBayesianNetworkNodeLinkLayoutMap,
+    getClusterBayesianNetworkNodeLinkLayout
+  ],
+  (subNetworkLayoutMap, {nodes: clusterNodes}) => {
+    const clusterNodeMap = array2Object(clusterNodes, d => d.label);
+    return Object.entries(subNetworkLayoutMap).reduce(
+      (map, [clusterId, layout]) => {
+        const {x: cx, y: cy, width: cw, height: ch} = clusterNodeMap[clusterId];
+        const {nodes, edges} = layout;
+        const newNodes = nodes.map(node => ({
+          ...node,
+          x: node.x + cx - cw / 2,
+          y: node.y + cy - ch / 2
+        }));
+        const nodeMap = array2Object(newNodes, d => d.label);
+        const newEdges = edges.map(({source, target, points, ...rest}) => ({
+          ...rest,
+          source: nodeMap[source.label],
+          target: nodeMap[target.label],
+          points: points.map(([x, y, z]) => [
+            x + cx - cw / 2,
+            y + cy - ch / 2,
+            z
+          ])
+        }));
+        return Object.assign(map, {
+          [clusterId]: {...layout, nodes: newNodes, edges: newEdges}
+        });
+      },
+      {}
+    );
+  }
+);
+
+export const getShiftedSubBayesianNetworkNodeLinkLayouts = createSelector(
+  getShiftedSubBayesianNetworkNodeLinkLayoutMap,
+  layoutMap =>
+    Object.entries(layoutMap).map(([key, layout]) => ({...layout, key}))
 );

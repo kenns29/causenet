@@ -4,7 +4,8 @@ import {Spin} from 'antd';
 import DeckGLContainer from './deckgl-container';
 import {
   getIsFetchingModifiedBayesianNetwork,
-  getClusterBayesianNetworkNodeLinkLayout
+  getClusterBayesianNetworkNodeLinkLayout,
+  getShiftedSubBayesianNetworkNodeLinkLayouts
 } from '../../selectors/data';
 
 const mapDispatchToProps = {};
@@ -13,7 +14,8 @@ const mapStateToProps = state => ({
   isFetchingModifiedBayesianNetwork: getIsFetchingModifiedBayesianNetwork(
     state
   ),
-  clusterNodeLink: getClusterBayesianNetworkNodeLinkLayout(state)
+  clusterNodeLink: getClusterBayesianNetworkNodeLinkLayout(state),
+  subNodeLinks: getShiftedSubBayesianNetworkNodeLinkLayouts(state)
 });
 
 const tooltipStyle = {
