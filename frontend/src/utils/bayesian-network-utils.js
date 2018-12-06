@@ -19,9 +19,12 @@ export const createNodeMap = network =>
  * Obtain the Bayesian Network in a direct acyclic graph (DAG) layout using
  * the Dagre JavaScript library <https://github.com/dagrejs/dagre>
  */
-export const createDagLayout = ({nodes, links}) => {
+export const createDagLayout = ({nodes, links}, graphAttributes) => {
   const dag = new dagre.graphlib.Graph();
-  dag.setGraph({rankdir: 'LR', ranker: 'tight-tree'});
+  dag.setGraph(
+    {rankdir: 'LR', ranker: 'tight-tree'},
+    ...(graphAttributes || {})
+  );
   dag.setDefaultEdgeLabel(() => {});
   nodes.forEach(node => {
     dag.setNode(node.label, {
@@ -46,7 +49,12 @@ export const createDagLayout = ({nodes, links}) => {
       points: edge.points.map(({x, y}) => [x, y, 0])
     };
   });
-  return {nodes: layoutNodes, edges: layoutEdges};
+  return {
+    nodes: layoutNodes,
+    edges: layoutEdges,
+    width: dag.graph().width,
+    height: dag.graph().height
+  };
 };
 
 export const createTemporalDagLayout = (
