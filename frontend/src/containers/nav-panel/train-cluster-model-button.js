@@ -6,7 +6,7 @@ import {
   requestTrainClusterBayesianModel,
   requestTrainSubBayesianModelsWithinCluster
 } from '../../actions';
-import {getHierachicalClusteringCutClusterNames} from '../../selectors/data';
+import {getHierarchicalClusteringCutClusterIdNamesMap} from '../../selectors/data';
 
 const mapDispatchToProps = {
   fetchModelList,
@@ -15,7 +15,7 @@ const mapDispatchToProps = {
 };
 
 const mapStateToProps = state => ({
-  clusters: getHierachicalClusteringCutClusterNames(state)
+  clusterMap: getHierarchicalClusteringCutClusterIdNamesMap(state)
 });
 
 class TrainClusterModelButton extends PureComponent {
@@ -36,17 +36,17 @@ class TrainClusterModelButton extends PureComponent {
             size="small"
             onClick={async event => {
               const {modelName} = this.state.trainModelButton;
-              const {clusters} = this.props;
+              const {clusterMap} = this.props;
               if (!modelName) {
                 notification.error({message: 'Please specify a model name'});
               } else {
                 await this.props.requestTrainClusterBayesianModel({
                   name: modelName,
-                  clusters
+                  clusters: clusterMap
                 });
                 await this.props.requestTrainSubBayesianModelsWithinCluster({
                   name: modelName,
-                  clusters
+                  clusters: clusterMap
                 });
                 this.props.fetchModelList();
               }

@@ -438,7 +438,8 @@ def train_model(data, name=None, feature_selection=None, do_write_model=True):
 
 def train_model_on_clusters(clusters, name, base_avg_data=None):
     base_avg_data = load_data('base_avg_data_file') if base_avg_data is None else base_avg_data
-    data = DataFrame(columns=range(len(clusters)), index=base_avg_data.index)
+    data = DataFrame(columns=range(len(clusters)) if type(clusters) is list else clusters.keys(),
+                     index=base_avg_data.index)
     for key, cluster in enumerate(clusters) if type(clusters) is list else clusters.items():
         data[key] = base_avg_data.filter(cluster).mean(axis=1)
     if data.shape[1] < 2:
