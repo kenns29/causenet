@@ -167,15 +167,61 @@ def get_sub_models(name):
                 key = s[0] if len(s) < 2 else s[1]
                 model_dict[key] = {} if key not in model_dict else model_dict[key]
                 model_dict[key]['model' if len(s) < 2
-                                else 'weighted_edges' if s[0] == 'weight' else 'features'] = pickle.load(file)
+                else 'weighted_edges' if s[0] == 'weight' else 'features'] = pickle.load(file)
     return model_dict
 
 
-def write_sub_models_within_cluster(model_dict, model_name):
+def remove_sub_models(name, targets=[], complete=False):
+    sub_models_dir = os.path.join(get_current_dataset_model_dir(), 'sub-models.' + name)
+    target_set = set(targets)
+    model_dict = dict()
+    for subdir, dirs, files in os.walk(sub_models_dir):
+        for file_name in files:
+            s = file_name.split('.')
+            key = s[0] if len(s) < 2 else s[1]
+            if key in target_set:
+                # save the deleted models to model_dict
+                with open(os.path.join(sub_models_dir, file_name), mode='rb') as file:
+                    model_dict[key] = {} if key not in model_dict else model_dict[key]
+                    model_dict[key]['model' if len(s) < 2
+                    else 'weighted_edges' if s[0] == 'weight' else 'features'] = pickle.load(file)
+                # delete the model
+                os.remove(os.path.join(sub_models_dir, file_name))
+    if complete:
+        clusters = get_model_clusters(name)
+        if clusters:
+            for target in targets:
+                clusters.pop(target, None)
+            with open(os.path.join(sub_models_dir, 'clusters.' + name), mode='wb') as file:
+                pickle.dump(clusters, file)
+    return model_dict
+
+
+def replace_sub_models(name, targets=[], replacements=[], calc_edge_weights=True):
+    # re-train the cluster model
+    clusters = get_model_clusters(name)
+    clusters = dict() if not clusters else clusters
+    for target in targets:
+        clusters.pop(target, None)
+    for replacement in replacements:
+        clusters[replacement['id']] = replacement['features']
+    train_model_on_clusters(clusters, name)
+
+    # remove the target sub models
+    sub_models_dir = os.path.join(get_current_dataset_model_dir(), 'sub-models.' + name)
+    remove_sub_models(name, targets)
+    # train the replacement models
+    model_dict = train_sub_model_within_clusters(replacements, load_data(), name)
+    if calc_edge_weights:
+        calc_sub_models_edge_weights(model_dict, name)
+    return model_dict
+
+
+def write_sub_models_within_cluster(model_dict, name):
     if not model_dict:
         return model_dict
     current_dataset_name = get_current_dataset_name()
-    sub_models_dir = os.path.join(get_current_dataset_model_dir(), 'sub-models.' + model_name)
+    sub_models_dir = os.path.join(get_current_dataset_model_dir(), 'sub-models.' + name)
     if not os.path.exists(sub_models_dir):
         os.makedirs(sub_models_dir)
     for key, model in model_dict.items():
@@ -185,9 +231,9 @@ def write_sub_models_within_cluster(model_dict, model_name):
         config = json.load(file)
         status = config[current_dataset_name]
         models = status['models']
-        if model_name not in models:
-            models[model_name] = {}
-        models[model_name]['sub-models-folder'] = 'sub-models.' + model_name
+        if name not in models:
+            models[name] = {}
+        models[name]['sub-models-folder'] = 'sub-models.' + name
         file.seek(0)
         json.dump(config, file, indent='\t')
         file.truncate()

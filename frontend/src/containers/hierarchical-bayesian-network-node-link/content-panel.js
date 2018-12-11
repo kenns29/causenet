@@ -2,10 +2,12 @@ import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
 import {Spin} from 'antd';
 import DeckGLContainer from './deckgl-container';
+import {getTreeLeaves, findCluster} from '../../utils';
 import {
   getIsFetchingModifiedBayesianNetwork,
   getClusterBayesianNetworkNodeLinkLayout,
-  getShiftedSubBayesianNetworkNodeLinkLayouts
+  getShiftedSubBayesianNetworkNodeLinkLayouts,
+  getRawHierarchicalClusteringTree
 } from '../../selectors/data';
 
 const mapDispatchToProps = {};
@@ -15,7 +17,8 @@ const mapStateToProps = state => ({
     state
   ),
   clusterNodeLink: getClusterBayesianNetworkNodeLinkLayout(state),
-  subNodeLinks: getShiftedSubBayesianNetworkNodeLinkLayouts(state)
+  subNodeLinks: getShiftedSubBayesianNetworkNodeLinkLayouts(state),
+  hierarchicalClusteringTree: getRawHierarchicalClusteringTree(state)
 });
 
 const tooltipStyle = {
@@ -46,28 +49,57 @@ class ContentPanel extends PureComponent {
     const {left, top} = this.container.getBoundingClientRect();
     return [clientX - left, clientY - top];
   };
+  _getDeck = () =>
+    this.deckGLContainer &&
+    this.deckGLContainer.container &&
+    this.deckGLContainer.container.deck &&
+    this.deckGLContainer.container.deck.deck;
+  _pickObject = param => {
+    const deck = this._getDeck();
+    return deck && deck.pickObject(param);
+  };
   _handleMouseMove = event => {
-    if (
-      this.deckGLContainer &&
-      this.deckGLContainer.container &&
-      this.deckGLContainer.container.deck
-    ) {
-      const {deck} = this.deckGLContainer.container.deck;
-      const [left, top] = this._getEventMouse(event);
-      const info = deck.pickObject({
-        x: left,
-        y: top,
+    if (this._getDeck()) {
+      const [x, y] = this._getEventMouse(event);
+      const info = this._pickObject({
+        x,
+        y,
         layerIds: ['hierarchical-bayesian-network-node-link-nodes-layer']
       });
       this.setState({
         hoveredNodes:
-          info && info.object
-            ? [{...info.object, mouseX: left, mouseY: top}]
-            : []
+          info && info.object ? [{...info.object, mouseX: x, mouseY: y}] : []
       });
     }
     event.preventDefault();
     event.stopPropagation();
+  };
+  _handleClick = event => {
+    if (this._getDeck()) {
+      const [x, y] = this._getEventMouse(event);
+      const info = this._pickObject({
+        x,
+        y,
+        layerIds: ['hierarchical-bayesian-network-node-link-nodes-layer']
+      });
+      if (info && info.object) {
+        const {hierarchicalClusteringTree: tree} = this.props;
+        console.log('info.object', info.object);
+        this._expandCluster(tree, Number(info.object.label));
+      }
+    }
+  };
+  _expandCluster = (tree, id) => {
+    const cluster = findCluster(tree, id);
+    if (cluster) {
+    }
+    console.log(
+      'tree, id, cluster, children',
+      tree,
+      id,
+      cluster,
+      cluster.children
+    );
   };
   _renderTooltip() {
     const {hoveredNodes} = this.state;
@@ -95,6 +127,7 @@ class ContentPanel extends PureComponent {
         width={width}
         height={height}
         onMouseMove={this._handleMouseMove}
+        onClick={this._handleClick}
       >
         {isFetchingModifiedBayesianNetwork && (
           <Spin

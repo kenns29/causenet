@@ -99,7 +99,7 @@ def load_model():
     print('loading edges weights ...')
     weighted_edges = get_weighted_edges(name)
     if weighted_edges is None:
-        print('edge weights not found, calculation edge weights ...')
+        print('edge weights not found, calculating edge weights ...')
         weighted_edges = get_edge_weights(model)
         write_weighted_edges(weighted_edges, name)
     return jsonify([{'source': str(s), 'target': str(t), 'weight': w} for (s, t), w in weighted_edges])
@@ -139,6 +139,14 @@ def load_sub_models():
         'nodes': item['model'].nodes()
     })
                         for key, item in model_dict.items()))
+
+
+@blueprint.route('/replace_sub_models', methods=['POST'])
+def route_replace_sub_models():
+    name = request.args.get('name') if request.args.get('name') else 'model.bin'
+    params = json.loads(request.data)
+    targets = params['targets']
+    replacements = params['replacements']
 
 
 @blueprint.route('/load_model_features', methods=['GET'])

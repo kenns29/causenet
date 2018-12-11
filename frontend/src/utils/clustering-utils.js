@@ -92,3 +92,15 @@ export const findMaxDistancePair = (
   });
   return [n1, n2];
 };
+
+export const findCluster = (tree, id) => {
+  if (!tree || tree.id === id) {
+    return tree;
+  }
+  for (const child of tree.children) {
+    const cluster = findCluster(child, id);
+    if (cluster && cluster.id === id) {
+      return cluster;
+    }
+  }
+};
