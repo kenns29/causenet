@@ -3,7 +3,7 @@ from modules.service.model_utils import get_model, delete_model, learn_structure
     get_weighted_edges, write_weighted_edges, get_model_list, update_feature_selection, get_feature_selection, \
     update_model_feature_value_selection_map, get_model_feature_value_selection_map, reduce_model, \
     train_model_on_clusters, train_sub_model_within_clusters, calc_sub_models_edge_weights, get_sub_models, \
-    get_full_model_features, get_model_clusters
+    get_full_model_features, get_model_clusters, replace_sub_models
 from modules.service.edge_weights import get_edge_weights
 from modules.service.data_utils import load_data, load_pdist, load_clustering, get_current_dataset_name, \
     get_dataset_config, update_current_dataset_name as update_current_dataset_name_util, get_index2col
@@ -147,6 +147,7 @@ def route_replace_sub_models():
     params = json.loads(request.data)
     targets = params['targets']
     replacements = params['replacements']
+    return replace_sub_models(name, targets, replacements)
 
 
 @blueprint.route('/load_model_features', methods=['GET'])

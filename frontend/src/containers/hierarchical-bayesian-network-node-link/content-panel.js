@@ -4,15 +4,18 @@ import {Spin} from 'antd';
 import DeckGLContainer from './deckgl-container';
 import {getTreeLeaves, findCluster} from '../../utils';
 import {
+  getSelectedModel,
   getIsFetchingModifiedBayesianNetwork,
   getClusterBayesianNetworkNodeLinkLayout,
   getShiftedSubBayesianNetworkNodeLinkLayouts,
   getRawHierarchicalClusteringTree
 } from '../../selectors/data';
+import {requestReplaceSubBayesianModels} from '../../actions';
 
-const mapDispatchToProps = {};
+const mapDispatchToProps = {requestReplaceSubBayesianModels};
 
 const mapStateToProps = state => ({
+  selectedModel: getSelectedModel(state),
   isFetchingModifiedBayesianNetwork: getIsFetchingModifiedBayesianNetwork(
     state
   ),
@@ -90,8 +93,19 @@ class ContentPanel extends PureComponent {
     }
   };
   _expandCluster = (tree, id) => {
+    const {selectedModel} = this.props;
     const cluster = findCluster(tree, id);
     if (cluster) {
+      const targets = [cluster.id];
+      const replacements = cluster.children.map(child => ({
+        id: child.id,
+        featrues: getTreeLeaves(child).map(d => d.name)
+      }));
+      this.props.requestReplaceSubBayesianModels({
+        name: selectedModel,
+        targets,
+        replacements
+      });
     }
     console.log(
       'tree, id, cluster, children',
