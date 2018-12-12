@@ -205,19 +205,24 @@ def replace_sub_models(name, targets=[], replacements=[], calc_edge_weights=True
         clusters.pop(target, None)
     for replacement in replacements:
         clusters[replacement['id']] = replacement['features']
-    train_model_on_clusters(clusters, name)
-
-    # replace the cluster file
-    with open(os.path.join(get_current_dataset_model_dir(), 'clusters.' + name), mode='wb') as file:
-        pickle.dump(clusters, file)
+    model = train_model_on_clusters(clusters, name)
+    if calc_edge_weights:
+        weighted_edges = get_edge_weights(model)
+        write_weighted_edges(weighted_edges, name)
 
     # remove the target sub models
     remove_sub_models(name, targets)
 
     # train the replacement models
-    model_dict = train_sub_model_within_clusters(replacements, load_data(), name)
+    replacement_dict = dict((replacement['id'], replacement['features']) for replacement in replacements)
+    model_dict = train_sub_model_within_clusters(replacement_dict, load_data(), name)
     if calc_edge_weights:
-        calc_sub_models_edge_weights(model_dict, name)
+        weighted_edges_dict = calc_sub_models_edge_weights(model_dict, name)
+        write_sub_models_edge_weights(weighted_edges_dict, name)
+
+    # replace the cluster file
+    with open(os.path.join(get_current_dataset_model_dir(), 'clusters.' + name), mode='wb') as file:
+        pickle.dump(clusters, file)
 
     return model_dict
 

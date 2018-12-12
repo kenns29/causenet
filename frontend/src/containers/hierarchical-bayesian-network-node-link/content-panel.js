@@ -99,7 +99,7 @@ class ContentPanel extends PureComponent {
       const targets = [cluster.id];
       const replacements = cluster.children.map(child => ({
         id: child.id,
-        featrues: getTreeLeaves(child).map(d => d.name)
+        features: getTreeLeaves(child).map(d => d.name)
       }));
       this.props.requestReplaceSubBayesianModels({
         name: selectedModel,

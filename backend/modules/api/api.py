@@ -144,10 +144,11 @@ def load_sub_models():
 @blueprint.route('/replace_sub_models', methods=['POST'])
 def route_replace_sub_models():
     name = request.args.get('name') if request.args.get('name') else 'model.bin'
-    params = json.loads(request.data)
+    params = json.loads(request.data, parse_int=str)
     targets = params['targets']
     replacements = params['replacements']
-    return replace_sub_models(name, targets, replacements)
+    model_dict = replace_sub_models(name, targets, replacements)
+    return jsonify(dict((key, model.edges()) for key, model in model_dict.items()))
 
 
 @blueprint.route('/load_model_features', methods=['GET'])
