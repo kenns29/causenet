@@ -10,9 +10,15 @@ import {
   getShiftedSubBayesianNetworkNodeLinkLayouts,
   getRawHierarchicalClusteringTree
 } from '../../selectors/data';
-import {requestReplaceSubBayesianModels} from '../../actions';
+import {
+  requestReplaceSubBayesianModels,
+  bundleFetchClusterBayesianModel
+} from '../../actions';
 
-const mapDispatchToProps = {requestReplaceSubBayesianModels};
+const mapDispatchToProps = {
+  requestReplaceSubBayesianModels,
+  bundleFetchClusterBayesianModel
+};
 
 const mapStateToProps = state => ({
   selectedModel: getSelectedModel(state),
@@ -87,12 +93,11 @@ class ContentPanel extends PureComponent {
       });
       if (info && info.object) {
         const {hierarchicalClusteringTree: tree} = this.props;
-        console.log('info.object', info.object);
         this._expandCluster(tree, Number(info.object.label));
       }
     }
   };
-  _expandCluster = (tree, id) => {
+  _expandCluster = async(tree, id) => {
     const {selectedModel} = this.props;
     const cluster = findCluster(tree, id);
     if (cluster) {
@@ -101,19 +106,13 @@ class ContentPanel extends PureComponent {
         id: child.id,
         features: getTreeLeaves(child).map(d => d.name)
       }));
-      this.props.requestReplaceSubBayesianModels({
+      await this.props.requestReplaceSubBayesianModels({
         name: selectedModel,
         targets,
         replacements
       });
+      this.props.bundleFetchClusterBayesianModel(selectedModel);
     }
-    console.log(
-      'tree, id, cluster, children',
-      tree,
-      id,
-      cluster,
-      cluster.children
-    );
   };
   _renderTooltip() {
     const {hoveredNodes} = this.state;

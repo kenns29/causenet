@@ -481,3 +481,34 @@ export const requestUpdateModelFeatureValueSelectionMap = ({
     throw new Error(err);
   }
 };
+
+// bundled actions
+export const bundleFetchBayesianModel = name => async dispatch => {
+  try {
+    const modifiedBayesianNetwork = await dispatch(
+      fetchModifiedBayesianNetwork({name})
+    );
+    const datas = await Promise.all([
+      dispatch(fetchBayesianModelFeatures({name})),
+      dispatch(fetchModelFeatureValueSelectionMap({name})),
+      dispatch(fetchBayesianNetwork({name}))
+    ]);
+    return Promise.resolve([modifiedBayesianNetwork, ...datas]);
+  } catch (err) {
+    throw new Error(err);
+  }
+};
+
+export const bundleFetchClusterBayesianModel = name => async dispatch => {
+  try {
+    const datas = await Promise.all([
+      dispatch(fetchClusterBayesianNetwork({name})),
+      dispatch(fetchClusterBayesianModelFeatures({name})),
+      dispatch(fetchSubBayesianNetworks({name})),
+      dispatch(fetchSubBayesianModelFeaturesMap({name}))
+    ]);
+    return Promise.resolve(datas);
+  } catch (err) {
+    throw new Error(err);
+  }
+};
