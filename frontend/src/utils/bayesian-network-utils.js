@@ -195,8 +195,8 @@ export const collapseLinks = links => {
   const nodeTargetsMap = {};
 
   return sources.map(visit).reduce((links, targetMap, index) => {
-    Object.entries(targetMap).forEach(([target, weight]) => {
-      links.push({source: sources[index], target, weight});
+    Object.entries(targetMap).forEach(([target, {weight, path}]) => {
+      links.push({source: sources[index], target, weight, path});
     });
     return links;
   }, []);
@@ -205,15 +205,20 @@ export const collapseLinks = links => {
     const targetMap = {};
     const neighbors = adjMap[node];
     if (!neighbors.length) {
-      targetMap[node] = 0;
+      targetMap[node] = {weight: 0, path: []};
     } else {
       neighbors.forEach(({name: neighbor, weight = 0}) => {
         const neighborTargetMap = nodeTargetsMap.hasOwnProperty(neighbor)
           ? nodeTargetsMap[neighbor]
           : visit(neighbor);
-        Object.entries(neighborTargetMap).forEach(([target, tWeight]) => {
-          targetMap[target] = weight + tWeight;
-        });
+        Object.entries(neighborTargetMap).forEach(
+          ([target, {weight: targetWeight, path}]) => {
+            targetMap[target] = {
+              weight: weight + targetWeight,
+              path: [{name: neighbor, weight}].concat(path)
+            };
+          }
+        );
         nodeTargetsMap[neighbor] = neighborTargetMap;
       });
     }
