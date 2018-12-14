@@ -194,35 +194,39 @@ export const collapseLinks = links => {
   const adjMap = linksToSourceAdjacencyMap(links);
   const nodeTargetsMap = {};
 
-  return sources.map(visit).reduce((links, targetMap, index) => {
-    Object.entries(targetMap).forEach(([target, {weight, path}]) => {
-      links.push({source: sources[index], target, weight, path});
+  return sources.map(visit).reduce((links, targets, index) => {
+    targets.forEach(({name, weight, path}) => {
+      links.push({
+        source: sources[index],
+        target: name,
+        weight: weight / path.length,
+        path
+      });
     });
     return links;
   }, []);
 
   function visit(node) {
-    const targetMap = {};
+    const targets = [];
     const neighbors = adjMap[node];
     if (!neighbors.length) {
-      targetMap[node] = {weight: 0, path: []};
+      targets.push({name: node, weight: 0, path: []});
     } else {
       neighbors.forEach(({name: neighbor, weight = 0}) => {
-        const neighborTargetMap = nodeTargetsMap.hasOwnProperty(neighbor)
+        const neighborTargets = nodeTargetsMap.hasOwnProperty(neighbor)
           ? nodeTargetsMap[neighbor]
           : visit(neighbor);
-        Object.entries(neighborTargetMap).forEach(
-          ([target, {weight: targetWeight, path}]) => {
-            targetMap[target] = {
-              weight: weight + targetWeight,
-              path: [{name: neighbor, weight}].concat(path)
-            };
-          }
-        );
-        nodeTargetsMap[neighbor] = neighborTargetMap;
+        neighborTargets.forEach(({name, weight: targetWeight, path}) => {
+          targets.push({
+            name,
+            weight: weight + targetWeight,
+            path: [{name: neighbor, weight}].concat(path)
+          });
+        });
+        nodeTargetsMap[neighbor] = neighborTargets;
       });
     }
-    nodeTargetsMap[node] = targetMap;
-    return targetMap;
+    nodeTargetsMap[node] = targets;
+    return targets;
   }
 };
