@@ -132,3 +132,81 @@ export const createBayesianNetworkNodeLinkLayout = (
   isTemporal
     ? createTemporalDagLayout(nodeLink, features)
     : createDagLayout(nodeLink);
+
+export const linksToSourceAdjacencyMap = links => {
+  const map = links.reduce((map, {source, target, ...rest}) => {
+    const targetMap = map.hasOwnProperty(source) ? map[source] : {};
+    targetMap[target] = {name: target, ...rest};
+    map[source] = targetMap;
+    return map;
+  }, {});
+  Object.keys(map).forEach(key => {
+    map[key] = Object.values(map[key]);
+  });
+  return map;
+};
+
+export const linksToTargetAdjacencyMap = links => {
+  const maps = links.reduce((map, {source, target, ...rest}) => {
+    const sourceMap = map.hasOwnProperty(target) ? map[target] : {};
+    sourceMap[source] = {name: source, ...rest};
+    map[target] = sourceMap;
+    return map;
+  }, {});
+  Object.keys(map).forEach(key => {
+    map[key] = Object.values(map[key]);
+  });
+  return map;
+};
+
+export const linksToDegreeMap = links =>
+  links.reduce((map, {source, target}) => {
+    if (!map.hasOwnProperty(source)) {
+      map[source] = {inDeg: 0, outDeg: 0};
+    }
+    if (!map.hasOwnProperty(target)) {
+      map[target] = {inDeg: 0, outDeg: 0};
+    }
+    ++map[source].outDeg;
+    ++map[target].inDeg;
+    return map;
+  }, {});
+
+export const collapseLinks = links => {
+  const degreeMap = linksToDegreeMap(links);
+  const [sources, targets] = Object.entries(degreeMap).reduce(
+    ([sources, targets], [node, {inDeg, outDeg}]) => {
+      if (inDeg === 0) {
+        sources.push(node);
+      } else if (outDeg === 0) {
+        targets.push(node);
+      }
+      return [sources, targets];
+    },
+    [[], []]
+  );
+  const adjMap = linksToSourceAdjacencyMap(links);
+  const nodeTargetsMap = {};
+
+  return sources.map(visit).reduce((links, targetMap, index) => {
+    Object.entries(targetMap).forEach(([target, weight]) => {
+      links.push({source: sources[index], target, weight});
+    });
+    return links;
+  }, []);
+
+  function visit(node) {
+    const targetMap = {};
+    adjMap[node].forEach(({name: neighbor, weight = 0}) => {
+      const neighborTargetMap = nodeTargetsMap.hasOwnProperty(neighbor)
+        ? nodeTargetsMap[neighbor]
+        : visit(neighbor);
+      Object.entries(neighborTargetMap).forEach(([target, tWeight]) => {
+        targetMap[target] = weight + tWeight;
+      });
+      nodeTargetsMap[neighbor] = neighborTargetMap;
+    });
+    nodeTargetsMap[node] = targetMap;
+    return targetMap;
+  }
+};
