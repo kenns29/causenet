@@ -8,7 +8,8 @@ import {
   getIsFetchingModifiedBayesianNetwork,
   getClusterBayesianNetworkNodeLinkLayout,
   getShiftedSubBayesianNetworkNodeLinkLayouts,
-  getRawHierarchicalClusteringTree
+  getRawHierarchicalClusteringTree,
+  getCollapsedSubBayesianNetworkMap
 } from '../../selectors/data';
 import {
   requestReplaceSubBayesianModels,
@@ -27,7 +28,8 @@ const mapStateToProps = state => ({
   ),
   clusterNodeLink: getClusterBayesianNetworkNodeLinkLayout(state),
   subNodeLinks: getShiftedSubBayesianNetworkNodeLinkLayouts(state),
-  hierarchicalClusteringTree: getRawHierarchicalClusteringTree(state)
+  hierarchicalClusteringTree: getRawHierarchicalClusteringTree(state),
+  collapsedSubBayesianNetworkMap: getCollapsedSubBayesianNetworkMap(state)
 });
 
 const tooltipStyle = {
@@ -132,7 +134,16 @@ class ContentPanel extends PureComponent {
     );
   }
   render() {
-    const {width, height, isFetchingModifiedBayesianNetwork} = this.props;
+    const {
+      width,
+      height,
+      isFetchingModifiedBayesianNetwork,
+      collapsedSubBayesianNetworkMap
+    } = this.props;
+    console.log(
+      'collapsedSubBayesianNetworkMap',
+      collapsedSubBayesianNetworkMap
+    );
     return (
       <div
         ref={input => (this.container = input)}

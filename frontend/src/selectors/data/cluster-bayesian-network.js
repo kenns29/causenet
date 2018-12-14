@@ -1,5 +1,10 @@
 import {createSelector} from 'reselect';
-import {createNodeMap, createDagLayout, array2Object} from '../../utils';
+import {
+  createNodeMap,
+  createDagLayout,
+  array2Object,
+  collapseLinks
+} from '../../utils';
 import {
   getRawClusterBayesianNetwork,
   getRawClusterBayesianModelFeatures,
@@ -92,6 +97,15 @@ export const getSubBayesianNetworkMap = createSelector(
         rawLinkMap.hasOwnProperty(feature)
           ? Object.assign(map, {[feature]: rawLinkMap[feature]})
           : map,
+      {}
+    )
+);
+
+export const getCollapsedSubBayesianNetworkMap = createSelector(
+  getSubBayesianNetworkMap,
+  rawLinkMap =>
+    Object.entries(rawLinkMap).reduce(
+      (map, [key, links]) => Object.assign(map, {[key]: collapseLinks(links)}),
       {}
     )
 );

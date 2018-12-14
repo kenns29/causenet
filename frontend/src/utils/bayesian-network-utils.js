@@ -138,6 +138,9 @@ export const linksToSourceAdjacencyMap = links => {
     const targetMap = map.hasOwnProperty(source) ? map[source] : {};
     targetMap[target] = {name: target, ...rest};
     map[source] = targetMap;
+    if (!map.hasOwnProperty(target)) {
+      map[target] = {};
+    }
     return map;
   }, {});
   Object.keys(map).forEach(key => {
@@ -151,6 +154,9 @@ export const linksToTargetAdjacencyMap = links => {
     const sourceMap = map.hasOwnProperty(target) ? map[target] : {};
     sourceMap[source] = {name: source, ...rest};
     map[target] = sourceMap;
+    if (!map.hasOwnProperty(source)) {
+      map[source] = {};
+    }
     return map;
   }, {});
   Object.keys(map).forEach(key => {
@@ -197,15 +203,20 @@ export const collapseLinks = links => {
 
   function visit(node) {
     const targetMap = {};
-    adjMap[node].forEach(({name: neighbor, weight = 0}) => {
-      const neighborTargetMap = nodeTargetsMap.hasOwnProperty(neighbor)
-        ? nodeTargetsMap[neighbor]
-        : visit(neighbor);
-      Object.entries(neighborTargetMap).forEach(([target, tWeight]) => {
-        targetMap[target] = weight + tWeight;
+    const neighbors = adjMap[node];
+    if (!neighbors.length) {
+      targetMap[node] = 0;
+    } else {
+      neighbors.forEach(({name: neighbor, weight = 0}) => {
+        const neighborTargetMap = nodeTargetsMap.hasOwnProperty(neighbor)
+          ? nodeTargetsMap[neighbor]
+          : visit(neighbor);
+        Object.entries(neighborTargetMap).forEach(([target, tWeight]) => {
+          targetMap[target] = weight + tWeight;
+        });
+        nodeTargetsMap[neighbor] = neighborTargetMap;
       });
-      nodeTargetsMap[neighbor] = neighborTargetMap;
-    });
+    }
     nodeTargetsMap[node] = targetMap;
     return targetMap;
   }
