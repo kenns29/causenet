@@ -1,19 +1,56 @@
 import dagre from 'dagre';
-import {array2Object} from './base';
+import {array2Object, makeAccessor} from './base';
 import {
   clipLine,
   getLineLength,
   getPointOnPerpendicularBisector
 } from './transform';
 
-export const createNodeMap = network =>
+export const linksToNodeMap = (network, k = 'label') =>
   network.reduce((map, {source, target}) => {
     return [source, target].reduce(
       (m, label) =>
-        m.hasOwnProperty(label) ? m : Object.assign(m, {[label]: {label}}),
+        m.hasOwnProperty(label) ? m : Object.assign(m, {[label]: {[k]: label}}),
       map
     );
   }, {});
+
+/**
+ * Update the node links without modifying the original node links,
+ * returns a new node link object in which the reference across nodes and links
+ * is preserved.
+ * @param {Object} nodeLinks -- the node link object,
+ * @param {Function|String} k -- key used to match nodes, default is 'label'
+ * @param {Function} n -- optional: returns a new node with the update, if not
+ *                        not specified, returns a new node without update
+ * @param {Function} e -- optional: returns a new link with the update, if not
+ *                        not specified, returns a new link without update
+ * @return {Object} nodeLinks
+ */
+export const updateNodeLink = (
+  nodeLink,
+  n = d => ({...d}),
+  e = d => d,
+  k = 'label',
+  nodesName = 'nodes',
+  linksName = 'links'
+) => {
+  const {[nodesName]: nodes, [linksName]: links} = nodeLink;
+  const newNodes = nodes.map(n);
+  const newNodeMap = array2Object(newNodes, k);
+  const ka = makeAccessor(k);
+
+  const newLinks = links.map(link => {
+    const newLink = e(link);
+    const {source, target} = link;
+    return {
+      ...newLink,
+      source: newNodeMap[ka(source)],
+      target: newNodeMap[ka(target)]
+    };
+  });
+  return {...nodeLink, [nodesName]: newNodes, [linksName]: newLinks};
+};
 
 /**
  * Obtain the Bayesian Network in a direct acyclic graph (DAG) layout using
@@ -29,6 +66,7 @@ export const createDagLayout = ({nodes, links}, graphAttributes) => {
   nodes.forEach(node => {
     dag.setNode(node.label, {
       ...node,
+      data: node,
       width: node.width + 10,
       height: node.height + 10
     });
@@ -42,6 +80,7 @@ export const createDagLayout = ({nodes, links}, graphAttributes) => {
     const edge = dag.edge(e);
     return {
       ...edge,
+      data: edge,
       sourceId: e.v,
       targetId: e.w,
       source: dag.node(e.v),
@@ -178,7 +217,7 @@ export const linksToDegreeMap = links =>
     return map;
   }, {});
 
-export const collapseLinks = links => {
+export const linksToAbstractLinks = links => {
   const degreeMap = linksToDegreeMap(links);
   const [sources, targets] = Object.entries(degreeMap).reduce(
     ([sources, targets], [node, {inDeg, outDeg}]) => {
