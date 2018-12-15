@@ -137,9 +137,26 @@ export const getAbstractSubBayesianNetworkNodeLinkMap = createSelector(
     }, {})
 );
 
-// export const getAbstractSubBayesianNetworkNodeLinkLayoutDataMap = createSelector(
-//
-// );
+export const getAbstractSubBayesianNetworkNodeLinkLayoutDataMap = createSelector(
+  getAbstractSubBayesianNetworkNodeLinkMap,
+  abstracNodeLinkMap =>
+    Object.entries(abstractNodeLinkMap).reduce(
+      (map, [key, abstractNodeLink]) =>
+        Object.assign(map, {
+          [key]: updateNodeLink(abstractNodeLink, node => ({
+            ...node,
+            width: 2,
+            height: 2
+          }))
+        }),
+      {}
+    )
+);
+
+export const getAbstractSubBayesianNetworkNodeLinkLayoutMap = createSelector(
+  getAbstractSubBayesianNetworkNodeLinkLayoutDataMap,
+  abstractLayoutDataMap => {}
+);
 
 export const getSubBayesianNetworkNodeLinkMap = createSelector(
   getSubBayesianNetworkMap,
