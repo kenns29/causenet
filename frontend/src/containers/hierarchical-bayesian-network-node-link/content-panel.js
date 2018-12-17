@@ -52,6 +52,8 @@ class ContentPanel extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
+      disableZoom: false,
+      disableMove: false,
       hoveredNodes: []
     };
   }
@@ -69,6 +71,20 @@ class ContentPanel extends PureComponent {
     const deck = this._getDeck();
     return deck && deck.pickObject(param);
   };
+  _handleWheel = event => {
+    if (this._getDeck()) {
+      const [x, y] = this._getEventMouse(event);
+      const info = this._pickObject({
+        x,
+        y,
+        layerIds: ['hierarchical-bayesian-network-node-link-nodes-layer']
+      });
+      if (info) {
+      }
+    }
+    event.preventDefault();
+    event.stopPropagation();
+  };
   _handleMouseMove = event => {
     if (this._getDeck()) {
       const [x, y] = this._getEventMouse(event);
@@ -79,7 +95,8 @@ class ContentPanel extends PureComponent {
       });
       this.setState({
         hoveredNodes:
-          info && info.object ? [{...info.object, mouseX: x, mouseY: y}] : []
+          info && info.object ? [{...info.object, mouseX: x, mouseY: y}] : [],
+        disableZoom: Boolean(info)
       });
     }
     event.preventDefault();
@@ -135,6 +152,7 @@ class ContentPanel extends PureComponent {
   }
   render() {
     const {width, height, isFetchingModifiedBayesianNetwork} = this.props;
+    const {disableZoom, disableMove} = this.state;
     return (
       <div
         ref={input => (this.container = input)}
@@ -143,6 +161,7 @@ class ContentPanel extends PureComponent {
         height={height}
         onMouseMove={this._handleMouseMove}
         onClick={this._handleClick}
+        onWheel={this._handleWheel}
       >
         {isFetchingModifiedBayesianNetwork && (
           <Spin
@@ -155,6 +174,8 @@ class ContentPanel extends PureComponent {
         <DeckGLContainer
           ref={input => (this.deckGLContainer = input)}
           {...this.props}
+          disableZoom={disableZoom}
+          disableMove={disableMove}
         />
       </div>
     );

@@ -14,7 +14,9 @@ export default class ZoomableContainer extends PureComponent {
     style: {},
     overlay: null,
     onZoom: () => {},
-    onMove: () => {}
+    onMove: () => {},
+    disableZoom: false,
+    disableMove: false
   };
   static propTypes = {
     zoomStep: PropTypes.number.isRequired,
@@ -28,7 +30,9 @@ export default class ZoomableContainer extends PureComponent {
     style: PropTypes.object.isRequired,
     getCursor: PropTypes.func,
     onZoom: PropTypes.func.isRequired, // callback function after zoom is triggered
-    onMove: PropTypes.func.isRequired // callback function after pan is triggered
+    onMove: PropTypes.func.isRequired, // callback function after pan is triggered,
+    disableZoom: PropTypes.bool.isRequired,
+    disableMove: PropTypes.bool.isRequired
   };
   constructor(props) {
     super(props);
@@ -76,17 +80,23 @@ export default class ZoomableContainer extends PureComponent {
     this.setState({drag: {...this.state.drag, move: null}});
   };
   _handleWheel = event => {
-    if (event.deltaY < 0) {
-      this._zoomIn();
-    } else {
-      this._zoomOut();
+    if (!this.props.disableZoom) {
+      if (event.deltaY < 0) {
+        this._zoomIn();
+      } else {
+        this._zoomOut();
+      }
     }
   };
   _handleMouseDown = event => {
-    this._moveStart(event);
+    if (!this.props.disableMove) {
+      this._moveStart(event);
+    }
   };
   _handleMouseMove = event => {
-    this._moveOn(event);
+    if (!this.props.disableMove) {
+      this._moveOn(event);
+    }
   };
   _handleMouseUp = event => {
     this._moveEnd();
