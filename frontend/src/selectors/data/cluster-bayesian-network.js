@@ -297,6 +297,7 @@ export const getShiftedReducedAbstractSubBayesianNetworkNodeLinkLayoutMap = crea
               y: node.y + cy - ch / 2
             }),
             e: ({points, ...rest}) => ({
+              ...rest,
               points: points.map(([x, y, z]) => [
                 x + cx - cw / 2,
                 y + cy - ch / 2,
@@ -338,6 +339,7 @@ export const getShiftedSubBayesianNetworkNodeLinkLayoutMap = createSelector(
               y: node.y + cy - ch / 2
             }),
             e: ({points, ...rest}) => ({
+              ...rest,
               points: points.map(([x, y, z]) => [
                 x + cx - cw / 2,
                 y + cy - ch / 2,

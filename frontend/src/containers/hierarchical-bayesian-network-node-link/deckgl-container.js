@@ -108,6 +108,7 @@ export default class ContentPanel extends PureComponent {
         getPath: ({points}) => points,
         getColor: [255, 0, 0, 255],
         getWidth: () => 2,
+        getDashArray: ({path}) => (path.length > 1 ? [5, 5] : [0, 0]),
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY
       })
     ];

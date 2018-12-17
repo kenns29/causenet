@@ -80,7 +80,7 @@ export const createDagLayout = (
     dag.setEdge(nodeId(source), nodeId(target), {...rest});
   });
   dagre.layout(dag);
-  const layoutNodes = dag.nodes().map(v => Object.assign(dag.node(v)));
+  const layoutNodes = dag.nodes().map(v => dag.node(v));
   const layoutEdges = dag.edges().map(e => {
     const edge = dag.edge(e);
     return {
@@ -245,7 +245,7 @@ export const linksToAbstractLinks = links => {
       links.push({
         source: {id: sourceIndex, name: sources[sourceIndex]},
         target: {id: numSources + targetIndex++, name},
-        weight: weight / path.length,
+        weight: weight / path.length / path.length,
         path
       });
     });
