@@ -266,7 +266,7 @@ export const linksToAbstractLinks = links => {
           targets.push({
             name,
             weight: weight + targetWeight,
-            path: [{name: neighbor, weight}].concat(path)
+            path: [{name: neighbor, weight}, ...path]
           });
         });
         nodeTargetsMap[neighbor] = neighborTargets;

@@ -72,18 +72,8 @@ export default class ContentPanel extends PureComponent {
             l: 10,
             w: 5
           }),
-        getFillColor: ({sourceId, targetId, isRemoved, isBackward}) => [
-          64,
-          64,
-          64,
-          255
-        ],
-        getLineColor: ({sourceId, targetId, isRemoved, isBackward}) => [
-          64,
-          64,
-          64,
-          255
-        ],
+        getFillColor: () => [64, 64, 64, 255],
+        getLineColor: () => [64, 64, 64, 255],
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY
       })
     ];
@@ -93,7 +83,8 @@ export default class ContentPanel extends PureComponent {
     return [].concat(
       ...subNodeLinks.map(({key, nodes, edges}) => [
         ...this._renderSubNodes(nodes, key),
-        ...this._renderSubEdges(edges, key)
+        ...this._renderSubEdges(edges, key),
+        ...this._renderSubArrows(edges, key)
       ])
     );
   }
@@ -117,6 +108,23 @@ export default class ContentPanel extends PureComponent {
         getPath: ({points}) => points,
         getColor: [255, 0, 0, 255],
         getWidth: () => 2,
+        coordinateSystem: COORDINATE_SYSTEM.IDENTITY
+      })
+    ];
+  }
+  _renderSubArrows(edges, id) {
+    return [
+      new PolygonLayer({
+        id: ID + '-sub-arrow-layer-' + id,
+        data: edges,
+        getPolygon: ({points}) =>
+          makeLineArrow({
+            line: points.slice(points.length - 2),
+            l: 10,
+            w: 5
+          }),
+        getFillColor: () => [255, 0, 0, 255],
+        getLineColor: () => [255, 0, 0, 255],
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY
       })
     ];
