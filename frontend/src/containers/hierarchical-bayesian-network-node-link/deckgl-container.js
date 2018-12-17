@@ -106,7 +106,7 @@ export default class ContentPanel extends PureComponent {
         id: ID + '-sub-path-layer-' + id,
         data: edges,
         getPath: ({points}) => points,
-        getColor: [255, 0, 0, 255],
+        getColor: [100, 100, 100, 255],
         getWidth: () => 2,
         getDashArray: ({path}) => (path.length > 1 ? [5, 5] : [0, 0]),
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY
@@ -124,8 +124,8 @@ export default class ContentPanel extends PureComponent {
             l: 10,
             w: 5
           }),
-        getFillColor: () => [255, 0, 0, 255],
-        getLineColor: () => [255, 0, 0, 255],
+        getFillColor: () => [100, 100, 100, 255],
+        getLineColor: () => [100, 100, 100, 255],
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY
       })
     ];
