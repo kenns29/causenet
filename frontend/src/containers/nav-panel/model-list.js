@@ -5,29 +5,17 @@ import {getModelList, getSelectedModel} from '../../selectors/data';
 import {
   requestDeleteModel,
   updateSelectedModel,
-  fetchBayesianNetwork,
-  fetchModifiedBayesianNetwork,
-  fetchClusterBayesianNetwork,
-  fetchClusterBayesianModelFeatures,
-  fetchSubBayesianNetworks,
-  fetchSubBayesianModelFeaturesMap,
-  fetchBayesianModelFeatures,
-  fetchModelFeatureValueSelectionMap,
-  fetchModelList
+  fetchModelList,
+  bundleFetchBayesianModel,
+  bundleFetchClusterBayesianModel
 } from '../../actions';
 
 const mapDispatchToProps = {
   requestDeleteModel,
   updateSelectedModel,
-  fetchBayesianNetwork,
-  fetchModifiedBayesianNetwork,
-  fetchClusterBayesianNetwork,
-  fetchClusterBayesianModelFeatures,
-  fetchSubBayesianNetworks,
-  fetchSubBayesianModelFeaturesMap,
-  fetchBayesianModelFeatures,
-  fetchModelFeatureValueSelectionMap,
-  fetchModelList
+  fetchModelList,
+  bundleFetchBayesianModel,
+  bundleFetchClusterBayesianModel
 };
 
 const mapStateToProps = state => ({
@@ -45,19 +33,12 @@ class ModelList extends PureComponent {
           await this.props.requestDeleteModel({name});
           this.props.fetchModelList();
         }}
-        selectData={async({key: name, is_cluster_model: isClusterModel}) => {
+        selectData={({key: name, is_cluster_model: isClusterModel}) => {
+          this.props.updateSelectedModel(name);
           if (isClusterModel === 'true') {
-            this.props.updateSelectedModel(name);
-            this.props.fetchClusterBayesianNetwork({name});
-            this.props.fetchClusterBayesianModelFeatures({name});
-            this.props.fetchSubBayesianNetworks({name});
-            this.props.fetchSubBayesianModelFeaturesMap({name});
+            this.props.bundleFetchClusterBayesianModel(name);
           } else {
-            this.props.updateSelectedModel(name);
-            this.props.fetchBayesianModelFeatures({name});
-            this.props.fetchModelFeatureValueSelectionMap({name});
-            await this.props.fetchModifiedBayesianNetwork({name});
-            this.props.fetchBayesianNetwork({name});
+            this.props.bundleFetchBayesianModel(name);
           }
         }}
         checked={(text, record) => record.key === selectedModel}

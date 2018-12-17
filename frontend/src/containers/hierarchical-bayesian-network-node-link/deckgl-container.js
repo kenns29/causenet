@@ -1,10 +1,12 @@
 import React, {PureComponent} from 'react';
-import {TextLayer, PolygonLayer, PathLayer, COORDINATE_SYSTEM} from 'deck.gl';
-import ZoomableContainer from '../../components/zoomable-container';
 import {
-  StrokedScatterplotLayer,
-  SplineLayer
-} from '../../components/deckgl-layers';
+  TextLayer,
+  PolygonLayer,
+  PathLayer,
+  ScatterplotLayer,
+  COORDINATE_SYSTEM
+} from 'deck.gl';
+import ZoomableContainer from '../../components/zoomable-container';
 import {makeLineArrow} from '../../utils';
 
 const ID = 'hierarchical-bayesian-network-node-link';
@@ -56,7 +58,7 @@ export default class ContentPanel extends PureComponent {
       })
     ];
   }
-  _renderArrows() {
+  _renderClusterArrows() {
     const {
       clusterNodeLink: {edges}
     } = this.props;
@@ -70,18 +72,60 @@ export default class ContentPanel extends PureComponent {
             l: 10,
             w: 5
           }),
-        getFillColor: ({sourceId, targetId, isRemoved, isBackward}) => [
-          64,
-          64,
-          64,
-          255
-        ],
-        getLineColor: ({sourceId, targetId, isRemoved, isBackward}) => [
-          64,
-          64,
-          64,
-          255
-        ],
+        getFillColor: () => [64, 64, 64, 255],
+        getLineColor: () => [64, 64, 64, 255],
+        coordinateSystem: COORDINATE_SYSTEM.IDENTITY
+      })
+    ];
+  }
+  _renderSubNodeLinks() {
+    const {subNodeLinks} = this.props;
+    return [].concat(
+      ...subNodeLinks.map(({key, nodes, edges}) => [
+        ...this._renderSubNodes(nodes, key),
+        ...this._renderSubEdges(edges, key),
+        ...this._renderSubArrows(edges, key)
+      ])
+    );
+  }
+  _renderSubNodes(nodes, id) {
+    return [
+      new ScatterplotLayer({
+        id: ID + '-sub-nodes-layer-' + id,
+        data: nodes,
+        getPosition: ({x, y}) => [x, y],
+        getRadius: 2,
+        getColor: [0, 0, 255, 255],
+        coordinateSystem: COORDINATE_SYSTEM.IDENTITY
+      })
+    ];
+  }
+  _renderSubEdges(edges, id) {
+    return [
+      new PathLayer({
+        id: ID + '-sub-path-layer-' + id,
+        data: edges,
+        getPath: ({points}) => points,
+        getColor: [100, 100, 100, 255],
+        getWidth: () => 2,
+        getDashArray: ({path}) => (path.length > 1 ? [5, 5] : [0, 0]),
+        coordinateSystem: COORDINATE_SYSTEM.IDENTITY
+      })
+    ];
+  }
+  _renderSubArrows(edges, id) {
+    return [
+      new PolygonLayer({
+        id: ID + '-sub-arrow-layer-' + id,
+        data: edges,
+        getPolygon: ({points}) =>
+          makeLineArrow({
+            line: points.slice(points.length - 2),
+            l: 10,
+            w: 5
+          }),
+        getFillColor: () => [100, 100, 100, 255],
+        getLineColor: () => [100, 100, 100, 255],
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY
       })
     ];
@@ -90,7 +134,8 @@ export default class ContentPanel extends PureComponent {
     return [
       ...this._renderClusterNodes(),
       ...this._renderClusterEdges(),
-      ...this._renderArrows()
+      ...this._renderClusterArrows(),
+      ...this._renderSubNodeLinks()
     ];
   }
   render() {

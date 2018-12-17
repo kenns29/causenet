@@ -1,11 +1,13 @@
-import os, pickle, subprocess, re, json, csv, shutil
+import os, pickle, subprocess, re, json, shutil
+from functools import reduce
 from collections import OrderedDict
 from pandas import DataFrame, cut
 from pgmpy.factors.discrete.CPD import TabularCPD
 from pgmpy.models import BayesianModel
+from pgmpy.estimators import ConstraintBasedEstimator
 from modules.service.data_utils import get_current_dataset_name, get_index2col, \
     get_col2index, get_blip_value_converters, load_data, is_temporal_data, get_times, to_blip_csv
-from modules.service.utils import edges_to_child_adjacency_dict
+from modules.service.utils import edges_to_child_index_adjacency_list
 from modules.service.edge_weights import get_edge_weights
 from setup import blip_data_dir, blip_dir, model_dir, model_config_dir
 
@@ -93,6 +95,8 @@ def write_weighted_edges(edges, name):
         config = json.load(file)
         status = config[current_dataset_name]
         models = status['models']
+        if name not in models:
+            models[name] = {}
         models[name]['edge_weights_file'] = 'weight.' + name
         file.seek(0)
         json.dump(config, file, indent='\t')
@@ -116,6 +120,8 @@ def write_full_model_features(features, name):
         config = json.load(file)
         status = config[current_dataset_name]
         models = status['models']
+        if name not in models:
+            models[name] = {}
         models[name]['features_file'] = 'features.' + name
         file.seek(0)
         json.dump(config, file, indent='\t')
@@ -142,6 +148,8 @@ def write_clusters(clusters, name):
         config = json.load(file)
         status = config[current_dataset_name]
         models = status['models']
+        if name not in models:
+            models[name] = {}
         models[name]['clusters_file'] = 'clusters.' + name
         file.seek(0)
         json.dump(config, file, indent='\t')
@@ -159,15 +167,71 @@ def get_sub_models(name):
                 key = s[0] if len(s) < 2 else s[1]
                 model_dict[key] = {} if key not in model_dict else model_dict[key]
                 model_dict[key]['model' if len(s) < 2
-                                else 'weighted_edges' if s[0] == 'weight' else 'features'] = pickle.load(file)
+                else 'weighted_edges' if s[0] == 'weight' else 'features'] = pickle.load(file)
     return model_dict
 
 
-def write_sub_models_within_cluster(model_dict, model_name):
+def remove_sub_models(name, targets=[], complete=False):
+    sub_models_dir = os.path.join(get_current_dataset_model_dir(), 'sub-models.' + name)
+    target_set = set(targets)
+    model_dict = dict()
+    for subdir, dirs, files in os.walk(sub_models_dir):
+        for file_name in files:
+            s = file_name.split('.')
+            key = s[0] if len(s) < 2 else s[1]
+            if key in target_set:
+                # save the deleted models to model_dict
+                with open(os.path.join(sub_models_dir, file_name), mode='rb') as file:
+                    model_dict[key] = {} if key not in model_dict else model_dict[key]
+                    model_dict[key]['model' if len(s) < 2
+                    else 'weighted_edges' if s[0] == 'weight' else 'features'] = pickle.load(file)
+                # delete the model
+                os.remove(os.path.join(sub_models_dir, file_name))
+    if complete:
+        clusters = get_model_clusters(name)
+        if clusters:
+            for target in targets:
+                clusters.pop(target, None)
+            with open(os.path.join(sub_models_dir, 'clusters.' + name), mode='wb') as file:
+                pickle.dump(clusters, file)
+    return model_dict
+
+
+def replace_sub_models(name, targets=[], replacements=[], calc_edge_weights=True):
+    # re-train the cluster model
+    clusters = get_model_clusters(name)
+    clusters = dict() if not clusters else clusters
+    for target in targets:
+        clusters.pop(target, None)
+    for replacement in replacements:
+        clusters[replacement['id']] = replacement['features']
+    model = train_model_on_clusters(clusters, name)
+    if calc_edge_weights:
+        weighted_edges = get_edge_weights(model)
+        write_weighted_edges(weighted_edges, name)
+
+    # remove the target sub models
+    remove_sub_models(name, targets)
+
+    # train the replacement models
+    replacement_dict = dict((replacement['id'], replacement['features']) for replacement in replacements)
+    model_dict = train_sub_model_within_clusters(replacement_dict, load_data(), name)
+    if calc_edge_weights:
+        weighted_edges_dict = calc_sub_models_edge_weights(model_dict, name)
+        write_sub_models_edge_weights(weighted_edges_dict, name)
+
+    # replace the cluster file
+    with open(os.path.join(get_current_dataset_model_dir(), 'clusters.' + name), mode='wb') as file:
+        pickle.dump(clusters, file)
+
+    return model_dict
+
+
+def write_sub_models_within_cluster(model_dict, name):
     if not model_dict:
         return model_dict
     current_dataset_name = get_current_dataset_name()
-    sub_models_dir = os.path.join(get_current_dataset_model_dir(), 'sub-models.' + model_name)
+    sub_models_dir = os.path.join(get_current_dataset_model_dir(), 'sub-models.' + name)
     if not os.path.exists(sub_models_dir):
         os.makedirs(sub_models_dir)
     for key, model in model_dict.items():
@@ -177,7 +241,9 @@ def write_sub_models_within_cluster(model_dict, model_name):
         config = json.load(file)
         status = config[current_dataset_name]
         models = status['models']
-        models[model_name]['sub-models-folder'] = 'sub-models.' + model_name
+        if name not in models:
+            models[name] = {}
+        models[name]['sub-models-folder'] = 'sub-models.' + name
         file.seek(0)
         json.dump(config, file, indent='\t')
         file.truncate()
@@ -225,6 +291,29 @@ def blip_learn_structure(data):
         'java -jar ' + blip_dir + ' solver.kg.adv -smp ent -d ' + os.path.join(blip_data_dir, 'input.dat') + ' -j '
         + os.path.join(blip_data_dir, 'score.jkl') + ' -r '
         + os.path.join(blip_data_dir, 'structure.res') + ' -t 10 -w 4 -v 1', shell=True)
+
+
+def pgmpy_learn_structure(data):
+    est = ConstraintBasedEstimator(data)
+    skel, seperating_sets = est.estimate_skeleton(significance_level=0.01)
+    pdag = est.skeleton_to_pdag(skel, seperating_sets)
+    model = est.pdag_to_dag(pdag)
+    return model
+
+
+def learn_structure(data, index2col=None, col2index=None):
+    index2col = index2col if index2col is not None else get_index2col(data)
+    col2index = col2index if col2index is not None else get_col2index(data)
+    cards_prod = reduce(lambda y, x: x * y, [data[col].cat.categories.size for col in data])
+    if cards_prod < 10000:
+        model = pgmpy_learn_structure(data)
+        to_blip_csv(data)
+        write_blip_edges(model.edges(), col2index)
+    else:
+        blip_learn_structure(data)
+
+    bilp_filter_backward_edges(index2col, col2index)
+    return parse_blip_edges(index2col)
 
 
 def parse_blip_edges(index2col, with_score=False, with_overall_score=False, output_format='edges'):
@@ -288,14 +377,6 @@ def bilp_filter_backward_edges(index2col, col2index):
         structure_file.write('\nScore: {} '.format(overall_score))
 
 
-def learn_structure(data, index2col=None, col2index=None):
-    blip_learn_structure(data)
-    index2col = index2col if index2col is not None else get_index2col(data)
-    col2index = col2index if col2index is not None else get_col2index(data)
-    bilp_filter_backward_edges(index2col, col2index)
-    return parse_blip_edges(index2col)
-
-
 def parse_blip_parameters_uai(index2name=None):
     with open(os.path.join(blip_data_dir, 'parameters.uai'), mode='r') as parameters_file:
         cards = []
@@ -339,6 +420,19 @@ def parse_blip_parameters_uai(index2name=None):
         return cpds
 
 
+def write_blip_edges(edges, col2index):
+    child_adjacency_list = edges_to_child_index_adjacency_list(edges, len(col2index), col2index)
+    with open(os.path.join(blip_data_dir, 'structure.res'), mode='w+') as structure_file:
+        for child, parents in enumerate(child_adjacency_list):
+            structure_file.write(str(child) + ': -200 ')
+            if parents:
+                structure_file.write(' (' + ','.join([str(parent) for parent in parents]) + ')')
+            structure_file.write('\n')
+        if child_adjacency_list:
+            structure_file.write('\nScore: -200\n')
+    return edges
+
+
 def blip_learn_parameters(data=None, edges=None):
     if data is not None:
         to_blip_csv(data)
@@ -346,11 +440,7 @@ def blip_learn_parameters(data=None, edges=None):
         if data is None:
             raise ValueError('data must be not None when edges are specified in the arguments.')
         col2index = get_col2index(data)
-        child_adjacency_dict = edges_to_child_adjacency_dict(edges)
-        with open(os.path.join(blip_data_dir, 'structures.res'), mode='w+') as structure_file:
-            for child, parent_set in child_adjacency_dict.items():
-                structure_file.write(str(col2index[child]) + ': -200 ('
-                                     + ','.join(str(col2index[p]) for p in parent_set) + ')')
+        write_blip_edges(edges, col2index)
 
     subprocess.check_call('java -jar ' + blip_dir + ' parle -d '
                           + os.path.join(blip_data_dir, 'input.dat') + ' -r '
@@ -404,7 +494,8 @@ def train_model(data, name=None, feature_selection=None, do_write_model=True):
 
 def train_model_on_clusters(clusters, name, base_avg_data=None):
     base_avg_data = load_data('base_avg_data_file') if base_avg_data is None else base_avg_data
-    data = DataFrame(columns=range(len(clusters)), index=base_avg_data.index)
+    data = DataFrame(columns=range(len(clusters)) if type(clusters) is list else clusters.keys(),
+                     index=base_avg_data.index)
     for key, cluster in enumerate(clusters) if type(clusters) is list else clusters.items():
         data[key] = base_avg_data.filter(cluster).mean(axis=1)
     if data.shape[1] < 2:

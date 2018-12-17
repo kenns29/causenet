@@ -2,18 +2,34 @@ import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
 import {Spin} from 'antd';
 import DeckGLContainer from './deckgl-container';
+import {getTreeLeaves, findCluster} from '../../utils';
 import {
+  getSelectedModel,
   getIsFetchingModifiedBayesianNetwork,
-  getClusterBayesianNetworkNodeLinkLayout
+  getClusterBayesianNetworkNodeLinkLayout,
+  getShiftedReducedAbstractSubBayesianNetworkNodeLinkLayouts,
+  getRawHierarchicalClusteringTree
 } from '../../selectors/data';
+import {
+  requestReplaceSubBayesianModels,
+  bundleFetchClusterBayesianModel
+} from '../../actions';
 
-const mapDispatchToProps = {};
+const mapDispatchToProps = {
+  requestReplaceSubBayesianModels,
+  bundleFetchClusterBayesianModel
+};
 
 const mapStateToProps = state => ({
+  selectedModel: getSelectedModel(state),
   isFetchingModifiedBayesianNetwork: getIsFetchingModifiedBayesianNetwork(
     state
   ),
-  clusterNodeLink: getClusterBayesianNetworkNodeLinkLayout(state)
+  clusterNodeLink: getClusterBayesianNetworkNodeLinkLayout(state),
+  subNodeLinks: getShiftedReducedAbstractSubBayesianNetworkNodeLinkLayouts(
+    state
+  ),
+  hierarchicalClusteringTree: getRawHierarchicalClusteringTree(state)
 });
 
 const tooltipStyle = {
@@ -44,28 +60,61 @@ class ContentPanel extends PureComponent {
     const {left, top} = this.container.getBoundingClientRect();
     return [clientX - left, clientY - top];
   };
+  _getDeck = () =>
+    this.deckGLContainer &&
+    this.deckGLContainer.container &&
+    this.deckGLContainer.container.deck &&
+    this.deckGLContainer.container.deck.deck;
+  _pickObject = param => {
+    const deck = this._getDeck();
+    return deck && deck.pickObject(param);
+  };
   _handleMouseMove = event => {
-    if (
-      this.deckGLContainer &&
-      this.deckGLContainer.container &&
-      this.deckGLContainer.container.deck
-    ) {
-      const {deck} = this.deckGLContainer.container.deck;
-      const [left, top] = this._getEventMouse(event);
-      const info = deck.pickObject({
-        x: left,
-        y: top,
+    if (this._getDeck()) {
+      const [x, y] = this._getEventMouse(event);
+      const info = this._pickObject({
+        x,
+        y,
         layerIds: ['hierarchical-bayesian-network-node-link-nodes-layer']
       });
       this.setState({
         hoveredNodes:
-          info && info.object
-            ? [{...info.object, mouseX: left, mouseY: top}]
-            : []
+          info && info.object ? [{...info.object, mouseX: x, mouseY: y}] : []
       });
     }
     event.preventDefault();
     event.stopPropagation();
+  };
+  _handleClick = event => {
+    if (this._getDeck()) {
+      const [x, y] = this._getEventMouse(event);
+      const info = this._pickObject({
+        x,
+        y,
+        layerIds: ['hierarchical-bayesian-network-node-link-nodes-layer']
+      });
+      if (info && info.object) {
+        const {hierarchicalClusteringTree: tree} = this.props;
+        this._expandCluster(tree, Number(info.object.label));
+      }
+    }
+  };
+  _expandCluster = async(tree, id) => {
+    const {selectedModel} = this.props;
+    const cluster = findCluster(tree, id);
+    if (cluster) {
+      const targets = [cluster.id];
+      const replacements = cluster.children.map(child => ({
+        id: child.id,
+        features: getTreeLeaves(child).map(d => d.name)
+      }));
+      await this.props.requestReplaceSubBayesianModels({
+        name: selectedModel,
+        targets,
+        replacements
+      });
+      this.props.bundleFetchClusterBayesianModel(selectedModel);
+    }
   };
   _renderTooltip() {
     const {hoveredNodes} = this.state;
@@ -93,6 +142,7 @@ class ContentPanel extends PureComponent {
         width={width}
         height={height}
         onMouseMove={this._handleMouseMove}
+        onClick={this._handleClick}
       >
         {isFetchingModifiedBayesianNetwork && (
           <Spin

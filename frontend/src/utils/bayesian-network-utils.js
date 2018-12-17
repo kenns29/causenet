@@ -1,44 +1,91 @@
 import dagre from 'dagre';
-import {array2Object} from './base';
+import {array2Object, makeAccessor} from './base';
 import {
   clipLine,
   getLineLength,
   getPointOnPerpendicularBisector
 } from './transform';
 
-export const createNodeMap = network =>
-  network.reduce((map, {source, target}) => {
-    return [source, target].reduce(
-      (m, label) =>
-        m.hasOwnProperty(label) ? m : Object.assign(m, {[label]: {label}}),
-      map
-    );
-  }, {});
+export const linksToNodeMap = (network, getId = d => d, getLabel = d => d) =>
+  network.reduce(
+    (map, {source, target}) =>
+      [source, target].reduce((m, node) => {
+        const [id, label] = [getId(node), getLabel(node)];
+        return m.hasOwnProperty(id) ? m : Object.assign(m, {[id]: {id, label}});
+      }, map),
+    {}
+  );
+
+/**
+ * Update the node links without modifying the original node links,
+ * returns a new node link object in which the reference across nodes and links
+ * is preserved.
+ * @param {Object} nodeLinks -- the node link object,
+ * @param {Function|String} k -- key used to match nodes, default is 'label'
+ * @param {Function} n -- optional: returns a new node with the update, if not
+ *                        not specified, returns a new node without update
+ * @param {Function} e -- optional: returns a new link with the update, if not
+ *                        not specified, returns a new link without update
+ * @return {Object} nodeLinks
+ */
+export const createUpdatedNodeLink = ({
+  nodeLink = {nodes: [], links: []},
+  n = d => ({...d}),
+  e = d => d,
+  k = 'label',
+  nodesName = 'nodes',
+  linksName = 'links'
+}) => {
+  const {[nodesName]: nodes, [linksName]: links} = nodeLink;
+  const newNodes = nodes.map(n);
+  const newNodeMap = array2Object(newNodes, k);
+  const ka = makeAccessor(k);
+
+  const newLinks = links.map(link => {
+    const newLink = e(link);
+    const {source, target} = link;
+    return {
+      ...newLink,
+      source: newNodeMap[ka(source)],
+      target: newNodeMap[ka(target)]
+    };
+  });
+  return {...nodeLink, [nodesName]: newNodes, [linksName]: newLinks};
+};
 
 /**
  * Obtain the Bayesian Network in a direct acyclic graph (DAG) layout using
  * the Dagre JavaScript library <https://github.com/dagrejs/dagre>
  */
-export const createDagLayout = ({nodes, links}) => {
+export const createDagLayout = (
+  {nodes, links},
+  graphAttributes,
+  nodeId = d => d.label
+) => {
   const dag = new dagre.graphlib.Graph();
-  dag.setGraph({rankdir: 'LR', ranker: 'tight-tree'});
+  dag.setGraph(
+    {rankdir: 'LR', ranker: 'tight-tree'},
+    ...(graphAttributes || {})
+  );
   dag.setDefaultEdgeLabel(() => {});
   nodes.forEach(node => {
-    dag.setNode(node.label, {
+    dag.setNode(nodeId(node), {
       ...node,
+      data: node,
       width: node.width + 10,
       height: node.height + 10
     });
   });
   links.forEach(({source, target, ...rest}) => {
-    dag.setEdge(source.label, target.label, {...rest});
+    dag.setEdge(nodeId(source), nodeId(target), {...rest});
   });
   dagre.layout(dag);
-  const layoutNodes = dag.nodes().map(v => Object.assign(dag.node(v)));
+  const layoutNodes = dag.nodes().map(v => dag.node(v));
   const layoutEdges = dag.edges().map(e => {
     const edge = dag.edge(e);
     return {
       ...edge,
+      data: edge,
       sourceId: e.v,
       targetId: e.w,
       source: dag.node(e.v),
@@ -46,7 +93,12 @@ export const createDagLayout = ({nodes, links}) => {
       points: edge.points.map(({x, y}) => [x, y, 0])
     };
   });
-  return {nodes: layoutNodes, edges: layoutEdges};
+  return {
+    nodes: layoutNodes,
+    edges: layoutEdges,
+    width: dag.graph().width,
+    height: dag.graph().height
+  };
 };
 
 export const createTemporalDagLayout = (
@@ -124,3 +176,109 @@ export const createBayesianNetworkNodeLinkLayout = (
   isTemporal
     ? createTemporalDagLayout(nodeLink, features)
     : createDagLayout(nodeLink);
+
+export const linksToSourceAdjacencyMap = links => {
+  const map = links.reduce((map, {source, target, ...rest}) => {
+    const targetMap = map.hasOwnProperty(source) ? map[source] : {};
+    targetMap[target] = {name: target, ...rest};
+    map[source] = targetMap;
+    if (!map.hasOwnProperty(target)) {
+      map[target] = {};
+    }
+    return map;
+  }, {});
+  Object.keys(map).forEach(key => {
+    map[key] = Object.values(map[key]);
+  });
+  return map;
+};
+
+export const linksToTargetAdjacencyMap = links => {
+  const maps = links.reduce((map, {source, target, ...rest}) => {
+    const sourceMap = map.hasOwnProperty(target) ? map[target] : {};
+    sourceMap[source] = {name: source, ...rest};
+    map[target] = sourceMap;
+    if (!map.hasOwnProperty(source)) {
+      map[source] = {};
+    }
+    return map;
+  }, {});
+  Object.keys(map).forEach(key => {
+    map[key] = Object.values(map[key]);
+  });
+  return map;
+};
+
+export const linksToDegreeMap = links =>
+  links.reduce((map, {source, target}) => {
+    if (!map.hasOwnProperty(source)) {
+      map[source] = {inDeg: 0, outDeg: 0};
+    }
+    if (!map.hasOwnProperty(target)) {
+      map[target] = {inDeg: 0, outDeg: 0};
+    }
+    ++map[source].outDeg;
+    ++map[target].inDeg;
+    return map;
+  }, {});
+
+export const linksToAbstractLinks = links => {
+  const degreeMap = linksToDegreeMap(links);
+  const [sources, targets] = Object.entries(degreeMap).reduce(
+    ([sources, targets], [node, {inDeg, outDeg}]) => {
+      if (inDeg === 0) {
+        sources.push(node);
+      } else if (outDeg === 0) {
+        targets.push(node);
+      }
+      return [sources, targets];
+    },
+    [[], []]
+  );
+  const adjMap = linksToSourceAdjacencyMap(links);
+  const nodeTargetsMap = {};
+
+  const numSources = sources.length;
+  let targetIndex = 0;
+  return sources.map(visit).reduce((links, targets, sourceIndex) => {
+    targets.forEach(({name, weight, path}) => {
+      links.push({
+        source: {id: sourceIndex, name: sources[sourceIndex]},
+        target: {id: numSources + targetIndex++, name},
+        weight: weight / path.length / path.length,
+        path
+      });
+    });
+    return links;
+  }, []);
+
+  function visit(node) {
+    const targets = [];
+    const neighbors = adjMap[node];
+    if (!neighbors.length) {
+      targets.push({name: node, weight: 0, path: []});
+    } else {
+      neighbors.forEach(({name: neighbor, weight = 0}) => {
+        const neighborTargets = nodeTargetsMap.hasOwnProperty(neighbor)
+          ? nodeTargetsMap[neighbor]
+          : visit(neighbor);
+        neighborTargets.forEach(({name, weight: targetWeight, path}) => {
+          targets.push({
+            name,
+            weight: weight + targetWeight,
+            path: [{name: neighbor, weight}, ...path]
+          });
+        });
+        nodeTargetsMap[neighbor] = neighborTargets;
+      });
+    }
+    nodeTargetsMap[node] = targets;
+    return targets;
+  }
+};
+
+export const abstractLinksToReducedAbstractLinks = abstractLinks =>
+  abstractLinks
+    .slice(0)
+    .sort((a, b) => a.weight - b.weight)
+    .slice(0, 10);

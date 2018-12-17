@@ -121,7 +121,7 @@ const DEFAULT_STATE = {
   modelList: [],
   nodeLinkViewOptions: {
     showLabels: false,
-    useHierarchy: false
+    useHierarchy: true
   }
 };
 

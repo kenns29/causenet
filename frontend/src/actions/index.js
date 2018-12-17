@@ -254,6 +254,40 @@ export const fetchSubBayesianModelFeaturesMap = ({
   }
 };
 
+/**
+ * Request replace sub Bayesian models. The replacement may also change the
+ * structure of the main model
+ * @param {String} name -- the name of the main model
+ * @param {Array} targets -- the sub models to be replaced. Format:
+ *                [id1, ...] -- list of ids of the sub models to be replaced
+ * @param {Array} replacements -- list of model replacement arguments. Format:
+ *                [{
+ *                  id: [id of the sub model],
+ *                  features: [feature, ...] // the list of the features of the model
+ *                },
+ *                ...]
+ * @return {Promise}
+ */
+export const requestReplaceSubBayesianModels = ({
+  name = 'model',
+  targets = [],
+  replacements = []
+}) => async dispatch => {
+  try {
+    const response = await fetch(
+      `${BACKEND_URL}/replace_sub_models?name=${name}`,
+      {
+        method: 'POST',
+        body: JSON.stringify({targets, replacements})
+      }
+    );
+    const data = await response.json();
+    return Promise.resolve(data);
+  } catch (err) {
+    throw new Error(err);
+  }
+};
+
 export const fetchModelList = () => async dispatch => {
   try {
     const response = await fetch(`${BACKEND_URL}/load_model_list`);
@@ -443,6 +477,37 @@ export const requestUpdateModelFeatureValueSelectionMap = ({
     const data = await response.json();
     dispatch(updateBayesianModelFeatureValueSelectionMap(data));
     return Promise.resolve(data);
+  } catch (err) {
+    throw new Error(err);
+  }
+};
+
+// bundled actions
+export const bundleFetchBayesianModel = name => async dispatch => {
+  try {
+    const modifiedBayesianNetwork = await dispatch(
+      fetchModifiedBayesianNetwork({name})
+    );
+    const datas = await Promise.all([
+      dispatch(fetchBayesianModelFeatures({name})),
+      dispatch(fetchModelFeatureValueSelectionMap({name})),
+      dispatch(fetchBayesianNetwork({name}))
+    ]);
+    return Promise.resolve([modifiedBayesianNetwork, ...datas]);
+  } catch (err) {
+    throw new Error(err);
+  }
+};
+
+export const bundleFetchClusterBayesianModel = name => async dispatch => {
+  try {
+    const datas = await Promise.all([
+      dispatch(fetchClusterBayesianNetwork({name})),
+      dispatch(fetchClusterBayesianModelFeatures({name})),
+      dispatch(fetchSubBayesianNetworks({name})),
+      dispatch(fetchSubBayesianModelFeaturesMap({name}))
+    ]);
+    return Promise.resolve(datas);
   } catch (err) {
     throw new Error(err);
   }

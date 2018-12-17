@@ -59,6 +59,18 @@ export const getHierachicalClusteringCut = createSelector(
   cutTreeByDist
 );
 
+export const getHierarchicalClusteringCutClusterIdNamesMap = createSelector(
+  getHierachicalClusteringCut,
+  cut =>
+    cut.reduce(
+      (map, node) =>
+        Object.assign(map, {
+          [node.id]: getTreeLeaves(node).map(({name}) => name)
+        }),
+      {}
+    )
+);
+
 export const getHierachicalClusteringCutTree = createSelector(
   [getRawHierarchicalClusteringTree, getHierachicalClusteringCut],
   getCutTree

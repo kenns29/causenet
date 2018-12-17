@@ -1,5 +1,5 @@
 import {createSelector} from 'reselect';
-import {createNodeMap, createBayesianNetworkNodeLinkLayout} from '../../utils';
+import {linksToNodeMap, createBayesianNetworkNodeLinkLayout} from '../../utils';
 import {
   getRawBayesianNetwork,
   getRawModifiedBayesianNetwork,
@@ -30,7 +30,7 @@ export const getBayesianModelFeatures = createSelector(
  * @param {Array} rawBayesianNetwork
  * @return {Object} the map
  */
-export const getNodeMap = createSelector(getRawBayesianNetwork, createNodeMap);
+export const getNodeMap = createSelector(getRawBayesianNetwork, linksToNodeMap);
 
 /**
  * Obtain a map (label -> Node) in the modified Bayesian network
@@ -39,7 +39,7 @@ export const getNodeMap = createSelector(getRawBayesianNetwork, createNodeMap);
  */
 export const getModifiedNodeMap = createSelector(
   getRawModifiedBayesianNetwork,
-  createNodeMap
+  linksToNodeMap
 );
 
 /**
