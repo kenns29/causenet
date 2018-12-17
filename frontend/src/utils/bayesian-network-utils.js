@@ -29,7 +29,7 @@ export const linksToNodeMap = (network, getId = d => d, getLabel = d => d) =>
  * @return {Object} nodeLinks
  */
 export const createUpdatedNodeLink = ({
-  nodeLink = [[], []],
+  nodeLink = {nodes: [], links: []},
   n = d => ({...d}),
   e = d => d,
   k = 'label',
@@ -276,3 +276,9 @@ export const linksToAbstractLinks = links => {
     return targets;
   }
 };
+
+export const abstractLinksToReducedAbstractLinks = abstractLinks =>
+  abstractLinks
+    .slice(0)
+    .sort((a, b) => a.weight - b.weight)
+    .slice(0, 10);

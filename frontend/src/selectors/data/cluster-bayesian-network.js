@@ -4,6 +4,7 @@ import {
   createDagLayout,
   array2Object,
   linksToAbstractLinks,
+  abstractLinksToReducedAbstractLinks,
   createUpdatedNodeLink
 } from '../../utils';
 import {
@@ -121,8 +122,20 @@ export const getAbstractSubBayesianNetworkMap = createSelector(
     )
 );
 
-export const getAbstractSubBayesianNetworkNodeMapMap = createSelector(
+export const getReducedAbstractSubBayesianNetworkMap = createSelector(
   getAbstractSubBayesianNetworkMap,
+  abstractSubBayesianNetworkMap =>
+    Object.entries(abstractSubBayesianNetworkMap).reduce(
+      (map, [key, abstractLinks]) =>
+        Object.assign(map, {
+          [key]: abstractLinksToReducedAbstractLinks(abstractLinks)
+        }),
+      {}
+    )
+);
+
+export const getReducedAbstractSubBayesianNetworkNodeMapMap = createSelector(
+  getReducedAbstractSubBayesianNetworkMap,
   abstractLinkMap =>
     Object.entries(abstractLinkMap).reduce(
       (map, [key, links]) =>
@@ -133,10 +146,10 @@ export const getAbstractSubBayesianNetworkNodeMapMap = createSelector(
     )
 );
 
-export const getAbstractSubBayesianNetworkNodeLinkMap = createSelector(
+export const getReducedAbstractSubBayesianNetworkNodeLinkMap = createSelector(
   [
-    getAbstractSubBayesianNetworkMap,
-    getAbstractSubBayesianNetworkNodeMapMap,
+    getReducedAbstractSubBayesianNetworkMap,
+    getReducedAbstractSubBayesianNetworkNodeMapMap,
     getSubBayesianNetworkNodeMapMap
   ],
   (abstractLinksMap, abstractNodeMapMap, nodeMapMap) =>
@@ -154,8 +167,8 @@ export const getAbstractSubBayesianNetworkNodeLinkMap = createSelector(
     }, {})
 );
 
-export const getAbstractSubBayesianNetworkNodeLinkLayoutDataMap = createSelector(
-  getAbstractSubBayesianNetworkNodeLinkMap,
+export const getReducedAbstractSubBayesianNetworkNodeLinkLayoutDataMap = createSelector(
+  getReducedAbstractSubBayesianNetworkNodeLinkMap,
   abstractNodeLinkMap =>
     Object.entries(abstractNodeLinkMap).reduce(
       (map, [key, abstractNodeLink]) =>
@@ -174,8 +187,8 @@ export const getAbstractSubBayesianNetworkNodeLinkLayoutDataMap = createSelector
     )
 );
 
-export const getAbstractSubBayesianNetworkNodeLinkLayoutMap = createSelector(
-  getAbstractSubBayesianNetworkNodeLinkLayoutDataMap,
+export const getReducedAbstractSubBayesianNetworkNodeLinkLayoutMap = createSelector(
+  getReducedAbstractSubBayesianNetworkNodeLinkLayoutDataMap,
   abstractLayoutDataMap =>
     Object.entries(abstractLayoutDataMap).reduce(
       (map, [key, abstractLayoutData]) =>
@@ -243,7 +256,7 @@ export const getSubBayesianNetworkNodeLinkLayoutMap = createSelector(
 export const getClusterBayesianNetworkNodeLinkLayoutData = createSelector(
   [
     getClusterBayesianNetworkNodeLink,
-    getAbstractSubBayesianNetworkNodeLinkLayoutMap
+    getReducedAbstractSubBayesianNetworkNodeLinkLayoutMap
   ],
   (nodeLink, subNetworkLayoutMap) =>
     createUpdatedNodeLink({
@@ -265,9 +278,9 @@ export const getClusterBayesianNetworkNodeLinkLayout = createSelector(
   createDagLayout
 );
 
-export const getShiftedAbstractSubBayesianNetworkNodeLinkLayoutMap = createSelector(
+export const getShiftedReducedAbstractSubBayesianNetworkNodeLinkLayoutMap = createSelector(
   [
-    getAbstractSubBayesianNetworkNodeLinkLayoutMap,
+    getReducedAbstractSubBayesianNetworkNodeLinkLayoutMap,
     getClusterBayesianNetworkNodeLinkLayout
   ],
   (subNetworkLayoutMap, {nodes: clusterNodes}) => {
@@ -300,8 +313,8 @@ export const getShiftedAbstractSubBayesianNetworkNodeLinkLayoutMap = createSelec
   }
 );
 
-export const getShiftedAbstractSubBayesianNetworkNodeLinkLayouts = createSelector(
-  getShiftedAbstractSubBayesianNetworkNodeLinkLayoutMap,
+export const getShiftedReducedAbstractSubBayesianNetworkNodeLinkLayouts = createSelector(
+  getShiftedReducedAbstractSubBayesianNetworkNodeLinkLayoutMap,
   layoutMap =>
     Object.entries(layoutMap).map(([key, layout]) => ({...layout, key}))
 );

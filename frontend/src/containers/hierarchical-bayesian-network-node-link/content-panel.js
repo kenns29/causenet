@@ -7,7 +7,7 @@ import {
   getSelectedModel,
   getIsFetchingModifiedBayesianNetwork,
   getClusterBayesianNetworkNodeLinkLayout,
-  getShiftedAbstractSubBayesianNetworkNodeLinkLayouts,
+  getShiftedReducedAbstractSubBayesianNetworkNodeLinkLayouts,
   getRawHierarchicalClusteringTree
 } from '../../selectors/data';
 import {
@@ -26,7 +26,9 @@ const mapStateToProps = state => ({
     state
   ),
   clusterNodeLink: getClusterBayesianNetworkNodeLinkLayout(state),
-  subNodeLinks: getShiftedAbstractSubBayesianNetworkNodeLinkLayouts(state),
+  subNodeLinks: getShiftedReducedAbstractSubBayesianNetworkNodeLinkLayouts(
+    state
+  ),
   hierarchicalClusteringTree: getRawHierarchicalClusteringTree(state)
 });
 
