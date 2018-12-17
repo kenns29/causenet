@@ -160,16 +160,15 @@ export const getAbstractSubBayesianNetworkNodeLinkLayoutDataMap = createSelector
     Object.entries(abstractNodeLinkMap).reduce(
       (map, [key, abstractNodeLink]) =>
         Object.assign(map, {
-          [key]: createUpdatedNodeLink(
-            abstractNodeLink,
-            node => ({
+          [key]: createUpdatedNodeLink({
+            nodeLink: abstractNodeLink,
+            n: node => ({
               ...node,
               width: 2,
               height: 2
             }),
-            link => link,
-            'id'
-          )
+            k: 'id'
+          })
         }),
       {}
     )
@@ -182,9 +181,9 @@ export const getAbstractSubBayesianNetworkNodeLinkLayoutMap = createSelector(
       (map, [key, abstractLayoutData]) =>
         Object.assign(map, {
           [key]: createDagLayout(abstractLayoutData, {
-            nodesep: 10,
-            edgesep: 5,
-            ranksep: 10
+            nodesep: 5,
+            edgesep: 2.5,
+            ranksep: 5
           })
         }),
       {}
@@ -212,11 +211,14 @@ export const getSubBayesianNetworkLayoutDataMap = createSelector(
     Object.entries(nodeLinkMap).reduce(
       (map, [key, nodeLink]) =>
         Object.assign(map, {
-          [key]: createUpdatedNodeLink(nodeLink, node => ({
-            ...node,
-            width: 2,
-            height: 2
-          }))
+          [key]: createUpdatedNodeLink({
+            nodeLink,
+            n: node => ({
+              ...node,
+              width: 2,
+              height: 2
+            })
+          })
         }),
       {}
     )
@@ -244,15 +246,18 @@ export const getClusterBayesianNetworkNodeLinkLayoutData = createSelector(
     getAbstractSubBayesianNetworkNodeLinkLayoutMap
   ],
   (nodeLink, subNetworkLayoutMap) =>
-    createUpdatedNodeLink(nodeLink, node => ({
-      ...node,
-      ...(subNetworkLayoutMap.hasOwnProperty(node.label)
-        ? {
-          width: subNetworkLayoutMap[node.label].width,
-          height: subNetworkLayoutMap[node.label].height
-        }
-        : {width: 10, height: 10})
-    }))
+    createUpdatedNodeLink({
+      nodeLink,
+      n: node => ({
+        ...node,
+        ...(subNetworkLayoutMap.hasOwnProperty(node.label)
+          ? {
+            width: subNetworkLayoutMap[node.label].width,
+            height: subNetworkLayoutMap[node.label].height
+          }
+          : {width: 10, height: 10})
+      })
+    })
 );
 
 export const getClusterBayesianNetworkNodeLinkLayout = createSelector(
@@ -271,24 +276,23 @@ export const getShiftedAbstractSubBayesianNetworkNodeLinkLayoutMap = createSelec
       (map, [clusterId, layout]) => {
         const {x: cx, y: cy, width: cw, height: ch} = clusterNodeMap[clusterId];
         return Object.assign(map, {
-          [clusterId]: createUpdatedNodeLink(
-            layout,
-            node => ({
+          [clusterId]: createUpdatedNodeLink({
+            nodeLink: layout,
+            n: node => ({
               ...node,
               x: node.x + cx - cw / 2,
               y: node.y + cy - ch / 2
             }),
-            ({points, ...rest}) => ({
+            e: ({points, ...rest}) => ({
               points: points.map(([x, y, z]) => [
                 x + cx - cw / 2,
                 y + cy - ch / 2,
                 z
               ])
             }),
-            'id',
-            'nodes',
-            'edges'
-          )
+            k: 'id',
+            linksName: 'edges'
+          })
         });
       },
       {}
@@ -313,24 +317,23 @@ export const getShiftedSubBayesianNetworkNodeLinkLayoutMap = createSelector(
       (map, [clusterId, layout]) => {
         const {x: cx, y: cy, width: cw, height: ch} = clusterNodeMap[clusterId];
         return Object.assign(map, {
-          [clusterId]: createUpdatedNodeLink(
-            layout,
-            node => ({
+          [clusterId]: createUpdatedNodeLink({
+            nodeLink: layout,
+            n: node => ({
               ...node,
               x: node.x + cx - cw / 2,
               y: node.y + cy - ch / 2
             }),
-            ({points, ...rest}) => ({
+            e: ({points, ...rest}) => ({
               points: points.map(([x, y, z]) => [
                 x + cx - cw / 2,
                 y + cy - ch / 2,
                 z
               ])
             }),
-            'label',
-            'nodes',
-            'edges'
-          )
+            k: 'label',
+            linksName: 'edges'
+          })
         });
       },
       {}

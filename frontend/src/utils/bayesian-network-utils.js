@@ -28,14 +28,14 @@ export const linksToNodeMap = (network, getId = d => d, getLabel = d => d) =>
  *                        not specified, returns a new link without update
  * @return {Object} nodeLinks
  */
-export const createUpdatedNodeLink = (
-  nodeLink,
+export const createUpdatedNodeLink = ({
+  nodeLink = [[], []],
   n = d => ({...d}),
   e = d => d,
   k = 'label',
   nodesName = 'nodes',
   linksName = 'links'
-) => {
+}) => {
   const {[nodesName]: nodes, [linksName]: links} = nodeLink;
   const newNodes = nodes.map(n);
   const newNodeMap = array2Object(newNodes, k);
