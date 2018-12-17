@@ -6,14 +6,15 @@ import {
   getPointOnPerpendicularBisector
 } from './transform';
 
-export const linksToNodeMap = (network, k = 'label') =>
-  network.reduce((map, {source, target}) => {
-    return [source, target].reduce(
-      (m, label) =>
-        m.hasOwnProperty(label) ? m : Object.assign(m, {[label]: {[k]: label}}),
-      map
-    );
-  }, {});
+export const linksToNodeMap = (network, getId = d => d, getLabel = d => d) =>
+  network.reduce(
+    (map, {source, target}) =>
+      [source, target].reduce((m, node) => {
+        const [id, label] = [getId(node), getLabel(node)];
+        return m.hasOwnProperty(id) ? m : Object.assign(m, {[id]: {id, label}});
+      }, map),
+    {}
+  );
 
 /**
  * Update the node links without modifying the original node links,
@@ -27,7 +28,7 @@ export const linksToNodeMap = (network, k = 'label') =>
  *                        not specified, returns a new link without update
  * @return {Object} nodeLinks
  */
-export const updateNodeLink = (
+export const createUpdatedNodeLink = (
   nodeLink,
   n = d => ({...d}),
   e = d => d,
@@ -56,7 +57,11 @@ export const updateNodeLink = (
  * Obtain the Bayesian Network in a direct acyclic graph (DAG) layout using
  * the Dagre JavaScript library <https://github.com/dagrejs/dagre>
  */
-export const createDagLayout = ({nodes, links}, graphAttributes) => {
+export const createDagLayout = (
+  {nodes, links},
+  graphAttributes,
+  nodeId = d => d.label
+) => {
   const dag = new dagre.graphlib.Graph();
   dag.setGraph(
     {rankdir: 'LR', ranker: 'tight-tree'},
@@ -64,7 +69,7 @@ export const createDagLayout = ({nodes, links}, graphAttributes) => {
   );
   dag.setDefaultEdgeLabel(() => {});
   nodes.forEach(node => {
-    dag.setNode(node.label, {
+    dag.setNode(nodeId(node), {
       ...node,
       data: node,
       width: node.width + 10,
@@ -72,7 +77,7 @@ export const createDagLayout = ({nodes, links}, graphAttributes) => {
     });
   });
   links.forEach(({source, target, ...rest}) => {
-    dag.setEdge(source.label, target.label, {...rest});
+    dag.setEdge(nodeId(source), nodeId(target), {...rest});
   });
   dagre.layout(dag);
   const layoutNodes = dag.nodes().map(v => Object.assign(dag.node(v)));
@@ -233,11 +238,13 @@ export const linksToAbstractLinks = links => {
   const adjMap = linksToSourceAdjacencyMap(links);
   const nodeTargetsMap = {};
 
-  return sources.map(visit).reduce((links, targets, index) => {
+  const numSources = sources.length;
+  let targetIndex = 0;
+  return sources.map(visit).reduce((links, targets, sourceIndex) => {
     targets.forEach(({name, weight, path}) => {
       links.push({
-        source: sources[index],
-        target: name,
+        source: {id: sourceIndex, name: sources[sourceIndex]},
+        target: {id: numSources + targetIndex++, name},
         weight: weight / path.length,
         path
       });
