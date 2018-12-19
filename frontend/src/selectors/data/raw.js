@@ -56,6 +56,11 @@ export const getRawSubBayesianModelFeaturesMap = createSelector(
   state => state.subBayesianModelFeaturesMap
 );
 
+export const getRawSubBayesianNetworkSliceMap = createSelector(
+  rootSelector,
+  state => state.subBayesianNetworkSliceMap
+);
+
 export const getRawBayesianModelFeatures = createSelector(
   rootSelector,
   state => state.bayesianModelFeatures

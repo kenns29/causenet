@@ -11,7 +11,8 @@ import {
   getRawClusterBayesianNetwork,
   getRawClusterBayesianModelFeatures,
   getRawSubBayesianNetworkMap,
-  getRawSubBayesianModelFeaturesMap
+  getRawSubBayesianModelFeaturesMap,
+  getRawSubBayesianNetworkSliceMap
 } from './raw';
 
 export const getClusterBayesianModelFeatures = createSelector(
@@ -123,12 +124,15 @@ export const getAbstractSubBayesianNetworkMap = createSelector(
 );
 
 export const getReducedAbstractSubBayesianNetworkMap = createSelector(
-  getAbstractSubBayesianNetworkMap,
-  abstractSubBayesianNetworkMap =>
+  [getAbstractSubBayesianNetworkMap, getRawSubBayesianNetworkSliceMap],
+  (abstractSubBayesianNetworkMap, subBayesianNetworkSliceMap) =>
     Object.entries(abstractSubBayesianNetworkMap).reduce(
       (map, [key, abstractLinks]) =>
         Object.assign(map, {
-          [key]: abstractLinksToReducedAbstractLinks(abstractLinks)
+          [key]: abstractLinksToReducedAbstractLinks(
+            abstractLinks,
+            subBayesianNetworkSliceMap[key]
+          )
         }),
       {}
     )

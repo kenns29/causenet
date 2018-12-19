@@ -8,16 +8,20 @@ import {
   getIsFetchingModifiedBayesianNetwork,
   getClusterBayesianNetworkNodeLinkLayout,
   getShiftedReducedAbstractSubBayesianNetworkNodeLinkLayouts,
-  getRawHierarchicalClusteringTree
+  getRawHierarchicalClusteringTree,
+  getRawSubBayesianNetworkSliceMap,
+  getAbstractSubBayesianNetworkMap
 } from '../../selectors/data';
 import {
   requestReplaceSubBayesianModels,
-  bundleFetchClusterBayesianModel
+  bundleFetchClusterBayesianModel,
+  updateSubBayesianNetworkSliceMap
 } from '../../actions';
 
 const mapDispatchToProps = {
   requestReplaceSubBayesianModels,
-  bundleFetchClusterBayesianModel
+  bundleFetchClusterBayesianModel,
+  updateSubBayesianNetworkSliceMap
 };
 
 const mapStateToProps = state => ({
@@ -29,7 +33,9 @@ const mapStateToProps = state => ({
   subNodeLinks: getShiftedReducedAbstractSubBayesianNetworkNodeLinkLayouts(
     state
   ),
-  hierarchicalClusteringTree: getRawHierarchicalClusteringTree(state)
+  hierarchicalClusteringTree: getRawHierarchicalClusteringTree(state),
+  subBayesianNetworkSliceMap: getRawSubBayesianNetworkSliceMap(state),
+  abstractSubBayesianNetworkMap: getAbstractSubBayesianNetworkMap(state)
 });
 
 const tooltipStyle = {
@@ -79,7 +85,36 @@ class ContentPanel extends PureComponent {
         y,
         layerIds: ['hierarchical-bayesian-network-node-link-nodes-layer']
       });
-      if (info) {
+      if (
+        info &&
+        info.object &&
+        info.object.cluster &&
+        info.object.cluster.length > 1
+      ) {
+        const {id} = info.object;
+        const {
+          subBayesianNetworkSliceMap,
+          abstractSubBayesianNetworkMap
+        } = this.props;
+        let [s, t] = subBayesianNetworkSliceMap.hasOwnProperty(id)
+          ? subBayesianNetworkSliceMap[id]
+          : [0, 10];
+        const sliceUpperBound = abstractSubBayesianNetworkMap[id].length;
+        if (event.deltaY < 0) {
+          if (s > 0) {
+            [s, t] = [s - 1, t - 1];
+          }
+          this.props.updateSubBayesianNetworkSliceMap({
+            ...subBayesianNetworkSliceMap,
+            [id]: [s, t]
+          });
+        } else if (t < sliceUpperBound) {
+          [s, t] = [s + 1, t + 1];
+          this.props.updateSubBayesianNetworkSliceMap({
+            ...subBayesianNetworkSliceMap,
+            [id]: [s, t]
+          });
+        }
       }
     }
     event.preventDefault();
@@ -96,7 +131,12 @@ class ContentPanel extends PureComponent {
       this.setState({
         hoveredNodes:
           info && info.object ? [{...info.object, mouseX: x, mouseY: y}] : [],
-        disableZoom: Boolean(info)
+        disableZoom: Boolean(
+          info &&
+            info.object &&
+            info.object.cluster &&
+            info.object.cluster.length > 1
+        )
       });
     }
     event.preventDefault();

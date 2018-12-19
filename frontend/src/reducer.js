@@ -13,6 +13,7 @@ import {
   UPDATE_CLUSTER_BAYESIAN_MODEL_FEATURES,
   UPDATE_SUB_BAYESIAN_NETWORK_MAP,
   UPDATE_SUB_BAYESIAN_MODEL_FEATURES_MAP,
+  UPDATE_SUB_BAYESIAN_NETWORK_SLICE_MAP,
   UPDATE_BAYESIAN_MODEL_FEATURES,
   UPDATE_BAYESIAN_MODEL_FEATURE_VALUE_SELECTION_MAP,
   UPDATE_HIGHLIGHTED_BAYESIAN_NETWORK_EDGE,
@@ -88,6 +89,14 @@ const DEFAULT_STATE = {
   //  ],
   // ...}
   subBayesianModelFeaturesMap: {},
+  // the sub Bayesian Network link slices for filtering the links of overly
+  // large sub networks. If a slice for a cluster_id is not specified, a default
+  // behavior is supposed to be applied.
+  // {
+  //  cluster_id: [slice_start, slice_end],
+  //  ...
+  // }
+  subBayesianNetworkSliceMap: {},
   // the hierarchical clustering option:
   // raw -- clustering for all features as is
   // base -- group the features by the base variable name, temporal features of
@@ -193,6 +202,11 @@ const handleUpdateSubBayesianModelFeaturesMap = (state, {payload}) => ({
   subBayesianModelFeaturesMap: payload
 });
 
+const handleUpdateSubBayesianNetworkSliceMap = (state, {payload}) => ({
+  ...state,
+  subBayesianNetworkSliceMap: payload
+});
+
 const handleUpdateBayesianModelFeatures = (state, {payload}) => ({
   ...state,
   bayesianModelFeatures: payload
@@ -280,6 +294,7 @@ export default handleActions(
     [UPDATE_CLUSTER_BAYESIAN_MODEL_FEATURES]: handleUpdateClusterBayesianModelFeatures,
     [UPDATE_SUB_BAYESIAN_NETWORK_MAP]: handleUpdateSubBayesianNetworkMap,
     [UPDATE_SUB_BAYESIAN_MODEL_FEATURES_MAP]: handleUpdateSubBayesianModelFeaturesMap,
+    [UPDATE_SUB_BAYESIAN_NETWORK_SLICE_MAP]: handleUpdateSubBayesianNetworkSliceMap,
     [UPDATE_BAYESIAN_MODEL_FEATURE_VALUE_SELECTION_MAP]: handleUpdateBayesianModelFeatureValueSelectionMap,
     [UPDATE_HIGHLIGHTED_BAYESIAN_NETWORK_EDGE]: handleUpdateHighlightedBayesianNetworkEdge,
     [UPDATE_HIGHLIGHTED_BAYESIAN_MODEL_FEATURE]: handleUpdateHighlightedBayesianModelFeature,
