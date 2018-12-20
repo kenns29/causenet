@@ -145,7 +145,7 @@ class ContentPanel extends PureComponent {
           const {object} = info;
           const path = [{node: {...object.source}, weight: 0}, ...object.path];
           this.setState({
-            hoveredPath: {path, left: x, top: y},
+            hoveredPath: {path, left: x - 10, top: y - 50},
             hoveredNodes: []
           });
         }

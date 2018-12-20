@@ -18,8 +18,8 @@ export default class PathTooltip extends PureComponent {
   _getPathLayout() {
     const {path} = this.props;
     const [marginLeft, marginTop, marginBottom, marginRight] = [5, 5, 5, 5];
-    const [nw, nh] = [5, 5];
-    const l = 10;
+    const [nw, nh] = [10, 10];
+    const l = 20;
     const nodes = path.map(({node}, index) => ({
       ...node,
       x: marginLeft + index * (nw + l) + nw / 2,
@@ -47,7 +47,8 @@ export default class PathTooltip extends PureComponent {
     return {
       nodes,
       edges,
-      width: marginLeft + nw + nodes[nodes.length - 1].x - nodes[0].x,
+      width:
+        marginLeft + nw + nodes[nodes.length - 1].x - nodes[0].x + marginRight,
       height: marginBottom + nh + marginTop
     };
   }
@@ -82,6 +83,7 @@ export default class PathTooltip extends PureComponent {
       })
     ];
   }
+  _renderLabels(nodes) {}
   _renderLayers({nodes, edges}) {
     return [...this._renderNodes(nodes), ...this._renderEdges(edges)];
   }
