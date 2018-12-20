@@ -125,19 +125,28 @@ class ContentPanel extends PureComponent {
       const [x, y] = this._getEventMouse(event);
       const info = this._pickObject({
         x,
-        y,
-        layerIds: ['hierarchical-bayesian-network-node-link-nodes-layer']
+        y
       });
-      this.setState({
-        hoveredNodes:
-          info && info.object ? [{...info.object, mouseX: x, mouseY: y}] : [],
-        disableZoom: Boolean(
-          info &&
-            info.object &&
-            info.object.cluster &&
-            info.object.cluster.length > 1
-        )
-      });
+      if (info) {
+        const {id: layerId} = info.layer;
+        if (layerId === 'hierarchical-bayesian-network-node-link-nodes-layer') {
+          const {object} = info;
+          this.setState({
+            hoveredNodes: object ? [{...object, mouseX: x, mouseY: y}] : []
+          });
+        } else if (
+          layerId.includes(
+            'hierarchical-bayesian-network-node-link-sub-path-layer-'
+          )
+        ) {
+          console.log('info', info);
+        }
+        this.setState({
+          disableZoom: Boolean(
+            info.object && info.object.cluster && info.object.cluster.length > 1
+          )
+        });
+      }
     }
     event.preventDefault();
     event.stopPropagation();
@@ -189,6 +198,9 @@ class ContentPanel extends PureComponent {
         })}
       </React.Fragment>
     );
+  }
+  _renderPathTooltip(path) {
+    return <div />;
   }
   render() {
     const {width, height, isFetchingModifiedBayesianNetwork} = this.props;
