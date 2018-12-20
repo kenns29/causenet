@@ -2,6 +2,7 @@ import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
 import {Spin} from 'antd';
 import DeckGLContainer from './deckgl-container';
+import PathTooltip from './path-tooltip';
 import {getTreeLeaves, findCluster} from '../../utils';
 import {
   getSelectedModel,
@@ -60,7 +61,8 @@ class ContentPanel extends PureComponent {
     this.state = {
       disableZoom: false,
       disableMove: false,
-      hoveredNodes: []
+      hoveredNodes: [],
+      hoveredPath: null
     };
   }
   _getEventMouse = event => {
@@ -132,19 +134,30 @@ class ContentPanel extends PureComponent {
         if (layerId === 'hierarchical-bayesian-network-node-link-nodes-layer') {
           const {object} = info;
           this.setState({
-            hoveredNodes: object ? [{...object, mouseX: x, mouseY: y}] : []
+            hoveredNodes: object ? [{...object, mouseX: x, mouseY: y}] : [],
+            hoveredPath: null
           });
         } else if (
           layerId.includes(
             'hierarchical-bayesian-network-node-link-sub-path-layer-'
           )
         ) {
-          console.log('info', info);
+          const {object} = info;
+          const path = [{node: {...object.source}, weight: 0}, ...object.path];
+          this.setState({
+            hoveredPath: {path, left: x, top: y},
+            hoveredNodes: []
+          });
         }
         this.setState({
           disableZoom: Boolean(
             info.object && info.object.cluster && info.object.cluster.length > 1
           )
+        });
+      } else {
+        this.setState({
+          hoveredNodes: [],
+          hoveredPath: null
         });
       }
     }
@@ -199,8 +212,17 @@ class ContentPanel extends PureComponent {
       </React.Fragment>
     );
   }
-  _renderPathTooltip(path) {
-    return <div />;
+  _renderPathTooltip() {
+    const {hoveredPath} = this.state;
+    return (
+      hoveredPath && (
+        <PathTooltip
+          path={hoveredPath.path}
+          left={hoveredPath.left}
+          top={hoveredPath.top}
+        />
+      )
+    );
   }
   render() {
     const {width, height, isFetchingModifiedBayesianNetwork} = this.props;
@@ -223,6 +245,7 @@ class ContentPanel extends PureComponent {
           />
         )}
         {this._renderTooltip()}
+        {this._renderPathTooltip()}
         <DeckGLContainer
           ref={input => (this.deckGLContainer = input)}
           {...this.props}
