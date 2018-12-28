@@ -132,12 +132,9 @@ class ContentPanel extends PureComponent {
       if (info) {
         const {id: layerId} = info.layer;
         if (layerId === 'hierarchical-bayesian-network-node-link-nodes-layer') {
-          // const {object} = info;
-          // this.setState({
-          //   hoveredNodes: object ? [{...object, mouseX: x, mouseY: y}] : [],
-          //   hoveredPath: null
-          // });
+          const {object} = info;
           this.setState({
+            hoveredNodes: object ? [{...object, mouseX: x, mouseY: y}] : [],
             hoveredPath: null,
             disableZoom:
               info.object &&
@@ -214,7 +211,9 @@ class ContentPanel extends PureComponent {
               key={label}
               style={{...tooltipStyle, left: mouseX + 10, top: mouseY - 20}}
             >
-              {cluster.map(feature => <div key={feature}>{`${feature}`}</div>)}
+              {cluster
+                .slice(0, 1)
+                .map(feature => <div key={feature}>{`${feature}`}</div>)}
             </div>
           );
         })}
