@@ -137,6 +137,13 @@ class ContentPanel extends PureComponent {
           //   hoveredNodes: object ? [{...object, mouseX: x, mouseY: y}] : [],
           //   hoveredPath: null
           // });
+          this.setState({
+            hoveredPath: null,
+            disableZoom:
+              info.object &&
+              info.object.cluster &&
+              info.object.cluster.length > 1
+          });
         } else if (
           layerId.includes(
             'hierarchical-bayesian-network-node-link-sub-path-layer-'
@@ -145,15 +152,16 @@ class ContentPanel extends PureComponent {
           const {object} = info;
           const path = [{node: {...object.source}, weight: 0}, ...object.path];
           this.setState({
-            hoveredPath: {path, left: x - 10, top: y - 50},
-            hoveredNodes: []
+            hoveredPath: {path, left: x - 10, top: y - 90},
+            hoveredNodes: [],
+            disableZoom: true
+          });
+        } else {
+          this.setState({
+            hoveredNodes: [],
+            hoveredPath: null
           });
         }
-        this.setState({
-          disableZoom: Boolean(
-            info.object && info.object.cluster && info.object.cluster.length > 1
-          )
-        });
       } else {
         this.setState({
           hoveredNodes: [],

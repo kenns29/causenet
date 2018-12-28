@@ -101,18 +101,24 @@ export default class ContentPanel extends PureComponent {
     ];
   }
   _renderSubEdges(edges, id) {
-    return [
-      new PathLayer({
-        id: ID + '-sub-path-layer-' + id,
-        data: edges,
-        getPath: ({points}) => points,
-        getColor: [100, 100, 100, 255],
-        getWidth: () => 2,
-        getDashArray: ({path}) => (path.length > 1 ? [5, 5] : [0, 0]),
-        coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
-        pickable: true
-      })
-    ];
+    const pathProps = {
+      id: ID + '-sub-path-layer-' + id,
+      data: edges,
+      getPath: ({points}) => points,
+      getColor: [100, 100, 100, 255],
+      getWidth: 2,
+      getDashArray: ({path}) => (path.length > 1 ? [5, 5] : [0, 0]),
+      coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+      pickable: true
+    };
+    const backgroundProps = {
+      ...pathProps,
+      id: ID + '-sub-path-layer-background-' + id,
+      getColor: [255, 255, 255, 255],
+      getWidth: 5,
+      getDashArray: [0, 0]
+    };
+    return [new PathLayer(backgroundProps), new PathLayer(pathProps)];
   }
   _renderSubArrows(edges, id) {
     return [

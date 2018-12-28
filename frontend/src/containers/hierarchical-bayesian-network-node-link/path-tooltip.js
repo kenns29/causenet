@@ -19,7 +19,7 @@ export default class PathTooltip extends PureComponent {
   _getPathLayout() {
     const textHeight = 70;
     const {path} = this.props;
-    const [marginLeft, marginTop, marginBottom, marginRight] = [5, 5, 5, 5];
+    const [marginLeft, marginTop, marginBottom, marginRight] = [5, 5, 5, 20];
     const [nw, nh] = [10, 10];
     const l = 20;
     const nodes = path.map(({node}, index) => ({
@@ -81,6 +81,7 @@ export default class PathTooltip extends PureComponent {
         getPath: ({points}) => points,
         getColor: [64, 64, 64, 255],
         getWidth: () => 2,
+        pickable: true,
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY
       })
     ];
