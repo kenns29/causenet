@@ -132,11 +132,11 @@ class ContentPanel extends PureComponent {
       if (info) {
         const {id: layerId} = info.layer;
         if (layerId === 'hierarchical-bayesian-network-node-link-nodes-layer') {
-          const {object} = info;
-          this.setState({
-            hoveredNodes: object ? [{...object, mouseX: x, mouseY: y}] : [],
-            hoveredPath: null
-          });
+          // const {object} = info;
+          // this.setState({
+          //   hoveredNodes: object ? [{...object, mouseX: x, mouseY: y}] : [],
+          //   hoveredPath: null
+          // });
         } else if (
           layerId.includes(
             'hierarchical-bayesian-network-node-link-sub-path-layer-'
@@ -157,7 +157,8 @@ class ContentPanel extends PureComponent {
       } else {
         this.setState({
           hoveredNodes: [],
-          hoveredPath: null
+          hoveredPath: null,
+          disableZoom: false
         });
       }
     }

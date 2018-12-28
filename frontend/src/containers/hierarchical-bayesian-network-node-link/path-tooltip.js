@@ -3,6 +3,7 @@ import DeckGL, {
   OrthographicView,
   PolygonLayer,
   PathLayer,
+  TextLayer,
   COORDINATE_SYSTEM
 } from 'deck.gl';
 
@@ -16,6 +17,7 @@ const tooltipStyle = {
 
 export default class PathTooltip extends PureComponent {
   _getPathLayout() {
+    const textHeight = 70;
     const {path} = this.props;
     const [marginLeft, marginTop, marginBottom, marginRight] = [5, 5, 5, 5];
     const [nw, nh] = [10, 10];
@@ -23,7 +25,7 @@ export default class PathTooltip extends PureComponent {
     const nodes = path.map(({node}, index) => ({
       ...node,
       x: marginLeft + index * (nw + l) + nw / 2,
-      y: marginTop + nh / 2,
+      y: marginTop + nh / 2 + textHeight,
       width: nw,
       height: nh
     }));
@@ -49,7 +51,7 @@ export default class PathTooltip extends PureComponent {
       edges,
       width:
         marginLeft + nw + nodes[nodes.length - 1].x - nodes[0].x + marginRight,
-      height: marginBottom + nh + marginTop
+      height: marginBottom + nh + marginTop + textHeight
     };
   }
   _renderNodes(nodes) {
@@ -83,9 +85,26 @@ export default class PathTooltip extends PureComponent {
       })
     ];
   }
-  _renderLabels(nodes) {}
+  _renderLabels(nodes) {
+    return [
+      new TextLayer({
+        id: ID + '-label-layer',
+        data: nodes,
+        getText: d => d.label,
+        getPosition: ({x, y, height: h}) => [x, y - h],
+        getSize: 10,
+        getAngle: 45,
+        getTextAnchor: 'start',
+        coordinateSystem: COORDINATE_SYSTEM.IDENTITY
+      })
+    ];
+  }
   _renderLayers({nodes, edges}) {
-    return [...this._renderNodes(nodes), ...this._renderEdges(edges)];
+    return [
+      ...this._renderNodes(nodes),
+      ...this._renderEdges(edges),
+      ...this._renderLabels(nodes)
+    ];
   }
   render() {
     const {path, left, top} = this.props;
