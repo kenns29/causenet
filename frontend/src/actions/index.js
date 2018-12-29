@@ -6,6 +6,8 @@ import {BACKEND_URL} from '../constants';
 export const UPDATE_SCREEN_SIZE = 'UPDATE_SCREEN_SIZE';
 export const UPDATE_NAV_PANEL_WIDTH = 'UPDATE_NAV_PANEL_WIDTH';
 export const UPDATE_CONTENT_PANEL_CENTER = 'UPDATE_CONTENT_PANEL_CENTER';
+export const UPDATE_SHOW_BAYESIAN_NETWORK_DISTRIBUTION_WINDOW =
+  'UPDATE_SHOW_BAYESIAN_NETWORK_DISTRIBUTION_WINDOW';
 
 // data Action ids
 export const UPDATE_CURRENT_DATASET_NAME = 'UPDDATE_CURRENT_DATASET_NAME';
@@ -54,6 +56,9 @@ export const updateScreenSize = createAction(UPDATE_SCREEN_SIZE);
 export const updateNavPanelWidth = createAction(UPDATE_NAV_PANEL_WIDTH);
 export const updateContentPanelCenter = createAction(
   UPDATE_CONTENT_PANEL_CENTER
+);
+export const updateShowBayesianNetworkDistributionWindow = createAction(
+  UPDATE_SHOW_BAYESIAN_NETWORK_DISTRIBUTION_WINDOW
 );
 
 // data actions

@@ -17,9 +17,9 @@ export default class PopupWindow extends PureComponent {
     headerStyle: {},
     contentStyle: {},
     headerHeight: 20,
-    show: true
+    show: true,
+    onClose: () => {}
   };
-
   static getDerivedStateFromProps(props, state) {
     const {width, height, x, y, show} = props;
     const newChanger = {width, height, x, y, show};
@@ -56,7 +56,7 @@ export default class PopupWindow extends PureComponent {
           <div
             style={{
               backgroundColor: 'lightgrey',
-              textAligh: 'right',
+              textAlign: 'right',
               verticalAlign: 'middle',
               ...this.props.headerStyle,
               height: headerHeight,
@@ -70,7 +70,10 @@ export default class PopupWindow extends PureComponent {
                 fontSize: 13,
                 marginRight: 5
               }}
-              onClick={() => this.setState({show: false})}
+              onClick={event => {
+                this.setState({show: false});
+                this.props.onClose(event);
+              }}
             >
               close
             </span>

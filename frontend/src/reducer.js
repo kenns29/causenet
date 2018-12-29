@@ -3,6 +3,7 @@ import {
   UPDATE_SCREEN_SIZE,
   UPDATE_NAV_PANEL_WIDTH,
   UPDATE_CONTENT_PANEL_CENTER,
+  UPDATE_SHOW_BAYESIAN_NETWORK_DISTRIBUTION_WINDOW,
   UPDATE_CURRENT_DATASET_NAME,
   UPDATE_DATASET_LIST,
   FETCH_BAYESIAN_NETWORK_START,
@@ -131,7 +132,8 @@ const DEFAULT_STATE = {
   nodeLinkViewOptions: {
     showLabels: false,
     useHierarchy: true
-  }
+  },
+  showBayesianNetworkDistributionWindow: false
 };
 
 const handleUpdateScreenSize = (state, {payload}) => ({
@@ -148,6 +150,14 @@ const handleUpdateNavPanelWidth = (state, {payload}) => ({
 const handleUpdateContentPanelCenter = (state, {payload}) => ({
   ...state,
   contentPanelCenter: payload
+});
+
+const handleUpdateShowBayesianNetworkDistributionWindow = (
+  state,
+  {payload}
+) => ({
+  ...state,
+  showBayesianNetworkDistributionWindow: payload
 });
 
 const handleUpdateCurrentDatasetName = (state, {payload}) => ({
@@ -283,6 +293,7 @@ export default handleActions(
     [UPDATE_SCREEN_SIZE]: handleUpdateScreenSize,
     [UPDATE_NAV_PANEL_WIDTH]: handleUpdateNavPanelWidth,
     [UPDATE_CONTENT_PANEL_CENTER]: handleUpdateContentPanelCenter,
+    [UPDATE_SHOW_BAYESIAN_NETWORK_DISTRIBUTION_WINDOW]: handleUpdateShowBayesianNetworkDistributionWindow,
     [UPDATE_CURRENT_DATASET_NAME]: handleUpdateCurrentDatasetName,
     [UPDATE_DATASET_LIST]: handleUpdateDatasetList,
     [FETCH_BAYESIAN_NETWORK_START]: handleFetchBayesianNetworkStart,
