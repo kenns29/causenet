@@ -142,6 +142,10 @@ class ContentPanel extends PureComponent {
               info.object.cluster.length > 1
           });
         } else if (
+          layerId === 'hierarchical-bayesian-network-node-link-path-layer'
+        ) {
+          const {object} = info;
+        } else if (
           layerId.includes(
             'hierarchical-bayesian-network-node-link-sub-path-layer-'
           )

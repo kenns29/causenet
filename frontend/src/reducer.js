@@ -124,7 +124,7 @@ const DEFAULT_STATE = {
   // [name, ...] -- select the features by name
   featureSelection: null,
   // the feature value map maps each feature in the current data to its
-  // list of values:
+  // list of assigned values:
   // {feature_name: [value_name, ...], ...}
   featureValuesMap: {},
   selectedModel: null,
@@ -133,7 +133,26 @@ const DEFAULT_STATE = {
     showLabels: false,
     useHierarchy: true
   },
-  showBayesianNetworkDistributionWindow: false
+  showBayesianNetworkDistributionWindow: false,
+  // feature pair list that will be shown in the distribution window
+  // [
+  //  {
+  //    id: (pair id),
+  //    source: (source id),
+  //    target: (target id)
+  //  },
+  //  ...
+  // ]
+  distributionFeaturePairs: [],
+  // selected normalized feature distribution map
+  // {
+  //  feature_id : {
+  //    value_key : (value),
+  //    ...
+  //  },
+  //  ...
+  // }
+  selectedNormalizedFeatureDistributionMap: {}
 };
 
 const handleUpdateScreenSize = (state, {payload}) => ({

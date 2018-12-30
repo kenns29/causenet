@@ -47,16 +47,21 @@ export default class ContentPanel extends PureComponent {
     const {
       clusterNodeLink: {edges}
     } = this.props;
-    return [
-      new PathLayer({
-        id: ID + '-path-layer',
-        data: edges,
-        getPath: ({points}) => points,
-        getColor: [64, 64, 64, 255],
-        getWidth: () => 2,
-        coordinateSystem: COORDINATE_SYSTEM.IDENTITY
-      })
-    ];
+    const pathProps = {
+      id: ID + '-path-layer',
+      data: edges,
+      getPath: ({points}) => points,
+      getColor: [64, 64, 64, 255],
+      getWidth: 2,
+      pickable: true,
+      coordinateSystem: COORDINATE_SYSTEM.IDENTITY
+    };
+    const backgroundProps = {
+      ...pathProps,
+      getColor: [255, 255, 255, 255],
+      getWidth: 5
+    };
+    return [new PathLayer(backgroundProps), new PathLayer(pathProps)];
   }
   _renderClusterArrows() {
     const {
