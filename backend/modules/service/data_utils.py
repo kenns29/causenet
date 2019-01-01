@@ -31,6 +31,18 @@ def get_current_dataset_status():
 
 
 def load_data(data_type='data_file'):
+    """
+    load the data from the pickled binary file
+
+    :param data_type:
+        "raw_data_file" |
+        "normalized_raw_data_file" |
+        "data_file" |
+        "base_avg_data_file" |
+        "pdist_file" |
+        "clustering_file"
+    :return: the panda data frame
+    """
     status = get_current_dataset_status()
     with open(os.path.join(data_dir, status[data_type]), mode='rb') as file:
         return pickle.load(file)

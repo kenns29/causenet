@@ -50,6 +50,10 @@ export const UPDATE_HIERARCHICAL_CLUSTERING_CUT_THRESHOLD =
 export const UPDATE_FEATURE_LIST = 'UPDATE_FEATURE_LIST';
 export const UPDATE_FEATURE_SELECTION = 'UPDATE_FEATURE_SELECTION';
 export const UPDATE_FEATURE_VALUES_MAP = 'UPDATE_FEATURE_VALUE_MAP';
+export const UPDATE_DISTRIBUTION_FEATURE_PAIRS =
+  'UPDATE_DISTRIBUTION_FEATURE_PAIRS';
+export const UPDATE_SELECTED_NORMALIZED_FEATURE_DISTRIBUTION_MAP =
+  'UPDATE_SELECTED_NORMALIZED_FEATURE_DISTRIBUTION_MAP';
 
 // UI actions
 export const updateScreenSize = createAction(UPDATE_SCREEN_SIZE);
@@ -123,6 +127,12 @@ export const updateHierarchicalClusteringCutThreshold = createAction(
 );
 export const updateFeatureSelection = createAction(UPDATE_FEATURE_SELECTION);
 export const updateFeatureValuesMap = createAction(UPDATE_FEATURE_VALUES_MAP);
+export const updateDistributionFeaturePairs = createAction(
+  UPDATE_DISTRIBUTION_FEATURE_PAIRS
+);
+export const updateSelectedNormalizedFeatureDistributionMap = createAction(
+  UPDATE_SELECTED_NORMALIZED_FEATURE_DISTRIBUTION_MAP
+);
 
 // async actions
 export const fetchCurrentDatasetName = () => async dispatch => {
@@ -492,6 +502,25 @@ export const requestUpdateModelFeatureValueSelectionMap = ({
   }
 };
 
+export const requestFetchData = ({
+  data_type = 'normalized_raw_data_file',
+  featureSelection = null
+}) => async dispatch => {
+  try {
+    const response = await fetch(
+      `${BACKEND_URL}/load_data?data_type=${data_type}`,
+      {
+        method: 'POST',
+        body: featureSelection && JSON.stringify(featureSelection)
+      }
+    );
+    const data = response.json();
+    return Promise.resolve(data);
+  } catch (err) {
+    throw new Error(err);
+  }
+};
+
 // bundled actions
 export const bundleFetchBayesianModel = name => async dispatch => {
   try {
@@ -518,6 +547,20 @@ export const bundleFetchClusterBayesianModel = name => async dispatch => {
       dispatch(fetchSubBayesianModelFeaturesMap({name}))
     ]);
     return Promise.resolve(datas);
+  } catch (err) {
+    throw new Error(err);
+  }
+};
+
+export const bundleFetchAddToSelectedNormalizedFeatureDistributionMap = ({
+  featureSelection = null,
+  selectedNormalizedFeatureDistributionMap
+}) => async dispatch => {
+  try {
+    const data = await dispatch(requestFetchData({featureSelection}));
+    const rMap = {...selectedNormalizedFeatureDistributionMap, ...data};
+    dispatch(updateSelectedNormalizedFeatureDistributionMap(rMap));
+    return Promise.resolve(rMap);
   } catch (err) {
     throw new Error(err);
   }

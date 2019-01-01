@@ -16,13 +16,15 @@ import {
 import {
   requestReplaceSubBayesianModels,
   bundleFetchClusterBayesianModel,
-  updateSubBayesianNetworkSliceMap
+  updateSubBayesianNetworkSliceMap,
+  bundleFetchAddToSelectedNormalizedFeatureDistributionMap
 } from '../../actions';
 
 const mapDispatchToProps = {
   requestReplaceSubBayesianModels,
   bundleFetchClusterBayesianModel,
-  updateSubBayesianNetworkSliceMap
+  updateSubBayesianNetworkSliceMap,
+  bundleFetchAddToSelectedNormalizedFeatureDistributionMap
 };
 
 const mapStateToProps = state => ({
@@ -142,10 +144,6 @@ class ContentPanel extends PureComponent {
               info.object.cluster.length > 1
           });
         } else if (
-          layerId === 'hierarchical-bayesian-network-node-link-path-layer'
-        ) {
-          const {object} = info;
-        } else if (
           layerId.includes(
             'hierarchical-bayesian-network-node-link-sub-path-layer-'
           )
@@ -174,17 +172,32 @@ class ContentPanel extends PureComponent {
     event.preventDefault();
     event.stopPropagation();
   };
-  _handleClick = event => {
+  _handleClick = async event => {
     if (this._getDeck()) {
       const [x, y] = this._getEventMouse(event);
       const info = this._pickObject({
         x,
-        y,
-        layerIds: ['hierarchical-bayesian-network-node-link-nodes-layer']
+        y
       });
-      if (info && info.object) {
-        const {hierarchicalClusteringTree: tree} = this.props;
-        this._expandCluster(tree, Number(info.object.label));
+      if (info) {
+        const {id: layerId} = info.layer;
+        if (layerId === 'hierarchical-bayesian-network-node-link-nodes-layer') {
+          const {object} = info;
+          const {hierarchicalClusteringTree: tree} = this.props;
+          this._expandCluster(tree, Number(object.label));
+        } else if (
+          layerId === 'hierarchical-bayesian-network-node-link-path-layer'
+        ) {
+          const {object} = info;
+          const source = object.source.cluster[0];
+          const target = object.target.cluster[0];
+          const map = await this.props.bundleFetchAddToSelectedNormalizedFeatureDistributionMap(
+            {
+              featureSelection: null,
+              selectedNormalizedFeatureDistributionMap: {}
+            }
+          );
+        }
       }
     }
   };

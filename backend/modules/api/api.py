@@ -287,3 +287,17 @@ def route_update_model_feature_value_selection_map():
     feature_value_selection_map = json.loads(request.data)
     update_model_feature_value_selection_map(name, feature_value_selection_map)
     return redirect(url_for('.load_model_feature_value_selection_map', name=name))
+
+
+@blueprint.route('/load_data', methods=['GET', 'POST'])
+def route_load_data():
+    data_type = request.args.get('data_type') if request.args.get('data_type') else 'normalized_raw_data_file'
+    if request.method == 'GET':
+        feature_selection = request.args.get('feature_selection')
+    else:
+        feature_selection = json.loads(request.data) if request.data else None
+
+    data = load_data(data_type=data_type)
+    data = data.filter(feature_selection) if feature_selection is not None else data
+    r_dict = dict((key, dict((index, data[key][index]) for index in data.index)) for key in data.keys())
+    return jsonify(r_dict)

@@ -27,7 +27,9 @@ import {
   UPDATE_DISTANCE_MAP,
   UPDATE_HIERARCHICAL_CLUSTERING_CUT_THRESHOLD,
   UPDATE_FEATURE_SELECTION,
-  UPDATE_FEATURE_VALUES_MAP
+  UPDATE_FEATURE_VALUES_MAP,
+  UPDATE_DISTRIBUTION_FEATURE_PAIRS,
+  UPDATE_SELECTED_NORMALIZED_FEATURE_DISTRIBUTION_MAP
 } from './actions';
 
 import {HIERARICAL_CLUSTERING_OPTION} from './constants';
@@ -307,6 +309,19 @@ const handleUpdateFeatureValuesMap = (state, {payload}) => ({
   featureValuesMap: payload
 });
 
+const handleUpdateDistributionFeaturePairs = (state, {payload}) => ({
+  ...state,
+  distributionFeaturePairs: payload
+});
+
+const handleUpdateSelectedNormalizedFeatureDistributionMap = (
+  state,
+  {payload}
+) => ({
+  ...state,
+  selectedNormalizedFeatureDistributionMap: payload
+});
+
 export default handleActions(
   {
     [UPDATE_SCREEN_SIZE]: handleUpdateScreenSize,
@@ -336,7 +351,9 @@ export default handleActions(
     [UPDATE_DISTANCE_MAP]: handleUpdateDistanceMap,
     [UPDATE_HIERARCHICAL_CLUSTERING_CUT_THRESHOLD]: handleUpdateHierarchicalClusteringCutThreshold,
     [UPDATE_FEATURE_SELECTION]: handleUpdateFeatureSelection,
-    [UPDATE_FEATURE_VALUES_MAP]: handleUpdateFeatureValuesMap
+    [UPDATE_FEATURE_VALUES_MAP]: handleUpdateFeatureValuesMap,
+    [UPDATE_DISTRIBUTION_FEATURE_PAIRS]: handleUpdateDistributionFeaturePairs,
+    [UPDATE_SELECTED_NORMALIZED_FEATURE_DISTRIBUTION_MAP]: handleUpdateSelectedNormalizedFeatureDistributionMap
   },
   DEFAULT_STATE
 );
