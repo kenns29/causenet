@@ -565,3 +565,9 @@ export const bundleFetchAddToSelectedNormalizedFeatureDistributionMap = ({
     throw new Error(err);
   }
 };
+
+export const bundleAddToDistributionFeaturePairs = ({
+  pair,
+  distributionFeaturePairs
+}) => dispatch =>
+  dispatch(updateDistributionFeaturePairs([...distributionFeaturePairs, pair]));

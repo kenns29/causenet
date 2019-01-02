@@ -1,20 +1,66 @@
 import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
 import PopupWindow from '../../components/popup-window';
-import {getShowBayesianNetworkDistributionWindow} from '../../selectors/data';
+import DeckGLContainer from './deckgl-container';
+import {
+  getShowBayesianNetworkDistributionWindow,
+  getRawDistributionFeaturePairs,
+  getRawSelectedNormalizedFeatureDistributionMap
+} from '../../selectors/data';
 import {updateShowBayesianNetworkDistributionWindow} from '../../actions';
+
+import {scaleLinear} from 'd3-scale';
 
 const mapDispatchToProps = {updateShowBayesianNetworkDistributionWindow};
 
 const mapStateToProps = state => ({
   showBayesianNetworkDistributionWindow: getShowBayesianNetworkDistributionWindow(
     state
+  ),
+  distributionFeaturePairs: getRawDistributionFeaturePairs(state),
+  selectedNormalizedFeatureDistributionMap: getRawSelectedNormalizedFeatureDistributionMap(
+    state
   )
 });
 
 class ContentPanel extends PureComponent {
   render() {
-    const {showBayesianNetworkDistributionWindow} = this.props;
+    const {
+      showBayesianNetworkDistributionWindow,
+      distributionFeaturePairs,
+      selectedNormalizedFeatureDistributionMap
+    } = this.props;
+    const scale = scaleLinear()
+      .domain([0, 1])
+      .range([0, 380]);
+    const data = distributionFeaturePairs.map(pair => {
+      const {source, target} = pair;
+      const [sourceValues, targetValues] = [source, target].map(
+        id => selectedNormalizedFeatureDistributionMap[id]
+      );
+      if ([sourceValues, targetValues].some(d => !d)) {
+        return [];
+      }
+      const points = Object.keys(sourceValues).map(key => {
+        const [sourceValue, targetValue] = [
+          sourceValues[key],
+          targetValues[key]
+        ];
+        let [x, y] = [sourceValue, 1 - targetValue].map(scale);
+        x += 20;
+        y += 20;
+        return {
+          key,
+          source,
+          target,
+          values: [sourceValue, targetValue],
+          position: [x, y]
+        };
+      });
+      return points;
+    });
+    const d = data.length ? data[0] : [];
+    console.log('d', d);
     return (
       showBayesianNetworkDistributionWindow && (
         <PopupWindow
@@ -23,7 +69,7 @@ class ContentPanel extends PureComponent {
             this.props.updateShowBayesianNetworkDistributionWindow(false)
           }
         >
-          <div>Hello</div>
+          <DeckGLContainer {...this.props} data={d} />
         </PopupWindow>
       )
     );

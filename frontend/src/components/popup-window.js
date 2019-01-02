@@ -55,6 +55,7 @@ export default class PopupWindow extends PureComponent {
         <div style={{border: '1px solid grey', position: 'relative'}}>
           <div
             style={{
+              position: 'relative',
               backgroundColor: 'lightgrey',
               textAlign: 'right',
               verticalAlign: 'middle',
@@ -81,6 +82,7 @@ export default class PopupWindow extends PureComponent {
         </div>
         <div
           style={{
+            position: 'relative',
             backgroundColor: 'white',
             overflowY: 'auto',
             ...this.props.contentStyle,

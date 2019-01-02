@@ -120,3 +120,13 @@ export const getShowBayesianNetworkDistributionWindow = createSelector(
   rootSelector,
   state => state.showBayesianNetworkDistributionWindow
 );
+
+export const getRawDistributionFeaturePairs = createSelector(
+  rootSelector,
+  state => state.distributionFeaturePairs
+);
+
+export const getRawSelectedNormalizedFeatureDistributionMap = createSelector(
+  rootSelector,
+  state => state.selectedNormalizedFeatureDistributionMap
+);
