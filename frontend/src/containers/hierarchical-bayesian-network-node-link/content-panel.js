@@ -189,11 +189,19 @@ class ContentPanel extends PureComponent {
           layerId === 'hierarchical-bayesian-network-node-link-path-layer'
         ) {
           const {object} = info;
-          const source = object.source.cluster[0];
-          const target = object.target.cluster[0];
+          const {source, target} = object;
           const map = await this.props.bundleFetchAddToSelectedNormalizedFeatureDistributionMap(
             {
-              featureSelection: null,
+              featureSelection: [source, target].reduce(
+                (map, node) =>
+                  Object.assign(
+                    map,
+                    node.cluster.length > 1
+                      ? {[node.id]: node.cluster}
+                      : {[node.cluster[0]]: node.cluster}
+                  ),
+                {}
+              ),
               selectedNormalizedFeatureDistributionMap: {}
             }
           );

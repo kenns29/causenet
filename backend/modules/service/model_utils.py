@@ -6,7 +6,8 @@ from pgmpy.factors.discrete.CPD import TabularCPD
 from pgmpy.models import BayesianModel
 from pgmpy.estimators import ConstraintBasedEstimator
 from modules.service.data_utils import get_current_dataset_name, get_index2col, \
-    get_col2index, get_blip_value_converters, load_data, is_temporal_data, get_times, to_blip_csv
+    get_col2index, get_blip_value_converters, load_data, is_temporal_data, get_times, to_blip_csv, \
+    get_column_mean_aggregated_data
 from modules.service.utils import edges_to_child_index_adjacency_list
 from modules.service.edge_weights import get_edge_weights
 from setup import blip_data_dir, blip_dir, model_dir, model_config_dir
@@ -494,10 +495,7 @@ def train_model(data, name=None, feature_selection=None, do_write_model=True):
 
 def train_model_on_clusters(clusters, name, base_avg_data=None):
     base_avg_data = load_data('base_avg_data_file') if base_avg_data is None else base_avg_data
-    data = DataFrame(columns=range(len(clusters)) if type(clusters) is list else clusters.keys(),
-                     index=base_avg_data.index)
-    for key, cluster in enumerate(clusters) if type(clusters) is list else clusters.items():
-        data[key] = base_avg_data.filter(cluster).mean(axis=1)
+    data = get_column_mean_aggregated_data(base_avg_data, clusters)
     if data.shape[1] < 2:
         print('number of features < 2, skip training ...')
         return None

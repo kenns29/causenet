@@ -6,10 +6,12 @@ from modules.service.model_utils import get_model, delete_model, learn_structure
     get_full_model_features, get_model_clusters, replace_sub_models
 from modules.service.edge_weights import get_edge_weights
 from modules.service.data_utils import load_data, load_pdist, load_clustering, get_current_dataset_name, \
-    get_dataset_config, update_current_dataset_name as update_current_dataset_name_util, get_index2col
+    get_dataset_config, update_current_dataset_name as update_current_dataset_name_util, get_index2col, \
+    get_column_mean_aggregated_data
 from modules.service.clustering_utils import tree2dict, tree_to_non_binary_dict
 from scipy.cluster.hierarchy import to_tree
 from itertools import combinations
+from pandas import DataFrame
 
 blueprint = Blueprint('api', __name__)
 
@@ -291,13 +293,13 @@ def route_update_model_feature_value_selection_map():
 
 @blueprint.route('/load_data', methods=['GET', 'POST'])
 def route_load_data():
-    data_type = request.args.get('data_type') if request.args.get('data_type') else 'normalized_raw_data_file'
+    data_type = request.args.get('data_type') if request.args.get('data_type') else 'base_avg_data_file'
     if request.method == 'GET':
         feature_selection = request.args.get('feature_selection')
     else:
         feature_selection = json.loads(request.data) if request.data else None
 
     data = load_data(data_type=data_type)
-    data = data.filter(feature_selection) if feature_selection is not None else data
-    r_dict = dict((key, dict((index, data[key][index]) for index in data.index)) for key in data.keys())
-    return jsonify(r_dict)
+    data = get_column_mean_aggregated_data(data, feature_selection) if feature_selection is not None else data
+    return jsonify(dict((str(key), dict((index, data[str(key)][index])
+                                        for index in data.index)) for key in data.keys()))

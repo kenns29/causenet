@@ -503,7 +503,7 @@ export const requestUpdateModelFeatureValueSelectionMap = ({
 };
 
 export const requestFetchData = ({
-  data_type = 'normalized_raw_data_file',
+  data_type = 'base_avg_data_file',
   featureSelection = null
 }) => async dispatch => {
   try {

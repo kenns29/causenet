@@ -108,6 +108,18 @@ def get_base_avg_data(data):
     return r_data
 
 
+def get_column_mean_aggregated_data(data, aggregator):
+    r_data = DataFrame(index=data.index)
+    for key, g in enumerate(aggregator) if type(aggregator) is list else aggregator.items():
+        if isinstance(g, list):
+            r_data[key] = data.filter(g).mean(axis=1)
+        elif type(aggregator) is list:
+            r_data[g] = data[g]
+        else:
+            r_data[key] = data[g]
+    return r_data
+
+
 def get_raw_categorical_column_value_converter(data, key):
     index = 0
     r_dict = dict()
