@@ -9,3 +9,7 @@ export const HIERARICAL_CLUSTERING_OPTION = {
   BASE: 'base',
   BASE_AVG: 'base_avg'
 };
+
+export const DISTRIBUTION_SCATTERPLOT = {
+  SIZE: [300, 300]
+};

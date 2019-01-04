@@ -18,7 +18,9 @@ export default class PopupWindow extends PureComponent {
     contentStyle: {},
     headerHeight: 20,
     show: true,
-    onClose: () => {}
+    onClose: () => {},
+    onDrag: () => {},
+    onResize: () => {}
   };
   static getDerivedStateFromProps(props, state) {
     const {width, height, x, y, show} = props;
@@ -37,7 +39,7 @@ export default class PopupWindow extends PureComponent {
     super(props);
     const {width, height, x, y, show} = props;
     const changer = {width, height, x, y, show};
-    this.state = {...changer, changer};
+    this.state = {...changer, changer, start: null};
   }
   render() {
     const {width, height, x, y, show} = this.state;
@@ -46,10 +48,32 @@ export default class PopupWindow extends PureComponent {
       <Rnd
         size={{width, height}}
         position={{x, y}}
-        onDragStop={(_, {x, y}) => this.setState({x, y})}
-        onResize={(event, direction, ref, delta, position) =>
-          this.setState({width: ref.offsetWidth, height: ref.offsetHeight})
-        }
+        onDrag={(event, {x, y}) => {
+          this.setState({x, y});
+          this.props.onDrag(event, {x, y});
+        }}
+        onResize={(event, direction, ref, delta, position) => {
+          const [x, y, width, height] = [
+            position.x,
+            position.y,
+            ref.offsetWidth,
+            ref.offsetHeight
+          ];
+          this.setState({
+            x,
+            y,
+            width,
+            height
+          });
+          this.props.onResize(
+            event,
+            {x, y, width, height},
+            direction,
+            ref,
+            delta,
+            position
+          );
+        }}
         style={this.props.style}
       >
         <div style={{border: '1px solid grey', position: 'relative'}}>

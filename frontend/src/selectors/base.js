@@ -61,3 +61,13 @@ export const getBottomRightSubPanelSize = createSelector(
   [getContentPanelCenterPosition, getContentPanelWidth, getContentPanelHeight],
   ([x, y], width, height) => [width - x, height - y]
 );
+
+export const getShowBayesianNetworkDistributionWindow = createSelector(
+  rootSelector,
+  state => state.showBayesianNetworkDistributionWindow
+);
+
+export const getBayesianNetworkDistributionWindowSize = createSelector(
+  rootSelector,
+  state => state.bayesianNetworkDistributionWindowSize
+);

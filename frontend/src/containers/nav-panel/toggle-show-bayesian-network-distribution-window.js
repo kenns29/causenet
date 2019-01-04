@@ -1,7 +1,7 @@
 import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
 import {Switch} from 'antd';
-import {getShowBayesianNetworkDistributionWindow} from '../../selectors/data';
+import {getShowBayesianNetworkDistributionWindow} from '../../selectors/base';
 import {updateShowBayesianNetworkDistributionWindow} from '../../actions';
 
 const mapDispatchToProps = {

@@ -16,6 +16,7 @@
     "dagre": "^0.8.2",
     "deck.gl": "^6.2.4",
     "global": "^4.3.2",
+    "lodash.memoize": "^4.1.2",
     "prop-types": "^15.6.2",
     "react": "^16.2.0",
     "react-color": "^2.13.8",

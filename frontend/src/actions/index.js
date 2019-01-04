@@ -8,6 +8,8 @@ export const UPDATE_NAV_PANEL_WIDTH = 'UPDATE_NAV_PANEL_WIDTH';
 export const UPDATE_CONTENT_PANEL_CENTER = 'UPDATE_CONTENT_PANEL_CENTER';
 export const UPDATE_SHOW_BAYESIAN_NETWORK_DISTRIBUTION_WINDOW =
   'UPDATE_SHOW_BAYESIAN_NETWORK_DISTRIBUTION_WINDOW';
+export const UPDATE_BAYESIAN_NETWORK_DISTRIBUTION_WINDOW_SIZE =
+  'UPDATE_BAYESIAN_NETWORK_DISTRIBUTION_WINDOW_SIZE';
 
 // data Action ids
 export const UPDATE_CURRENT_DATASET_NAME = 'UPDDATE_CURRENT_DATASET_NAME';
@@ -63,6 +65,9 @@ export const updateContentPanelCenter = createAction(
 );
 export const updateShowBayesianNetworkDistributionWindow = createAction(
   UPDATE_SHOW_BAYESIAN_NETWORK_DISTRIBUTION_WINDOW
+);
+export const updateBayesianNetworkDistributionWindowSize = createAction(
+  UPDATE_BAYESIAN_NETWORK_DISTRIBUTION_WINDOW_SIZE
 );
 
 // data actions

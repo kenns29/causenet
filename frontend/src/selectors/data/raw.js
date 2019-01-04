@@ -116,11 +116,6 @@ export const getNodeLinkViewOptions = createSelector(
   state => state.nodeLinkViewOptions
 );
 
-export const getShowBayesianNetworkDistributionWindow = createSelector(
-  rootSelector,
-  state => state.showBayesianNetworkDistributionWindow
-);
-
 export const getRawDistributionFeaturePairs = createSelector(
   rootSelector,
   state => state.distributionFeaturePairs

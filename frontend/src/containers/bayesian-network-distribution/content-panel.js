@@ -4,17 +4,29 @@ import PopupWindow from '../../components/popup-window';
 import DeckGLContainer from './deckgl-container';
 import {
   getShowBayesianNetworkDistributionWindow,
+  getBayesianNetworkDistributionWindowSize
+} from '../../selectors/base';
+import {
   getRawDistributionFeaturePairs,
   getRawSelectedNormalizedFeatureDistributionMap
 } from '../../selectors/data';
-import {updateShowBayesianNetworkDistributionWindow} from '../../actions';
+import {
+  updateShowBayesianNetworkDistributionWindow,
+  updateBayesianNetworkDistributionWindowSize
+} from '../../actions';
 
 import {scaleLinear} from 'd3-scale';
 
-const mapDispatchToProps = {updateShowBayesianNetworkDistributionWindow};
+const mapDispatchToProps = {
+  updateShowBayesianNetworkDistributionWindow,
+  updateBayesianNetworkDistributionWindowSize
+};
 
 const mapStateToProps = state => ({
   showBayesianNetworkDistributionWindow: getShowBayesianNetworkDistributionWindow(
+    state
+  ),
+  bayesianNetworkDistributionWindowSize: getBayesianNetworkDistributionWindowSize(
     state
   ),
   distributionFeaturePairs: getRawDistributionFeaturePairs(state),
@@ -27,6 +39,7 @@ class ContentPanel extends PureComponent {
   render() {
     const {
       showBayesianNetworkDistributionWindow,
+      bayesianNetworkDistributionWindowSize: [width, height],
       distributionFeaturePairs,
       selectedNormalizedFeatureDistributionMap
     } = this.props;
@@ -60,11 +73,17 @@ class ContentPanel extends PureComponent {
       return points;
     });
     const d = data.length ? data[0] : [];
-    console.log('d', d);
     return (
       showBayesianNetworkDistributionWindow && (
         <PopupWindow
+          size={{width, height}}
           style={{zIndex: 99, boxShadow: '10px 10px 5px grey'}}
+          onResize={(event, {width, height}) =>
+            this.props.updateBayesianNetworkDistributionWindowSize([
+              width,
+              height
+            ])
+          }
           onClose={() =>
             this.props.updateShowBayesianNetworkDistributionWindow(false)
           }
