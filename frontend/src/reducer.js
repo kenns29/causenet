@@ -136,7 +136,7 @@ const DEFAULT_STATE = {
     showLabels: false,
     useHierarchy: true
   },
-  showBayesianNetworkDistributionWindow: false,
+  showBayesianNetworkDistributionWindow: true,
   bayesianNetworkDistributionWindowSize: [600, 620],
   // feature pair list that will be shown in the distribution window
   // [

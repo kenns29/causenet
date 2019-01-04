@@ -11,5 +11,8 @@ export const HIERARICAL_CLUSTERING_OPTION = {
 };
 
 export const DISTRIBUTION_SCATTERPLOT = {
-  SIZE: [300, 300]
+  SIZE: [300, 300],
+  PADDING: [2, 2, 2, 2],
+  CONTAINER_MARGIN: [2, 2, 2, 2],
+  AXIS_OFFSETS: [50, 50]
 };

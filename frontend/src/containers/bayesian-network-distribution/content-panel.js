@@ -8,12 +8,16 @@ import {
 } from '../../selectors/base';
 import {
   getRawDistributionFeaturePairs,
-  getRawSelectedNormalizedFeatureDistributionMap
+  getRawSelectedNormalizedFeatureDistributionMap,
+  getPairDistributionScatterplotContainerWidth,
+  getPairDistributionScatterplotContainerHeight,
+  getPairDistributionScatterplotLayouts
 } from '../../selectors/data';
 import {
   updateShowBayesianNetworkDistributionWindow,
   updateBayesianNetworkDistributionWindowSize
 } from '../../actions';
+import {DISTRIBUTION_SCATTERPLOT} from '../../constants';
 
 import {scaleLinear} from 'd3-scale';
 
@@ -29,10 +33,9 @@ const mapStateToProps = state => ({
   bayesianNetworkDistributionWindowSize: getBayesianNetworkDistributionWindowSize(
     state
   ),
-  distributionFeaturePairs: getRawDistributionFeaturePairs(state),
-  selectedNormalizedFeatureDistributionMap: getRawSelectedNormalizedFeatureDistributionMap(
-    state
-  )
+  containerWidth: getPairDistributionScatterplotContainerWidth(state),
+  containerHeight: getPairDistributionScatterplotContainerHeight(state),
+  scatterplotLayouts: getPairDistributionScatterplotLayouts(state)
 });
 
 class ContentPanel extends PureComponent {
@@ -40,55 +43,27 @@ class ContentPanel extends PureComponent {
     const {
       showBayesianNetworkDistributionWindow,
       bayesianNetworkDistributionWindowSize: [width, height],
-      distributionFeaturePairs,
-      selectedNormalizedFeatureDistributionMap
+      containerWidth,
+      containerHeight
     } = this.props;
-    const scale = scaleLinear()
-      .domain([0, 1])
-      .range([0, 380]);
-    const data = distributionFeaturePairs.map(pair => {
-      const {source, target} = pair;
-      const [sourceValues, targetValues] = [source, target].map(
-        id => selectedNormalizedFeatureDistributionMap[id]
-      );
-      if ([sourceValues, targetValues].some(d => !d)) {
-        return [];
-      }
-      const points = Object.keys(sourceValues).map(key => {
-        const [sourceValue, targetValue] = [
-          sourceValues[key],
-          targetValues[key]
-        ];
-        let [x, y] = [sourceValue, 1 - targetValue].map(scale);
-        x += 20;
-        y += 20;
-        return {
-          key,
-          source,
-          target,
-          values: [sourceValue, targetValue],
-          position: [x, y]
-        };
-      });
-      return points;
-    });
-    const d = data.length ? data[0] : [];
     return (
       showBayesianNetworkDistributionWindow && (
         <PopupWindow
           size={{width, height}}
           style={{zIndex: 99, boxShadow: '10px 10px 5px grey'}}
-          onResize={(event, {width, height}) =>
+          onResize={(event, {width, height}) => {
             this.props.updateBayesianNetworkDistributionWindowSize([
               width,
               height
-            ])
-          }
+            ]);
+          }}
           onClose={() =>
             this.props.updateShowBayesianNetworkDistributionWindow(false)
           }
         >
-          <DeckGLContainer {...this.props} data={d} />
+          <div style={{width: containerWidth, height: containerHeight}}>
+            <DeckGLContainer {...this.props} />
+          </div>
         </PopupWindow>
       )
     );

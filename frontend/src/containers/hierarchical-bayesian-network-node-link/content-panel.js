@@ -11,7 +11,9 @@ import {
   getShiftedReducedAbstractSubBayesianNetworkNodeLinkLayouts,
   getRawHierarchicalClusteringTree,
   getRawSubBayesianNetworkSliceMap,
-  getAbstractSubBayesianNetworkMap
+  getAbstractSubBayesianNetworkMap,
+  getRawDistributionFeaturePairs,
+  getRawSelectedNormalizedFeatureDistributionMap
 } from '../../selectors/data';
 import {
   requestReplaceSubBayesianModels,
@@ -40,7 +42,11 @@ const mapStateToProps = state => ({
   ),
   hierarchicalClusteringTree: getRawHierarchicalClusteringTree(state),
   subBayesianNetworkSliceMap: getRawSubBayesianNetworkSliceMap(state),
-  abstractSubBayesianNetworkMap: getAbstractSubBayesianNetworkMap(state)
+  abstractSubBayesianNetworkMap: getAbstractSubBayesianNetworkMap(state),
+  distributionFeaturePairs: getRawDistributionFeaturePairs(state),
+  selectedNormalizedFeatureDistributionMap: getRawSelectedNormalizedFeatureDistributionMap(
+    state
+  )
 });
 
 const tooltipStyle = {
@@ -175,6 +181,10 @@ class ContentPanel extends PureComponent {
     event.stopPropagation();
   };
   _handleClick = async event => {
+    const {
+      selectedNormalizedFeatureDistributionMap,
+      distributionFeaturePairs
+    } = this.props;
     if (this._getDeck()) {
       const [x, y] = this._getEventMouse(event);
       const info = this._pickObject({
@@ -209,7 +219,7 @@ class ContentPanel extends PureComponent {
                   Object.assign(map, {[id2label[node.id]]: node.cluster}),
                 {}
               ),
-              selectedNormalizedFeatureDistributionMap: {}
+              selectedNormalizedFeatureDistributionMap
             }
           );
           const [sourceLabel, targetLabel] = [source, target].map(
@@ -222,7 +232,7 @@ class ContentPanel extends PureComponent {
           };
           const pairs = this.props.bundleAddToDistributionFeaturePairs({
             pair,
-            distributionFeaturePairs: []
+            distributionFeaturePairs
           });
           console.log('map', map, 'pairs', pairs);
         }
