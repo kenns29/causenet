@@ -8,11 +8,16 @@ import {
 } from './raw';
 import {DISTRIBUTION_SCATTERPLOT} from '../../constants';
 
-console.log('DISTRIBUTION_SCATTERPLOT', DISTRIBUTION_SCATTERPLOT);
-
 export const getPairDistributionScatterplotContainerWidth = createSelector(
   getBayesianNetworkDistributionWindowSize,
-  ([width, height]) => width
+  ([width, height]) => {
+    const {
+      SIZE: [w, h],
+      PADDING: [pl, pt, pr, pb],
+      CONTAINER_MARGIN: [ml, mt, mr, mb]
+    } = DISTRIBUTION_SCATTERPLOT;
+    return Math.max(width, w + pl + pr + 5);
+  }
 );
 
 export const getPairDistributionScatterplotSmallMultipleGrid = createSelector(
