@@ -61,15 +61,18 @@ export default class ContentPanel extends PureComponent {
             direction: [-1, 0, 0]
           },
           labelProps: {
+            offset: 10,
             getSize: 10,
             offsetDirection: [-1, 0, 0],
-            format: '.1f'
+            format: '.1f',
+            getTextAnchor: 'end'
           },
           titleProps: {
             title: source,
-            xOffset: 15,
-            yOffset: h / 2,
-            getSize: 10
+            xOffset: -35,
+            yOffset: -h / 2 + ay,
+            getSize: 10,
+            getAngle: 90
           },
           coordinateSystem: COORDINATE_SYSTEM.IDENTITY
         });
@@ -84,12 +87,13 @@ export default class ContentPanel extends PureComponent {
           domain: [0, 1],
           labelProps: {
             getSize: 10,
-            format: '.1f'
+            format: '.1f',
+            getAlignmentBaseline: 'top'
           },
           titleProps: {
             title: target,
-            xOffset: w / 2,
-            yOffset: 15,
+            xOffset: w / 2 - ax,
+            yOffset: 30,
             getSize: 10
           },
           coordinateSystem: COORDINATE_SYSTEM.IDENTITY

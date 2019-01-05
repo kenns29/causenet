@@ -234,7 +234,6 @@ class ContentPanel extends PureComponent {
             pair,
             distributionFeaturePairs
           });
-          console.log('map', map, 'pairs', pairs);
         }
       }
     }

@@ -85,8 +85,6 @@ export const getPairDistributionScatterplotLayouts = createSelector(
           const [sv, tv] = [svMap[key], tvMap[key]];
           return {
             key,
-            source,
-            target,
             values: [sv, tv],
             position: [scaleX(sv), scaleY(tv)]
           };
@@ -95,6 +93,8 @@ export const getPairDistributionScatterplotLayouts = createSelector(
       return {
         id,
         points,
+        source,
+        target,
         size: [w, h],
         position: [sx, sy]
       };
