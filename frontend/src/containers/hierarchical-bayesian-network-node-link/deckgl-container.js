@@ -151,7 +151,7 @@ export default class ContentPanel extends PureComponent {
     ];
   }
   render() {
-    const {width, height, disableZoom, disableMove} = this.props;
+    const {width, height, disableZoom, disableMove, getCursor} = this.props;
     return (
       <ZoomableContainer
         ref={input => (this.container = input)}
@@ -162,7 +162,7 @@ export default class ContentPanel extends PureComponent {
         bottom={height}
         top={0}
         layers={this._renderLayers()}
-        getCursor={() => 'auto'}
+        getCursor={getCursor}
         onZoom={zoomScale => this.setState({zoomScale})}
         onMove={zoomOffset => this.setState({zoomOffset})}
         disableZoom={disableZoom}

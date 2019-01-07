@@ -72,7 +72,8 @@ class ContentPanel extends PureComponent {
       disableZoom: false,
       disableMove: false,
       hoveredNodes: [],
-      hoveredPath: null
+      hoveredPath: null,
+      getCursor: () => 'auto'
     };
   }
   _getEventMouse = event => {
@@ -149,7 +150,17 @@ class ContentPanel extends PureComponent {
             disableZoom:
               info.object &&
               info.object.cluster &&
-              info.object.cluster.length > 1
+              info.object.cluster.length > 1,
+            getCursor: () => 'auto'
+          });
+        } else if (
+          layerId === 'hierarchical-bayesian-network-node-link-path-layer'
+        ) {
+          this.setState({
+            hoveredNodes: [],
+            hoveredPath: null,
+            disableZoom: false,
+            getCursor: () => 'pointer'
           });
         } else if (
           layerId.includes(
@@ -161,19 +172,23 @@ class ContentPanel extends PureComponent {
           this.setState({
             hoveredPath: {path, left: x - 10, top: y - 90},
             hoveredNodes: [],
-            disableZoom: true
+            disableZoom: true,
+            getCursor: () => 'auto'
           });
         } else {
           this.setState({
             hoveredNodes: [],
-            hoveredPath: null
+            hoveredPath: null,
+            disableZoom: false,
+            getCursor: () => 'auto'
           });
         }
       } else {
         this.setState({
           hoveredNodes: [],
           hoveredPath: null,
-          disableZoom: false
+          disableZoom: false,
+          getCursor: () => 'auto'
         });
       }
     }
@@ -288,7 +303,7 @@ class ContentPanel extends PureComponent {
   }
   render() {
     const {width, height, isFetchingModifiedBayesianNetwork} = this.props;
-    const {disableZoom, disableMove} = this.state;
+    const {disableZoom, disableMove, getCursor} = this.state;
     return (
       <div
         ref={input => (this.container = input)}
@@ -313,6 +328,7 @@ class ContentPanel extends PureComponent {
           {...this.props}
           disableZoom={disableZoom}
           disableMove={disableMove}
+          getCursor={getCursor}
         />
       </div>
     );

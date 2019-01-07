@@ -68,7 +68,7 @@ export default class ContentPanel extends PureComponent {
             getTextAnchor: 'end'
           },
           titleProps: {
-            title: source,
+            title: source.slice(0, 20),
             xOffset: -35,
             yOffset: -h / 2 + ay,
             getSize: 10,
@@ -91,7 +91,7 @@ export default class ContentPanel extends PureComponent {
             getAlignmentBaseline: 'top'
           },
           titleProps: {
-            title: target,
+            title: target.slice(0, 20),
             xOffset: w / 2 - ax,
             yOffset: 30,
             getSize: 10
@@ -104,7 +104,7 @@ export default class ContentPanel extends PureComponent {
   }
   _renderLayers() {
     return [
-      ...this._renderBorders(),
+      // ...this._renderBorders(),
       ...this._renderScatterplots(),
       ...this._renderAxes()
     ];
