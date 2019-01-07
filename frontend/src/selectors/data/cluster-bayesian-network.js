@@ -14,6 +14,7 @@ import {
   getRawSubBayesianModelFeaturesMap,
   getRawSubBayesianNetworkSliceMap
 } from './raw';
+import {getId2DistanceFunction} from './hierarchical-clustering';
 
 export const getClusterBayesianModelFeatures = createSelector(
   getRawClusterBayesianNetwork,
@@ -51,8 +52,12 @@ export const getSubBayesianModelFeaturesMap = createSelector(
 );
 
 export const getClusterBayesianNetworkNodeLink = createSelector(
-  [getRawClusterBayesianNetwork, getSubBayesianModelFeaturesMap],
-  (rawLinks, clusterMap) => {
+  [
+    getRawClusterBayesianNetwork,
+    getSubBayesianModelFeaturesMap,
+    getId2DistanceFunction
+  ],
+  (rawLinks, clusterMap, id2Distance) => {
     const nodeMap = Object.entries(linksToNodeMap(rawLinks)).reduce(
       (map, [label, values]) =>
         clusterMap.hasOwnProperty(label)
@@ -68,11 +73,16 @@ export const getClusterBayesianNetworkNodeLink = createSelector(
         ({source, target}) =>
           ![source, target].some(node => !nodeMap.hasOwnProperty(node))
       )
-      .map(({source, target, weight}) => ({
-        source: nodeMap[source],
-        target: nodeMap[target],
-        weight
-      }));
+      .map(({source, target, ...rest}) => {
+        const distance = id2Distance(source, target);
+        return {
+          ...rest,
+          source: nodeMap[source],
+          target: nodeMap[target],
+          distance,
+          sign: distance > 0.5 ? 1 : -1
+        };
+      });
     return {nodes, links};
   }
 );
