@@ -1,6 +1,6 @@
 import {progressFetch as fetch} from '../utils';
 import {createAction} from 'redux-actions';
-import {BACKEND_URL} from '../constants';
+import {BACKEND_URL, HIERARICAL_CLUSTERING_OPTION} from '../constants';
 
 // UI action ids
 export const UPDATE_SCREEN_SIZE = 'UPDATE_SCREEN_SIZE';
@@ -527,6 +527,29 @@ export const requestFetchData = ({
 };
 
 // bundled actions
+export const bundleRequestUpdateSelectedDataset = (
+  name,
+  hierarchicalClusteringOption = HIERARICAL_CLUSTERING_OPTION.RAW
+) => async dispatch => {
+  try {
+    dispatch(updateModifiedBayesianNetwork([]));
+    dispatch(updateBayesianNetwork([]));
+    await dispatch(requestUpdateCurrentDatasetName(name));
+    await dispatch(fetchModelList());
+    await dispatch(fetchFeatureSelection());
+    await dispatch(fetchDistanceMap(hierarchicalClusteringOption));
+    await dispatch(
+      fetchHierarchicalClusteringTree(hierarchicalClusteringOption)
+    );
+    dispatch(updateSelectedModel(null));
+    dispatch(updateDistributionFeaturePairs([]));
+    dispatch(updateSelectedNormalizedFeatureDistributionMap({}));
+    return Promise.resolve(name);
+  } catch (err) {
+    throw new Error(err);
+  }
+};
+
 export const bundleFetchBayesianModel = name => async dispatch => {
   try {
     const modifiedBayesianNetwork = await dispatch(
@@ -537,6 +560,8 @@ export const bundleFetchBayesianModel = name => async dispatch => {
       dispatch(fetchModelFeatureValueSelectionMap({name})),
       dispatch(fetchBayesianNetwork({name}))
     ]);
+    dispatch(updateDistributionFeaturePairs([]));
+    dispatch(updateSelectedNormalizedFeatureDistributionMap({}));
     return Promise.resolve([modifiedBayesianNetwork, ...datas]);
   } catch (err) {
     throw new Error(err);
@@ -551,6 +576,8 @@ export const bundleFetchClusterBayesianModel = name => async dispatch => {
       dispatch(fetchSubBayesianNetworks({name})),
       dispatch(fetchSubBayesianModelFeaturesMap({name}))
     ]);
+    dispatch(updateDistributionFeaturePairs([]));
+    dispatch(updateSelectedNormalizedFeatureDistributionMap({}));
     return Promise.resolve(datas);
   } catch (err) {
     throw new Error(err);
@@ -574,5 +601,11 @@ export const bundleFetchAddToSelectedNormalizedFeatureDistributionMap = ({
 export const bundleAddToDistributionFeaturePairs = ({
   pair,
   distributionFeaturePairs
-}) => dispatch =>
-  dispatch(updateDistributionFeaturePairs([...distributionFeaturePairs, pair]));
+}) => dispatch => {
+  if (distributionFeaturePairs.find(d => d.id === pair.id)) {
+    return distributionFeaturePairs;
+  }
+  const newPairs = [...distributionFeaturePairs, pair];
+  dispatch(updateDistributionFeaturePairs(newPairs));
+  return newPairs;
+};
