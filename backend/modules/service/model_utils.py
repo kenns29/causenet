@@ -1,7 +1,8 @@
 import os, pickle, subprocess, re, json, shutil
 from functools import reduce
 from collections import OrderedDict
-from pandas import DataFrame, cut
+from scipy.stats import pearsonr
+from pandas import cut
 from pgmpy.factors.discrete.CPD import TabularCPD
 from pgmpy.models import BayesianModel
 from pgmpy.estimators import ConstraintBasedEstimator
@@ -517,6 +518,39 @@ def train_model_on_clusters(clusters, name, base_avg_data=None):
     return model
 
 
+def calc_edge_correlations(edges, data):
+    """
+    calculate the correlation between the pair of variables in each edge
+
+    :param edges: the edges
+    :param data: the data that covers each variable in the edge, if the edge contains cluster variables, then the data
+                 should be aggregated accordingly
+    :return: [((s, t), corr), ...] --- the weighted edges with correlation
+    """
+    return [((s, t), pearsonr(data[s], data[t])[0]) for s, t in edges]
+
+
+def calc_cluster_edge_correlations(edges, clusters, data):
+    if not edges:
+        return edges
+    data = get_column_mean_aggregated_data(data, clusters)
+    if data.shape[1] < 2:
+        raise ValueError('Data column number less than 2 while edge is not empty, something is not correct.')
+    return calc_edge_correlations(edges, data)
+
+
+def calc_model_edge_correlations(name, model=None, base_avg_data=None):
+    model = get_model(name) if model is None else model
+    base_avg_data = load_data('base_avg_data_file') if base_avg_data is None else base_avg_data
+    is_cluster_model = check_is_cluster_model(name)
+    edges = model.edges()
+    if is_cluster_model:
+        clusters = get_model_clusters(name)
+        return calc_cluster_edge_correlations(edges, clusters, base_avg_data)
+    else:
+        return calc_edge_correlations(edges, base_avg_data)
+
+
 def train_sub_model_within_clusters(clusters, data=None, name=None):
     data = load_data() if data is None else data
     model_dict = dict()
@@ -546,6 +580,21 @@ def get_model_list():
         return []
     models = status['models']
     return [{'name': name, **value} for name, value in models.items()]
+
+
+def get_model_stats(name):
+    status = get_current_dataset_model_status()
+    if 'models' not in status:
+        return {}
+    models = status['models']
+    if name not in models:
+        raise ValueError('can not find the model for the name.')
+    return models[name]
+
+
+def check_is_cluster_model(name, model_stats=None):
+    model_stats = get_model_stats(name) if model_stats is None else model_stats
+    return 'sub-models-folder' in model_stats
 
 
 def update_feature_selection(features):

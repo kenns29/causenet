@@ -508,7 +508,7 @@ export const requestUpdateModelFeatureValueSelectionMap = ({
 };
 
 export const requestFetchData = ({
-  data_type = 'base_avg_data_file',
+  data_type = 'normalized_raw_data_file',
   featureSelection = null
 }) => async dispatch => {
   try {
@@ -532,6 +532,8 @@ export const bundleRequestUpdateSelectedDataset = (
   hierarchicalClusteringOption = HIERARICAL_CLUSTERING_OPTION.RAW
 ) => async dispatch => {
   try {
+    const data = await requestFetchData();
+
     dispatch(updateModifiedBayesianNetwork([]));
     dispatch(updateBayesianNetwork([]));
     await dispatch(requestUpdateCurrentDatasetName(name));

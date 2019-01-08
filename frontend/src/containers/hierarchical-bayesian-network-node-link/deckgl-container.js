@@ -51,7 +51,7 @@ export default class ContentPanel extends PureComponent {
       id: ID + '-path-layer',
       data: edges,
       getPath: ({points}) => points,
-      getColor: [64, 64, 64, 255],
+      getColor: ({color}) => [...color, 255],
       getWidth: 2,
       pickable: true,
       coordinateSystem: COORDINATE_SYSTEM.IDENTITY

@@ -1,4 +1,7 @@
 import {createSelector} from 'reselect';
+import {scaleDiverging} from 'd3-scale';
+import {interpolateRdBu} from 'd3-scale-chromatic';
+import {rgb} from 'd3-color';
 import {
   linksToNodeMap,
   createDagLayout,
@@ -74,13 +77,10 @@ export const getClusterBayesianNetworkNodeLink = createSelector(
           ![source, target].some(node => !nodeMap.hasOwnProperty(node))
       )
       .map(({source, target, ...rest}) => {
-        const distance = id2Distance(source, target);
         return {
           ...rest,
           source: nodeMap[source],
-          target: nodeMap[target],
-          distance,
-          sign: distance > 0.5 ? 1 : -1
+          target: nodeMap[target]
         };
       });
     return {nodes, links};
@@ -289,7 +289,20 @@ export const getClusterBayesianNetworkNodeLinkLayoutData = createSelector(
 
 export const getClusterBayesianNetworkNodeLinkLayout = createSelector(
   getClusterBayesianNetworkNodeLinkLayoutData,
-  createDagLayout
+  layoutData => {
+    const layout = createDagLayout(layoutData);
+    const {edges} = layout;
+    const mw = edges.reduce(
+      ({weight: w1}, {weight: w2}) => (w1 > w2 ? w1 : w2),
+      0
+    );
+    const scale = scaleDiverging(interpolateRdBu).domain([-mw, 0, mw]);
+    edges.forEach(edge => {
+      const {r, g, b} = rgb(scale(Math.sign(edge.corr) * edge.weight));
+      edge.color = [r, g, b];
+    });
+    return layout;
+  }
 );
 
 export const getShiftedReducedAbstractSubBayesianNetworkNodeLinkLayoutMap = createSelector(
