@@ -6,6 +6,7 @@ import {
   ScatterplotLayer,
   COORDINATE_SYSTEM
 } from 'deck.gl';
+import {SplineLayer} from '../../components/deckgl-layers';
 import ZoomableContainer from '../../components/zoomable-container';
 import {makeLineArrow} from '../../utils';
 
@@ -43,6 +44,26 @@ export default class ContentPanel extends PureComponent {
       })
     ];
   }
+  // _renderClusterEdges() {
+  //   const {
+  //     clusterNodeLink: {edges}
+  //   } = this.props;
+  //   const pathProps = {
+  //     id: ID + '-path-layer',
+  //     data: edges,
+  //     getPath: ({points}) => points,
+  //     getColor: ({color}) => [...color, 255],
+  //     getWidth: ({width}) => width,
+  //     pickable: true,
+  //     coordinateSystem: COORDINATE_SYSTEM.IDENTITY
+  //   };
+  //   const backgroundProps = {
+  //     ...pathProps,
+  //     getColor: [255, 255, 255, 255],
+  //     getWidth: 5
+  //   };
+  //   return [new PathLayer(backgroundProps), new PathLayer(pathProps)];
+  // }
   _renderClusterEdges() {
     const {
       clusterNodeLink: {edges}
@@ -50,18 +71,16 @@ export default class ContentPanel extends PureComponent {
     const pathProps = {
       id: ID + '-path-layer',
       data: edges,
-      getPath: ({points}) => points,
-      getColor: ({color}) => [...color, 255],
-      getWidth: ({width}) => width,
-      pickable: true,
-      coordinateSystem: COORDINATE_SYSTEM.IDENTITY
+      getSourcePosition: ({points}) => points[0].slice(0, 2),
+      getTargetPosition: ({points}) => points[points.length - 1].slice(0, 2),
+      getControlPoints: ({points}) =>
+        points.slice(1, points.length - 1).map(d => d.slice(0, 2)),
+      getColor: d => d.color,
+      getStrokeWidth: d => d.width,
+      coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+      pickable: true
     };
-    const backgroundProps = {
-      ...pathProps,
-      getColor: [255, 255, 255, 255],
-      getWidth: 5
-    };
-    return [new PathLayer(backgroundProps), new PathLayer(pathProps)];
+    return [new SplineLayer(pathProps)];
   }
   _renderClusterArrows() {
     const {

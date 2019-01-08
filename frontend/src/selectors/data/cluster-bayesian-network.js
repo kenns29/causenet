@@ -292,10 +292,7 @@ export const getClusterBayesianNetworkNodeLinkLayout = createSelector(
   layoutData => {
     const layout = createDagLayout(layoutData);
     const {edges} = layout;
-    const mw = edges.reduce(
-      ({weight: w1}, {weight: w2}) => (w1 > w2 ? w1 : w2),
-      0
-    );
+    const mw = edges.reduce((max, {weight: w}) => Math.max(max, w), 0);
     const scale = scaleLinear()
       .domain([0, mw])
       .range([0, 5]);

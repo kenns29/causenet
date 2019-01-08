@@ -72,13 +72,14 @@ export default class SplineLayer extends CompositeLayer {
     } = this.props;
     const {paths} = this.state;
     const _getColor = functor(getColor);
+    const _getStrokeWidth = functor(getStrokeWidth);
     return new LineLayer({
       id: `${id}-splines`,
       data: paths,
       getSourcePosition: e => e.source,
       getTargetPosition: e => e.target,
       getColor: ({data}) => _getColor(data),
-      getStrokeWidth,
+      getStrokeWidth: ({data}) => _getStrokeWidth(data),
       coordinateSystem,
       updateTriggers,
       pickable
