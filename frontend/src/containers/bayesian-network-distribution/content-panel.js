@@ -17,9 +17,6 @@ import {
   updateShowBayesianNetworkDistributionWindow,
   updateBayesianNetworkDistributionWindowSize
 } from '../../actions';
-import {DISTRIBUTION_SCATTERPLOT} from '../../constants';
-
-import {scaleLinear} from 'd3-scale';
 
 const mapDispatchToProps = {
   updateShowBayesianNetworkDistributionWindow,

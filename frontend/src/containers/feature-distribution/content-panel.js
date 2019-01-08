@@ -1,6 +1,7 @@
 import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
 import PopupWindow from '../../components/popup-window';
+import DeckGLContainer from './deckgl-container';
 import {
   getShowFeatureDistributionWindow,
   getFeatureDistributionWindowSize
@@ -47,7 +48,9 @@ class ContentPanel extends PureComponent {
           }}
           onClose={() => this.props.updateShowFeatureDistributionWindow(false)}
         >
-          <div style={{width: containerWidth, height: containerHeight}} />
+          <div style={{width: containerWidth, height: containerHeight}}>
+            <DeckGLContainer {...this.props} />
+          </div>
         </PopupWindow>
       )
     );

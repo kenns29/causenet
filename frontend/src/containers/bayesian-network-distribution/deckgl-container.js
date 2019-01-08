@@ -13,9 +13,6 @@ import {DISTRIBUTION_SCATTERPLOT} from '../../constants';
 const ID = 'bayesian-network-pair-distribution';
 
 export default class ContentPanel extends PureComponent {
-  constructor(props) {
-    super(props);
-  }
   _renderScatterplots() {
     const {scatterplotLayouts} = this.props;
     return scatterplotLayouts.map(({id, points, size: [w, h]}) => {
