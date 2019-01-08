@@ -1,7 +1,7 @@
 import {createSelector} from 'reselect';
-import {scaleDiverging} from 'd3-scale';
+import {scaleDiverging, scaleLinear} from 'd3-scale';
 import {interpolateRdBu} from 'd3-scale-chromatic';
-import {rgb} from 'd3-color';
+import {rgb, color as d3Color} from 'd3-color';
 import {
   linksToNodeMap,
   createDagLayout,
@@ -296,10 +296,13 @@ export const getClusterBayesianNetworkNodeLinkLayout = createSelector(
       ({weight: w1}, {weight: w2}) => (w1 > w2 ? w1 : w2),
       0
     );
-    const scale = scaleDiverging(interpolateRdBu).domain([-mw, 0, mw]);
+    const scale = scaleLinear()
+      .domain([0, mw])
+      .range([0, 5]);
     edges.forEach(edge => {
-      const {r, g, b} = rgb(scale(Math.sign(edge.corr) * edge.weight));
+      const {r, g, b} = rgb(edge.corr > 0 ? 'lightblue' : 'red');
       edge.color = [r, g, b];
+      edge.width = scale(edge.weight);
     });
     return layout;
   }

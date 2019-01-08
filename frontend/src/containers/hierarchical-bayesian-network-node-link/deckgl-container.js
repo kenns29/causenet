@@ -52,7 +52,7 @@ export default class ContentPanel extends PureComponent {
       data: edges,
       getPath: ({points}) => points,
       getColor: ({color}) => [...color, 255],
-      getWidth: 2,
+      getWidth: ({width}) => width,
       pickable: true,
       coordinateSystem: COORDINATE_SYSTEM.IDENTITY
     };
