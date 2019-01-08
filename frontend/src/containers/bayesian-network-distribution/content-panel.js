@@ -49,6 +49,8 @@ class ContentPanel extends PureComponent {
     return (
       showBayesianNetworkDistributionWindow && (
         <PopupWindow
+          x={300}
+          y={200}
           size={{width, height}}
           style={{zIndex: 99, boxShadow: '10px 10px 5px grey'}}
           onResize={(event, {width, height}) => {

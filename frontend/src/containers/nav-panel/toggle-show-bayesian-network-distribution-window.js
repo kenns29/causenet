@@ -14,7 +14,7 @@ const mapStateToProps = state => ({
   )
 });
 
-class ToggleNodeLinkViewLabels extends PureComponent {
+class ToggleShowBayesianNetworkDistributionWindow extends PureComponent {
   render() {
     const {showBayesianNetworkDistributionWindow} = this.props;
     return (
@@ -34,4 +34,4 @@ class ToggleNodeLinkViewLabels extends PureComponent {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(ToggleNodeLinkViewLabels);
+)(ToggleShowBayesianNetworkDistributionWindow);

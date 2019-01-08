@@ -5,6 +5,8 @@ import {
   UPDATE_CONTENT_PANEL_CENTER,
   UPDATE_SHOW_BAYESIAN_NETWORK_DISTRIBUTION_WINDOW,
   UPDATE_BAYESIAN_NETWORK_DISTRIBUTION_WINDOW_SIZE,
+  UPDATE_SHOW_FEATURE_DISTRIBUTION_WINDOW,
+  UPDATE_FEATURE_DISTRIBUTION_WINDOW_SIZE,
   UPDATE_CURRENT_DATASET_NAME,
   UPDATE_DATASET_LIST,
   FETCH_BAYESIAN_NETWORK_START,
@@ -136,6 +138,8 @@ const DEFAULT_STATE = {
     showLabels: false,
     useHierarchy: true
   },
+  showFeatureDistributionWindow: true,
+  featureDistributionWindowSize: [600, 620],
   showBayesianNetworkDistributionWindow: true,
   bayesianNetworkDistributionWindowSize: [600, 620],
   // feature pair list that will be shown in the distribution window
@@ -189,6 +193,16 @@ const handleUpdateBayesianNetworkDistributionWindowSize = (
 ) => ({
   ...state,
   bayesianNetworkDistributionWindowSize: payload
+});
+
+const handleUpdateShowFeatureDistributionWindow = (state, {payload}) => ({
+  ...state,
+  showFeatureDistributionWindow: payload
+});
+
+const handleUpdateFeatureDistributionWindowSize = (state, {payload}) => ({
+  ...state,
+  featureDistributionWindowSize: payload
 });
 
 const handleUpdateCurrentDatasetName = (state, {payload}) => ({
@@ -339,6 +353,8 @@ export default handleActions(
     [UPDATE_CONTENT_PANEL_CENTER]: handleUpdateContentPanelCenter,
     [UPDATE_SHOW_BAYESIAN_NETWORK_DISTRIBUTION_WINDOW]: handleUpdateShowBayesianNetworkDistributionWindow,
     [UPDATE_BAYESIAN_NETWORK_DISTRIBUTION_WINDOW_SIZE]: handleUpdateBayesianNetworkDistributionWindowSize,
+    [UPDATE_SHOW_FEATURE_DISTRIBUTION_WINDOW]: handleUpdateShowFeatureDistributionWindow,
+    [UPDATE_FEATURE_DISTRIBUTION_WINDOW_SIZE]: handleUpdateFeatureDistributionWindowSize,
     [UPDATE_CURRENT_DATASET_NAME]: handleUpdateCurrentDatasetName,
     [UPDATE_DATASET_LIST]: handleUpdateDatasetList,
     [FETCH_BAYESIAN_NETWORK_START]: handleFetchBayesianNetworkStart,

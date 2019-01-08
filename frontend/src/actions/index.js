@@ -10,6 +10,10 @@ export const UPDATE_SHOW_BAYESIAN_NETWORK_DISTRIBUTION_WINDOW =
   'UPDATE_SHOW_BAYESIAN_NETWORK_DISTRIBUTION_WINDOW';
 export const UPDATE_BAYESIAN_NETWORK_DISTRIBUTION_WINDOW_SIZE =
   'UPDATE_BAYESIAN_NETWORK_DISTRIBUTION_WINDOW_SIZE';
+export const UPDATE_SHOW_FEATURE_DISTRIBUTION_WINDOW =
+  'UPDATE_SHOW_FEATURE_DISTRIBUTION_WINDOW';
+export const UPDATE_FEATURE_DISTRIBUTION_WINDOW_SIZE =
+  'UPDATE_FEATURE_DISTRIBUTION_WINDOW_SIZE';
 
 // data Action ids
 export const UPDATE_CURRENT_DATASET_NAME = 'UPDDATE_CURRENT_DATASET_NAME';
@@ -68,6 +72,12 @@ export const updateShowBayesianNetworkDistributionWindow = createAction(
 );
 export const updateBayesianNetworkDistributionWindowSize = createAction(
   UPDATE_BAYESIAN_NETWORK_DISTRIBUTION_WINDOW_SIZE
+);
+export const updateShowFeatureDistributionWindow = createAction(
+  UPDATE_SHOW_FEATURE_DISTRIBUTION_WINDOW
+);
+export const updateFeatureDistributionWindowSize = createAction(
+  UPDATE_FEATURE_DISTRIBUTION_WINDOW_SIZE
 );
 
 // data actions
