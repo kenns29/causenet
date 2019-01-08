@@ -611,3 +611,49 @@ export const bundleAddToDistributionFeaturePairs = ({
   dispatch(updateDistributionFeaturePairs(newPairs));
   return newPairs;
 };
+
+export const bundleFetchAddToPairDistributions = ({
+  pair: {source, target}, // both source and target needs to be form {id, cluster}
+  distributionFeaturePairs,
+  selectedNormalizedFeatureDistributionMap
+}) => async dispatch => {
+  try {
+    const id2label = [source, target].reduce(
+      (map, node) =>
+        Object.assign(
+          map,
+          node.cluster.length > 1
+            ? {[node.id]: node.id}
+            : {[node.id]: node.cluster[0]}
+        ),
+      {}
+    );
+    const map = await dispatch(
+      bundleFetchAddToSelectedNormalizedFeatureDistributionMap({
+        featureSelection: [source, target].reduce(
+          (map, node) =>
+            Object.assign(map, {[id2label[node.id]]: node.cluster}),
+          {}
+        ),
+        selectedNormalizedFeatureDistributionMap
+      })
+    );
+    const [sourceLabel, targetLabel] = [source, target].map(
+      node => id2label[node.id]
+    );
+    const pair = {
+      id: `${sourceLabel}-${targetLabel}`,
+      source: sourceLabel,
+      target: targetLabel
+    };
+    const pairs = dispatch(
+      bundleAddToDistributionFeaturePairs({
+        pair,
+        distributionFeaturePairs
+      })
+    );
+    return Promise.resolve({pair, map});
+  } catch (err) {
+    throw new Error(err);
+  }
+};

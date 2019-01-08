@@ -19,16 +19,14 @@ import {
   requestReplaceSubBayesianModels,
   bundleFetchClusterBayesianModel,
   updateSubBayesianNetworkSliceMap,
-  bundleFetchAddToSelectedNormalizedFeatureDistributionMap,
-  bundleAddToDistributionFeaturePairs
+  bundleFetchAddToPairDistributions
 } from '../../actions';
 
 const mapDispatchToProps = {
   requestReplaceSubBayesianModels,
   bundleFetchClusterBayesianModel,
   updateSubBayesianNetworkSliceMap,
-  bundleFetchAddToSelectedNormalizedFeatureDistributionMap,
-  bundleAddToDistributionFeaturePairs
+  bundleFetchAddToPairDistributions
 };
 
 const mapStateToProps = state => ({
@@ -217,37 +215,10 @@ class ContentPanel extends PureComponent {
         ) {
           const {object} = info;
           const {source, target} = object;
-          const id2label = [source, target].reduce(
-            (map, node) =>
-              Object.assign(
-                map,
-                node.cluster.length > 1
-                  ? {[node.id]: node.id}
-                  : {[node.id]: node.cluster[0]}
-              ),
-            {}
-          );
-          const map = await this.props.bundleFetchAddToSelectedNormalizedFeatureDistributionMap(
-            {
-              featureSelection: [source, target].reduce(
-                (map, node) =>
-                  Object.assign(map, {[id2label[node.id]]: node.cluster}),
-                {}
-              ),
-              selectedNormalizedFeatureDistributionMap
-            }
-          );
-          const [sourceLabel, targetLabel] = [source, target].map(
-            node => id2label[node.id]
-          );
-          const pair = {
-            id: `${sourceLabel}-${targetLabel}`,
-            source: sourceLabel,
-            target: targetLabel
-          };
-          const pairs = this.props.bundleAddToDistributionFeaturePairs({
-            pair,
-            distributionFeaturePairs
+          this.props.bundleFetchAddToPairDistributions({
+            pair: {source, target},
+            distributionFeaturePairs,
+            selectedNormalizedFeatureDistributionMap
           });
         }
       }
