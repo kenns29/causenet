@@ -44,26 +44,6 @@ export default class ContentPanel extends PureComponent {
       })
     ];
   }
-  // _renderClusterEdges() {
-  //   const {
-  //     clusterNodeLink: {edges}
-  //   } = this.props;
-  //   const pathProps = {
-  //     id: ID + '-path-layer',
-  //     data: edges,
-  //     getPath: ({points}) => points,
-  //     getColor: ({color}) => [...color, 255],
-  //     getWidth: ({width}) => width,
-  //     pickable: true,
-  //     coordinateSystem: COORDINATE_SYSTEM.IDENTITY
-  //   };
-  //   const backgroundProps = {
-  //     ...pathProps,
-  //     getColor: [255, 255, 255, 255],
-  //     getWidth: 5
-  //   };
-  //   return [new PathLayer(backgroundProps), new PathLayer(pathProps)];
-  // }
   _renderClusterEdges() {
     const {
       clusterNodeLink: {edges}
@@ -90,14 +70,17 @@ export default class ContentPanel extends PureComponent {
       new PolygonLayer({
         id: ID + '-arrow-layer',
         data: edges,
-        getPolygon: ({points}) =>
-          makeLineArrow({
+        getPolygon: ({points, width}) => {
+          const w = Math.max(5, width * 3);
+          const l = w * 2;
+          return makeLineArrow({
             line: points.slice(points.length - 2),
-            l: 10,
-            w: 5
-          }),
-        getFillColor: () => [64, 64, 64, 255],
-        getLineColor: () => [64, 64, 64, 255],
+            l,
+            w
+          });
+        },
+        getFillColor: ({color}) => [...color, 255],
+        getLineColor: ({color}) => [...color, 255],
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY
       })
     ];
