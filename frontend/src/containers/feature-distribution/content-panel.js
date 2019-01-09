@@ -9,7 +9,8 @@ import {
 import {
   getRawSelectedNormalizedFeatureDistributionMap,
   getFeatureDistributionHistogramContainerWidth,
-  getFeatureDistributionHistogramContainerHeight
+  getFeatureDistributionHistogramContainerHeight,
+  getFeatureDistributionHistogramLayouts
 } from '../../selectors/data';
 import {
   updateShowFeatureDistributionWindow,
@@ -25,7 +26,8 @@ const mapStateToProps = state => ({
   showFeatureDistributionWindow: getShowFeatureDistributionWindow(state),
   featureDistributionWindowSize: getFeatureDistributionWindowSize(state),
   containerWidth: getFeatureDistributionHistogramContainerWidth(state),
-  containerHeight: getFeatureDistributionHistogramContainerHeight(state)
+  containerHeight: getFeatureDistributionHistogramContainerHeight(state),
+  histogramLayouts: getFeatureDistributionHistogramLayouts(state)
 });
 
 class ContentPanel extends PureComponent {

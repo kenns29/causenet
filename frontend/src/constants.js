@@ -20,6 +20,7 @@ export const DISTRIBUTION_SCATTERPLOT = {
 export const FEATURE_DISTRIBUTION_HISTOGRAM = {
   SIZE: [300, 300],
   PADDING: [2, 2, 2, 2],
+  MARGIN: [2, 2, 2, 2],
   CONTAINER_MARGIN: [2, 2, 2, 2],
   AXIS_OFFSETS: [50, 50]
 };
