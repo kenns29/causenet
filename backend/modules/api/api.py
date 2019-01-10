@@ -3,10 +3,12 @@ from modules.service.model_utils import get_model, delete_model, learn_structure
     get_weighted_edges, write_weighted_edges, get_model_list, update_feature_selection, get_feature_selection, \
     update_model_feature_value_selection_map, get_model_feature_value_selection_map, reduce_model, \
     train_model_on_clusters, train_sub_model_within_clusters, calc_sub_models_edge_weights, get_sub_models, \
-    get_full_model_features, get_model_clusters, replace_sub_models
+    get_full_model_features, get_model_clusters, replace_sub_models, check_is_cluster_model, \
+    calc_model_edge_correlations
 from modules.service.edge_weights import get_edge_weights
 from modules.service.data_utils import load_data, load_pdist, load_clustering, get_current_dataset_name, \
-    get_dataset_config, update_current_dataset_name as update_current_dataset_name_util, get_index2col
+    get_dataset_config, update_current_dataset_name as update_current_dataset_name_util, get_index2col, \
+    get_column_mean_aggregated_data
 from modules.service.clustering_utils import tree2dict, tree_to_non_binary_dict
 from scipy.cluster.hierarchy import to_tree
 from itertools import combinations
@@ -102,7 +104,9 @@ def load_model():
         print('edge weights not found, calculating edge weights ...')
         weighted_edges = get_edge_weights(model)
         write_weighted_edges(weighted_edges, name)
-    return jsonify([{'source': str(s), 'target': str(t), 'weight': w} for (s, t), w in weighted_edges])
+    edge_correlation_dict = dict((edge, corr) for edge, corr in calc_model_edge_correlations(name, model))
+    return jsonify([{'source': str(s), 'target': str(t), 'weight': w, 'corr': edge_correlation_dict[(s, t)]}
+                    for (s, t), w in weighted_edges])
 
 
 @blueprint.route('/load_modified_model', methods=['GET'])
@@ -118,7 +122,9 @@ def load_modifed_model():
     reduced_model = reduce_model(model, feature_value_selection_map)
     print('calculating edge weights for reduced model {} ...'.format(name))
     weighted_edges = get_edge_weights(reduced_model)
-    return jsonify([{'source': str(s), 'target': str(t), 'weight': w} for (s, t), w in weighted_edges])
+    edge_correlation_dict = dict((edge, corr) for edge, corr in calc_model_edge_correlations(name, reduced_model))
+    return jsonify([{'source': str(s), 'target': str(t), 'weight': w, 'corr': edge_correlation_dict[(s, t)]}
+                    for (s, t), w in weighted_edges])
 
 
 @blueprint.route('/load_sub_models', methods=['GET'])
@@ -261,7 +267,7 @@ def route_train_sub_model_within_clusters():
 @blueprint.route('/load_model_list', methods=['GET'])
 def load_model_list():
     return jsonify([{'name': d['name'],
-                     'is_cluster_model': 'sub-models-folder' in d} for d in get_model_list()])
+                     'is_cluster_model': check_is_cluster_model(d['name'], model_stats=d)} for d in get_model_list()])
 
 
 @blueprint.route('/load_feature_selection', methods=['GET'])
@@ -287,3 +293,17 @@ def route_update_model_feature_value_selection_map():
     feature_value_selection_map = json.loads(request.data)
     update_model_feature_value_selection_map(name, feature_value_selection_map)
     return redirect(url_for('.load_model_feature_value_selection_map', name=name))
+
+
+@blueprint.route('/load_data', methods=['GET', 'POST'])
+def route_load_data():
+    data_type = request.args.get('data_type') if request.args.get('data_type') else 'base_avg_data_file'
+    if request.method == 'GET':
+        feature_selection = request.args.get('feature_selection')
+    else:
+        feature_selection = json.loads(request.data) if request.data else None
+
+    data = load_data(data_type=data_type)
+    data = get_column_mean_aggregated_data(data, feature_selection) if feature_selection is not None else data
+    return jsonify(dict((str(key), dict((index, data[str(key)][index])
+                                        for index in data.index)) for key in data.keys()))

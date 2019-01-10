@@ -3,6 +3,10 @@ import {
   UPDATE_SCREEN_SIZE,
   UPDATE_NAV_PANEL_WIDTH,
   UPDATE_CONTENT_PANEL_CENTER,
+  UPDATE_SHOW_BAYESIAN_NETWORK_DISTRIBUTION_WINDOW,
+  UPDATE_BAYESIAN_NETWORK_DISTRIBUTION_WINDOW_SIZE,
+  UPDATE_SHOW_FEATURE_DISTRIBUTION_WINDOW,
+  UPDATE_FEATURE_DISTRIBUTION_WINDOW_SIZE,
   UPDATE_CURRENT_DATASET_NAME,
   UPDATE_DATASET_LIST,
   FETCH_BAYESIAN_NETWORK_START,
@@ -13,6 +17,7 @@ import {
   UPDATE_CLUSTER_BAYESIAN_MODEL_FEATURES,
   UPDATE_SUB_BAYESIAN_NETWORK_MAP,
   UPDATE_SUB_BAYESIAN_MODEL_FEATURES_MAP,
+  UPDATE_SUB_BAYESIAN_NETWORK_SLICE_MAP,
   UPDATE_BAYESIAN_MODEL_FEATURES,
   UPDATE_BAYESIAN_MODEL_FEATURE_VALUE_SELECTION_MAP,
   UPDATE_HIGHLIGHTED_BAYESIAN_NETWORK_EDGE,
@@ -25,7 +30,9 @@ import {
   UPDATE_DISTANCE_MAP,
   UPDATE_HIERARCHICAL_CLUSTERING_CUT_THRESHOLD,
   UPDATE_FEATURE_SELECTION,
-  UPDATE_FEATURE_VALUES_MAP
+  UPDATE_FEATURE_VALUES_MAP,
+  UPDATE_DISTRIBUTION_FEATURE_PAIRS,
+  UPDATE_SELECTED_NORMALIZED_FEATURE_DISTRIBUTION_MAP
 } from './actions';
 
 import {HIERARICAL_CLUSTERING_OPTION} from './constants';
@@ -88,6 +95,14 @@ const DEFAULT_STATE = {
   //  ],
   // ...}
   subBayesianModelFeaturesMap: {},
+  // the sub Bayesian Network link slices for filtering the links of overly
+  // large sub networks. If a slice for a cluster_id is not specified, a default
+  // behavior is supposed to be applied.
+  // {
+  //  cluster_id: [slice_start, slice_end],
+  //  ...
+  // }
+  subBayesianNetworkSliceMap: {},
   // the hierarchical clustering option:
   // raw -- clustering for all features as is
   // base -- group the features by the base variable name, temporal features of
@@ -114,7 +129,7 @@ const DEFAULT_STATE = {
   // [name, ...] -- select the features by name
   featureSelection: null,
   // the feature value map maps each feature in the current data to its
-  // list of values:
+  // list of assigned values:
   // {feature_name: [value_name, ...], ...}
   featureValuesMap: {},
   selectedModel: null,
@@ -122,7 +137,30 @@ const DEFAULT_STATE = {
   nodeLinkViewOptions: {
     showLabels: false,
     useHierarchy: true
-  }
+  },
+  showFeatureDistributionWindow: true,
+  featureDistributionWindowSize: [600, 620],
+  showBayesianNetworkDistributionWindow: true,
+  bayesianNetworkDistributionWindowSize: [600, 620],
+  // feature pair list that will be shown in the distribution window
+  // [
+  //  {
+  //    id: (pair id),
+  //    source: (source id),
+  //    target: (target id)
+  //  },
+  //  ...
+  // ]
+  distributionFeaturePairs: [],
+  // selected normalized feature distribution map
+  // {
+  //  feature_id : {
+  //    value_key : (value),
+  //    ...
+  //  },
+  //  ...
+  // }
+  selectedNormalizedFeatureDistributionMap: {}
 };
 
 const handleUpdateScreenSize = (state, {payload}) => ({
@@ -139,6 +177,32 @@ const handleUpdateNavPanelWidth = (state, {payload}) => ({
 const handleUpdateContentPanelCenter = (state, {payload}) => ({
   ...state,
   contentPanelCenter: payload
+});
+
+const handleUpdateShowBayesianNetworkDistributionWindow = (
+  state,
+  {payload}
+) => ({
+  ...state,
+  showBayesianNetworkDistributionWindow: payload
+});
+
+const handleUpdateBayesianNetworkDistributionWindowSize = (
+  state,
+  {payload}
+) => ({
+  ...state,
+  bayesianNetworkDistributionWindowSize: payload
+});
+
+const handleUpdateShowFeatureDistributionWindow = (state, {payload}) => ({
+  ...state,
+  showFeatureDistributionWindow: payload
+});
+
+const handleUpdateFeatureDistributionWindowSize = (state, {payload}) => ({
+  ...state,
+  featureDistributionWindowSize: payload
 });
 
 const handleUpdateCurrentDatasetName = (state, {payload}) => ({
@@ -191,6 +255,11 @@ const handleUpdateSubBayesianNetworkMap = (state, {payload}) => ({
 const handleUpdateSubBayesianModelFeaturesMap = (state, {payload}) => ({
   ...state,
   subBayesianModelFeaturesMap: payload
+});
+
+const handleUpdateSubBayesianNetworkSliceMap = (state, {payload}) => ({
+  ...state,
+  subBayesianNetworkSliceMap: payload
 });
 
 const handleUpdateBayesianModelFeatures = (state, {payload}) => ({
@@ -264,11 +333,28 @@ const handleUpdateFeatureValuesMap = (state, {payload}) => ({
   featureValuesMap: payload
 });
 
+const handleUpdateDistributionFeaturePairs = (state, {payload}) => ({
+  ...state,
+  distributionFeaturePairs: payload
+});
+
+const handleUpdateSelectedNormalizedFeatureDistributionMap = (
+  state,
+  {payload}
+) => ({
+  ...state,
+  selectedNormalizedFeatureDistributionMap: payload
+});
+
 export default handleActions(
   {
     [UPDATE_SCREEN_SIZE]: handleUpdateScreenSize,
     [UPDATE_NAV_PANEL_WIDTH]: handleUpdateNavPanelWidth,
     [UPDATE_CONTENT_PANEL_CENTER]: handleUpdateContentPanelCenter,
+    [UPDATE_SHOW_BAYESIAN_NETWORK_DISTRIBUTION_WINDOW]: handleUpdateShowBayesianNetworkDistributionWindow,
+    [UPDATE_BAYESIAN_NETWORK_DISTRIBUTION_WINDOW_SIZE]: handleUpdateBayesianNetworkDistributionWindowSize,
+    [UPDATE_SHOW_FEATURE_DISTRIBUTION_WINDOW]: handleUpdateShowFeatureDistributionWindow,
+    [UPDATE_FEATURE_DISTRIBUTION_WINDOW_SIZE]: handleUpdateFeatureDistributionWindowSize,
     [UPDATE_CURRENT_DATASET_NAME]: handleUpdateCurrentDatasetName,
     [UPDATE_DATASET_LIST]: handleUpdateDatasetList,
     [FETCH_BAYESIAN_NETWORK_START]: handleFetchBayesianNetworkStart,
@@ -280,6 +366,7 @@ export default handleActions(
     [UPDATE_CLUSTER_BAYESIAN_MODEL_FEATURES]: handleUpdateClusterBayesianModelFeatures,
     [UPDATE_SUB_BAYESIAN_NETWORK_MAP]: handleUpdateSubBayesianNetworkMap,
     [UPDATE_SUB_BAYESIAN_MODEL_FEATURES_MAP]: handleUpdateSubBayesianModelFeaturesMap,
+    [UPDATE_SUB_BAYESIAN_NETWORK_SLICE_MAP]: handleUpdateSubBayesianNetworkSliceMap,
     [UPDATE_BAYESIAN_MODEL_FEATURE_VALUE_SELECTION_MAP]: handleUpdateBayesianModelFeatureValueSelectionMap,
     [UPDATE_HIGHLIGHTED_BAYESIAN_NETWORK_EDGE]: handleUpdateHighlightedBayesianNetworkEdge,
     [UPDATE_HIGHLIGHTED_BAYESIAN_MODEL_FEATURE]: handleUpdateHighlightedBayesianModelFeature,
@@ -291,7 +378,9 @@ export default handleActions(
     [UPDATE_DISTANCE_MAP]: handleUpdateDistanceMap,
     [UPDATE_HIERARCHICAL_CLUSTERING_CUT_THRESHOLD]: handleUpdateHierarchicalClusteringCutThreshold,
     [UPDATE_FEATURE_SELECTION]: handleUpdateFeatureSelection,
-    [UPDATE_FEATURE_VALUES_MAP]: handleUpdateFeatureValuesMap
+    [UPDATE_FEATURE_VALUES_MAP]: handleUpdateFeatureValuesMap,
+    [UPDATE_DISTRIBUTION_FEATURE_PAIRS]: handleUpdateDistributionFeaturePairs,
+    [UPDATE_SELECTED_NORMALIZED_FEATURE_DISTRIBUTION_MAP]: handleUpdateSelectedNormalizedFeatureDistributionMap
   },
   DEFAULT_STATE
 );

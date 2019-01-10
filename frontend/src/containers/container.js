@@ -9,6 +9,8 @@ import HierarchicalMatrix from './hierarchical-matrix';
 import BayesianNetworkMatrix from './bayesian-network-matrix';
 import BayesianNetworkNodeLink from './bayesian-network-node-link';
 import BayesianNetworkNodeLinkView from './bayesian-network-node-link-view';
+import BayesianNetworkDistribution from './bayesian-network-distribution';
+import FeatureDistribution from './feature-distribution';
 import FeatureList from './feature-list';
 import ContentPanelCenter from './content-panel-center';
 import {updateScreenSize} from '../actions';
@@ -158,6 +160,8 @@ class AppContainer extends PureComponent {
               <ContentPanelCenter />
             </Layout.Content>
           </Layout.Content>
+          <BayesianNetworkDistribution />
+          <FeatureDistribution />
         </Layout>
       </React.Fragment>
     );

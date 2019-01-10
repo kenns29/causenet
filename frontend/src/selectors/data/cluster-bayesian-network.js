@@ -1,4 +1,7 @@
 import {createSelector} from 'reselect';
+import {scaleDiverging, scaleLinear} from 'd3-scale';
+import {interpolateRdBu} from 'd3-scale-chromatic';
+import {rgb, color as d3Color} from 'd3-color';
 import {
   linksToNodeMap,
   createDagLayout,
@@ -11,8 +14,10 @@ import {
   getRawClusterBayesianNetwork,
   getRawClusterBayesianModelFeatures,
   getRawSubBayesianNetworkMap,
-  getRawSubBayesianModelFeaturesMap
+  getRawSubBayesianModelFeaturesMap,
+  getRawSubBayesianNetworkSliceMap
 } from './raw';
+import {getId2DistanceFunction} from './hierarchical-clustering';
 
 export const getClusterBayesianModelFeatures = createSelector(
   getRawClusterBayesianNetwork,
@@ -50,8 +55,12 @@ export const getSubBayesianModelFeaturesMap = createSelector(
 );
 
 export const getClusterBayesianNetworkNodeLink = createSelector(
-  [getRawClusterBayesianNetwork, getSubBayesianModelFeaturesMap],
-  (rawLinks, clusterMap) => {
+  [
+    getRawClusterBayesianNetwork,
+    getSubBayesianModelFeaturesMap,
+    getId2DistanceFunction
+  ],
+  (rawLinks, clusterMap, id2Distance) => {
     const nodeMap = Object.entries(linksToNodeMap(rawLinks)).reduce(
       (map, [label, values]) =>
         clusterMap.hasOwnProperty(label)
@@ -67,11 +76,13 @@ export const getClusterBayesianNetworkNodeLink = createSelector(
         ({source, target}) =>
           ![source, target].some(node => !nodeMap.hasOwnProperty(node))
       )
-      .map(({source, target, weight}) => ({
-        source: nodeMap[source],
-        target: nodeMap[target],
-        weight
-      }));
+      .map(({source, target, ...rest}) => {
+        return {
+          ...rest,
+          source: nodeMap[source],
+          target: nodeMap[target]
+        };
+      });
     return {nodes, links};
   }
 );
@@ -123,12 +134,15 @@ export const getAbstractSubBayesianNetworkMap = createSelector(
 );
 
 export const getReducedAbstractSubBayesianNetworkMap = createSelector(
-  getAbstractSubBayesianNetworkMap,
-  abstractSubBayesianNetworkMap =>
+  [getAbstractSubBayesianNetworkMap, getRawSubBayesianNetworkSliceMap],
+  (abstractSubBayesianNetworkMap, subBayesianNetworkSliceMap) =>
     Object.entries(abstractSubBayesianNetworkMap).reduce(
       (map, [key, abstractLinks]) =>
         Object.assign(map, {
-          [key]: abstractLinksToReducedAbstractLinks(abstractLinks)
+          [key]: abstractLinksToReducedAbstractLinks(
+            abstractLinks,
+            subBayesianNetworkSliceMap[key]
+          )
         }),
       {}
     )
@@ -275,7 +289,20 @@ export const getClusterBayesianNetworkNodeLinkLayoutData = createSelector(
 
 export const getClusterBayesianNetworkNodeLinkLayout = createSelector(
   getClusterBayesianNetworkNodeLinkLayoutData,
-  createDagLayout
+  layoutData => {
+    const layout = createDagLayout(layoutData);
+    const {edges} = layout;
+    const mw = edges.reduce((max, {weight: w}) => Math.max(max, w), 0);
+    const scale = scaleLinear()
+      .domain([0, mw])
+      .range([0, 5]);
+    edges.forEach(edge => {
+      const {r, g, b} = rgb(edge.corr > 0 ? 'lightblue' : 'red');
+      edge.color = [r, g, b];
+      edge.width = scale(edge.weight);
+    });
+    return layout;
+  }
 );
 
 export const getShiftedReducedAbstractSubBayesianNetworkNodeLinkLayoutMap = createSelector(

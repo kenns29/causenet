@@ -277,8 +277,11 @@ export const linksToAbstractLinks = links => {
   }
 };
 
-export const abstractLinksToReducedAbstractLinks = abstractLinks =>
+export const abstractLinksToReducedAbstractLinks = (
+  abstractLinks,
+  slice = [0, 10]
+) =>
   abstractLinks
     .slice(0)
     .sort((a, b) => a.weight - b.weight)
-    .slice(0, 10);
+    .slice(...slice);

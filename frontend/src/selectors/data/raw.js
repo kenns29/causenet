@@ -56,6 +56,11 @@ export const getRawSubBayesianModelFeaturesMap = createSelector(
   state => state.subBayesianModelFeaturesMap
 );
 
+export const getRawSubBayesianNetworkSliceMap = createSelector(
+  rootSelector,
+  state => state.subBayesianNetworkSliceMap
+);
+
 export const getRawBayesianModelFeatures = createSelector(
   rootSelector,
   state => state.bayesianModelFeatures
@@ -109,4 +114,14 @@ export const getRawFeatureValuesMap = createSelector(
 export const getNodeLinkViewOptions = createSelector(
   rootSelector,
   state => state.nodeLinkViewOptions
+);
+
+export const getRawDistributionFeaturePairs = createSelector(
+  rootSelector,
+  state => state.distributionFeaturePairs
+);
+
+export const getRawSelectedNormalizedFeatureDistributionMap = createSelector(
+  rootSelector,
+  state => state.selectedNormalizedFeatureDistributionMap
 );

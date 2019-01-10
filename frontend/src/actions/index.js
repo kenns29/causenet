@@ -1,11 +1,19 @@
 import {progressFetch as fetch} from '../utils';
 import {createAction} from 'redux-actions';
-import {BACKEND_URL} from '../constants';
+import {BACKEND_URL, HIERARICAL_CLUSTERING_OPTION} from '../constants';
 
 // UI action ids
 export const UPDATE_SCREEN_SIZE = 'UPDATE_SCREEN_SIZE';
 export const UPDATE_NAV_PANEL_WIDTH = 'UPDATE_NAV_PANEL_WIDTH';
 export const UPDATE_CONTENT_PANEL_CENTER = 'UPDATE_CONTENT_PANEL_CENTER';
+export const UPDATE_SHOW_BAYESIAN_NETWORK_DISTRIBUTION_WINDOW =
+  'UPDATE_SHOW_BAYESIAN_NETWORK_DISTRIBUTION_WINDOW';
+export const UPDATE_BAYESIAN_NETWORK_DISTRIBUTION_WINDOW_SIZE =
+  'UPDATE_BAYESIAN_NETWORK_DISTRIBUTION_WINDOW_SIZE';
+export const UPDATE_SHOW_FEATURE_DISTRIBUTION_WINDOW =
+  'UPDATE_SHOW_FEATURE_DISTRIBUTION_WINDOW';
+export const UPDATE_FEATURE_DISTRIBUTION_WINDOW_SIZE =
+  'UPDATE_FEATURE_DISTRIBUTION_WINDOW_SIZE';
 
 // data Action ids
 export const UPDATE_CURRENT_DATASET_NAME = 'UPDDATE_CURRENT_DATASET_NAME';
@@ -24,6 +32,8 @@ export const UPDATE_SUB_BAYESIAN_NETWORK_MAP =
   'UPDATE_SUB_BAYESIAN_NETWORK_MAP';
 export const UPDATE_SUB_BAYESIAN_MODEL_FEATURES_MAP =
   'UPDATE_SUB_BAYESIAN_MODEL_FEATURES_MAP';
+export const UPDATE_SUB_BAYESIAN_NETWORK_SLICE_MAP =
+  'UPDATE_SUB_BAYESIAN_NETWORK_SLICE_MAP';
 export const UPDATE_BAYESIAN_MODEL_FEATURES = 'UPDATE_BAYESIAN_MODEL_FEATURES';
 export const UPDATE_BAYESIAN_MODEL_FEATURE_VALUE_SELECTION_MAP =
   'UPDATE_BAYESIAN_MODEL_FEATURE_VALUE_SELECTION_MAP';
@@ -46,12 +56,28 @@ export const UPDATE_HIERARCHICAL_CLUSTERING_CUT_THRESHOLD =
 export const UPDATE_FEATURE_LIST = 'UPDATE_FEATURE_LIST';
 export const UPDATE_FEATURE_SELECTION = 'UPDATE_FEATURE_SELECTION';
 export const UPDATE_FEATURE_VALUES_MAP = 'UPDATE_FEATURE_VALUE_MAP';
+export const UPDATE_DISTRIBUTION_FEATURE_PAIRS =
+  'UPDATE_DISTRIBUTION_FEATURE_PAIRS';
+export const UPDATE_SELECTED_NORMALIZED_FEATURE_DISTRIBUTION_MAP =
+  'UPDATE_SELECTED_NORMALIZED_FEATURE_DISTRIBUTION_MAP';
 
 // UI actions
 export const updateScreenSize = createAction(UPDATE_SCREEN_SIZE);
 export const updateNavPanelWidth = createAction(UPDATE_NAV_PANEL_WIDTH);
 export const updateContentPanelCenter = createAction(
   UPDATE_CONTENT_PANEL_CENTER
+);
+export const updateShowBayesianNetworkDistributionWindow = createAction(
+  UPDATE_SHOW_BAYESIAN_NETWORK_DISTRIBUTION_WINDOW
+);
+export const updateBayesianNetworkDistributionWindowSize = createAction(
+  UPDATE_BAYESIAN_NETWORK_DISTRIBUTION_WINDOW_SIZE
+);
+export const updateShowFeatureDistributionWindow = createAction(
+  UPDATE_SHOW_FEATURE_DISTRIBUTION_WINDOW
+);
+export const updateFeatureDistributionWindowSize = createAction(
+  UPDATE_FEATURE_DISTRIBUTION_WINDOW_SIZE
 );
 
 // data actions
@@ -80,6 +106,9 @@ export const updateSubBayesianNetworkMap = createAction(
 );
 export const updateSubBayesianModelFeaturesMap = createAction(
   UPDATE_SUB_BAYESIAN_MODEL_FEATURES_MAP
+);
+export const updateSubBayesianNetworkSliceMap = createAction(
+  UPDATE_SUB_BAYESIAN_NETWORK_SLICE_MAP
 );
 export const updateBayesianModelFeatures = createAction(
   UPDATE_BAYESIAN_MODEL_FEATURES
@@ -113,6 +142,12 @@ export const updateHierarchicalClusteringCutThreshold = createAction(
 );
 export const updateFeatureSelection = createAction(UPDATE_FEATURE_SELECTION);
 export const updateFeatureValuesMap = createAction(UPDATE_FEATURE_VALUES_MAP);
+export const updateDistributionFeaturePairs = createAction(
+  UPDATE_DISTRIBUTION_FEATURE_PAIRS
+);
+export const updateSelectedNormalizedFeatureDistributionMap = createAction(
+  UPDATE_SELECTED_NORMALIZED_FEATURE_DISTRIBUTION_MAP
+);
 
 // async actions
 export const fetchCurrentDatasetName = () => async dispatch => {
@@ -482,7 +517,51 @@ export const requestUpdateModelFeatureValueSelectionMap = ({
   }
 };
 
+export const requestFetchData = ({
+  data_type = 'normalized_raw_data_file',
+  featureSelection = null
+}) => async dispatch => {
+  try {
+    const response = await fetch(
+      `${BACKEND_URL}/load_data?data_type=${data_type}`,
+      {
+        method: 'POST',
+        body: featureSelection && JSON.stringify(featureSelection)
+      }
+    );
+    const data = response.json();
+    return Promise.resolve(data);
+  } catch (err) {
+    throw new Error(err);
+  }
+};
+
 // bundled actions
+export const bundleRequestUpdateSelectedDataset = (
+  name,
+  hierarchicalClusteringOption = HIERARICAL_CLUSTERING_OPTION.RAW
+) => async dispatch => {
+  try {
+    const data = await requestFetchData();
+
+    dispatch(updateModifiedBayesianNetwork([]));
+    dispatch(updateBayesianNetwork([]));
+    await dispatch(requestUpdateCurrentDatasetName(name));
+    await dispatch(fetchModelList());
+    await dispatch(fetchFeatureSelection());
+    await dispatch(fetchDistanceMap(hierarchicalClusteringOption));
+    await dispatch(
+      fetchHierarchicalClusteringTree(hierarchicalClusteringOption)
+    );
+    dispatch(updateSelectedModel(null));
+    dispatch(updateDistributionFeaturePairs([]));
+    dispatch(updateSelectedNormalizedFeatureDistributionMap({}));
+    return Promise.resolve(name);
+  } catch (err) {
+    throw new Error(err);
+  }
+};
+
 export const bundleFetchBayesianModel = name => async dispatch => {
   try {
     const modifiedBayesianNetwork = await dispatch(
@@ -493,6 +572,8 @@ export const bundleFetchBayesianModel = name => async dispatch => {
       dispatch(fetchModelFeatureValueSelectionMap({name})),
       dispatch(fetchBayesianNetwork({name}))
     ]);
+    dispatch(updateDistributionFeaturePairs([]));
+    dispatch(updateSelectedNormalizedFeatureDistributionMap({}));
     return Promise.resolve([modifiedBayesianNetwork, ...datas]);
   } catch (err) {
     throw new Error(err);
@@ -507,7 +588,81 @@ export const bundleFetchClusterBayesianModel = name => async dispatch => {
       dispatch(fetchSubBayesianNetworks({name})),
       dispatch(fetchSubBayesianModelFeaturesMap({name}))
     ]);
+    dispatch(updateDistributionFeaturePairs([]));
+    dispatch(updateSelectedNormalizedFeatureDistributionMap({}));
     return Promise.resolve(datas);
+  } catch (err) {
+    throw new Error(err);
+  }
+};
+
+export const bundleFetchAddToSelectedNormalizedFeatureDistributionMap = ({
+  featureSelection = null,
+  selectedNormalizedFeatureDistributionMap
+}) => async dispatch => {
+  try {
+    const data = await dispatch(requestFetchData({featureSelection}));
+    const rMap = {...selectedNormalizedFeatureDistributionMap, ...data};
+    dispatch(updateSelectedNormalizedFeatureDistributionMap(rMap));
+    return Promise.resolve(rMap);
+  } catch (err) {
+    throw new Error(err);
+  }
+};
+
+export const bundleAddToDistributionFeaturePairs = ({
+  pair,
+  distributionFeaturePairs
+}) => dispatch => {
+  if (distributionFeaturePairs.find(d => d.id === pair.id)) {
+    return distributionFeaturePairs;
+  }
+  const newPairs = [...distributionFeaturePairs, pair];
+  dispatch(updateDistributionFeaturePairs(newPairs));
+  return newPairs;
+};
+
+export const bundleFetchAddToPairDistributions = ({
+  pair: {source, target}, // both source and target needs to be form {id, cluster}
+  distributionFeaturePairs,
+  selectedNormalizedFeatureDistributionMap
+}) => async dispatch => {
+  try {
+    const id2label = [source, target].reduce(
+      (map, node) =>
+        Object.assign(
+          map,
+          node.cluster.length > 1
+            ? {[node.id]: node.id}
+            : {[node.id]: node.cluster[0]}
+        ),
+      {}
+    );
+    const map = await dispatch(
+      bundleFetchAddToSelectedNormalizedFeatureDistributionMap({
+        featureSelection: [source, target].reduce(
+          (map, node) =>
+            Object.assign(map, {[id2label[node.id]]: node.cluster}),
+          {}
+        ),
+        selectedNormalizedFeatureDistributionMap
+      })
+    );
+    const [sourceLabel, targetLabel] = [source, target].map(
+      node => id2label[node.id]
+    );
+    const pair = {
+      id: `${sourceLabel}-${targetLabel}`,
+      source: sourceLabel,
+      target: targetLabel
+    };
+    const pairs = dispatch(
+      bundleAddToDistributionFeaturePairs({
+        pair,
+        distributionFeaturePairs
+      })
+    );
+    return Promise.resolve({pair, map});
   } catch (err) {
     throw new Error(err);
   }

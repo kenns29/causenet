@@ -10,7 +10,8 @@ import HierarchicalClusteringCutThresholdSlider from './hierarchical-clustering-
 import HierarchicalClusteringOptionRadio from './hierarchical-clustering-option-radio';
 import FeatureSelectionControl from './feature-selection-control';
 import ToggleHierarchicalBayesianNetwork from './toggle-hierarchical-bayesian-network';
-
+import ToggleShowBayesianNetworkDistributionWindow from './toggle-show-bayesian-network-distribution-window';
+import ToggleShowFeatureDistributionHistogramWindow from './toggle-show-feature-distribution-histogram-window';
 import {updateNavPanelWidth} from '../../actions';
 import {getNavPanelWidth, getContentPanelHeight} from '../../selectors/base';
 
@@ -51,6 +52,8 @@ class NavPanel extends PureComponent {
         <HierarchicalClusteringOptionRadio />
         <FeatureSelectionControl />
         <ToggleHierarchicalBayesianNetwork />
+        <ToggleShowBayesianNetworkDistributionWindow />
+        <ToggleShowFeatureDistributionHistogramWindow />
       </Rnd>
     );
   }

@@ -31,6 +31,18 @@ def get_current_dataset_status():
 
 
 def load_data(data_type='data_file'):
+    """
+    load the data from the pickled binary file
+
+    :param data_type:
+        "raw_data_file" |
+        "normalized_raw_data_file" |
+        "data_file" |
+        "base_avg_data_file" |
+        "pdist_file" |
+        "clustering_file"
+    :return: the panda data frame
+    """
     status = get_current_dataset_status()
     with open(os.path.join(data_dir, status[data_type]), mode='rb') as file:
         return pickle.load(file)
@@ -93,6 +105,18 @@ def get_base_avg_data(data):
     for key in r_data.keys():
         times = get_times(data, key)
         r_data[key] = data.filter(['{}~{}'.format(key, time) for time in times]).mean(axis=1)
+    return r_data
+
+
+def get_column_mean_aggregated_data(data, aggregator):
+    r_data = DataFrame(index=data.index)
+    for key, g in enumerate(aggregator) if type(aggregator) is list else aggregator.items():
+        if isinstance(g, list):
+            r_data[key] = data.filter(g).mean(axis=1)
+        elif type(aggregator) is list:
+            r_data[g] = data[g]
+        else:
+            r_data[key] = data[g]
     return r_data
 
 

@@ -6,6 +6,7 @@ import {
   ScatterplotLayer,
   COORDINATE_SYSTEM
 } from 'deck.gl';
+import {SplineLayer} from '../../components/deckgl-layers';
 import ZoomableContainer from '../../components/zoomable-container';
 import {makeLineArrow} from '../../utils';
 
@@ -47,16 +48,19 @@ export default class ContentPanel extends PureComponent {
     const {
       clusterNodeLink: {edges}
     } = this.props;
-    return [
-      new PathLayer({
-        id: ID + '-path-layer',
-        data: edges,
-        getPath: ({points}) => points,
-        getColor: [64, 64, 64, 255],
-        getWidth: () => 2,
-        coordinateSystem: COORDINATE_SYSTEM.IDENTITY
-      })
-    ];
+    const pathProps = {
+      id: ID + '-path-layer',
+      data: edges,
+      getSourcePosition: ({points}) => points[0].slice(0, 2),
+      getTargetPosition: ({points}) => points[points.length - 1].slice(0, 2),
+      getControlPoints: ({points}) =>
+        points.slice(1, points.length - 1).map(d => d.slice(0, 2)),
+      getColor: d => d.color,
+      getStrokeWidth: d => d.width,
+      coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+      pickable: true
+    };
+    return [new SplineLayer(pathProps)];
   }
   _renderClusterArrows() {
     const {
@@ -66,14 +70,17 @@ export default class ContentPanel extends PureComponent {
       new PolygonLayer({
         id: ID + '-arrow-layer',
         data: edges,
-        getPolygon: ({points}) =>
-          makeLineArrow({
+        getPolygon: ({points, width}) => {
+          const w = Math.max(5, width * 3);
+          const l = w * 2;
+          return makeLineArrow({
             line: points.slice(points.length - 2),
-            l: 10,
-            w: 5
-          }),
-        getFillColor: () => [64, 64, 64, 255],
-        getLineColor: () => [64, 64, 64, 255],
+            l,
+            w
+          });
+        },
+        getFillColor: ({color}) => [...color, 255],
+        getLineColor: ({color}) => [...color, 255],
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY
       })
     ];
@@ -101,17 +108,24 @@ export default class ContentPanel extends PureComponent {
     ];
   }
   _renderSubEdges(edges, id) {
-    return [
-      new PathLayer({
-        id: ID + '-sub-path-layer-' + id,
-        data: edges,
-        getPath: ({points}) => points,
-        getColor: [100, 100, 100, 255],
-        getWidth: () => 2,
-        getDashArray: ({path}) => (path.length > 1 ? [5, 5] : [0, 0]),
-        coordinateSystem: COORDINATE_SYSTEM.IDENTITY
-      })
-    ];
+    const pathProps = {
+      id: ID + '-sub-path-layer-' + id,
+      data: edges,
+      getPath: ({points}) => points,
+      getColor: [100, 100, 100, 255],
+      getWidth: 2,
+      getDashArray: ({path}) => (path.length > 1 ? [5, 5] : [0, 0]),
+      coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+      pickable: true
+    };
+    const backgroundProps = {
+      ...pathProps,
+      id: ID + '-sub-path-layer-background-' + id,
+      getColor: [255, 255, 255, 255],
+      getWidth: 5,
+      getDashArray: [0, 0]
+    };
+    return [new PathLayer(backgroundProps), new PathLayer(pathProps)];
   }
   _renderSubArrows(edges, id) {
     return [
@@ -139,7 +153,7 @@ export default class ContentPanel extends PureComponent {
     ];
   }
   render() {
-    const {width, height} = this.props;
+    const {width, height, disableZoom, disableMove, getCursor} = this.props;
     return (
       <ZoomableContainer
         ref={input => (this.container = input)}
@@ -150,9 +164,11 @@ export default class ContentPanel extends PureComponent {
         bottom={height}
         top={0}
         layers={this._renderLayers()}
-        getCursor={() => 'auto'}
+        getCursor={getCursor}
         onZoom={zoomScale => this.setState({zoomScale})}
         onMove={zoomOffset => this.setState({zoomOffset})}
+        disableZoom={disableZoom}
+        disableMove={disableMove}
       />
     );
   }
