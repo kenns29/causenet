@@ -1,6 +1,7 @@
 import {createSelector} from 'reselect';
 import {scaleLinear} from 'd3-scale';
 import {histogram} from 'd3-array';
+import {getCurvePoints} from 'cardinal-spline-js';
 import {rootSelector, getFeatureDistributionWindowSize} from '../base';
 import {getRawSelectedNormalizedFeatureDistributionMap} from './raw';
 import {FEATURE_DISTRIBUTION_HISTOGRAM} from '../../constants';
@@ -64,7 +65,7 @@ export const getFeatureDistributionHistogramData = createSelector(
     const histGenerator = histogram()
       .value(d => d.value)
       .domain([0, 1])
-      .thresholds(100);
+      .thresholds(20);
     return featureDistributionList.map(({id, values}) => ({
       id,
       data: histGenerator(values)
@@ -98,6 +99,7 @@ export const getFeatureDistributionHistogramLayouts = createSelector(
           .domain(domain)
           .range(range)
       );
+
       const bins = data.map((d, i) => {
         const size = d.length;
         const {x0, x1} = d;
@@ -108,9 +110,41 @@ export const getFeatureDistributionHistogramLayouts = createSelector(
           data: d,
           x0,
           x1,
-          polygon: [[xl, yb], [xr, yb], [xr, y], [xl, y], [xl, yb]]
+          xl,
+          xr,
+          y
         };
       });
+
+      const controlPoints = bins.map(({xl, xr, y}) => [(xl + xr) / 2, y]);
+      const startPoint = [bins[0].xl, bins[0].y];
+      const endPoint = [bins[bins.length - 1].xr, bins[bins.length - 1].y];
+      const path = getCurvePoints(
+        [...startPoint, ...controlPoints.toString().split(','), ...endPoint],
+        0.5,
+        10
+      );
+
+      const points = [];
+      for (let i = 0; i < path.length - 1; i += 2) {
+        points.push([path[i], path[i + 1]]);
+      }
+
+      for (
+        let i = 0, pi = 0, xi = 0;
+        i < points.length && xi < bins.length;
+        i++
+      ) {
+        const x = points[i][0];
+        const {xl, xr} = bins[xi];
+        if (x >= xr) {
+          const segment = points.slice(pi, x === xr ? i + 1 : i);
+          bins[xi].polygon = [...segment, [xr, yb], [xl, yb], points[pi]];
+          pi = i;
+          ++xi;
+        }
+      }
+
       return {
         id,
         bins,
