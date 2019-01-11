@@ -89,7 +89,7 @@ export default class ZoomableContainer extends PureComponent {
     }
   };
   _handleMouseDown = event => {
-    if (!this.props.disableMove) {
+    if (event.button === 0 && !this.props.disableMove) {
       this._moveStart(event);
     }
   };
@@ -99,7 +99,9 @@ export default class ZoomableContainer extends PureComponent {
     }
   };
   _handleMouseUp = event => {
-    this._moveEnd();
+    if (event.button === 0) {
+      this._moveEnd();
+    }
   };
   componentDidUpdate = (prevProps, prevState) => {
     if (this.state.zoomScale !== prevState.zoomScale) {

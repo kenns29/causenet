@@ -3,6 +3,7 @@ import {connect} from 'react-redux';
 import {Spin} from 'antd';
 import DeckGLContainer from './deckgl-container';
 import PathTooltip from './path-tooltip';
+import NodeContextMenu from './node-context-menu';
 import {getTreeLeaves, findCluster} from '../../utils';
 import {
   getSelectedModel,
@@ -71,7 +72,12 @@ class ContentPanel extends PureComponent {
       disableMove: false,
       hoveredNodes: [],
       hoveredPath: null,
-      getCursor: () => 'auto'
+      getCursor: () => 'auto',
+      nodeContextMenu: {
+        x: 0,
+        y: 0,
+        show: false
+      }
     };
   }
   _getEventMouse = event => {
@@ -168,7 +174,7 @@ class ContentPanel extends PureComponent {
           const {object} = info;
           const path = [{node: {...object.source}, weight: 0}, ...object.path];
           this.setState({
-            hoveredPath: {path, left: x - 10, top: y - 90},
+            hoveredPath: {path, left: x - 10, top: y - 200},
             hoveredNodes: [],
             disableZoom: true,
             getCursor: () => 'auto'
@@ -193,7 +199,7 @@ class ContentPanel extends PureComponent {
     event.preventDefault();
     event.stopPropagation();
   };
-  _handleClick = async event => {
+  _handleClick = event => {
     const {
       selectedNormalizedFeatureDistributionMap,
       distributionFeaturePairs
@@ -220,6 +226,33 @@ class ContentPanel extends PureComponent {
             distributionFeaturePairs,
             selectedNormalizedFeatureDistributionMap
           });
+        }
+      }
+      this.setState({
+        nodeContextMenu: {
+          show: false
+        }
+      });
+    }
+  };
+  _handleContextMenu = event => {
+    if (this._getDeck()) {
+      const [x, y] = this._getEventMouse(event);
+      const info = this._pickObject({
+        x,
+        y
+      });
+      if (info) {
+        const {id: layerId} = info.layer;
+        if (layerId === 'hierarchical-bayesian-network-node-link-nodes-layer') {
+          this.setState({
+            nodeContextMenu: {
+              x: x + 10,
+              y,
+              show: true
+            }
+          });
+          event.preventDefault();
         }
       }
     }
@@ -272,6 +305,10 @@ class ContentPanel extends PureComponent {
       )
     );
   }
+  _renderNodeContextMenu() {
+    const {x, y, show} = this.state.nodeContextMenu;
+    return <NodeContextMenu x={x} y={y} show={show} />;
+  }
   render() {
     const {width, height, isFetchingModifiedBayesianNetwork} = this.props;
     const {disableZoom, disableMove, getCursor} = this.state;
@@ -284,6 +321,7 @@ class ContentPanel extends PureComponent {
         onMouseMove={this._handleMouseMove}
         onClick={this._handleClick}
         onWheel={this._handleWheel}
+        onContextMenu={this._handleContextMenu}
       >
         {isFetchingModifiedBayesianNetwork && (
           <Spin
@@ -294,6 +332,7 @@ class ContentPanel extends PureComponent {
         )}
         {this._renderTooltip()}
         {this._renderPathTooltip()}
+        {this._renderNodeContextMenu()}
         <DeckGLContainer
           ref={input => (this.deckGLContainer = input)}
           {...this.props}
