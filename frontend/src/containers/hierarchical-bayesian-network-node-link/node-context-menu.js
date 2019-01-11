@@ -1,6 +1,12 @@
 import React, {PureComponent} from 'react';
+import {connect} from 'react-redux';
+import {updateShowBayesianNetworkSubNetworkDetailWindow} from '../../actions';
 
-export default class NodeContextMenu extends PureComponent {
+const mapDispatchToProps = {updateShowBayesianNetworkSubNetworkDetailWindow};
+
+const mapStateToProps = state => ({});
+
+class NodeContextMenu extends PureComponent {
   static defaultProps = {
     x: 0,
     y: 0,
@@ -35,6 +41,9 @@ export default class NodeContextMenu extends PureComponent {
             cursor: 'pointer',
             backgroundColor: this.state.showDetail.hovered ? 'grey' : null
           }}
+          onClick={event => {
+            this.props.updateShowBayesianNetworkSubNetworkDetailWindow(true);
+          }}
         >
           Show Detail
         </div>
@@ -42,3 +51,8 @@ export default class NodeContextMenu extends PureComponent {
     ) : null;
   }
 }
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(NodeContextMenu);

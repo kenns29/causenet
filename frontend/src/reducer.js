@@ -7,6 +7,7 @@ import {
   UPDATE_BAYESIAN_NETWORK_DISTRIBUTION_WINDOW_SIZE,
   UPDATE_SHOW_FEATURE_DISTRIBUTION_WINDOW,
   UPDATE_FEATURE_DISTRIBUTION_WINDOW_SIZE,
+  UPDATE_SHOW_BAYESIAN_NETWORK_SUB_NETWORK_DETAIL_WINDOW,
   UPDATE_CURRENT_DATASET_NAME,
   UPDATE_DATASET_LIST,
   FETCH_BAYESIAN_NETWORK_START,
@@ -160,7 +161,8 @@ const DEFAULT_STATE = {
   //  },
   //  ...
   // }
-  selectedNormalizedFeatureDistributionMap: {}
+  selectedNormalizedFeatureDistributionMap: {},
+  showBayesianNetworkSubNetworkDetailWindow: false
 };
 
 const handleUpdateScreenSize = (state, {payload}) => ({
@@ -203,6 +205,14 @@ const handleUpdateShowFeatureDistributionWindow = (state, {payload}) => ({
 const handleUpdateFeatureDistributionWindowSize = (state, {payload}) => ({
   ...state,
   featureDistributionWindowSize: payload
+});
+
+const handleUpdateShowBayesianNetworkSubNetworkDetailWindow = (
+  state,
+  {payload}
+) => ({
+  ...state,
+  showBayesianNetworkSubNetworkDetailWindow: payload
 });
 
 const handleUpdateCurrentDatasetName = (state, {payload}) => ({
@@ -355,6 +365,7 @@ export default handleActions(
     [UPDATE_BAYESIAN_NETWORK_DISTRIBUTION_WINDOW_SIZE]: handleUpdateBayesianNetworkDistributionWindowSize,
     [UPDATE_SHOW_FEATURE_DISTRIBUTION_WINDOW]: handleUpdateShowFeatureDistributionWindow,
     [UPDATE_FEATURE_DISTRIBUTION_WINDOW_SIZE]: handleUpdateFeatureDistributionWindowSize,
+    [UPDATE_SHOW_BAYESIAN_NETWORK_SUB_NETWORK_DETAIL_WINDOW]: handleUpdateShowBayesianNetworkSubNetworkDetailWindow,
     [UPDATE_CURRENT_DATASET_NAME]: handleUpdateCurrentDatasetName,
     [UPDATE_DATASET_LIST]: handleUpdateDatasetList,
     [FETCH_BAYESIAN_NETWORK_START]: handleFetchBayesianNetworkStart,
