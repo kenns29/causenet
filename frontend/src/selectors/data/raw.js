@@ -125,3 +125,8 @@ export const getRawSelectedNormalizedFeatureDistributionMap = createSelector(
   rootSelector,
   state => state.selectedNormalizedFeatureDistributionMap
 );
+
+export const getSelectedSubBayesianNetworkId = createSelector(
+  rootSelector,
+  state => state.selectedSubBayesianNetworkId
+);

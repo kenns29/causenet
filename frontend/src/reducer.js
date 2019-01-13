@@ -162,7 +162,8 @@ const DEFAULT_STATE = {
   //  ...
   // }
   selectedNormalizedFeatureDistributionMap: {},
-  showBayesianNetworkSubNetworkDetailWindow: false
+  showBayesianNetworkSubNetworkDetailWindow: false,
+  selectedSubBayesianNetworkId: null
 };
 
 const handleUpdateScreenSize = (state, {payload}) => ({
