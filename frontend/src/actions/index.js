@@ -62,6 +62,8 @@ export const UPDATE_DISTRIBUTION_FEATURE_PAIRS =
   'UPDATE_DISTRIBUTION_FEATURE_PAIRS';
 export const UPDATE_SELECTED_NORMALIZED_FEATURE_DISTRIBUTION_MAP =
   'UPDATE_SELECTED_NORMALIZED_FEATURE_DISTRIBUTION_MAP';
+export const UPDATE_SELECTED_SUB_BAYESIAN_NETWORK_ID =
+  'UPDATE_SELECTED_SUB_BAYESIAN_NETWORK_ID';
 
 // UI actions
 export const updateScreenSize = createAction(UPDATE_SCREEN_SIZE);
@@ -152,6 +154,9 @@ export const updateDistributionFeaturePairs = createAction(
 );
 export const updateSelectedNormalizedFeatureDistributionMap = createAction(
   UPDATE_SELECTED_NORMALIZED_FEATURE_DISTRIBUTION_MAP
+);
+export const updateSelectedSubBayesianNetworkId = createAction(
+  UPDATE_SELECTED_SUB_BAYESIAN_NETWORK_ID
 );
 
 // async actions

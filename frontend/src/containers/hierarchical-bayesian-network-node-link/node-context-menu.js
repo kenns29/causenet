@@ -1,8 +1,14 @@
 import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
-import {updateShowBayesianNetworkSubNetworkDetailWindow} from '../../actions';
+import {
+  updateShowBayesianNetworkSubNetworkDetailWindow,
+  updateSelectedSubBayesianNetworkId
+} from '../../actions';
 
-const mapDispatchToProps = {updateShowBayesianNetworkSubNetworkDetailWindow};
+const mapDispatchToProps = {
+  updateShowBayesianNetworkSubNetworkDetailWindow,
+  updateSelectedSubBayesianNetworkId
+};
 
 const mapStateToProps = state => ({});
 
@@ -21,7 +27,7 @@ class NodeContextMenu extends PureComponent {
     };
   }
   render() {
-    const {x, y, show} = this.props;
+    const {x, y, show, data} = this.props;
     return show ? (
       <div
         id="node-context-menu"
@@ -43,6 +49,9 @@ class NodeContextMenu extends PureComponent {
           }}
           onClick={event => {
             this.props.updateShowBayesianNetworkSubNetworkDetailWindow(true);
+            if (data) {
+              this.props.updateSelectedSubBayesianNetworkId(data.id);
+            }
           }}
         >
           Show Detail

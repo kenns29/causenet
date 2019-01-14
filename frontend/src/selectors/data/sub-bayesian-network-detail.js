@@ -1,9 +1,15 @@
 import {createSelector} from 'reselect';
+import {scaleLinear} from 'd3-scale';
+import {rgb} from 'd3-color';
 import {
   getSelectedSubBayesianNetworkId,
   getRawSubBayesianNetworkMap
 } from './raw';
-import {linksToNodeMap, createUpdatedNodeLink} from '../../utils';
+import {
+  linksToNodeMap,
+  createUpdatedNodeLink,
+  createDagLayout
+} from '../../utils';
 
 export const getSelectedSubBayesianNetwork = createSelector(
   [getSelectedSubBayesianNetworkId, getRawSubBayesianNetworkMap],
@@ -20,11 +26,11 @@ export const getSelectedSubBayesianNetworkNodeLink = createSelector(
       target: nodeMap[target],
       weight
     }));
-    return [nodes, links];
+    return {nodes, links};
   }
 );
 
-export const getSelectedSubBayesianNetworkLayoutData = createSelector(
+export const getSelectedSubBayesianNetworkNodeLinkLayoutData = createSelector(
   getSelectedSubBayesianNetworkNodeLink,
   nodeLink =>
     createUpdatedNodeLink({
@@ -38,7 +44,20 @@ export const getSelectedSubBayesianNetworkLayoutData = createSelector(
     })
 );
 
-export const getSelectedSubBayesianNetworkLayout = createSelector(
-  getSelectedSubBayesianNetworkLayoutData,
-  layoutData => {}
+export const getSelectedSubBayesianNetworkNodeLinkLayout = createSelector(
+  getSelectedSubBayesianNetworkNodeLinkLayoutData,
+  layoutData => {
+    const layout = createDagLayout(layoutData);
+    const {edges} = layout;
+    const mw = edges.reduce((max, {weight: w}) => Math.max(max, w), 0);
+    const scale = scaleLinear()
+      .domain([0, mw])
+      .range([0, 5]);
+    edges.forEach(edge => {
+      const {r, g, b} = rgb(edge.corr > 0 ? 'lightblue' : 'red');
+      edge.color = [r, g, b];
+      edge.width = scale(edge.weight);
+    });
+    return layout;
+  }
 );

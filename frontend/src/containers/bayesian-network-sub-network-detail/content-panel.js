@@ -3,12 +3,14 @@ import {connect} from 'react-redux';
 import PopupWindow from '../../components/popup-window';
 import DeckGLContainer from './deckgl-container';
 import {getShowBayesianNetworkSubNetworkDetailWindow} from '../../selectors/base';
+import {getSelectedSubBayesianNetworkNodeLinkLayout} from '../../selectors/data';
 import {updateShowBayesianNetworkSubNetworkDetailWindow} from '../../actions';
 
 const mapDispatchToProps = {updateShowBayesianNetworkSubNetworkDetailWindow};
 
 const mapStateToProps = state => ({
-  show: getShowBayesianNetworkSubNetworkDetailWindow(state)
+  show: getShowBayesianNetworkSubNetworkDetailWindow(state),
+  nodeLink: getSelectedSubBayesianNetworkNodeLinkLayout(state)
 });
 
 class ContentPanel extends PureComponent {

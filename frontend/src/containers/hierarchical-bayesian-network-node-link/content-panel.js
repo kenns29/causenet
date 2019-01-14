@@ -76,7 +76,8 @@ class ContentPanel extends PureComponent {
       nodeContextMenu: {
         x: 0,
         y: 0,
-        show: false
+        show: false,
+        data: null
       }
     };
   }
@@ -121,6 +122,7 @@ class ContentPanel extends PureComponent {
           if (s > 0) {
             [s, t] = [s - 1, t - 1];
           }
+
           this.props.updateSubBayesianNetworkSliceMap({
             ...subBayesianNetworkSliceMap,
             [id]: [s, t]
@@ -249,7 +251,8 @@ class ContentPanel extends PureComponent {
             nodeContextMenu: {
               x: x + 10,
               y,
-              show: true
+              show: true,
+              data: info.object
             }
           });
           event.preventDefault();
@@ -284,9 +287,9 @@ class ContentPanel extends PureComponent {
               key={label}
               style={{...tooltipStyle, left: mouseX + 10, top: mouseY - 20}}
             >
-              {cluster
-                .slice(0, 1)
-                .map(feature => <div key={feature}>{`${feature}`}</div>)}
+              {cluster.slice(0, 1).map(feature => (
+                <div key={feature}>{`${feature}`}</div>
+              ))}
             </div>
           );
         })}
@@ -306,8 +309,8 @@ class ContentPanel extends PureComponent {
     );
   }
   _renderNodeContextMenu() {
-    const {x, y, show} = this.state.nodeContextMenu;
-    return <NodeContextMenu x={x} y={y} show={show} />;
+    const {x, y, show, data} = this.state.nodeContextMenu;
+    return <NodeContextMenu x={x} y={y} show={show} data={data} />;
   }
   render() {
     const {width, height, isFetchingModifiedBayesianNetwork} = this.props;

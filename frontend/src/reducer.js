@@ -33,7 +33,8 @@ import {
   UPDATE_FEATURE_SELECTION,
   UPDATE_FEATURE_VALUES_MAP,
   UPDATE_DISTRIBUTION_FEATURE_PAIRS,
-  UPDATE_SELECTED_NORMALIZED_FEATURE_DISTRIBUTION_MAP
+  UPDATE_SELECTED_NORMALIZED_FEATURE_DISTRIBUTION_MAP,
+  UPDATE_SELECTED_SUB_BAYESIAN_NETWORK_ID
 } from './actions';
 
 import {HIERARICAL_CLUSTERING_OPTION} from './constants';
@@ -357,6 +358,11 @@ const handleUpdateSelectedNormalizedFeatureDistributionMap = (
   selectedNormalizedFeatureDistributionMap: payload
 });
 
+const handleUpdateSelectedSubBayesianNetworkId = (state, {payload}) => ({
+  ...state,
+  selectedSubBayesianNetworkId: payload
+});
+
 export default handleActions(
   {
     [UPDATE_SCREEN_SIZE]: handleUpdateScreenSize,
@@ -392,7 +398,8 @@ export default handleActions(
     [UPDATE_FEATURE_SELECTION]: handleUpdateFeatureSelection,
     [UPDATE_FEATURE_VALUES_MAP]: handleUpdateFeatureValuesMap,
     [UPDATE_DISTRIBUTION_FEATURE_PAIRS]: handleUpdateDistributionFeaturePairs,
-    [UPDATE_SELECTED_NORMALIZED_FEATURE_DISTRIBUTION_MAP]: handleUpdateSelectedNormalizedFeatureDistributionMap
+    [UPDATE_SELECTED_NORMALIZED_FEATURE_DISTRIBUTION_MAP]: handleUpdateSelectedNormalizedFeatureDistributionMap,
+    [UPDATE_SELECTED_SUB_BAYESIAN_NETWORK_ID]: handleUpdateSelectedSubBayesianNetworkId
   },
   DEFAULT_STATE
 );
