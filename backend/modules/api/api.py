@@ -131,20 +131,24 @@ def load_modifed_model():
 def load_sub_models():
     name = request.args.get('name') if request.args.get('name') else 'model.bin'
     model_dict = get_sub_models(name)
-    return jsonify(dict((key, {
-        'edges': [{
-            'source': s,
-            'target': t,
-            'weight': w
-        } for (s, t), w in item['weighted_edges']]
-        if 'weighted_edges' in item else
-        [{
-            'source': s,
-            'target': t
-        } for s, t in item['model'].edges()],
-        'nodes': item['model'].nodes()
-    })
-                        for key, item in model_dict.items()))
+    r_dict = dict()
+    for key, item in model_dict.items():
+        edge_correlation_dict = dict((edge, corr) for edge, corr in item['edge_correlations'])
+        if 'weighted_edges' in item:
+            edges = [{
+                'source': s,
+                'target': t,
+                'weight': w,
+                'corr': edge_correlation_dict[(s, t)]
+            } for (s, t), w in item['weighted_edges']]
+        else:
+            edges = [{
+                'source': s,
+                'target': t,
+                'corr': edge_correlation_dict[(s, t)]
+            } for s, t in item['model'].edges()]
+        r_dict[key] = {'nodes': item['model'].nodes(), 'edges': edges}
+    return jsonify(r_dict)
 
 
 @blueprint.route('/replace_sub_models', methods=['POST'])

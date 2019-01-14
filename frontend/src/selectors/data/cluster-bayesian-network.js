@@ -1,7 +1,6 @@
 import {createSelector} from 'reselect';
-import {scaleDiverging, scaleLinear} from 'd3-scale';
-import {interpolateRdBu} from 'd3-scale-chromatic';
-import {rgb, color as d3Color} from 'd3-color';
+import {scaleLinear} from 'd3-scale';
+import {rgb} from 'd3-color';
 import {
   linksToNodeMap,
   createDagLayout,
@@ -92,7 +91,7 @@ export const getFullSubBayesianNetworkNodeLinkMap = createSelector(
   rawSubBayesianNetworkMap =>
     Object.entries(rawSubBayesianNetworkMap).reduce((map, [key, rawLinks]) => {
       const nodeMap = linksToNodeMap(rawLinks);
-      const nodes = Object.values(nodes);
+      const nodes = Object.values(getFullSubBayesianNetworkNodeLinkMap);
       const links = rawLinks.map(({source, target, weight}) => ({
         source: nodeMap[source],
         target: nodeMap[target],

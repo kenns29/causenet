@@ -547,8 +547,6 @@ export const bundleRequestUpdateSelectedDataset = (
   hierarchicalClusteringOption = HIERARICAL_CLUSTERING_OPTION.RAW
 ) => async dispatch => {
   try {
-    const data = await requestFetchData();
-
     dispatch(updateModifiedBayesianNetwork([]));
     dispatch(updateBayesianNetwork([]));
     await dispatch(requestUpdateCurrentDatasetName(name));
@@ -646,8 +644,7 @@ export const bundleFetchAddToPairDistributions = ({
     const map = await dispatch(
       bundleFetchAddToSelectedNormalizedFeatureDistributionMap({
         featureSelection: [source, target].reduce(
-          (map, node) =>
-            Object.assign(map, {[id2label[node.id]]: node.cluster}),
+          (m, node) => Object.assign(m, {[id2label[node.id]]: node.cluster}),
           {}
         ),
         selectedNormalizedFeatureDistributionMap
@@ -667,7 +664,7 @@ export const bundleFetchAddToPairDistributions = ({
         distributionFeaturePairs
       })
     );
-    return Promise.resolve({pair, map});
+    return Promise.resolve({pairs, map});
   } catch (err) {
     throw new Error(err);
   }

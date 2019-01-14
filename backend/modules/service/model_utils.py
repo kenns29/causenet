@@ -168,8 +168,13 @@ def get_sub_models(name):
                 s = file_name.split('.')
                 key = s[0] if len(s) < 2 else s[1]
                 model_dict[key] = {} if key not in model_dict else model_dict[key]
-                model_dict[key]['model' if len(s) < 2
-                else 'weighted_edges' if s[0] == 'weight' else 'features'] = pickle.load(file)
+                if len(s) < 2:
+                    model = pickle.load(file)
+                    edge_correlations = calc_model_edge_correlations(key, model)
+                    model_dict[key]['model'] = model
+                    model_dict[key]['edge_correlations'] = edge_correlations
+                else:
+                    model_dict[key]['weighted_edges' if s[0] == 'weight' else 'features'] = pickle.load(file)
     return model_dict
 
 
@@ -588,13 +593,13 @@ def get_model_stats(name):
         return {}
     models = status['models']
     if name not in models:
-        raise ValueError('can not find the model for the name.')
+        return None
     return models[name]
 
 
 def check_is_cluster_model(name, model_stats=None):
     model_stats = get_model_stats(name) if model_stats is None else model_stats
-    return 'sub-models-folder' in model_stats
+    return 'sub-models-folder' in model_stats if model_stats else False
 
 
 def update_feature_selection(features):

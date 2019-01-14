@@ -14,7 +14,7 @@ export const getSelectedSubBayesianNetworkNodeLink = createSelector(
   getSelectedSubBayesianNetwork,
   rawLinks => {
     const nodeMap = linksToNodeMap(rawLinks);
-    const nodes = Object.values(nodes);
+    const nodes = Object.values(nodeMap);
     const links = rawLinks.map(({source, target, weight}) => ({
       source: nodeMap[source],
       target: nodeMap[target],
@@ -36,4 +36,9 @@ export const getSelectedSubBayesianNetworkLayoutData = createSelector(
       }),
       k: 'id'
     })
+);
+
+export const getSelectedSubBayesianNetworkLayout = createSelector(
+  getSelectedSubBayesianNetworkLayoutData,
+  layoutData => {}
 );
