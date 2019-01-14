@@ -48,6 +48,7 @@ export default class PopupWindow extends PureComponent {
       <Rnd
         size={{width, height}}
         position={{x, y}}
+        dragHandleClassName="draggable"
         onDrag={(event, {x, y}) => {
           this.setState({x, y});
           this.props.onDrag(event, {x, y});
@@ -78,6 +79,7 @@ export default class PopupWindow extends PureComponent {
       >
         <div style={{border: '1px solid grey', position: 'relative'}}>
           <div
+            className="header draggable"
             style={{
               position: 'relative',
               backgroundColor: 'lightgrey',

@@ -21,10 +21,10 @@ export const getSelectedSubBayesianNetworkNodeLink = createSelector(
   rawLinks => {
     const nodeMap = linksToNodeMap(rawLinks);
     const nodes = Object.values(nodeMap);
-    const links = rawLinks.map(({source, target, weight}) => ({
+    const links = rawLinks.map(({source, target, ...rest}) => ({
+      ...rest,
       source: nodeMap[source],
-      target: nodeMap[target],
-      weight
+      target: nodeMap[target]
     }));
     return {nodes, links};
   }
