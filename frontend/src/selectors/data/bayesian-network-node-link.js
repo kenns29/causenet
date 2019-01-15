@@ -12,6 +12,8 @@ export const getBayesianNetworkNodeLinkLayout = createSelector(
     getFeatureList,
     getIsTemporalBayesianNetwork
   ],
-  (nodeLink, features, isTemporal) =>
-    createBayesianNetworkNodeLinkLayout(nodeLink, features, isTemporal)
+  (nodeLink, features, isTemporal) => {
+    console.log(JSON.stringify(nodeLink, null, 2));
+    return createBayesianNetworkNodeLinkLayout(nodeLink, features, isTemporal);
+  }
 );

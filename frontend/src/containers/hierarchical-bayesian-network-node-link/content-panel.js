@@ -4,13 +4,10 @@ import {Spin} from 'antd';
 import DeckGLContainer from './deckgl-container';
 import PathTooltip from './path-tooltip';
 import NodeContextMenu from './node-context-menu';
-import {getTreeLeaves, findCluster} from '../../utils';
 import {
-  getSelectedModel,
   getIsFetchingModifiedBayesianNetwork,
   getClusterBayesianNetworkNodeLinkLayout,
   getShiftedReducedAbstractSubBayesianNetworkNodeLinkLayouts,
-  getRawHierarchicalClusteringTree,
   getRawSubBayesianNetworkSliceMap,
   getAbstractSubBayesianNetworkMap,
   getRawDistributionFeaturePairs,
@@ -31,7 +28,6 @@ const mapDispatchToProps = {
 };
 
 const mapStateToProps = state => ({
-  selectedModel: getSelectedModel(state),
   isFetchingModifiedBayesianNetwork: getIsFetchingModifiedBayesianNetwork(
     state
   ),
@@ -39,7 +35,6 @@ const mapStateToProps = state => ({
   subNodeLinks: getShiftedReducedAbstractSubBayesianNetworkNodeLinkLayouts(
     state
   ),
-  hierarchicalClusteringTree: getRawHierarchicalClusteringTree(state),
   subBayesianNetworkSliceMap: getRawSubBayesianNetworkSliceMap(state),
   abstractSubBayesianNetworkMap: getAbstractSubBayesianNetworkMap(state),
   distributionFeaturePairs: getRawDistributionFeaturePairs(state),
@@ -214,13 +209,7 @@ class ContentPanel extends PureComponent {
       });
       if (info) {
         const {id: layerId} = info.layer;
-        if (layerId === 'hierarchical-bayesian-network-node-link-nodes-layer') {
-          const {object} = info;
-          const {hierarchicalClusteringTree: tree} = this.props;
-          this._expandCluster(tree, Number(object.label));
-        } else if (
-          layerId === 'hierarchical-bayesian-network-node-link-path-layer'
-        ) {
+        if (layerId === 'hierarchical-bayesian-network-node-link-path-layer') {
           const {object} = info;
           const {source, target} = object;
           this.props.bundleFetchAddToPairDistributions({
@@ -260,23 +249,6 @@ class ContentPanel extends PureComponent {
       }
     }
   };
-  _expandCluster = async(tree, id) => {
-    const {selectedModel} = this.props;
-    const cluster = findCluster(tree, id);
-    if (cluster) {
-      const targets = [cluster.id];
-      const replacements = cluster.children.map(child => ({
-        id: child.id,
-        features: getTreeLeaves(child).map(d => d.name)
-      }));
-      await this.props.requestReplaceSubBayesianModels({
-        name: selectedModel,
-        targets,
-        replacements
-      });
-      this.props.bundleFetchClusterBayesianModel(selectedModel);
-    }
-  };
   _renderTooltip() {
     const {hoveredNodes} = this.state;
     return (
@@ -287,9 +259,9 @@ class ContentPanel extends PureComponent {
               key={label}
               style={{...tooltipStyle, left: mouseX + 10, top: mouseY - 20}}
             >
-              {cluster.slice(0, 1).map(feature => (
-                <div key={feature}>{`${feature}`}</div>
-              ))}
+              {cluster
+                .slice(0, 1)
+                .map(feature => <div key={feature}>{`${feature}`}</div>)}
             </div>
           );
         })}
