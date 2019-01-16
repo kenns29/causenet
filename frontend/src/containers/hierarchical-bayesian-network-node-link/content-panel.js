@@ -6,32 +6,35 @@ import PathTooltip from './path-tooltip';
 import NodeContextMenu from './node-context-menu';
 import {
   getIsFetchingModifiedBayesianNetwork,
-  getClusterBayesianNetworkNodeLinkLayout,
+  getFilteredClusterBayesianNetworkNodeLinkLayout,
   getShiftedReducedAbstractSubBayesianNetworkNodeLinkLayouts,
   getRawSubBayesianNetworkSliceMap,
   getAbstractSubBayesianNetworkMap,
   getRawDistributionFeaturePairs,
-  getRawSelectedNormalizedFeatureDistributionMap
+  getRawSelectedNormalizedFeatureDistributionMap,
+  getClusterBayesianNetworkFilter
 } from '../../selectors/data';
 import {
   requestReplaceSubBayesianModels,
   bundleFetchClusterBayesianModel,
   updateSubBayesianNetworkSliceMap,
-  bundleFetchAddToPairDistributions
+  bundleFetchAddToPairDistributions,
+  updateClusterBayesianNetworkFocus
 } from '../../actions';
 
 const mapDispatchToProps = {
   requestReplaceSubBayesianModels,
   bundleFetchClusterBayesianModel,
   updateSubBayesianNetworkSliceMap,
-  bundleFetchAddToPairDistributions
+  bundleFetchAddToPairDistributions,
+  updateClusterBayesianNetworkFocus
 };
 
 const mapStateToProps = state => ({
   isFetchingModifiedBayesianNetwork: getIsFetchingModifiedBayesianNetwork(
     state
   ),
-  clusterNodeLink: getClusterBayesianNetworkNodeLinkLayout(state),
+  clusterNodeLink: getFilteredClusterBayesianNetworkNodeLinkLayout(state),
   subNodeLinks: getShiftedReducedAbstractSubBayesianNetworkNodeLinkLayouts(
     state
   ),
@@ -40,7 +43,8 @@ const mapStateToProps = state => ({
   distributionFeaturePairs: getRawDistributionFeaturePairs(state),
   selectedNormalizedFeatureDistributionMap: getRawSelectedNormalizedFeatureDistributionMap(
     state
-  )
+  ),
+  clusterBayesianNetworkFilter: getClusterBayesianNetworkFilter(state)
 });
 
 const tooltipStyle = {
@@ -209,7 +213,13 @@ class ContentPanel extends PureComponent {
       });
       if (info) {
         const {id: layerId} = info.layer;
-        if (layerId === 'hierarchical-bayesian-network-node-link-path-layer') {
+        if (layerId === 'hierarchical-bayesian-network-node-link-nodes-layer') {
+          const {object} = info;
+          console.log('object', object, 'id', object.id);
+          this.props.updateClusterBayesianNetworkFocus(object.id);
+        } else if (
+          layerId === 'hierarchical-bayesian-network-node-link-path-layer'
+        ) {
           const {object} = info;
           const {source, target} = object;
           this.props.bundleFetchAddToPairDistributions({
@@ -287,6 +297,8 @@ class ContentPanel extends PureComponent {
   render() {
     const {width, height, isFetchingModifiedBayesianNetwork} = this.props;
     const {disableZoom, disableMove, getCursor} = this.state;
+    const {clusterBayesianNetworkFilter} = this.props;
+    console.log('clusterBayesianNetworkFilter', clusterBayesianNetworkFilter);
     return (
       <div
         ref={input => (this.container = input)}

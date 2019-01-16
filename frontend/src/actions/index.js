@@ -30,6 +30,8 @@ export const UPDATE_CLUSTER_BAYESIAN_NETWORK =
   'UPDATE_CLUSTER_BAYESIAN_NETWORK';
 export const UPDATE_CLUSTER_BAYESIAN_MODEL_FEATURES =
   'UPDATE_CLUSTER_BAYESIAN_MODEL_FEATURES';
+export const UPDATE_CLUSTER_BAYESIAN_NETWORK_FOCUS =
+  'UPDATE_CLUSTER_BAYESIAN_NETWORK_FOCUS';
 export const UPDATE_SUB_BAYESIAN_NETWORK_MAP =
   'UPDATE_SUB_BAYESIAN_NETWORK_MAP';
 export const UPDATE_SUB_BAYESIAN_MODEL_FEATURES_MAP =
@@ -107,6 +109,9 @@ export const updateClusterBayesianNetwork = createAction(
 );
 export const updateClusterBayesianModelFeatures = createAction(
   UPDATE_CLUSTER_BAYESIAN_MODEL_FEATURES
+);
+export const updateClusterBayesianNetworkFocus = createAction(
+  UPDATE_CLUSTER_BAYESIAN_NETWORK_FOCUS
 );
 export const updateSubBayesianNetworkMap = createAction(
   UPDATE_SUB_BAYESIAN_NETWORK_MAP

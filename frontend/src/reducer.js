@@ -16,6 +16,7 @@ import {
   UPDATE_MODIFIED_BAYSIAN_NETWORK,
   UPDATE_CLUSTER_BAYESIAN_NETWORK,
   UPDATE_CLUSTER_BAYESIAN_MODEL_FEATURES,
+  UPDATE_CLUSTER_BAYESIAN_NETWORK_FOCUS,
   UPDATE_SUB_BAYESIAN_NETWORK_MAP,
   UPDATE_SUB_BAYESIAN_MODEL_FEATURES_MAP,
   UPDATE_SUB_BAYESIAN_NETWORK_SLICE_MAP,
@@ -77,6 +78,12 @@ const DEFAULT_STATE = {
   clusterBayesianNetwork: [],
   // The complete list of features of the selected cluster bayesian model
   clusterBayesianModelFeatures: [],
+  // The cluster bayesian network focus
+  // null -- no focus,
+  // id -- id of the node to focus on, the network will be filtered to contain
+  //       only the paths that go through the node
+  // [id1, id2] -- the network will contain only that path segments that connects id1 and id2
+  clusterBayesianNetworkFocus: null,
   // the sub Bayesian Network within the clusters, omits one item clusters
   // {
   //  cluster_id: [
@@ -259,6 +266,11 @@ const handleUpdateClusterBayesianModelFeatures = (state, {payload}) => ({
   clusterBayesianModelFeatures: payload
 });
 
+const handleUpdateClusterBayesianNetworkFocus = (state, {payload}) => ({
+  ...state,
+  clusterBayesianNetworkFocus: payload
+});
+
 const handleUpdateSubBayesianNetworkMap = (state, {payload}) => ({
   ...state,
   subBayesianNetworkMap: payload
@@ -382,6 +394,7 @@ export default handleActions(
     [UPDATE_BAYESIAN_MODEL_FEATURES]: handleUpdateBayesianModelFeatures,
     [UPDATE_CLUSTER_BAYESIAN_NETWORK]: handleUpdateClusterBayesianNetwork,
     [UPDATE_CLUSTER_BAYESIAN_MODEL_FEATURES]: handleUpdateClusterBayesianModelFeatures,
+    [UPDATE_CLUSTER_BAYESIAN_NETWORK_FOCUS]: handleUpdateClusterBayesianNetworkFocus,
     [UPDATE_SUB_BAYESIAN_NETWORK_MAP]: handleUpdateSubBayesianNetworkMap,
     [UPDATE_SUB_BAYESIAN_MODEL_FEATURES_MAP]: handleUpdateSubBayesianModelFeaturesMap,
     [UPDATE_SUB_BAYESIAN_NETWORK_SLICE_MAP]: handleUpdateSubBayesianNetworkSliceMap,

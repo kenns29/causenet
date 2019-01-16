@@ -194,7 +194,7 @@ export const linksToSourceAdjacencyMap = links => {
 };
 
 export const linksToTargetAdjacencyMap = links => {
-  const maps = links.reduce((map, {source, target, ...rest}) => {
+  const map = links.reduce((map, {source, target, ...rest}) => {
     const sourceMap = map.hasOwnProperty(target) ? map[target] : {};
     sourceMap[source] = {name: source, ...rest};
     map[target] = sourceMap;
@@ -285,3 +285,52 @@ export const abstractLinksToReducedAbstractLinks = (
     .slice(0)
     .sort((a, b) => a.weight - b.weight)
     .slice(...slice);
+
+export const getPathLinksFromNode = (name, sourceAdjacencyMap) => {
+  const links = [];
+  if (!sourceAdjacencyMap.hasOwnProperty(name)) {
+    return links;
+  }
+  const stack = [name];
+  const visited = new Set();
+  while (stack.length) {
+    const source = stack.pop();
+    visited.add(source);
+    sourceAdjacencyMap[source].forEach(({name: target, ...rest}) => {
+      links.push({source, target, ...rest});
+      if (!visited.has(target)) {
+        stack.push(target);
+      }
+    });
+  }
+  return links;
+};
+
+export const getPathLinksToNode = (name, targetAdjacencyMap) => {
+  const links = [];
+  if (!targetAdjacencyMap.hasOwnProperty(name)) {
+    return links;
+  }
+  const stack = [name];
+  const visited = new Set();
+  while (stack.length) {
+    const target = stack.pop();
+    visited.add(target);
+    targetAdjacencyMap[target].forEach(({name: source, ...rest}) => {
+      links.push({source, target, ...rest});
+      if (!visited.has(source)) {
+        stack.push(source);
+      }
+    });
+  }
+  return links;
+};
+
+export const getPathLinksThroughNode = (
+  name,
+  sourceAdjacencyMap,
+  targetAdjacencyMap
+) => [
+  ...getPathLinksFromNode(name, sourceAdjacencyMap),
+  ...getPathLinksToNode(name, targetAdjacencyMap)
+];
