@@ -305,30 +305,26 @@ export const getShiftedReducedAbstractSubBayesianNetworkNodeLinkLayoutMap = crea
       const {id: clusterId, x: cx, y: cy, width: cw, height: ch} = clusterNode;
       const layout = subNetworkLayoutMap[clusterId];
       return layout
-        ? Object.assign(
-          map,
-
-          {
-            [clusterId]: createUpdatedNodeLink({
-              nodeLink: layout,
-              n: node => ({
-                ...node,
-                x: node.x + cx - cw / 2,
-                y: node.y + cy - ch / 2
-              }),
-              e: ({points, ...rest}) => ({
-                ...rest,
-                points: points.map(([x, y, z]) => [
-                  x + cx - cw / 2,
-                  y + cy - ch / 2,
-                  z
-                ])
-              }),
-              k: 'id',
-              linksName: 'edges'
-            })
-          }
-        )
+        ? Object.assign(map, {
+          [clusterId]: createUpdatedNodeLink({
+            nodeLink: layout,
+            n: node => ({
+              ...node,
+              x: node.x + cx - cw / 2,
+              y: node.y + cy - ch / 2
+            }),
+            e: ({points, ...rest}) => ({
+              ...rest,
+              points: points.map(([x, y, z]) => [
+                x + cx - cw / 2,
+                y + cy - ch / 2,
+                z
+              ])
+            }),
+            k: 'id',
+            linksName: 'edges'
+          })
+        })
         : map;
     }, {});
   }

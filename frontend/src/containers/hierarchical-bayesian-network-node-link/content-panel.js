@@ -11,8 +11,7 @@ import {
   getRawSubBayesianNetworkSliceMap,
   getAbstractSubBayesianNetworkMap,
   getRawDistributionFeaturePairs,
-  getRawSelectedNormalizedFeatureDistributionMap,
-  getClusterBayesianNetworkFilter
+  getRawSelectedNormalizedFeatureDistributionMap
 } from '../../selectors/data';
 import {
   requestReplaceSubBayesianModels,
@@ -43,8 +42,7 @@ const mapStateToProps = state => ({
   distributionFeaturePairs: getRawDistributionFeaturePairs(state),
   selectedNormalizedFeatureDistributionMap: getRawSelectedNormalizedFeatureDistributionMap(
     state
-  ),
-  clusterBayesianNetworkFilter: getClusterBayesianNetworkFilter(state)
+  )
 });
 
 const tooltipStyle = {
@@ -215,7 +213,6 @@ class ContentPanel extends PureComponent {
         const {id: layerId} = info.layer;
         if (layerId === 'hierarchical-bayesian-network-node-link-nodes-layer') {
           const {object} = info;
-          console.log('object', object, 'id', object.id);
           this.props.updateClusterBayesianNetworkFocus(object.id);
         } else if (
           layerId === 'hierarchical-bayesian-network-node-link-path-layer'
@@ -228,6 +225,8 @@ class ContentPanel extends PureComponent {
             selectedNormalizedFeatureDistributionMap
           });
         }
+      } else {
+        this.props.updateClusterBayesianNetworkFocus(null);
       }
       this.setState({
         nodeContextMenu: {
@@ -297,8 +296,6 @@ class ContentPanel extends PureComponent {
   render() {
     const {width, height, isFetchingModifiedBayesianNetwork} = this.props;
     const {disableZoom, disableMove, getCursor} = this.state;
-    const {clusterBayesianNetworkFilter} = this.props;
-    console.log('clusterBayesianNetworkFilter', clusterBayesianNetworkFilter);
     return (
       <div
         ref={input => (this.container = input)}
