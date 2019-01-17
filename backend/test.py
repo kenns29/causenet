@@ -89,11 +89,19 @@ def load_full_features_test():
     return features
 
 
+def test_connection():
+    from setup import db_fao_dir
+    import sqlite3
+    conn = sqlite3.connect(db_fao_dir)
+    conn.close()
+
+
 if __name__ == '__main__':
     # import json
     # # print(test_bn_edge_weights())
     # # print(test_cards_permutation())
     # # print(json.dumps(test_learn_parameters(), indent='\t'))
     # raw_data, normalized_data, data = load_data_test()
-    features = load_full_features_test()
+    # features = load_full_features_test()
+    test_connection()
     print('---')
