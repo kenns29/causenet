@@ -11,7 +11,8 @@ import {
   createUpdatedNodeLink,
   linksToSourceAdjacencyMap,
   linksToTargetAdjacencyMap,
-  getPathLinksThroughNode
+  getPathLinksThroughNode,
+  getPathLinksBetweenNodes
 } from '../../utils';
 import {
   getRawClusterBayesianNetwork,
@@ -265,7 +266,7 @@ export const getClusterBayesianNetworkFilter = createSelector(
       return null;
     }
     if (isArray(focus)) {
-      return null;
+      return getPathLinksBetweenNodes(focus, sourceMap);
     }
     return getPathLinksThroughNode(focus, sourceMap, targetMap);
   }

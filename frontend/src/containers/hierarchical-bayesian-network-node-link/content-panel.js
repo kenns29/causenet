@@ -56,6 +56,23 @@ const tooltipStyle = {
   pointerEvents: 'none'
 };
 
+function getClickHandler(onClick, onDoubleClick, delay) {
+  let timeoutID = null;
+  delay = delay || 250;
+  return function(event) {
+    event.persist();
+    if (!timeoutID) {
+      timeoutID = setTimeout(function() {
+        onClick(event);
+        timeoutID = null;
+      }, delay);
+    } else {
+      timeoutID = clearTimeout(timeoutID);
+      onDoubleClick(event);
+    }
+  };
+}
+
 class ContentPanel extends PureComponent {
   get containerStyle() {
     return {
@@ -75,7 +92,8 @@ class ContentPanel extends PureComponent {
         y: 0,
         show: false,
         data: null
-      }
+      },
+      partialFocus: null
     };
   }
   _getEventMouse = event => {
@@ -213,7 +231,15 @@ class ContentPanel extends PureComponent {
         const {id: layerId} = info.layer;
         if (layerId === 'hierarchical-bayesian-network-node-link-nodes-layer') {
           const {object} = info;
-          this.props.updateClusterBayesianNetworkFocus(object.id);
+          const {partialFocus} = this.state;
+          if (partialFocus === null) {
+            this.setState({partialFocus: object.id});
+          } else {
+            this.props.updateClusterBayesianNetworkFocus([
+              partialFocus,
+              object.id
+            ]);
+          }
         } else if (
           layerId === 'hierarchical-bayesian-network-node-link-path-layer'
         ) {
@@ -226,6 +252,7 @@ class ContentPanel extends PureComponent {
           });
         }
       } else {
+        this.setState({partialFocus: null});
         this.props.updateClusterBayesianNetworkFocus(null);
       }
       this.setState({
@@ -233,6 +260,23 @@ class ContentPanel extends PureComponent {
           show: false
         }
       });
+    }
+  };
+  _handleDoubleClick = event => {
+    if (this._getDeck()) {
+      const [x, y] = this._getEventMouse(event);
+      const info = this._pickObject({
+        x,
+        y
+      });
+      if (info) {
+        const {id: layerId} = info.layer;
+        if (layerId === 'hierarchical-bayesian-network-node-link-nodes-layer') {
+          const {object} = info;
+          this.setState({partialFocus: null});
+          this.props.updateClusterBayesianNetworkFocus(object.id);
+        }
+      }
     }
   };
   _handleContextMenu = event => {
@@ -303,7 +347,7 @@ class ContentPanel extends PureComponent {
         width={width}
         height={height}
         onMouseMove={this._handleMouseMove}
-        onClick={this._handleClick}
+        onClick={getClickHandler(this._handleClick, this._handleDoubleClick)}
         onWheel={this._handleWheel}
         onContextMenu={this._handleContextMenu}
       >

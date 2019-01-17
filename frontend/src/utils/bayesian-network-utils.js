@@ -334,3 +334,32 @@ export const getPathLinksThroughNode = (
   ...getPathLinksFromNode(name, sourceAdjacencyMap),
   ...getPathLinksToNode(name, targetAdjacencyMap)
 ];
+
+export const getPathLinksBetweenNodes = (
+  [name1, name2],
+  sourceAdjacencyMap
+) => {
+  const links = [];
+  visit(name1, new Set([name2]));
+  return links;
+
+  function visit(source, nodeSet) {
+    const targets = sourceAdjacencyMap[source];
+    if (!targets) {
+      return false;
+    }
+    if (nodeSet.has(source)) {
+      return true;
+    }
+    let keepEdge = false;
+    targets.forEach(({name: target, ...rest}) => {
+      const keepTarget = visit(target, nodeSet);
+      if (keepTarget) {
+        keepEdge = true;
+        links.push({source, target, ...rest});
+        nodeSet.add(target);
+      }
+    });
+    return keepEdge;
+  }
+};
