@@ -10,7 +10,8 @@ import {
   getRawSelectedNormalizedFeatureDistributionMap,
   getFeatureDistributionHistogramContainerWidth,
   getFeatureDistributionHistogramContainerHeight,
-  getFeatureDistributionHistogramLayouts
+  getFeatureDistributionHistogramLayouts,
+  getFeatureDistributionHistogramCoordinateInverter
 } from '../../selectors/data';
 import {
   updateShowFeatureDistributionWindow,
@@ -27,10 +28,28 @@ const mapStateToProps = state => ({
   featureDistributionWindowSize: getFeatureDistributionWindowSize(state),
   containerWidth: getFeatureDistributionHistogramContainerWidth(state),
   containerHeight: getFeatureDistributionHistogramContainerHeight(state),
-  histogramLayouts: getFeatureDistributionHistogramLayouts(state)
+  histogramLayouts: getFeatureDistributionHistogramLayouts(state),
+  coordinateInverter: getFeatureDistributionHistogramCoordinateInverter(state)
 });
 
 class ContentPanel extends PureComponent {
+  _getEventMouse = event => {
+    const {clientX, clientY} = event;
+    const {left, top} = this.container.getBoundingClientRect();
+    return [clientX - left, clientY - top];
+  };
+  _handleMouseDown = event => {
+    const {coordinateInverter} = this.props;
+    if (event.button === 0) {
+      const [x, y] = this._getEventMouse(event);
+      const inv = coordinateInverter(x, y);
+      if (inv) {
+        const {onPlot} = inv;
+      }
+    }
+  };
+  _handleMouseMove = event => {};
+  _handleMouseUp = event => {};
   render() {
     const {
       showFeatureDistributionWindow,
@@ -50,7 +69,13 @@ class ContentPanel extends PureComponent {
           }}
           onClose={() => this.props.updateShowFeatureDistributionWindow(false)}
         >
-          <div style={{width: containerWidth, height: containerHeight}}>
+          <div
+            ref={input => (this.container = input)}
+            style={{width: containerWidth, height: containerHeight}}
+            onMouseDown={this._handleMouseDown}
+            onMouseMove={this._handleMouseMove}
+            onMouseUp={this._handleMouseUp}
+          >
             <DeckGLContainer {...this.props} />
           </div>
         </PopupWindow>
