@@ -198,6 +198,8 @@ export const getFeatureDistributionHistogramCoordinateInverter = createSelector(
         xr,
         vx,
         vy,
+        x,
+        y,
         onPlot: x >= xl && x <= xr && y <= yb && y >= yt,
         hist
       };
