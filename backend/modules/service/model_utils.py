@@ -28,6 +28,10 @@ def get_current_dataset_model_dir():
     return model_dir + '/' + get_current_dataset_name()
 
 
+def check_is_model_exist(name):
+    return os.path.isfile(get_current_dataset_model_dir(), name)
+
+
 def get_model(name):
     with open(os.path.join(get_current_dataset_model_dir(), name), mode='rb') as file:
         return pickle.load(file)
@@ -134,7 +138,8 @@ def write_full_model_features(features, name):
 def get_model_clusters(name):
     current_dataset_model_dir = get_current_dataset_model_dir()
     if not os.path.exists(os.path.join(current_dataset_model_dir, 'clusters.' + name)):
-        raise ValueError('clusters for model {} is not found'.format(name))
+        print('clusters for model {} is not found'.format(name))
+        return None
     with open(os.path.join(current_dataset_model_dir, 'clusters.' + name), mode='rb') as file:
         return pickle.load(file)
 
@@ -520,6 +525,22 @@ def train_model_on_clusters(clusters, name, base_avg_data=None):
     write_model(model, name)
     write_full_model_features(data.keys().tolist(), name)
     write_clusters(clusters, name)
+    return model
+
+
+def train_feature_sliced_model(name, feature_slices, data=None, clusters=None):
+    data = load_data('normalized_raw_data_file') if data is None else data
+    clusters = get_model_clusters(clusters) if clusters is None else clusters
+    data = get_column_mean_aggregated_data(data, clusters)
+    sliced_data = data
+    if feature_slices:
+        sliced_data = data.query(['{} < {} < {}'.format(s[0], feature, s[1])
+                                  for feature, s in feature_slices.items()].join('&'))
+    model = train_model(sliced_data)
+    with open(os.path.join(get_current_dataset_model_dir(), 'feature-sliced-model.' + name), mode='wb') as file:
+        pickle.dump(model, file)
+    with open(os.path.join(get_current_dataset_model_dir(), 'feature-slices.' + name), mode='wb') as file:
+        pickle.dump(feature_slices, file)
     return model
 
 

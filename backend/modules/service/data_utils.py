@@ -109,6 +109,8 @@ def get_base_avg_data(data):
 
 
 def get_column_mean_aggregated_data(data, aggregator):
+    if aggregator is None:
+        return data
     r_data = DataFrame(index=data.index)
     for key, g in enumerate(aggregator) if type(aggregator) is list else aggregator.items():
         if isinstance(g, list):

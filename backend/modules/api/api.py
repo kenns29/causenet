@@ -1,10 +1,11 @@
+import os, pickle
 from flask import Blueprint, jsonify, request, redirect, url_for, json
 from modules.service.model_utils import get_model, delete_model, learn_structure, train_model, \
     get_weighted_edges, write_weighted_edges, get_model_list, update_feature_selection, get_feature_selection, \
     update_model_feature_value_selection_map, get_model_feature_value_selection_map, reduce_model, \
     train_model_on_clusters, train_sub_model_within_clusters, calc_sub_models_edge_weights, get_sub_models, \
     get_full_model_features, get_model_clusters, replace_sub_models, check_is_cluster_model, \
-    calc_model_edge_correlations
+    calc_model_edge_correlations, train_feature_sliced_model, get_current_dataset_model_dir
 from modules.service.edge_weights import get_edge_weights
 from modules.service.data_utils import load_data, load_pdist, load_clustering, get_current_dataset_name, \
     get_dataset_config, update_current_dataset_name as update_current_dataset_name_util, get_index2col, \
@@ -266,6 +267,29 @@ def route_train_sub_model_within_clusters():
     else:
         return jsonify(dict((key, [{'source': s, 'target': t} for s, t in model.edges()])
                             for key, model in model_dict.items()))
+
+
+@blueprint.route('/train_feature_sliced_bayesian_model', methods=['GET', 'POST'])
+def route_train_feature_sliced_bayesian_model():
+    name = request.args.get('name') if request.args.get('name') else 'model.bin'
+    calc_edge_weights = str2bool(request.args.get('calc_edge_weights')) \
+        if request.args.get('calc_edge_weights') else True
+    if request.method == 'POST':
+        post_data = json.load(request.data)
+        clusters = post_data['clusters']
+        feature_slices = post_data['feature_slices']
+    else:
+        clusters = request.get('clusters')
+        feature_slices = request.get('feature_slices')
+    model = train_feature_sliced_model(name, feature_slices)
+    if calc_edge_weights:
+        weighted_edges = get_edge_weights(model)
+        with open(os.path.join(get_current_dataset_model_dir(),
+                               'feature-sliced-model-weight.' + name), mode='wb') as file:
+            pickle.dump(weighted_edges, file)
+        return jsonify([{'source': str(s), 'target': str(t), 'weight': w} for (s, t), w in weighted_edges])
+    else:
+        return jsonify([{'source': s, 'target': t} for s, t in model.edges()])
 
 
 @blueprint.route('/load_model_list', methods=['GET'])
