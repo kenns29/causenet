@@ -16,6 +16,8 @@ import {
   UPDATE_MODIFIED_BAYSIAN_NETWORK,
   UPDATE_CLUSTER_BAYESIAN_NETWORK,
   UPDATE_CLUSTER_BAYESIAN_MODEL_FEATURES,
+  UPDATE_FEATURE_SLICED_BAYESIAN_NETWORK,
+  UPDATE_BAYESIAN_MODEL_FEATURE_SLICE_MAP,
   UPDATE_CLUSTER_BAYESIAN_NETWORK_FOCUS,
   UPDATE_SUB_BAYESIAN_NETWORK_MAP,
   UPDATE_SUB_BAYESIAN_MODEL_FEATURES_MAP,
@@ -78,6 +80,21 @@ const DEFAULT_STATE = {
   clusterBayesianNetwork: [],
   // The complete list of features of the selected cluster bayesian model
   clusterBayesianModelFeatures: [],
+  // the feature sliced Bayesian Network data:
+  // [
+  //  {
+  //  source: (the source cluster id),
+  //  target: (the target cluster id),
+  //  weight: (the edge weight)
+  //  },
+  //  ...]
+  featureSlicedBayesianNetwork: [],
+  // the feature slice map:
+  // {
+  //  [feature]: [s1, s2], // slice
+  //  ...
+  // }
+  bayesianModelFeatureSliceMap: {},
   // The cluster bayesian network focus
   // null -- no focus,
   // id -- id of the node to focus on, the network will be filtered to contain
@@ -271,6 +288,16 @@ const handleUpdateClusterBayesianNetworkFocus = (state, {payload}) => ({
   clusterBayesianNetworkFocus: payload
 });
 
+const handleUpdateFeatureSlicedBayesianNetwork = (state, {payload}) => ({
+  ...state,
+  featureSlicedBayesianNetwork: payload
+});
+
+const handleUpdateBayesianModelFeatureSliceMap = (state, {payload}) => ({
+  ...state,
+  bayesianModelFeatureSliceMap: payload
+});
+
 const handleUpdateSubBayesianNetworkMap = (state, {payload}) => ({
   ...state,
   subBayesianNetworkMap: payload
@@ -394,6 +421,8 @@ export default handleActions(
     [UPDATE_BAYESIAN_MODEL_FEATURES]: handleUpdateBayesianModelFeatures,
     [UPDATE_CLUSTER_BAYESIAN_NETWORK]: handleUpdateClusterBayesianNetwork,
     [UPDATE_CLUSTER_BAYESIAN_MODEL_FEATURES]: handleUpdateClusterBayesianModelFeatures,
+    [UPDATE_FEATURE_SLICED_BAYESIAN_NETWORK]: handleUpdateFeatureSlicedBayesianNetwork,
+    [UPDATE_BAYESIAN_MODEL_FEATURE_SLICE_MAP]: handleUpdateBayesianModelFeatureSliceMap,
     [UPDATE_CLUSTER_BAYESIAN_NETWORK_FOCUS]: handleUpdateClusterBayesianNetworkFocus,
     [UPDATE_SUB_BAYESIAN_NETWORK_MAP]: handleUpdateSubBayesianNetworkMap,
     [UPDATE_SUB_BAYESIAN_MODEL_FEATURES_MAP]: handleUpdateSubBayesianModelFeaturesMap,

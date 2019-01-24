@@ -7,29 +7,35 @@ import {
   getFeatureDistributionWindowSize
 } from '../../selectors/base';
 import {
+  getSelectedModel,
   getRawSelectedNormalizedFeatureDistributionMap,
   getFeatureDistributionHistogramContainerWidth,
   getFeatureDistributionHistogramContainerHeight,
   getFeatureDistributionHistogramLayouts,
-  getFeatureDistributionHistogramCoordinateInverter
+  getFeatureDistributionHistogramCoordinateInverter,
+  getRawBayesianModelFeatureSliceMap
 } from '../../selectors/data';
 import {
   updateShowFeatureDistributionWindow,
-  updateFeatureDistributionWindowSize
+  updateFeatureDistributionWindowSize,
+  bundleRequestUpdateBayesianModelFeatureSlices
 } from '../../actions';
 
 const mapDispatchToProps = {
   updateShowFeatureDistributionWindow,
-  updateFeatureDistributionWindowSize
+  updateFeatureDistributionWindowSize,
+  bundleRequestUpdateBayesianModelFeatureSlices
 };
 
 const mapStateToProps = state => ({
+  selectedModel: getSelectedModel(state),
   showFeatureDistributionWindow: getShowFeatureDistributionWindow(state),
   featureDistributionWindowSize: getFeatureDistributionWindowSize(state),
   containerWidth: getFeatureDistributionHistogramContainerWidth(state),
   containerHeight: getFeatureDistributionHistogramContainerHeight(state),
   histogramLayouts: getFeatureDistributionHistogramLayouts(state),
-  coordinateInverter: getFeatureDistributionHistogramCoordinateInverter(state)
+  coordinateInverter: getFeatureDistributionHistogramCoordinateInverter(state),
+  featureSliceMap: getRawBayesianModelFeatureSliceMap(state)
 });
 
 class ContentPanel extends PureComponent {
@@ -81,6 +87,20 @@ class ContentPanel extends PureComponent {
   };
   _handleMouseUp = event => {
     if (event.button === 0) {
+      const {selectedModel, featureSliceMap} = this.props;
+      const {coordinateInverter} = this.props;
+      const {brush, sv} = this.state;
+      if (brush) {
+        const slice = brush.map(p => {
+          const {vx} = coordinateInverter(...p);
+          return vx;
+        });
+        const {id: feature} = sv;
+        this.props.bundleRequestUpdateBayesianModelFeatureSlices({
+          name: selectedModel,
+          featureSliceMap: {...featureSliceMap, [feature]: slice}
+        });
+      }
       this.setState({
         sv: null
       });

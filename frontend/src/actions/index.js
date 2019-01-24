@@ -32,6 +32,10 @@ export const UPDATE_CLUSTER_BAYESIAN_MODEL_FEATURES =
   'UPDATE_CLUSTER_BAYESIAN_MODEL_FEATURES';
 export const UPDATE_CLUSTER_BAYESIAN_NETWORK_FOCUS =
   'UPDATE_CLUSTER_BAYESIAN_NETWORK_FOCUS';
+export const UPDATE_FEATURE_SLICED_BAYESIAN_NETWORK =
+  'UPDATE_FEATURE_SLICED_BAYESIAN_NETWORK';
+export const UPDATE_BAYESIAN_MODEL_FEATURE_SLICE_MAP =
+  'UPDATE_BAYESIAN_MODEL_FEATURE_SLICE_MAP';
 export const UPDATE_SUB_BAYESIAN_NETWORK_MAP =
   'UPDATE_SUB_BAYESIAN_NETWORK_MAP';
 export const UPDATE_SUB_BAYESIAN_MODEL_FEATURES_MAP =
@@ -112,6 +116,12 @@ export const updateClusterBayesianModelFeatures = createAction(
 );
 export const updateClusterBayesianNetworkFocus = createAction(
   UPDATE_CLUSTER_BAYESIAN_NETWORK_FOCUS
+);
+export const updateFeatureSlicedBayesianNetwork = createAction(
+  UPDATE_FEATURE_SLICED_BAYESIAN_NETWORK
+);
+export const updateBayesianModelFeatureSliceMap = createAction(
+  UPDATE_BAYESIAN_MODEL_FEATURE_SLICE_MAP
 );
 export const updateSubBayesianNetworkMap = createAction(
   UPDATE_SUB_BAYESIAN_NETWORK_MAP
@@ -272,6 +282,36 @@ export const fetchClusterBayesianModelFeatures = ({
   }
 };
 
+export const fetchFeatureSlicedBayesianNetwork = ({
+  name = 'model'
+}) => async dispatch => {
+  try {
+    const response = await fetch(
+      `${BACKEND_URL}/load_feature_sliced_model?name=${name}`
+    );
+    const data = await response.json();
+    dispatch(updateFeatureSlicedBayesianNetwork(data));
+    return Promise.resolve(data);
+  } catch (err) {
+    throw new Error(err);
+  }
+};
+
+export const fetchBayesianModelFeatureSlices = ({
+  name = 'model'
+}) => async dispatch => {
+  try {
+    const response = await fetch(
+      `${BACKEND_URL}/load_model_feature_slices?name=${name}`
+    );
+    const data = await response.json();
+    dispatch(updateBayesianModelFeatureSliceMap(data));
+    return Promise.resolve(data);
+  } catch (err) {
+    throw new Error(err);
+  }
+};
+
 export const fetchSubBayesianNetworks = ({
   name = 'model'
 }) => async dispatch => {
@@ -384,6 +424,25 @@ export const requestTrainClusterBayesianModel = ({
       {
         method: 'POST',
         body: JSON.stringify(clusters)
+      }
+    );
+    const data = await response.json();
+    return Promise.resolve(data);
+  } catch (err) {
+    throw new Error(err);
+  }
+};
+
+export const requestTrainFeatureSlicedBayesianModel = ({
+  name = 'model',
+  featureSliceMap
+}) => async dispatch => {
+  try {
+    const response = await fetch(
+      `${BACKEND_URL}/train_feature_sliced_bayesian_model?name=${name}`,
+      {
+        method: 'POST',
+        body: JSON.stringify({feature_slices: featureSliceMap})
       }
     );
     const data = await response.json();
@@ -595,11 +654,13 @@ export const bundleFetchBayesianModel = name => async dispatch => {
 
 export const bundleFetchClusterBayesianModel = name => async dispatch => {
   try {
+    await dispatch(fetchFeatureSlicedBayesianNetwork({name}));
     const datas = await Promise.all([
       dispatch(fetchClusterBayesianNetwork({name})),
       dispatch(fetchClusterBayesianModelFeatures({name})),
       dispatch(fetchSubBayesianNetworks({name})),
-      dispatch(fetchSubBayesianModelFeaturesMap({name}))
+      dispatch(fetchSubBayesianModelFeaturesMap({name})),
+      dispatch(fetchBayesianModelFeatureSlices({name}))
     ]);
     dispatch(updateDistributionFeaturePairs([]));
     dispatch(updateSelectedNormalizedFeatureDistributionMap({}));
@@ -675,6 +736,23 @@ export const bundleFetchAddToPairDistributions = ({
       })
     );
     return Promise.resolve({pairs, map});
+  } catch (err) {
+    throw new Error(err);
+  }
+};
+
+export const bundleRequestUpdateBayesianModelFeatureSlices = ({
+  name = 'model',
+  featureSliceMap
+}) => async dispatch => {
+  try {
+    const edges = await dispatch(
+      requestTrainFeatureSlicedBayesianModel({name, featureSliceMap})
+    );
+    const featureSliceMap = await dispatch(
+      fetchBayesianModelFeatureSlices({name})
+    );
+    return Promise.reslove({edges, featureSliceMap});
   } catch (err) {
     throw new Error(err);
   }

@@ -37,6 +37,30 @@ def get_model(name):
         return pickle.load(file)
 
 
+def get_feature_sliced_model(name):
+    current_dataset_model_dir = get_current_dataset_model_dir()
+    if not os.path.exists(os.path.join(current_dataset_model_dir, 'feature-sliced-model.' + name)):
+        return None
+    with open(os.path.join(current_dataset_model_dir, 'feature-sliced-model.' + name), mode='rb') as file:
+        return pickle.load(file)
+
+
+def get_feature_slices(name):
+    current_dataset_model_dir = get_current_dataset_model_dir()
+    if not os.path.exists(os.path.join(current_dataset_model_dir, 'feature-slices.' + name)):
+        return None
+    with open(os.path.join(current_dataset_model_dir, 'feature-slices.' + name)) as file:
+        return pickle.load(file)
+
+
+def get_feature_sliced_model_weighted_edges(name):
+    current_dataset_model_dir = get_current_dataset_model_dir()
+    if not os.path.exists(os.path.join(current_dataset_model_dir, 'feature-sliced-model-weight.' + name)):
+        return None
+    with open(os.path.join(current_dataset_model_dir, 'feature-sliced-model-weight.' + name)) as file:
+        return pickle.load(file)
+
+
 def write_model(model, name):
     current_dataset_name = get_current_dataset_name()
     with open(os.path.join(get_current_dataset_model_dir(), name), mode='wb') as file:
@@ -81,6 +105,12 @@ def delete_model(name):
             os.remove(os.path.join(current_dataset_model_dir, 'clusters.' + name))
         if os.path.exists(os.path.join(current_dataset_model_dir, 'sub-models.' + name)):
             shutil.rmtree(os.path.join(current_dataset_model_dir, 'sub-models.' + name))
+        if os.path.exists(os.path.join(current_dataset_model_dir, 'feature-sliced-model.' + name)):
+            os.remove(os.path.join(current_dataset_model_dir, 'feature-sliced-model.' + name))
+        if os.path.exists(os.path.join(current_dataset_model_dir, 'feature-slices.' + name)):
+            os.remove(os.path.join(current_dataset_model_dir, 'feature-slices.' + name))
+        if os.path.exists(os.path.join(current_dataset_model_dir, 'feature-sliced-model-weight.' + name)):
+            os.remove(os.path.join(current_dataset_model_dir, 'feature-sliced-model-weight.' + name))
         return model_stat
 
 
