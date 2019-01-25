@@ -85,7 +85,7 @@ class ContentPanel extends PureComponent {
       }
     }
   };
-  _handleMouseUp = event => {
+  _handleMouseUp = async event => {
     if (event.button === 0) {
       const {selectedModel, featureSliceMap} = this.props;
       const {coordinateInverter} = this.props;
@@ -96,10 +96,13 @@ class ContentPanel extends PureComponent {
           return vx;
         });
         const {id: feature} = sv;
-        this.props.bundleRequestUpdateBayesianModelFeatureSlices({
-          name: selectedModel,
-          featureSliceMap: {...featureSliceMap, [feature]: slice}
-        });
+
+        const newFeatureSliceMap = {...featureSliceMap, [feature]: slice};
+        console.log('new feature slice', newFeatureSliceMap);
+        await this.props.bundleRequestUpdateBayesianModelFeatureSlices(
+          selectedModel,
+          newFeatureSliceMap
+        );
       }
       this.setState({
         sv: null

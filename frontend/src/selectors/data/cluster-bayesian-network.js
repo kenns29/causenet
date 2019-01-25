@@ -35,20 +35,11 @@ export const getClusterBayesianModelFeatures = createSelector(
   ]
 );
 
-export const getFullSubBayesianModelFeaturesMap = createSelector(
-  [getRawSubBayesianModelFeaturesMap, getRawClusterBayesianModelFeatures],
-  (rawSubBayesianModelFeaturesMap, clusterFeatures) =>
-    clusterFeatures.reduce(
-      (map, feature) =>
-        Object.assign(map, {
-          [feature]: rawSubBayesianModelFeaturesMap[feature]
-        }),
-      {}
-    )
-);
-
+/**
+ * filter the map from cluster_id -> cluster to contain only the nodes in the network
+ */
 export const getSubBayesianModelFeaturesMap = createSelector(
-  [getFullSubBayesianModelFeaturesMap, getClusterBayesianModelFeatures],
+  [getRawSubBayesianModelFeaturesMap, getClusterBayesianModelFeatures],
   (clusterMap, features) =>
     Object.keys(clusterMap).length
       ? features.reduce(
@@ -75,6 +66,7 @@ export const getClusterBayesianNetworkNodeLink = createSelector(
           : map,
       {}
     );
+
     const nodes = Object.values(nodeMap);
     const links = rawLinks
       .filter(

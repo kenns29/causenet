@@ -3,6 +3,7 @@ import memoize from 'lodash.memoize';
 import {scaleLinear} from 'd3-scale';
 import {rootSelector, getBayesianNetworkDistributionWindowSize} from '../base';
 import {
+  getRawSubBayesianModelFeaturesMap,
   getRawDistributionFeaturePairs,
   getRawSelectedNormalizedFeatureDistributionMap
 } from './raw';
@@ -56,9 +57,10 @@ export const getPairDistributionScatterplotLayouts = createSelector(
   [
     getRawDistributionFeaturePairs,
     getRawSelectedNormalizedFeatureDistributionMap,
-    getPairDistributionScatterplotSmallMultipleGrid
+    getPairDistributionScatterplotSmallMultipleGrid,
+    getRawSubBayesianModelFeaturesMap
   ],
-  (pairs, distributionMap, [gx, gy]) => {
+  (pairs, distributionMap, [gx, gy], clusterMap) => {
     const {
       SIZE: [w, h],
       PADDING: [pl, pt, pr, pb],
@@ -79,6 +81,9 @@ export const getPairDistributionScatterplotLayouts = createSelector(
         .domain([0, 1])
         .range([sy + h - ay, sy]);
       const {source, target, id} = pair;
+      const [sourceLabel, targetLabel] = [source, target].map(
+        id => (clusterMap[id].length > 1 ? id : clusterMap[id][0])
+      );
       const [svMap, tvMap] = [source, target].map(id => distributionMap[id]);
       const points = ![svMap, tvMap].some(d => !d)
         ? Object.keys(svMap).map(key => {
@@ -95,6 +100,8 @@ export const getPairDistributionScatterplotLayouts = createSelector(
         points,
         source,
         target,
+        sourceLabel,
+        targetLabel,
         size: [w, h],
         position: [sx, sy]
       };

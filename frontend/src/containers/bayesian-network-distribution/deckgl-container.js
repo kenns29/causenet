@@ -47,7 +47,7 @@ export default class ContentPanel extends PureComponent {
     } = DISTRIBUTION_SCATTERPLOT;
     const {scatterplotLayouts} = this.props;
     const yAxes = scatterplotLayouts.map(
-      ({id, position: [x, y], size: [w, h], source}) => {
+      ({id, position: [x, y], size: [w, h], sourceLabel}) => {
         return new AxisLayer({
           id: ID + '-scatterplot-y-axis-' + id,
           origin: [x + ax, y + h - ay, 0],
@@ -65,7 +65,7 @@ export default class ContentPanel extends PureComponent {
             getTextAnchor: 'end'
           },
           titleProps: {
-            title: source.slice(0, 20),
+            title: sourceLabel.slice(0, 20),
             xOffset: -35,
             yOffset: -h / 2 + ay,
             getSize: 10,
@@ -76,7 +76,7 @@ export default class ContentPanel extends PureComponent {
       }
     );
     const xAxes = scatterplotLayouts.map(
-      ({id, position: [x, y], size: [w, h], target}) => {
+      ({id, position: [x, y], size: [w, h], targetLabel}) => {
         return new AxisLayer({
           id: ID + '-scatterplot-x-axis-' + id,
           origin: [x + ax, y + h - ay, 0],
@@ -88,7 +88,7 @@ export default class ContentPanel extends PureComponent {
             getAlignmentBaseline: 'top'
           },
           titleProps: {
-            title: target.slice(0, 20),
+            title: targetLabel.slice(0, 20),
             xOffset: w / 2 - ax,
             yOffset: 30,
             getSize: 10

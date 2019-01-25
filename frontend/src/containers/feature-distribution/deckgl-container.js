@@ -52,7 +52,7 @@ export default class Content extends PureComponent {
     } = FEATURE_DISTRIBUTION_HISTOGRAM;
     const {histogramLayouts} = this.props;
     const yAxes = histogramLayouts.map(
-      ({id, position: [x, y], size: [w, h], bins}) => {
+      ({id, label, position: [x, y], size: [w, h], bins}) => {
         const max = bins.reduce((m, {size}) => Math.max(m, size), 0);
         return new AxisLayer({
           id: ID + '-y-axis-' + id,
@@ -71,7 +71,7 @@ export default class Content extends PureComponent {
             getTextAnchor: 'end'
           },
           titleProps: {
-            title: id.slice(0, 20),
+            title: label.slice(0, 20),
             xOffset: -35,
             yOffset: -h / 2 + ay,
             getSize: 10,
@@ -82,7 +82,7 @@ export default class Content extends PureComponent {
       }
     );
     const xAxes = histogramLayouts.map(
-      ({id, position: [x, y], size: [w, h]}) => {
+      ({id, label, position: [x, y], size: [w, h]}) => {
         return new AxisLayer({
           id: ID + '-x-axis-' + id,
           origin: [x + ml + ax, y + h - mb - ay + 2, 0],
@@ -94,7 +94,7 @@ export default class Content extends PureComponent {
             getAlignmentBaseline: 'top'
           },
           titleProps: {
-            title: id.slice(0, 20),
+            title: label.slice(0, 20),
             xOffset: w / 2 - ax,
             yOffset: 30,
             getSize: 10

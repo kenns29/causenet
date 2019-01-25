@@ -1,21 +1,18 @@
 import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
 import DataTable from '../../components/data-table';
-import {getRawBayesianModelFeatureSliceMap} from '../../selectors/data';
+import {getBayesianModelFeatureSlicesTableData} from '../../selectors/data';
 
 const mapDispatchToProps = {};
 
 const mapStateToProps = state => ({
-  featureSliceMap: getRawBayesianModelFeatureSliceMap(state)
+  data: getBayesianModelFeatureSlicesTableData(state)
 });
 
 class BayesianModelFeatureSlicesTable extends PureComponent {
   render() {
-    const {featureSliceMap} = this.props;
-    const featureSlices = Object.entries(featureSliceMap).map(
-      ([feature, slice]) => ({key: feature, feature, slice})
-    );
-    return <DataTable data={featureSlices} />;
+    const {data} = this.props;
+    return <DataTable data={data} />;
   }
 }
 

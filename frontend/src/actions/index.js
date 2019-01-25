@@ -438,6 +438,7 @@ export const requestTrainFeatureSlicedBayesianModel = ({
   featureSliceMap
 }) => async dispatch => {
   try {
+    console.log('featureSliceMap in request', featureSliceMap);
     const response = await fetch(
       `${BACKEND_URL}/train_feature_sliced_bayesian_model?name=${name}`,
       {
@@ -702,36 +703,22 @@ export const bundleFetchAddToPairDistributions = ({
   selectedNormalizedFeatureDistributionMap
 }) => async dispatch => {
   try {
-    const id2label = [source, target].reduce(
-      (map, node) =>
-        Object.assign(
-          map,
-          node.cluster.length > 1
-            ? {[node.id]: node.id}
-            : {[node.id]: node.cluster[0]}
-        ),
-      {}
-    );
     const map = await dispatch(
       bundleFetchAddToSelectedNormalizedFeatureDistributionMap({
         featureSelection: [source, target].reduce(
-          (m, node) => Object.assign(m, {[id2label[node.id]]: node.cluster}),
+          (m, node) => Object.assign(m, {[node.id]: node.cluster}),
           {}
         ),
         selectedNormalizedFeatureDistributionMap
       })
     );
-    const [sourceLabel, targetLabel] = [source, target].map(
-      node => id2label[node.id]
-    );
-    const pair = {
-      id: `${sourceLabel}-${targetLabel}`,
-      source: sourceLabel,
-      target: targetLabel
-    };
     const pairs = dispatch(
       bundleAddToDistributionFeaturePairs({
-        pair,
+        pair: {
+          id: `${source.id}-${target.id}`,
+          source: source.id,
+          target: target.id
+        },
         distributionFeaturePairs
       })
     );
@@ -741,18 +728,19 @@ export const bundleFetchAddToPairDistributions = ({
   }
 };
 
-export const bundleRequestUpdateBayesianModelFeatureSlices = ({
-  name = 'model',
-  featureSliceMap
-}) => async dispatch => {
+export const bundleRequestUpdateBayesianModelFeatureSlices = (
+  name,
+  featureSliceMap = {}
+) => async dispatch => {
   try {
+    console.log('name', name, 'featureSliceMap', featureSliceMap);
     const edges = await dispatch(
       requestTrainFeatureSlicedBayesianModel({name, featureSliceMap})
     );
-    const featureSliceMap = await dispatch(
-      fetchBayesianModelFeatureSlices({name})
-    );
-    return Promise.reslove({edges, featureSliceMap});
+    // const featureSliceMap = await dispatch(
+    //   fetchBayesianModelFeatureSlices({name})
+    // );
+    // return Promise.reslove({edges, featureSliceMap});
   } catch (err) {
     throw new Error(err);
   }

@@ -298,7 +298,7 @@ def route_train_feature_sliced_bayesian_model():
     calc_edge_weights = str2bool(request.args.get('calc_edge_weights')) \
         if request.args.get('calc_edge_weights') else True
     if request.method == 'POST':
-        post_data = json.load(request.data)
+        post_data = json.loads(request.data)
         # clusters = post_data['clusters']
         feature_slices = post_data['feature_slices']
     else:

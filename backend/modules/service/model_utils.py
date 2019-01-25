@@ -49,7 +49,7 @@ def get_feature_slices(name):
     current_dataset_model_dir = get_current_dataset_model_dir()
     if not os.path.exists(os.path.join(current_dataset_model_dir, 'feature-slices.' + name)):
         return None
-    with open(os.path.join(current_dataset_model_dir, 'feature-slices.' + name)) as file:
+    with open(os.path.join(current_dataset_model_dir, 'feature-slices.' + name), mode='rb') as file:
         return pickle.load(file)
 
 
@@ -57,7 +57,7 @@ def get_feature_sliced_model_weighted_edges(name):
     current_dataset_model_dir = get_current_dataset_model_dir()
     if not os.path.exists(os.path.join(current_dataset_model_dir, 'feature-sliced-model-weight.' + name)):
         return None
-    with open(os.path.join(current_dataset_model_dir, 'feature-sliced-model-weight.' + name)) as file:
+    with open(os.path.join(current_dataset_model_dir, 'feature-sliced-model-weight.' + name), mode='rb') as file:
         return pickle.load(file)
 
 
@@ -560,13 +560,19 @@ def train_model_on_clusters(clusters, name, base_avg_data=None):
 
 def train_feature_sliced_model(name, feature_slices, data=None, clusters=None):
     data = load_data('normalized_raw_data_file') if data is None else data
-    clusters = get_model_clusters(clusters) if clusters is None else clusters
+    clusters = get_model_clusters(name) if clusters is None else clusters
     data = get_column_mean_aggregated_data(data, clusters)
-    sliced_data = data
-    if feature_slices:
-        sliced_data = data.query(['{} < {} < {}'.format(s[0], feature, s[1])
-                                  for feature, s in feature_slices.items()].join('&'))
-    model = train_model(sliced_data)
+    sliced_data = data.copy()
+    for feature, s in feature_slices.items():
+        sliced_data = sliced_data[sliced_data[feature] < s[1]]
+        sliced_data = sliced_data[sliced_data[feature] > s[0]]
+
+    # convert data to categorical
+    cut_n = 10
+    for key in data:
+        sliced_data[key] = cut(sliced_data[key], cut_n)
+
+    model = train_model(sliced_data, do_write_model=False)
     with open(os.path.join(get_current_dataset_model_dir(), 'feature-sliced-model.' + name), mode='wb') as file:
         pickle.dump(model, file)
     with open(os.path.join(get_current_dataset_model_dir(), 'feature-slices.' + name), mode='wb') as file:

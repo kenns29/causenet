@@ -3,7 +3,10 @@ import {scaleLinear} from 'd3-scale';
 import {histogram} from 'd3-array';
 import {getCurvePoints} from 'cardinal-spline-js';
 import {rootSelector, getFeatureDistributionWindowSize} from '../base';
-import {getRawSelectedNormalizedFeatureDistributionMap} from './raw';
+import {
+  getRawSubBayesianModelFeaturesMap,
+  getRawSelectedNormalizedFeatureDistributionMap
+} from './raw';
 import {FEATURE_DISTRIBUTION_HISTOGRAM} from '../../constants';
 
 export const getFeatureDistributionHistogramContainerWidth = createSelector(
@@ -76,9 +79,10 @@ export const getFeatureDistributionHistogramData = createSelector(
 export const getFeatureDistributionHistogramLayouts = createSelector(
   [
     getFeatureDistributionHistogramData,
-    getFeatureDistributionHistogramSmallMultipleGrid
+    getFeatureDistributionHistogramSmallMultipleGrid,
+    getRawSubBayesianModelFeaturesMap
   ],
-  (histData, [gx, gy]) => {
+  (histData, [gx, gy], clusterMap) => {
     const {
       SIZE: [w, h],
       PADDING: [pl, pt, pr, pb],
@@ -147,6 +151,7 @@ export const getFeatureDistributionHistogramLayouts = createSelector(
 
       return {
         id,
+        label: clusterMap[id].length > 1 ? id : clusterMap[id][0],
         bins,
         position: [sx, sy],
         size: [w, h],
@@ -181,12 +186,13 @@ export const getFeatureDistributionHistogramCoordinateInverter = createSelector(
         return null;
       }
       const hist = hists[i];
-      const {id, scaleX, scaleY} = hist;
+      const {id, label, scaleX, scaleY} = hist;
       const [yb, yt] = scaleY.range();
       const [xl, xr] = scaleX.range();
       const [vx, vy] = [scaleX.invert(x), scaleY.invert(y)];
       return {
         id,
+        label,
         i,
         xi,
         yi,

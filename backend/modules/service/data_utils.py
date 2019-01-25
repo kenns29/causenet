@@ -109,6 +109,14 @@ def get_base_avg_data(data):
 
 
 def get_column_mean_aggregated_data(data, aggregator):
+    """
+    aggregate the data
+
+    :param data: The panda DataFrame
+    :param aggregator: array form: [[feature, ...], ...] or dict form: {key: [feature, ...], ...}, when in array form
+                       the index is used as key
+    :return: the aggregated DataFrame
+    """
     if aggregator is None:
         return data
     r_data = DataFrame(index=data.index)

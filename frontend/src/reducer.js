@@ -113,7 +113,7 @@ const DEFAULT_STATE = {
   //  ],
   // ...}
   subBayesianNetworkMap: {},
-  // the sub Bayesian Network features, omits one item clusters
+  // the sub Bayesian Network features, essentially the cluster map
   // {
   //  cluster_id: [
   //    feature_name,
