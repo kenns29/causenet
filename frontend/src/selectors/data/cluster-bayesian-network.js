@@ -17,6 +17,7 @@ import {
 import {
   getRawClusterBayesianNetwork,
   getRawClusterBayesianModelFeatures,
+  getRawFeatureSlicedBayesianNetwork,
   getRawClusterBayesianNetworkFocus,
   getRawSubBayesianNetworkMap,
   getRawSubBayesianModelFeaturesMap,
@@ -24,8 +25,13 @@ import {
 } from './raw';
 import {getId2DistanceFunction} from './hierarchical-clustering';
 
+export const getClusterBayesianNetwork = createSelector(
+  getRawFeatureSlicedBayesianNetwork,
+  n => n
+);
+
 export const getClusterBayesianModelFeatures = createSelector(
-  getRawClusterBayesianNetwork,
+  getClusterBayesianNetwork,
   rawLinks => [
     ...rawLinks.reduce((set, {source, target}) => {
       set.add(source);
@@ -52,7 +58,7 @@ export const getSubBayesianModelFeaturesMap = createSelector(
 
 export const getClusterBayesianNetworkNodeLink = createSelector(
   [
-    getRawClusterBayesianNetwork,
+    getClusterBayesianNetwork,
     getSubBayesianModelFeaturesMap,
     getId2DistanceFunction
   ],

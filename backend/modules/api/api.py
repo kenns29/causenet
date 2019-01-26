@@ -135,10 +135,10 @@ def load_feature_sliced_model():
     print('loading feature sliced model {} ...'.format(name))
     model = get_feature_sliced_model(name)
     if not model:
-        return jsonify(None)
+        model = get_model(name)
     weighted_edges = get_feature_sliced_model_weighted_edges(name)
     if weighted_edges is None:
-        return jsonify(None)
+        weighted_edges = get_weighted_edges(name)
     edge_correlation_dict = dict((edge, corr) for edge, corr in calc_model_edge_correlations(name, model))
     return jsonify([{'source': str(s), 'target': str(t), 'weight': w, 'corr': edge_correlation_dict[(s, t)]}
                     for (s, t), w in weighted_edges])

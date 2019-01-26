@@ -559,20 +559,23 @@ def train_model_on_clusters(clusters, name, base_avg_data=None):
 
 
 def train_feature_sliced_model(name, feature_slices, data=None, clusters=None):
-    data = load_data('normalized_raw_data_file') if data is None else data
-    clusters = get_model_clusters(name) if clusters is None else clusters
-    data = get_column_mean_aggregated_data(data, clusters)
-    sliced_data = data.copy()
-    for feature, s in feature_slices.items():
-        sliced_data = sliced_data[sliced_data[feature] < s[1]]
-        sliced_data = sliced_data[sliced_data[feature] > s[0]]
+    if not feature_slices:
+        model = get_model(name)
+    else:
+        data = load_data('normalized_raw_data_file') if data is None else data
+        clusters = get_model_clusters(name) if clusters is None else clusters
+        data = get_column_mean_aggregated_data(data, clusters)
+        sliced_data = data.copy()
+        for feature, s in feature_slices.items():
+            sliced_data = sliced_data[sliced_data[feature] < s[1]]
+            sliced_data = sliced_data[sliced_data[feature] > s[0]]
 
-    # convert data to categorical
-    cut_n = 10
-    for key in data:
-        sliced_data[key] = cut(sliced_data[key], cut_n)
+        # convert data to categorical
+        cut_n = 10
+        for key in data:
+            sliced_data[key] = cut(sliced_data[key], cut_n)
 
-    model = train_model(sliced_data, do_write_model=False)
+        model = train_model(sliced_data, do_write_model=False)
     with open(os.path.join(get_current_dataset_model_dir(), 'feature-sliced-model.' + name), mode='wb') as file:
         pickle.dump(model, file)
     with open(os.path.join(get_current_dataset_model_dir(), 'feature-slices.' + name), mode='wb') as file:

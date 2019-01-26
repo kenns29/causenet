@@ -438,7 +438,6 @@ export const requestTrainFeatureSlicedBayesianModel = ({
   featureSliceMap
 }) => async dispatch => {
   try {
-    console.log('featureSliceMap in request', featureSliceMap);
     const response = await fetch(
       `${BACKEND_URL}/train_feature_sliced_bayesian_model?name=${name}`,
       {
@@ -655,8 +654,8 @@ export const bundleFetchBayesianModel = name => async dispatch => {
 
 export const bundleFetchClusterBayesianModel = name => async dispatch => {
   try {
-    await dispatch(fetchFeatureSlicedBayesianNetwork({name}));
     const datas = await Promise.all([
+      dispatch(fetchFeatureSlicedBayesianNetwork({name})),
       dispatch(fetchClusterBayesianNetwork({name})),
       dispatch(fetchClusterBayesianModelFeatures({name})),
       dispatch(fetchSubBayesianNetworks({name})),
@@ -728,19 +727,19 @@ export const bundleFetchAddToPairDistributions = ({
   }
 };
 
-export const bundleRequestUpdateBayesianModelFeatureSlices = (
+export const bundleRequestUpdateBayesianModelFeatureSlices = ({
   name,
   featureSliceMap = {}
-) => async dispatch => {
+}) => async dispatch => {
   try {
-    console.log('name', name, 'featureSliceMap', featureSliceMap);
     const edges = await dispatch(
       requestTrainFeatureSlicedBayesianModel({name, featureSliceMap})
     );
-    // const featureSliceMap = await dispatch(
-    //   fetchBayesianModelFeatureSlices({name})
-    // );
-    // return Promise.reslove({edges, featureSliceMap});
+    const datas = await Promise.all([
+      dispatch(fetchBayesianModelFeatureSlices({name})),
+      dispatch(fetchFeatureSlicedBayesianNetwork({name}))
+    ]);
+    return Promise.resolve([edges, ...datas]);
   } catch (err) {
     throw new Error(err);
   }

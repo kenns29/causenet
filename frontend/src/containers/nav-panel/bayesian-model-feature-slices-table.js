@@ -1,18 +1,40 @@
 import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
 import DataTable from '../../components/data-table';
-import {getBayesianModelFeatureSlicesTableData} from '../../selectors/data';
+import {filterObject} from '../../utils';
+import {
+  getSelectedModel,
+  getBayesianModelFeatureSlicesTableData,
+  getRawBayesianModelFeatureSliceMap
+} from '../../selectors/data';
+import {bundleRequestUpdateBayesianModelFeatureSlices} from '../../actions';
 
-const mapDispatchToProps = {};
+const mapDispatchToProps = {
+  bundleRequestUpdateBayesianModelFeatureSlices
+};
 
 const mapStateToProps = state => ({
-  data: getBayesianModelFeatureSlicesTableData(state)
+  selectedModel: getSelectedModel(state),
+  data: getBayesianModelFeatureSlicesTableData(state),
+  featureSliceMap: getRawBayesianModelFeatureSliceMap(state)
 });
 
 class BayesianModelFeatureSlicesTable extends PureComponent {
   render() {
+    const {featureSliceMap, selectedModel} = this.props;
     const {data} = this.props;
-    return <DataTable data={data} />;
+    return (
+      <DataTable
+        disableSelect
+        data={data}
+        removeData={({key}) => {
+          this.props.bundleRequestUpdateBayesianModelFeatureSlices({
+            name: selectedModel,
+            featureSliceMap: filterObject(featureSliceMap, k => k !== key)
+          });
+        }}
+      />
+    );
   }
 }
 

@@ -96,13 +96,10 @@ class ContentPanel extends PureComponent {
           return vx;
         });
         const {id: feature} = sv;
-
-        const newFeatureSliceMap = {...featureSliceMap, [feature]: slice};
-        console.log('new feature slice', newFeatureSliceMap);
-        await this.props.bundleRequestUpdateBayesianModelFeatureSlices(
-          selectedModel,
-          newFeatureSliceMap
-        );
+        await this.props.bundleRequestUpdateBayesianModelFeatureSlices({
+          name: selectedModel,
+          featureSliceMap: {...featureSliceMap, [feature]: slice}
+        });
       }
       this.setState({
         sv: null
