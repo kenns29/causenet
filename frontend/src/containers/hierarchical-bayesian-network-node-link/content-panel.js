@@ -3,13 +3,11 @@ import {connect} from 'react-redux';
 import {Spin} from 'antd';
 import DeckGLContainer from './deckgl-container';
 import PathTooltip from './path-tooltip';
-import {getTreeLeaves, findCluster} from '../../utils';
+import NodeContextMenu from './node-context-menu';
 import {
-  getSelectedModel,
   getIsFetchingModifiedBayesianNetwork,
-  getClusterBayesianNetworkNodeLinkLayout,
+  getFilteredClusterBayesianNetworkNodeLinkLayout,
   getShiftedReducedAbstractSubBayesianNetworkNodeLinkLayouts,
-  getRawHierarchicalClusteringTree,
   getRawSubBayesianNetworkSliceMap,
   getAbstractSubBayesianNetworkMap,
   getRawDistributionFeaturePairs,
@@ -19,26 +17,26 @@ import {
   requestReplaceSubBayesianModels,
   bundleFetchClusterBayesianModel,
   updateSubBayesianNetworkSliceMap,
-  bundleFetchAddToPairDistributions
+  bundleFetchAddToPairDistributions,
+  updateClusterBayesianNetworkFocus
 } from '../../actions';
 
 const mapDispatchToProps = {
   requestReplaceSubBayesianModels,
   bundleFetchClusterBayesianModel,
   updateSubBayesianNetworkSliceMap,
-  bundleFetchAddToPairDistributions
+  bundleFetchAddToPairDistributions,
+  updateClusterBayesianNetworkFocus
 };
 
 const mapStateToProps = state => ({
-  selectedModel: getSelectedModel(state),
   isFetchingModifiedBayesianNetwork: getIsFetchingModifiedBayesianNetwork(
     state
   ),
-  clusterNodeLink: getClusterBayesianNetworkNodeLinkLayout(state),
+  clusterNodeLink: getFilteredClusterBayesianNetworkNodeLinkLayout(state),
   subNodeLinks: getShiftedReducedAbstractSubBayesianNetworkNodeLinkLayouts(
     state
   ),
-  hierarchicalClusteringTree: getRawHierarchicalClusteringTree(state),
   subBayesianNetworkSliceMap: getRawSubBayesianNetworkSliceMap(state),
   abstractSubBayesianNetworkMap: getAbstractSubBayesianNetworkMap(state),
   distributionFeaturePairs: getRawDistributionFeaturePairs(state),
@@ -58,6 +56,23 @@ const tooltipStyle = {
   pointerEvents: 'none'
 };
 
+function getClickHandler(onClick, onDoubleClick, delay) {
+  let timeoutID = null;
+  delay = delay || 250;
+  return function(event) {
+    event.persist();
+    if (!timeoutID) {
+      timeoutID = setTimeout(function() {
+        onClick(event);
+        timeoutID = null;
+      }, delay);
+    } else {
+      timeoutID = clearTimeout(timeoutID);
+      onDoubleClick(event);
+    }
+  };
+}
+
 class ContentPanel extends PureComponent {
   get containerStyle() {
     return {
@@ -71,7 +86,14 @@ class ContentPanel extends PureComponent {
       disableMove: false,
       hoveredNodes: [],
       hoveredPath: null,
-      getCursor: () => 'auto'
+      getCursor: () => 'auto',
+      nodeContextMenu: {
+        x: 0,
+        y: 0,
+        show: false,
+        data: null
+      },
+      partialFocus: null
     };
   }
   _getEventMouse = event => {
@@ -115,6 +137,7 @@ class ContentPanel extends PureComponent {
           if (s > 0) {
             [s, t] = [s - 1, t - 1];
           }
+
           this.props.updateSubBayesianNetworkSliceMap({
             ...subBayesianNetworkSliceMap,
             [id]: [s, t]
@@ -168,7 +191,7 @@ class ContentPanel extends PureComponent {
           const {object} = info;
           const path = [{node: {...object.source}, weight: 0}, ...object.path];
           this.setState({
-            hoveredPath: {path, left: x - 10, top: y - 90},
+            hoveredPath: {path, left: x - 10, top: y - 200},
             hoveredNodes: [],
             disableZoom: true,
             getCursor: () => 'auto'
@@ -193,7 +216,7 @@ class ContentPanel extends PureComponent {
     event.preventDefault();
     event.stopPropagation();
   };
-  _handleClick = async event => {
+  _handleClick = event => {
     const {
       selectedNormalizedFeatureDistributionMap,
       distributionFeaturePairs
@@ -208,8 +231,15 @@ class ContentPanel extends PureComponent {
         const {id: layerId} = info.layer;
         if (layerId === 'hierarchical-bayesian-network-node-link-nodes-layer') {
           const {object} = info;
-          const {hierarchicalClusteringTree: tree} = this.props;
-          this._expandCluster(tree, Number(object.label));
+          const {partialFocus} = this.state;
+          if (partialFocus === null) {
+            this.setState({partialFocus: object.id});
+          } else {
+            this.props.updateClusterBayesianNetworkFocus([
+              partialFocus,
+              object.id
+            ]);
+          }
         } else if (
           layerId === 'hierarchical-bayesian-network-node-link-path-layer'
         ) {
@@ -221,24 +251,55 @@ class ContentPanel extends PureComponent {
             selectedNormalizedFeatureDistributionMap
           });
         }
+      } else {
+        this.setState({partialFocus: null});
+        this.props.updateClusterBayesianNetworkFocus(null);
+      }
+      this.setState({
+        nodeContextMenu: {
+          show: false
+        }
+      });
+    }
+  };
+  _handleDoubleClick = event => {
+    if (this._getDeck()) {
+      const [x, y] = this._getEventMouse(event);
+      const info = this._pickObject({
+        x,
+        y
+      });
+      if (info) {
+        const {id: layerId} = info.layer;
+        if (layerId === 'hierarchical-bayesian-network-node-link-nodes-layer') {
+          const {object} = info;
+          this.setState({partialFocus: null});
+          this.props.updateClusterBayesianNetworkFocus(object.id);
+        }
       }
     }
   };
-  _expandCluster = async(tree, id) => {
-    const {selectedModel} = this.props;
-    const cluster = findCluster(tree, id);
-    if (cluster) {
-      const targets = [cluster.id];
-      const replacements = cluster.children.map(child => ({
-        id: child.id,
-        features: getTreeLeaves(child).map(d => d.name)
-      }));
-      await this.props.requestReplaceSubBayesianModels({
-        name: selectedModel,
-        targets,
-        replacements
+  _handleContextMenu = event => {
+    if (this._getDeck()) {
+      const [x, y] = this._getEventMouse(event);
+      const info = this._pickObject({
+        x,
+        y
       });
-      this.props.bundleFetchClusterBayesianModel(selectedModel);
+      if (info) {
+        const {id: layerId} = info.layer;
+        if (layerId === 'hierarchical-bayesian-network-node-link-nodes-layer') {
+          this.setState({
+            nodeContextMenu: {
+              x: x + 10,
+              y,
+              show: true,
+              data: info.object
+            }
+          });
+          event.preventDefault();
+        }
+      }
     }
   };
   _renderTooltip() {
@@ -272,6 +333,10 @@ class ContentPanel extends PureComponent {
       )
     );
   }
+  _renderNodeContextMenu() {
+    const {x, y, show, data} = this.state.nodeContextMenu;
+    return <NodeContextMenu x={x} y={y} show={show} data={data} />;
+  }
   render() {
     const {width, height, isFetchingModifiedBayesianNetwork} = this.props;
     const {disableZoom, disableMove, getCursor} = this.state;
@@ -282,8 +347,9 @@ class ContentPanel extends PureComponent {
         width={width}
         height={height}
         onMouseMove={this._handleMouseMove}
-        onClick={this._handleClick}
+        onClick={getClickHandler(this._handleClick, this._handleDoubleClick)}
         onWheel={this._handleWheel}
+        onContextMenu={this._handleContextMenu}
       >
         {isFetchingModifiedBayesianNetwork && (
           <Spin
@@ -294,6 +360,7 @@ class ContentPanel extends PureComponent {
         )}
         {this._renderTooltip()}
         {this._renderPathTooltip()}
+        {this._renderNodeContextMenu()}
         <DeckGLContainer
           ref={input => (this.deckGLContainer = input)}
           {...this.props}

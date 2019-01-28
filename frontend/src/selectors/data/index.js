@@ -6,3 +6,5 @@ export * from './bayesian-network-matrix';
 export * from './cluster-bayesian-network';
 export * from './pair-distribution-scatterplot';
 export * from './feature-distribution-histogram';
+export * from './sub-bayesian-network-detail';
+export * from './bayesian-model-feature-slices-table';

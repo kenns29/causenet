@@ -81,3 +81,8 @@ export const getFeatureDistributionWindowSize = createSelector(
   rootSelector,
   state => state.featureDistributionWindowSize
 );
+
+export const getShowBayesianNetworkSubNetworkDetailWindow = createSelector(
+  rootSelector,
+  state => state.showBayesianNetworkSubNetworkDetailWindow
+);

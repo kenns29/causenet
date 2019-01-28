@@ -3,7 +3,10 @@ import {scaleLinear} from 'd3-scale';
 import {histogram} from 'd3-array';
 import {getCurvePoints} from 'cardinal-spline-js';
 import {rootSelector, getFeatureDistributionWindowSize} from '../base';
-import {getRawSelectedNormalizedFeatureDistributionMap} from './raw';
+import {
+  getRawSubBayesianModelFeaturesMap,
+  getRawSelectedNormalizedFeatureDistributionMap
+} from './raw';
 import {FEATURE_DISTRIBUTION_HISTOGRAM} from '../../constants';
 
 export const getFeatureDistributionHistogramContainerWidth = createSelector(
@@ -76,9 +79,10 @@ export const getFeatureDistributionHistogramData = createSelector(
 export const getFeatureDistributionHistogramLayouts = createSelector(
   [
     getFeatureDistributionHistogramData,
-    getFeatureDistributionHistogramSmallMultipleGrid
+    getFeatureDistributionHistogramSmallMultipleGrid,
+    getRawSubBayesianModelFeaturesMap
   ],
-  (histData, [gx, gy]) => {
+  (histData, [gx, gy], clusterMap) => {
     const {
       SIZE: [w, h],
       PADDING: [pl, pt, pr, pb],
@@ -147,10 +151,64 @@ export const getFeatureDistributionHistogramLayouts = createSelector(
 
       return {
         id,
+        label: clusterMap[id].length > 1 ? id : clusterMap[id][0],
         bins,
         position: [sx, sy],
-        size: [w, h]
+        size: [w, h],
+        scaleX,
+        scaleY
       };
     });
+  }
+);
+
+export const getFeatureDistributionHistogramCoordinateInverter = createSelector(
+  [
+    getFeatureDistributionHistogramLayouts,
+    getFeatureDistributionHistogramSmallMultipleGrid
+  ],
+  (hists, [gx, gy]) => {
+    const {
+      SIZE: [w, h],
+      PADDING: [pl, pt, pr, pb],
+      MARGIN: [ml, mt, mr, mb],
+      CONTAINER_MARGIN: [cml, cmt, cmr, cmb]
+    } = FEATURE_DISTRIBUTION_HISTOGRAM;
+
+    return (x, y) => {
+      if (x > gx * (w + pl + pr) + cml) {
+        return null;
+      }
+      const xi = Math.floor((x - cml) / (w + pl + pr));
+      const yi = Math.floor((y - cmt) / (h + pt + pb));
+      const i = yi * gx + xi;
+      if (i >= hists.length) {
+        return null;
+      }
+      const hist = hists[i];
+      const {id, label, scaleX, scaleY} = hist;
+      const [yb, yt] = scaleY.range();
+      const [xl, xr] = scaleX.range();
+      const [vx, vy] = [scaleX.invert(x), scaleY.invert(y)];
+      return {
+        id,
+        label,
+        i,
+        xi,
+        yi,
+        scaleX,
+        scaleY,
+        yb,
+        yt,
+        xl,
+        xr,
+        vx,
+        vy,
+        x,
+        y,
+        onPlot: x >= xl && x <= xr && y <= yb && y >= yt,
+        hist
+      };
+    };
   }
 );

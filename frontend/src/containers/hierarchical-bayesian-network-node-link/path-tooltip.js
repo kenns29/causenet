@@ -12,14 +12,15 @@ const ID = 'hierarchical-bayesian-network-node-link-path-tooltip';
 const tooltipStyle = {
   position: 'absolute',
   zIndex: 9,
-  pointerEvents: 'none'
+  pointerEvents: 'none',
+  backgroundColor: 'white'
 };
 
 export default class PathTooltip extends PureComponent {
   _getPathLayout() {
-    const textHeight = 70;
+    const textHeight = 150;
     const {path} = this.props;
-    const [marginLeft, marginTop, marginBottom, marginRight] = [5, 5, 5, 20];
+    const [marginLeft, marginTop, marginBottom, marginRight] = [5, 5, 5, 80];
     const [nw, nh] = [10, 10];
     const l = 20;
     const nodes = path.map(({node}, index) => ({
@@ -107,6 +108,18 @@ export default class PathTooltip extends PureComponent {
       ...this._renderLabels(nodes)
     ];
   }
+  _renderBackgroundDiv({width, height}) {
+    return (
+      <div
+        style={{
+          backgroundColor: 'white',
+          position: 'absolute',
+          width,
+          height
+        }}
+      />
+    );
+  }
   render() {
     const {path, left, top} = this.props;
     const {nodes, edges, width, height} = this._getPathLayout();
@@ -122,6 +135,7 @@ export default class PathTooltip extends PureComponent {
     ];
     return (
       <div style={{...tooltipStyle, left, top}}>
+        {this._renderBackgroundDiv({width, height})}
         <DeckGL
           width={width}
           height={height}

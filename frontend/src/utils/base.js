@@ -12,3 +12,14 @@ export const array2Object = (array, key, value) => {
 
 export const isArray = v =>
   Object.prototype.toString.call(v) === '[object Array]';
+
+export const filterObject = (object, key, value) => {
+  const [fk, fv] = [key, value].map(makeAccessor);
+  return Object.entries(object).reduce(
+    (o, [k, v]) =>
+      fk(k) && (fv(v) || (isNull(value) && isNull(v)))
+        ? Object.assign(o, {[k]: v})
+        : o,
+    {}
+  );
+};

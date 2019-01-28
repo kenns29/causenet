@@ -28,8 +28,36 @@ def get_current_dataset_model_dir():
     return model_dir + '/' + get_current_dataset_name()
 
 
+def check_is_model_exist(name):
+    return os.path.isfile(get_current_dataset_model_dir(), name)
+
+
 def get_model(name):
     with open(os.path.join(get_current_dataset_model_dir(), name), mode='rb') as file:
+        return pickle.load(file)
+
+
+def get_feature_sliced_model(name):
+    current_dataset_model_dir = get_current_dataset_model_dir()
+    if not os.path.exists(os.path.join(current_dataset_model_dir, 'feature-sliced-model.' + name)):
+        return None
+    with open(os.path.join(current_dataset_model_dir, 'feature-sliced-model.' + name), mode='rb') as file:
+        return pickle.load(file)
+
+
+def get_feature_slices(name):
+    current_dataset_model_dir = get_current_dataset_model_dir()
+    if not os.path.exists(os.path.join(current_dataset_model_dir, 'feature-slices.' + name)):
+        return None
+    with open(os.path.join(current_dataset_model_dir, 'feature-slices.' + name), mode='rb') as file:
+        return pickle.load(file)
+
+
+def get_feature_sliced_model_weighted_edges(name):
+    current_dataset_model_dir = get_current_dataset_model_dir()
+    if not os.path.exists(os.path.join(current_dataset_model_dir, 'feature-sliced-model-weight.' + name)):
+        return None
+    with open(os.path.join(current_dataset_model_dir, 'feature-sliced-model-weight.' + name), mode='rb') as file:
         return pickle.load(file)
 
 
@@ -77,6 +105,12 @@ def delete_model(name):
             os.remove(os.path.join(current_dataset_model_dir, 'clusters.' + name))
         if os.path.exists(os.path.join(current_dataset_model_dir, 'sub-models.' + name)):
             shutil.rmtree(os.path.join(current_dataset_model_dir, 'sub-models.' + name))
+        if os.path.exists(os.path.join(current_dataset_model_dir, 'feature-sliced-model.' + name)):
+            os.remove(os.path.join(current_dataset_model_dir, 'feature-sliced-model.' + name))
+        if os.path.exists(os.path.join(current_dataset_model_dir, 'feature-slices.' + name)):
+            os.remove(os.path.join(current_dataset_model_dir, 'feature-slices.' + name))
+        if os.path.exists(os.path.join(current_dataset_model_dir, 'feature-sliced-model-weight.' + name)):
+            os.remove(os.path.join(current_dataset_model_dir, 'feature-sliced-model-weight.' + name))
         return model_stat
 
 
@@ -134,7 +168,8 @@ def write_full_model_features(features, name):
 def get_model_clusters(name):
     current_dataset_model_dir = get_current_dataset_model_dir()
     if not os.path.exists(os.path.join(current_dataset_model_dir, 'clusters.' + name)):
-        raise ValueError('clusters for model {} is not found'.format(name))
+        print('clusters for model {} is not found'.format(name))
+        return None
     with open(os.path.join(current_dataset_model_dir, 'clusters.' + name), mode='rb') as file:
         return pickle.load(file)
 
@@ -168,8 +203,13 @@ def get_sub_models(name):
                 s = file_name.split('.')
                 key = s[0] if len(s) < 2 else s[1]
                 model_dict[key] = {} if key not in model_dict else model_dict[key]
-                model_dict[key]['model' if len(s) < 2
-                else 'weighted_edges' if s[0] == 'weight' else 'features'] = pickle.load(file)
+                if len(s) < 2:
+                    model = pickle.load(file)
+                    edge_correlations = calc_model_edge_correlations(key, model)
+                    model_dict[key]['model'] = model
+                    model_dict[key]['edge_correlations'] = edge_correlations
+                else:
+                    model_dict[key]['weighted_edges' if s[0] == 'weight' else 'features'] = pickle.load(file)
     return model_dict
 
 
@@ -518,6 +558,31 @@ def train_model_on_clusters(clusters, name, base_avg_data=None):
     return model
 
 
+def train_feature_sliced_model(name, feature_slices, data=None, clusters=None):
+    if not feature_slices:
+        model = get_model(name)
+    else:
+        data = load_data('normalized_raw_data_file') if data is None else data
+        clusters = get_model_clusters(name) if clusters is None else clusters
+        data = get_column_mean_aggregated_data(data, clusters)
+        sliced_data = data.copy()
+        for feature, s in feature_slices.items():
+            sliced_data = sliced_data[sliced_data[feature] < s[1]]
+            sliced_data = sliced_data[sliced_data[feature] > s[0]]
+
+        # convert data to categorical
+        cut_n = 10
+        for key in data:
+            sliced_data[key] = cut(sliced_data[key], cut_n)
+
+        model = train_model(sliced_data, do_write_model=False)
+    with open(os.path.join(get_current_dataset_model_dir(), 'feature-sliced-model.' + name), mode='wb') as file:
+        pickle.dump(model, file)
+    with open(os.path.join(get_current_dataset_model_dir(), 'feature-slices.' + name), mode='wb') as file:
+        pickle.dump(feature_slices, file)
+    return model
+
+
 def calc_edge_correlations(edges, data):
     """
     calculate the correlation between the pair of variables in each edge
@@ -588,13 +653,13 @@ def get_model_stats(name):
         return {}
     models = status['models']
     if name not in models:
-        raise ValueError('can not find the model for the name.')
+        return None
     return models[name]
 
 
 def check_is_cluster_model(name, model_stats=None):
     model_stats = get_model_stats(name) if model_stats is None else model_stats
-    return 'sub-models-folder' in model_stats
+    return 'sub-models-folder' in model_stats if model_stats else False
 
 
 def update_feature_selection(features):

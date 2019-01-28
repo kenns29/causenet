@@ -7,6 +7,7 @@ import {
   UPDATE_BAYESIAN_NETWORK_DISTRIBUTION_WINDOW_SIZE,
   UPDATE_SHOW_FEATURE_DISTRIBUTION_WINDOW,
   UPDATE_FEATURE_DISTRIBUTION_WINDOW_SIZE,
+  UPDATE_SHOW_BAYESIAN_NETWORK_SUB_NETWORK_DETAIL_WINDOW,
   UPDATE_CURRENT_DATASET_NAME,
   UPDATE_DATASET_LIST,
   FETCH_BAYESIAN_NETWORK_START,
@@ -15,6 +16,9 @@ import {
   UPDATE_MODIFIED_BAYSIAN_NETWORK,
   UPDATE_CLUSTER_BAYESIAN_NETWORK,
   UPDATE_CLUSTER_BAYESIAN_MODEL_FEATURES,
+  UPDATE_FEATURE_SLICED_BAYESIAN_NETWORK,
+  UPDATE_BAYESIAN_MODEL_FEATURE_SLICE_MAP,
+  UPDATE_CLUSTER_BAYESIAN_NETWORK_FOCUS,
   UPDATE_SUB_BAYESIAN_NETWORK_MAP,
   UPDATE_SUB_BAYESIAN_MODEL_FEATURES_MAP,
   UPDATE_SUB_BAYESIAN_NETWORK_SLICE_MAP,
@@ -32,7 +36,8 @@ import {
   UPDATE_FEATURE_SELECTION,
   UPDATE_FEATURE_VALUES_MAP,
   UPDATE_DISTRIBUTION_FEATURE_PAIRS,
-  UPDATE_SELECTED_NORMALIZED_FEATURE_DISTRIBUTION_MAP
+  UPDATE_SELECTED_NORMALIZED_FEATURE_DISTRIBUTION_MAP,
+  UPDATE_SELECTED_SUB_BAYESIAN_NETWORK_ID
 } from './actions';
 
 import {HIERARICAL_CLUSTERING_OPTION} from './constants';
@@ -75,6 +80,27 @@ const DEFAULT_STATE = {
   clusterBayesianNetwork: [],
   // The complete list of features of the selected cluster bayesian model
   clusterBayesianModelFeatures: [],
+  // the feature sliced Bayesian Network data:
+  // [
+  //  {
+  //  source: (the source cluster id),
+  //  target: (the target cluster id),
+  //  weight: (the edge weight)
+  //  },
+  //  ...]
+  featureSlicedBayesianNetwork: [],
+  // the feature slice map:
+  // {
+  //  [feature]: [s1, s2], // slice
+  //  ...
+  // }
+  bayesianModelFeatureSliceMap: {},
+  // The cluster bayesian network focus
+  // null -- no focus,
+  // id -- id of the node to focus on, the network will be filtered to contain
+  //       only the paths that go through the node
+  // [id1, id2] -- the network will contain only that path segments that connects id1 and id2
+  clusterBayesianNetworkFocus: null,
   // the sub Bayesian Network within the clusters, omits one item clusters
   // {
   //  cluster_id: [
@@ -87,7 +113,7 @@ const DEFAULT_STATE = {
   //  ],
   // ...}
   subBayesianNetworkMap: {},
-  // the sub Bayesian Network features, omits one item clusters
+  // the sub Bayesian Network features, essentially the cluster map
   // {
   //  cluster_id: [
   //    feature_name,
@@ -160,7 +186,9 @@ const DEFAULT_STATE = {
   //  },
   //  ...
   // }
-  selectedNormalizedFeatureDistributionMap: {}
+  selectedNormalizedFeatureDistributionMap: {},
+  showBayesianNetworkSubNetworkDetailWindow: false,
+  selectedSubBayesianNetworkId: null
 };
 
 const handleUpdateScreenSize = (state, {payload}) => ({
@@ -205,6 +233,14 @@ const handleUpdateFeatureDistributionWindowSize = (state, {payload}) => ({
   featureDistributionWindowSize: payload
 });
 
+const handleUpdateShowBayesianNetworkSubNetworkDetailWindow = (
+  state,
+  {payload}
+) => ({
+  ...state,
+  showBayesianNetworkSubNetworkDetailWindow: payload
+});
+
 const handleUpdateCurrentDatasetName = (state, {payload}) => ({
   ...state,
   currentDatasetName: payload
@@ -245,6 +281,21 @@ const handleUpdateClusterBayesianNetwork = (state, {payload}) => ({
 const handleUpdateClusterBayesianModelFeatures = (state, {payload}) => ({
   ...state,
   clusterBayesianModelFeatures: payload
+});
+
+const handleUpdateClusterBayesianNetworkFocus = (state, {payload}) => ({
+  ...state,
+  clusterBayesianNetworkFocus: payload
+});
+
+const handleUpdateFeatureSlicedBayesianNetwork = (state, {payload}) => ({
+  ...state,
+  featureSlicedBayesianNetwork: payload
+});
+
+const handleUpdateBayesianModelFeatureSliceMap = (state, {payload}) => ({
+  ...state,
+  bayesianModelFeatureSliceMap: payload
 });
 
 const handleUpdateSubBayesianNetworkMap = (state, {payload}) => ({
@@ -346,6 +397,11 @@ const handleUpdateSelectedNormalizedFeatureDistributionMap = (
   selectedNormalizedFeatureDistributionMap: payload
 });
 
+const handleUpdateSelectedSubBayesianNetworkId = (state, {payload}) => ({
+  ...state,
+  selectedSubBayesianNetworkId: payload
+});
+
 export default handleActions(
   {
     [UPDATE_SCREEN_SIZE]: handleUpdateScreenSize,
@@ -355,6 +411,7 @@ export default handleActions(
     [UPDATE_BAYESIAN_NETWORK_DISTRIBUTION_WINDOW_SIZE]: handleUpdateBayesianNetworkDistributionWindowSize,
     [UPDATE_SHOW_FEATURE_DISTRIBUTION_WINDOW]: handleUpdateShowFeatureDistributionWindow,
     [UPDATE_FEATURE_DISTRIBUTION_WINDOW_SIZE]: handleUpdateFeatureDistributionWindowSize,
+    [UPDATE_SHOW_BAYESIAN_NETWORK_SUB_NETWORK_DETAIL_WINDOW]: handleUpdateShowBayesianNetworkSubNetworkDetailWindow,
     [UPDATE_CURRENT_DATASET_NAME]: handleUpdateCurrentDatasetName,
     [UPDATE_DATASET_LIST]: handleUpdateDatasetList,
     [FETCH_BAYESIAN_NETWORK_START]: handleFetchBayesianNetworkStart,
@@ -364,6 +421,9 @@ export default handleActions(
     [UPDATE_BAYESIAN_MODEL_FEATURES]: handleUpdateBayesianModelFeatures,
     [UPDATE_CLUSTER_BAYESIAN_NETWORK]: handleUpdateClusterBayesianNetwork,
     [UPDATE_CLUSTER_BAYESIAN_MODEL_FEATURES]: handleUpdateClusterBayesianModelFeatures,
+    [UPDATE_FEATURE_SLICED_BAYESIAN_NETWORK]: handleUpdateFeatureSlicedBayesianNetwork,
+    [UPDATE_BAYESIAN_MODEL_FEATURE_SLICE_MAP]: handleUpdateBayesianModelFeatureSliceMap,
+    [UPDATE_CLUSTER_BAYESIAN_NETWORK_FOCUS]: handleUpdateClusterBayesianNetworkFocus,
     [UPDATE_SUB_BAYESIAN_NETWORK_MAP]: handleUpdateSubBayesianNetworkMap,
     [UPDATE_SUB_BAYESIAN_MODEL_FEATURES_MAP]: handleUpdateSubBayesianModelFeaturesMap,
     [UPDATE_SUB_BAYESIAN_NETWORK_SLICE_MAP]: handleUpdateSubBayesianNetworkSliceMap,
@@ -380,7 +440,8 @@ export default handleActions(
     [UPDATE_FEATURE_SELECTION]: handleUpdateFeatureSelection,
     [UPDATE_FEATURE_VALUES_MAP]: handleUpdateFeatureValuesMap,
     [UPDATE_DISTRIBUTION_FEATURE_PAIRS]: handleUpdateDistributionFeaturePairs,
-    [UPDATE_SELECTED_NORMALIZED_FEATURE_DISTRIBUTION_MAP]: handleUpdateSelectedNormalizedFeatureDistributionMap
+    [UPDATE_SELECTED_NORMALIZED_FEATURE_DISTRIBUTION_MAP]: handleUpdateSelectedNormalizedFeatureDistributionMap,
+    [UPDATE_SELECTED_SUB_BAYESIAN_NETWORK_ID]: handleUpdateSelectedSubBayesianNetworkId
   },
   DEFAULT_STATE
 );

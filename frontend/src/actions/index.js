@@ -14,6 +14,8 @@ export const UPDATE_SHOW_FEATURE_DISTRIBUTION_WINDOW =
   'UPDATE_SHOW_FEATURE_DISTRIBUTION_WINDOW';
 export const UPDATE_FEATURE_DISTRIBUTION_WINDOW_SIZE =
   'UPDATE_FEATURE_DISTRIBUTION_WINDOW_SIZE';
+export const UPDATE_SHOW_BAYESIAN_NETWORK_SUB_NETWORK_DETAIL_WINDOW =
+  'UPDATE_SHOW_BAYESIAN_NETWORK_SUB_NETWORK_DETAIL_WINDOW';
 
 // data Action ids
 export const UPDATE_CURRENT_DATASET_NAME = 'UPDDATE_CURRENT_DATASET_NAME';
@@ -28,6 +30,12 @@ export const UPDATE_CLUSTER_BAYESIAN_NETWORK =
   'UPDATE_CLUSTER_BAYESIAN_NETWORK';
 export const UPDATE_CLUSTER_BAYESIAN_MODEL_FEATURES =
   'UPDATE_CLUSTER_BAYESIAN_MODEL_FEATURES';
+export const UPDATE_CLUSTER_BAYESIAN_NETWORK_FOCUS =
+  'UPDATE_CLUSTER_BAYESIAN_NETWORK_FOCUS';
+export const UPDATE_FEATURE_SLICED_BAYESIAN_NETWORK =
+  'UPDATE_FEATURE_SLICED_BAYESIAN_NETWORK';
+export const UPDATE_BAYESIAN_MODEL_FEATURE_SLICE_MAP =
+  'UPDATE_BAYESIAN_MODEL_FEATURE_SLICE_MAP';
 export const UPDATE_SUB_BAYESIAN_NETWORK_MAP =
   'UPDATE_SUB_BAYESIAN_NETWORK_MAP';
 export const UPDATE_SUB_BAYESIAN_MODEL_FEATURES_MAP =
@@ -60,6 +68,8 @@ export const UPDATE_DISTRIBUTION_FEATURE_PAIRS =
   'UPDATE_DISTRIBUTION_FEATURE_PAIRS';
 export const UPDATE_SELECTED_NORMALIZED_FEATURE_DISTRIBUTION_MAP =
   'UPDATE_SELECTED_NORMALIZED_FEATURE_DISTRIBUTION_MAP';
+export const UPDATE_SELECTED_SUB_BAYESIAN_NETWORK_ID =
+  'UPDATE_SELECTED_SUB_BAYESIAN_NETWORK_ID';
 
 // UI actions
 export const updateScreenSize = createAction(UPDATE_SCREEN_SIZE);
@@ -78,6 +88,9 @@ export const updateShowFeatureDistributionWindow = createAction(
 );
 export const updateFeatureDistributionWindowSize = createAction(
   UPDATE_FEATURE_DISTRIBUTION_WINDOW_SIZE
+);
+export const updateShowBayesianNetworkSubNetworkDetailWindow = createAction(
+  UPDATE_SHOW_BAYESIAN_NETWORK_SUB_NETWORK_DETAIL_WINDOW
 );
 
 // data actions
@@ -100,6 +113,15 @@ export const updateClusterBayesianNetwork = createAction(
 );
 export const updateClusterBayesianModelFeatures = createAction(
   UPDATE_CLUSTER_BAYESIAN_MODEL_FEATURES
+);
+export const updateClusterBayesianNetworkFocus = createAction(
+  UPDATE_CLUSTER_BAYESIAN_NETWORK_FOCUS
+);
+export const updateFeatureSlicedBayesianNetwork = createAction(
+  UPDATE_FEATURE_SLICED_BAYESIAN_NETWORK
+);
+export const updateBayesianModelFeatureSliceMap = createAction(
+  UPDATE_BAYESIAN_MODEL_FEATURE_SLICE_MAP
 );
 export const updateSubBayesianNetworkMap = createAction(
   UPDATE_SUB_BAYESIAN_NETWORK_MAP
@@ -147,6 +169,9 @@ export const updateDistributionFeaturePairs = createAction(
 );
 export const updateSelectedNormalizedFeatureDistributionMap = createAction(
   UPDATE_SELECTED_NORMALIZED_FEATURE_DISTRIBUTION_MAP
+);
+export const updateSelectedSubBayesianNetworkId = createAction(
+  UPDATE_SELECTED_SUB_BAYESIAN_NETWORK_ID
 );
 
 // async actions
@@ -251,6 +276,36 @@ export const fetchClusterBayesianModelFeatures = ({
     );
     const data = await response.json();
     dispatch(updateClusterBayesianModelFeatures(data));
+    return Promise.resolve(data);
+  } catch (err) {
+    throw new Error(err);
+  }
+};
+
+export const fetchFeatureSlicedBayesianNetwork = ({
+  name = 'model'
+}) => async dispatch => {
+  try {
+    const response = await fetch(
+      `${BACKEND_URL}/load_feature_sliced_model?name=${name}`
+    );
+    const data = await response.json();
+    dispatch(updateFeatureSlicedBayesianNetwork(data));
+    return Promise.resolve(data);
+  } catch (err) {
+    throw new Error(err);
+  }
+};
+
+export const fetchBayesianModelFeatureSlices = ({
+  name = 'model'
+}) => async dispatch => {
+  try {
+    const response = await fetch(
+      `${BACKEND_URL}/load_model_feature_slices?name=${name}`
+    );
+    const data = await response.json();
+    dispatch(updateBayesianModelFeatureSliceMap(data));
     return Promise.resolve(data);
   } catch (err) {
     throw new Error(err);
@@ -369,6 +424,25 @@ export const requestTrainClusterBayesianModel = ({
       {
         method: 'POST',
         body: JSON.stringify(clusters)
+      }
+    );
+    const data = await response.json();
+    return Promise.resolve(data);
+  } catch (err) {
+    throw new Error(err);
+  }
+};
+
+export const requestTrainFeatureSlicedBayesianModel = ({
+  name = 'model',
+  featureSliceMap
+}) => async dispatch => {
+  try {
+    const response = await fetch(
+      `${BACKEND_URL}/train_feature_sliced_bayesian_model?name=${name}`,
+      {
+        method: 'POST',
+        body: JSON.stringify({feature_slices: featureSliceMap})
       }
     );
     const data = await response.json();
@@ -542,8 +616,6 @@ export const bundleRequestUpdateSelectedDataset = (
   hierarchicalClusteringOption = HIERARICAL_CLUSTERING_OPTION.RAW
 ) => async dispatch => {
   try {
-    const data = await requestFetchData();
-
     dispatch(updateModifiedBayesianNetwork([]));
     dispatch(updateBayesianNetwork([]));
     await dispatch(requestUpdateCurrentDatasetName(name));
@@ -583,10 +655,12 @@ export const bundleFetchBayesianModel = name => async dispatch => {
 export const bundleFetchClusterBayesianModel = name => async dispatch => {
   try {
     const datas = await Promise.all([
+      dispatch(fetchFeatureSlicedBayesianNetwork({name})),
       dispatch(fetchClusterBayesianNetwork({name})),
       dispatch(fetchClusterBayesianModelFeatures({name})),
       dispatch(fetchSubBayesianNetworks({name})),
-      dispatch(fetchSubBayesianModelFeaturesMap({name}))
+      dispatch(fetchSubBayesianModelFeaturesMap({name})),
+      dispatch(fetchBayesianModelFeatureSlices({name}))
     ]);
     dispatch(updateDistributionFeaturePairs([]));
     dispatch(updateSelectedNormalizedFeatureDistributionMap({}));
@@ -628,41 +702,44 @@ export const bundleFetchAddToPairDistributions = ({
   selectedNormalizedFeatureDistributionMap
 }) => async dispatch => {
   try {
-    const id2label = [source, target].reduce(
-      (map, node) =>
-        Object.assign(
-          map,
-          node.cluster.length > 1
-            ? {[node.id]: node.id}
-            : {[node.id]: node.cluster[0]}
-        ),
-      {}
-    );
     const map = await dispatch(
       bundleFetchAddToSelectedNormalizedFeatureDistributionMap({
         featureSelection: [source, target].reduce(
-          (map, node) =>
-            Object.assign(map, {[id2label[node.id]]: node.cluster}),
+          (m, node) => Object.assign(m, {[node.id]: node.cluster}),
           {}
         ),
         selectedNormalizedFeatureDistributionMap
       })
     );
-    const [sourceLabel, targetLabel] = [source, target].map(
-      node => id2label[node.id]
-    );
-    const pair = {
-      id: `${sourceLabel}-${targetLabel}`,
-      source: sourceLabel,
-      target: targetLabel
-    };
     const pairs = dispatch(
       bundleAddToDistributionFeaturePairs({
-        pair,
+        pair: {
+          id: `${source.id}-${target.id}`,
+          source: source.id,
+          target: target.id
+        },
         distributionFeaturePairs
       })
     );
-    return Promise.resolve({pair, map});
+    return Promise.resolve({pairs, map});
+  } catch (err) {
+    throw new Error(err);
+  }
+};
+
+export const bundleRequestUpdateBayesianModelFeatureSlices = ({
+  name,
+  featureSliceMap = {}
+}) => async dispatch => {
+  try {
+    const edges = await dispatch(
+      requestTrainFeatureSlicedBayesianModel({name, featureSliceMap})
+    );
+    const datas = await Promise.all([
+      dispatch(fetchBayesianModelFeatureSlices({name})),
+      dispatch(fetchFeatureSlicedBayesianNetwork({name}))
+    ]);
+    return Promise.resolve([edges, ...datas]);
   } catch (err) {
     throw new Error(err);
   }

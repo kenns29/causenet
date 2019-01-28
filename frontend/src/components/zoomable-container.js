@@ -51,14 +51,21 @@ export default class ZoomableContainer extends PureComponent {
     return [clientX - left, clientY - top];
   };
   _zoomIn = () => {
+    const zoomScale = Math.max(
+      0.001,
+      this.state.zoomScale - this.props.zoomStep
+    );
     this.setState({
-      zoomScale: Math.max(0.001, this.state.zoomScale - this.props.zoomStep)
+      zoomScale
     });
+    return zoomScale;
   };
   _zoomOut = () => {
+    const zoomScale = Math.min(100, this.state.zoomScale + this.props.zoomStep);
     this.setState({
-      zoomScale: Math.min(100, this.state.zoomScale + this.props.zoomStep)
+      zoomScale
     });
+    return zoomScale;
   };
   _moveStart = event => {
     const [x, y] = this._getEventMouse(event);
@@ -74,6 +81,7 @@ export default class ZoomableContainer extends PureComponent {
         zoomOffset: [dx, dy],
         drag: {...this.state.drag, move: [x, y]}
       });
+      this.props.onMove([dx, dy], event);
     }
   };
   _moveEnd = () => {
@@ -81,15 +89,17 @@ export default class ZoomableContainer extends PureComponent {
   };
   _handleWheel = event => {
     if (!this.props.disableZoom) {
+      let zoomScale;
       if (event.deltaY < 0) {
-        this._zoomIn();
+        zoomScale = this._zoomIn(event);
       } else {
-        this._zoomOut();
+        zoomScale = this._zoomOut(event);
       }
+      this.props.onZoom(zoomScale, event);
     }
   };
   _handleMouseDown = event => {
-    if (!this.props.disableMove) {
+    if (event.button === 0 && !this.props.disableMove) {
       this._moveStart(event);
     }
   };
@@ -99,14 +109,8 @@ export default class ZoomableContainer extends PureComponent {
     }
   };
   _handleMouseUp = event => {
-    this._moveEnd();
-  };
-  componentDidUpdate = (prevProps, prevState) => {
-    if (this.state.zoomScale !== prevState.zoomScale) {
-      this.props.onZoom(this.state.zoomScale);
-    }
-    if (this.state.zoomOffset !== prevState.zoomOffset) {
-      this.props.onMove(this.state.zoomOffset);
+    if (event.button === 0) {
+      this._moveEnd();
     }
   };
   getDeckObj = () => this.deck;
