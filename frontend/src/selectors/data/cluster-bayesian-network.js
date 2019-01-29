@@ -15,7 +15,6 @@ import {
   getPathLinksBetweenNodes
 } from '../../utils';
 import {
-  getRawClusterBayesianNetwork,
   getRawClusterBayesianModelFeatures,
   getRawFeatureSlicedBayesianNetwork,
   getRawClusterBayesianNetworkFocus,
@@ -244,12 +243,12 @@ export const getClusterBayesianNetworkNodeLinkLayout = createSelector(
 );
 
 export const getClusterBayesianNetworkSourceAdjacencyMap = createSelector(
-  getRawClusterBayesianNetwork,
+  getClusterBayesianNetwork,
   linksToSourceAdjacencyMap
 );
 
 export const getClusterBayesianNetworkTargetAdjacencyMap = createSelector(
-  getRawClusterBayesianNetwork,
+  getClusterBayesianNetwork,
   linksToTargetAdjacencyMap
 );
 
