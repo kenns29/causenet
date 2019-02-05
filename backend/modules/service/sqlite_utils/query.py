@@ -5,7 +5,7 @@ from pandas import DataFrame
 
 
 def query_country_by_year_with_import_export_data_frame_by_item_group(item_group):
-    item_group_code = item_group
+    item_group_code = item_group if isinstance(item_group, int) else query_country_name_to_code()[item_group]
     start_year = 1986
     end_year = 2014
     try:
@@ -32,5 +32,67 @@ def query_country_by_year_with_import_export_data_frame_by_item_group(item_group
             data[country_code, 0][year] = export_quantity
             data[country_code, 1][year] = import_quantity
         return data
+    finally:
+        conn.close()
+
+
+def query_country_code_to_name():
+    try:
+        conn = sqlite3.connect(db_dir)
+        conn.row_factory = sqlite3.Row
+
+        iterator = conn.execute('''
+            SELECT FAO_CountryCode AS country_code, ISO2_CountryCode AS country
+            FROM ALL_Countries
+            WHERE Used_Flag = 1
+        ''')
+
+        return dict((d['country_code'], d['country']) for d in iterator)
+    finally:
+        conn.close()
+
+
+def query_country_name_to_code():
+    try:
+        conn = sqlite3.connect(db_dir)
+        conn.row_factory = sqlite3.Row
+
+        iterator = conn.execute('''
+            SELECT FAO_CountryCode AS country_code, ISO2_CountryCode AS country
+            FROM ALL_Countries
+            WHERE Used_Flag = 1
+        ''')
+
+        return dict((d['country'], d['country_code']) for d in iterator)
+    finally:
+        conn.close()
+
+
+def query_item_group_code_to_name():
+    try:
+        conn = sqlite3.connect(db_dir)
+        conn.row_factory = sqlite3.Row
+
+        iterator = conn.execute('''
+            SELECT *
+            FROM FAO_Item_Groups
+        ''')
+
+        return dict((d['ItemGroupCode'], d['ItemGroupName']) for d in iterator)
+    finally:
+        conn.close()
+
+
+def query_item_group_name_to_code():
+    try:
+        conn = sqlite3.connect(db_dir)
+        conn.row_factory = sqlite3.Row
+
+        iterator = conn.execute('''
+            SELECT *
+            FROM FAO_Item_Groups
+        ''')
+
+        return dict((d['ItemGroupName'], d['ItemGroupCode']) for d in iterator)
     finally:
         conn.close()

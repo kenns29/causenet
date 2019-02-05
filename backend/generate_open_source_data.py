@@ -3,7 +3,7 @@ from fastcluster import linkage
 from pandas import read_csv, cut
 from setup import data_dir, metadata_dir, model_dir, data_config_dir, config_dir, model_config_dir
 from modules.service.data_utils import get_feature_pdist, get_base_avg_data, get_column_normalized_data
-
+from modules.service.sqlite_utils.query import query_country_by_year_with_import_export_data_frame_by_item_group
 
 data_config = {
     'test_0': {
@@ -29,6 +29,14 @@ data_config = {
         'base_avg_data_file': 'fao_fused_bn_data_2013_cut_10_base_avg.bin',
         'pdist_file': 'fao_fused_bn_data_2013_cut_10_pdsit.bin',
         'clustering_file': 'fao_fused_bn_data_2013_cut_10_clustering.bin',
+    },
+    'fao_country_by_year_with_import_export_by_item_group_1_cut_10': {
+        'raw_data_file': 'fao_country_by_year_with_import_export_by_item_group_1_cut_10_raw.bin',
+        'normalized_raw_data_file': 'fao_country_by_year_with_import_export_by_item_group_1_cut_10_normalized_raw.bin',
+        'data_file': 'fao_country_by_year_with_import_export_by_item_group_1_cut_10.bin',
+        'base_avg_data_file': 'fao_country_by_year_with_import_export_by_item_group_1_cut_10_base_avg.bin',
+        'pdist_file': 'fao_country_by_year_with_import_export_by_item_group_1_cut_10_pdsit.bin',
+        'clustering_file': 'fao_country_by_year_with_import_export_by_item_group_1_cut_10_clustering.bin',
     }
 }
 
@@ -53,6 +61,15 @@ def load_fused_fao_spatio_temporal_cut_10_data():
 
 def load_fused_fao_bn_2013_cut_10_data():
     raw_data = read_csv(os.path.join(metadata_dir, 'fused_bn_data_2013.csv'), index_col=0)
+    normalized_data = get_column_normalized_data(raw_data)
+    data = normalized_data.copy()
+    for key in data:
+        data[key] = cut(data[key], 10)
+    return raw_data, normalized_data, data
+
+
+def load_country_by_year_with_import_export_cut_10_data_frame():
+    raw_data = query_country_by_year_with_import_export_data_frame_by_item_group(1)
     normalized_data = get_column_normalized_data(raw_data)
     data = normalized_data.copy()
     for key in data:
@@ -122,12 +139,15 @@ def make_data(config, load_data):
 
 
 def make_datas():
-    # make test 0 data
-    make_data(data_config['test_0'], load_test_0_data)
-    # make fused spatio temporal data
-    make_data(data_config['fao_fused_spatio_temporal_cut_10'], load_fused_fao_spatio_temporal_cut_10_data)
-    # make fused fao 2013 data
-    make_data(data_config['fao_fused_bn_data_2013_cut_10'], load_fused_fao_bn_2013_cut_10_data)
+    # # make test 0 data
+    # make_data(data_config['test_0'], load_test_0_data)
+    # # make fused spatio temporal data
+    # make_data(data_config['fao_fused_spatio_temporal_cut_10'], load_fused_fao_spatio_temporal_cut_10_data)
+    # # make fused fao 2013 data
+    # make_data(data_config['fao_fused_bn_data_2013_cut_10'], load_fused_fao_bn_2013_cut_10_data)
+    # make country by year test data
+    make_data(data_config['fao_country_by_year_with_import_export_by_item_group_1_cut_10'],
+              load_country_by_year_with_import_export_cut_10_data_frame)
 
 
 if __name__ == '__main__':

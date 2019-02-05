@@ -85,13 +85,13 @@ def load_distance_map():
 
 @blueprint.route('/load_clustering_tree', methods=['GET'])
 def load_clustering_tree():
-    index2col = get_index2col(load_data('base_avg_data_file'))
+    index2col = dict((index, str(col)) for index, col in get_index2col(load_data('base_avg_data_file')).items())
     return jsonify(tree_to_non_binary_dict(to_tree(load_clustering()), index2col))
 
 
 @blueprint.route('/load_clustering_binary_tree', methods=['GET'])
 def load_clustering_binary_tree():
-    index2col = get_index2col(load_data('base_avg_data_file'))
+    index2col = dict((index, str(col)) for index, col in get_index2col(load_data('base_avg_data_file')).items())
     return jsonify(tree2dict(to_tree(load_clustering()), index2col))
 
 
@@ -207,7 +207,7 @@ def load_model_clusters():
 def load_feature_values_map():
     data = load_data()
     features = request.args.get('features') if request.args.get('features') else data.keys()
-    return jsonify(dict((key, data[key].cat.categories.tolist()) for key in features))
+    return jsonify(dict((str(key), data[key].cat.categories.tolist()) for key in features))
 
 
 @blueprint.route('/delete_model', methods=['GET'])
