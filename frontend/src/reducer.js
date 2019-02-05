@@ -8,6 +8,8 @@ import {
   UPDATE_SHOW_FEATURE_DISTRIBUTION_WINDOW,
   UPDATE_FEATURE_DISTRIBUTION_WINDOW_SIZE,
   UPDATE_SHOW_BAYESIAN_NETWORK_SUB_NETWORK_DETAIL_WINDOW,
+  UPDATE_SHOW_CR_MATRIX_WINDOW,
+  UPDATE_CR_MATRIX_WINDOW_SIZE,
   UPDATE_CURRENT_DATASET_NAME,
   UPDATE_DATASET_LIST,
   FETCH_BAYESIAN_NETWORK_START,
@@ -162,12 +164,14 @@ const DEFAULT_STATE = {
   modelList: [],
   nodeLinkViewOptions: {
     showLabels: false,
-    useHierarchy: true
+    useHierarchy: false
   },
-  showFeatureDistributionWindow: true,
+  showFeatureDistributionWindow: false,
   featureDistributionWindowSize: [600, 620],
-  showBayesianNetworkDistributionWindow: true,
+  showBayesianNetworkDistributionWindow: false,
   bayesianNetworkDistributionWindowSize: [600, 620],
+  showCrMatrixWindow: true,
+  crMatrixWindowSize: [1200, 900],
   // feature pair list that will be shown in the distribution window
   // [
   //  {
@@ -239,6 +243,16 @@ const handleUpdateShowBayesianNetworkSubNetworkDetailWindow = (
 ) => ({
   ...state,
   showBayesianNetworkSubNetworkDetailWindow: payload
+});
+
+const handleUpdateShowCrMatrixWindow = (state, {payload}) => ({
+  ...state,
+  showCrMatrixWindow: payload
+});
+
+const handleUpdateCrMatrixWindowSize = (state, {payload}) => ({
+  ...state,
+  crMatrixWindowSize: payload
 });
 
 const handleUpdateCurrentDatasetName = (state, {payload}) => ({
@@ -411,6 +425,8 @@ export default handleActions(
     [UPDATE_BAYESIAN_NETWORK_DISTRIBUTION_WINDOW_SIZE]: handleUpdateBayesianNetworkDistributionWindowSize,
     [UPDATE_SHOW_FEATURE_DISTRIBUTION_WINDOW]: handleUpdateShowFeatureDistributionWindow,
     [UPDATE_FEATURE_DISTRIBUTION_WINDOW_SIZE]: handleUpdateFeatureDistributionWindowSize,
+    [UPDATE_SHOW_CR_MATRIX_WINDOW]: handleUpdateShowCrMatrixWindow,
+    [UPDATE_CR_MATRIX_WINDOW_SIZE]: handleUpdateCrMatrixWindowSize,
     [UPDATE_SHOW_BAYESIAN_NETWORK_SUB_NETWORK_DETAIL_WINDOW]: handleUpdateShowBayesianNetworkSubNetworkDetailWindow,
     [UPDATE_CURRENT_DATASET_NAME]: handleUpdateCurrentDatasetName,
     [UPDATE_DATASET_LIST]: handleUpdateDatasetList,

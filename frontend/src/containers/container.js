@@ -12,6 +12,7 @@ import BayesianNetworkNodeLinkView from './bayesian-network-node-link-view';
 import BayesianNetworkDistribution from './bayesian-network-distribution';
 import BayesianNetworkSubNetworkDetail from './bayesian-network-sub-network-detail';
 import FeatureDistribution from './feature-distribution';
+import CrMatrix from './cr-matrix';
 import FeatureList from './feature-list';
 import ContentPanelCenter from './content-panel-center';
 import {updateScreenSize} from '../actions';
@@ -164,6 +165,7 @@ class AppContainer extends PureComponent {
           <BayesianNetworkDistribution />
           <FeatureDistribution />
           <BayesianNetworkSubNetworkDetail />
+          <CrMatrix />
         </Layout>
       </React.Fragment>
     );

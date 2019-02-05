@@ -86,3 +86,13 @@ export const getShowBayesianNetworkSubNetworkDetailWindow = createSelector(
   rootSelector,
   state => state.showBayesianNetworkSubNetworkDetailWindow
 );
+
+export const getShowCrMatrixWindow = createSelector(
+  rootSelector,
+  state => state.showCrMatrixWindow
+);
+
+export const getCrMatrixWindowSize = createSelector(
+  rootSelector,
+  state => state.crMatrixWindowSize
+);
