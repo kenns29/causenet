@@ -22,4 +22,4 @@ blip_dir = os.path.join(jars_dir, 'blip.jar')
 
 metadata_dir = os.path.join(base_dir, 'metadata')
 
-db_fao_dir = os.path.join(base_dir, 'db_fao.db')
+db_dir = os.path.join(base_dir, 'data.db')
