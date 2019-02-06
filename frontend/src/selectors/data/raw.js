@@ -146,7 +146,7 @@ export const getSelectedSubBayesianNetworkId = createSelector(
   state => state.selectedSubBayesianNetworkId
 );
 
-export const getCrRelations = createSelector(
+export const getRawCrRelations = createSelector(
   rootSelector,
   state => state.crRelations
 );

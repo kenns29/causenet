@@ -1,10 +1,16 @@
 import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
 import PopupWindow from '../../components/popup-window';
+import DeckGLContainer from './deckgl-container';
 import {
   getShowCrMatrixWindow,
   getCrMatrixWindowSize
 } from '../../selectors/base';
+import {
+  getRelationMatrixCellSize,
+  getRelationMatrixPaddings,
+  getRelationMatrixLayout
+} from '../../selectors/data';
 import {
   updateShowCrMatrixWindow,
   updateCrMatrixWindowSize
@@ -17,7 +23,10 @@ const mapDispatchToProps = {
 
 const mapStateToProps = state => ({
   showWindow: getShowCrMatrixWindow(state),
-  windowSize: getCrMatrixWindowSize(state)
+  windowSize: getCrMatrixWindowSize(state),
+  matrix: getRelationMatrixLayout(state),
+  cellSize: getRelationMatrixCellSize(state),
+  paddings: getRelationMatrixPaddings(state)
 });
 
 class ContentPanel extends PureComponent {
@@ -39,7 +48,7 @@ class ContentPanel extends PureComponent {
           }}
           onClose={() => this.props.updateShowCrMatrixWindow(false)}
         >
-          <div />
+          <DeckGLContainer {...this.props} width={width} height={height - 20} />
         </PopupWindow>
       )
     );
