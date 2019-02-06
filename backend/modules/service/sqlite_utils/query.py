@@ -36,6 +36,32 @@ def query_country_by_year_with_import_export_data_frame_by_item_group(item_group
         conn.close()
 
 
+def query_bilateral_trade_averaged_by_country_by_item_group(item_group):
+    item_group_code = item_group if isinstance(item_group, int) else query_country_name_to_code()[item_group]
+    try:
+        conn = sqlite3.connect(db_dir)
+        conn.row_factory = sqlite3.Row
+
+        iterator = conn.execute('''
+            SELECT TradeYear, 
+                   ExportingCountryCode, 
+                   ImportingCountryCode, 
+                   ItemCode, 
+                   AVG(TradeQuantity) AS TradeQuantity
+            FROM FAO_Item_Group_Bilateral_Trade t, ALL_Countries c
+            WHERE t.ItemCode = ? AND t.FAO_CountryCode = c.FAO_CountryCode AND c.Use_Flag = 1
+            GROUP BY TradeYear
+        ''', (item_group_code, ))
+
+        return [{
+            'source': int(d['ExportingCountryCode']),
+            'target': int(d['ImportingCountryCode']),
+            'value': int(d['TradeQuantity'])
+        } for d in iterator]
+    finally:
+        conn.close()
+
+
 def query_country_code_to_name():
     try:
         conn = sqlite3.connect(db_dir)
