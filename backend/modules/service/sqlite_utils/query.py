@@ -43,14 +43,18 @@ def query_bilateral_trade_averaged_by_country_by_item_group(item_group):
         conn.row_factory = sqlite3.Row
 
         iterator = conn.execute('''
-            SELECT TradeYear, 
-                   ExportingCountryCode, 
-                   ImportingCountryCode, 
-                   ItemCode, 
-                   AVG(TradeQuantity) AS TradeQuantity
-            FROM FAO_Item_Group_Bilateral_Trade t, ALL_Countries c
-            WHERE t.ItemCode = ? AND t.FAO_CountryCode = c.FAO_CountryCode AND c.Use_Flag = 1
-            GROUP BY TradeYear
+            SELECT t.TradeYear, 
+                   t.ExportingCountryCode, 
+                   t.ImportingCountryCode, 
+                   t.ItemCode, 
+                   AVG(t.TradeQuantity) AS TradeQuantity
+            FROM FAO_Item_Group_Bilateral_Trade t, ALL_Countries c1, ALL_Countries c2
+            WHERE t.ItemCode = ? AND
+                  t.ExportingCountryCode = c1.FAO_CountryCode AND
+                  c1.Use_Flag = 1 AND
+                  t.ImportingCountryCode = c2.FAO_CountryCode AND
+                  c2.Use_Flag = 1
+            GROUP BY t.TradeYear
         ''', (item_group_code, ))
 
         return [{
