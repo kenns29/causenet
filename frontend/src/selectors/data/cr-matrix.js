@@ -99,7 +99,7 @@ export const getCrRowBayesianNetwork = createSelector(
       .map(({source, target, ...rest}) => ({
         ...rest,
         source: source.split(',')[0].match(/\w+/)[0],
-        target: target.split(',')[0].match(/\d+/)[0]
+        target: target.split(',')[0].match(/\w+/)[0]
       }));
   }
 );
