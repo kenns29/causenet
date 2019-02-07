@@ -1,5 +1,5 @@
 import React, {PureComponent} from 'react';
-import {TextLayer, COORDINATE_SYSTEM} from 'deck.gl';
+import {TextLayer, PathLayer, COORDINATE_SYSTEM} from 'deck.gl';
 import {MatrixLayer} from '../../components/deckgl-layers';
 import ZoomableContainer from '../../components/zoomable-container';
 
@@ -8,9 +8,8 @@ const ID = 'cr-matrix';
 export default class Content extends PureComponent {
   _renderMatrix() {
     const {
-      matrix: {rows, cols, cells},
-      cellSize: [w, h],
-      paddings: [ph, pv]
+      matrix: {cols, rows, cells},
+      cellSize: [w, h]
     } = this.props;
     return [
       new MatrixLayer({
@@ -20,8 +19,8 @@ export default class Content extends PureComponent {
         getPosition: ({x, y}) => [x, y],
         getColor: ({color}) => [...color, 255],
         layout: {
-          x: ph,
-          y: pv,
+          x: 0,
+          y: 0,
           dx: w,
           dy: h,
           width: cols.length * w,
@@ -32,13 +31,10 @@ export default class Content extends PureComponent {
   }
   _renderRowTitle() {
     const {
-      matrix: {rows},
-      cellSize: [w, h],
-      paddings: [ph, pv]
+      matrix: {rows}
     } = this.props;
     const data = rows.map((row, index) => {
-      const [x, y] = [ph - 5, index * h + h / 2 + pv];
-      const {id, name} = row;
+      const {id, name, x, y} = row;
       return {
         id,
         name,
@@ -60,13 +56,10 @@ export default class Content extends PureComponent {
   }
   _renderColTitle() {
     const {
-      matrix: {cols},
-      cellSize: [w, h],
-      paddings: [ph, pv]
+      matrix: {cols}
     } = this.props;
     const data = cols.map((col, index) => {
-      const [x, y] = [index * w + w / 2 + ph, pv - 5];
-      const {id, name} = col;
+      const {id, name, x, y} = col;
       return {
         id,
         name,
@@ -87,11 +80,24 @@ export default class Content extends PureComponent {
       })
     ];
   }
+  _renderRowNetwork() {
+    const {rowNetwork} = this.props;
+    return [
+      new PathLayer({
+        id: ID + '-row-network',
+        data: rowNetwork,
+        getPath: d => d.points,
+        getWidth: 1,
+        coordinateSystem: COORDINATE_SYSTEM.IDENTITY
+      })
+    ];
+  }
   _renderLayers() {
     return [
       ...this._renderMatrix(),
       ...this._renderRowTitle(),
-      ...this._renderColTitle()
+      ...this._renderColTitle(),
+      ...this._renderRowNetwork()
     ];
   }
   render() {

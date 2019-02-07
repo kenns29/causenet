@@ -63,18 +63,31 @@ export const getRelationMatrixCellSize = createSelector(
 );
 
 export const getRelationMatrixLayout = createSelector(
-  [getRelationMatrix, getRelationMatrixCellSize, getRelationMatrixDomain],
-  ({rows, cols, cells}, [w, h], [min, max]) => {
+  [
+    getRelationMatrix,
+    getRelationMatrixCellSize,
+    getRelationMatrixPaddings,
+    getRelationMatrixDomain
+  ],
+  ({rows, cols, cells}, [w, h], [pv, ph], [min, max]) => {
     const scale = scaleSequential(interpolateGreys).domain([0, max]);
     return {
-      rows,
-      cols,
+      rows: rows.map((d, i) => ({
+        ...d,
+        x: ph - 5,
+        y: i * h + h / 2 + pv
+      })),
+      cols: cols.map((d, i) => ({
+        ...d,
+        x: i * w + w / 2 + ph,
+        y: pv - 5
+      })),
       cells: cells.map(cell => {
         const {r, g, b} = rgb(scale(cell.value));
         return {
           ...cell,
-          x: cell.col_index * w,
-          y: cell.row_index * h,
+          x: cell.col_index * w + ph,
+          y: cell.row_index * h + pv,
           w,
           h,
           color: [r, g, b]
@@ -84,22 +97,104 @@ export const getRelationMatrixLayout = createSelector(
   }
 );
 
-export const getCrRowBayesianNetwork = createSelector(
+export const getCrBayesianNetwork = createSelector(
   getRawBayesianNetwork,
+  network => {
+    if (!isCrBayesianNetwork(network)) {
+      return network;
+    }
+    return network.map(({source, target, ...rest}) => {
+      const [s, t] = [source, target].map(d => {
+        const [f, t] = d.split(',').map(d => d.match(/\w+/)[0]);
+        return [f, Number(t)];
+      });
+      return {
+        ...rest,
+        source: s,
+        target: t
+      };
+    });
+  }
+);
+
+export const getFilteredCrBayesianNetwork = createSelector(
+  [getCrBayesianNetwork, getRelationMatrix],
+  (network, {rows, cols}) => {
+    const featureSet = new Set([...rows, ...cols].map(d => d.id.toString()));
+    return network.filter(({source, target}) =>
+      [source, target].every(d => featureSet.has(d[0].toString()))
+    );
+  }
+);
+
+export const getCrRowBayesianNetwork = createSelector(
+  getFilteredCrBayesianNetwork,
+  network => {
+    if (!isCrBayesianNetwork(network)) {
+      return network;
+    }
+    return network
+      .filter(({source, target}) => [source, target].every(d => d[1] === 0))
+      .map(({source, target, ...rest}) => ({
+        ...rest,
+        source: source[0],
+        target: target[0]
+      }));
+  }
+);
+
+export const getCrColBayesianNetwork = createSelector(
+  getFilteredCrBayesianNetwork,
+  network => {
+    if (!isCrBayesianNetwork(network)) {
+      return network;
+    }
+    return network
+      .filter(({source, target}) => [source, target].every(d => d[1] === 1))
+      .map(({source, target, ...rest}) => ({
+        ...rest,
+        source: source[0],
+        target: target[0]
+      }));
+  }
+);
+
+export const getCrCrossBayesianNetwork = createSelector(
+  getFilteredCrBayesianNetwork,
   network => {
     if (!isCrBayesianNetwork(network)) {
       return [];
     }
     return network
       .filter(({source, target}) =>
-        [source, target]
-          .map(d => d.split(',')[1].match(/\d+/)[0])
-          .every(d => d === '0')
+        [source, target].reduce((a, b) => a[1] !== b[1])
       )
       .map(({source, target, ...rest}) => ({
         ...rest,
-        source: source.split(',')[0].match(/\w+/)[0],
-        target: target.split(',')[0].match(/\w+/)[0]
+        source: source[0],
+        target: target[0]
       }));
+  }
+);
+
+export const getCrRowBayesianNetworkLayout = createSelector(
+  [getCrRowBayesianNetwork, getRelationMatrixLayout, getRelationMatrixCellSize],
+  (network, {rows}, [w, h]) => {
+    const nodeMap = array2Object(
+      rows,
+      d => d.id,
+      ({x, y, ...d}, index) => ({...d, x: x - 20, y, index})
+    );
+    return network.map(({source, target, ...rest}) => {
+      const [sn, tn] = [source, target].map(d => nodeMap[d]);
+      const [sx, sy, tx, ty] = [sn.x, sn.y, tn.x, tn.y];
+      const r = Math.abs(sn.index - tn.index) * 10;
+      return {
+        ...rest,
+        source: sn,
+        target: tn,
+        points: [[sx, sy], [sx - r, sy], [tx - r, ty], [tx, ty]]
+      };
+    });
   }
 );

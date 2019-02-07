@@ -210,9 +210,9 @@ export default class MatrixLayer extends CompositeLayer {
       return [];
     }
     return [
-      this._renderMatrixBorder(),
-      this._renderMatrixCells(),
-      this._renderMatrixMasks()
+      // this._renderMatrixBorder(),
+      this._renderMatrixCells()
+      //  this._renderMatrixMasks()
     ];
   }
 }
