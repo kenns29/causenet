@@ -73,6 +73,7 @@ export const UPDATE_SELECTED_NORMALIZED_FEATURE_DISTRIBUTION_MAP =
 export const UPDATE_SELECTED_SUB_BAYESIAN_NETWORK_ID =
   'UPDATE_SELECTED_SUB_BAYESIAN_NETWORK_ID';
 export const UPDATE_CR_RELATIONS = 'UPDATE_CR_RELATIONS';
+export const UPDATE_CR_RELATION_FEATURES = 'UPDATE_CR_RELATION_FEATURES';
 
 // UI actions
 export const updateScreenSize = createAction(UPDATE_SCREEN_SIZE);
@@ -183,6 +184,9 @@ export const updateSelectedSubBayesianNetworkId = createAction(
   UPDATE_SELECTED_SUB_BAYESIAN_NETWORK_ID
 );
 export const updateCrRelations = createAction(UPDATE_CR_RELATIONS);
+export const updateCrRelationFeatures = createAction(
+  UPDATE_CR_RELATION_FEATURES
+);
 
 // async actions
 export const fetchCurrentDatasetName = () => async dispatch => {
@@ -625,6 +629,17 @@ export const fetchCrRelations = () => async dispatch => {
     const response = await fetch(`${BACKEND_URL}/load_cr_relations`);
     const data = await response.json();
     dispatch(updateCrRelations(data));
+    return Promise.resolve(data);
+  } catch (err) {
+    throw new Error(err);
+  }
+};
+
+export const fetchCrRelationFeatures = () => async dispatch => {
+  try {
+    const response = await fetch(`${BACKEND_URL}/load_cr_relation_features`);
+    const data = await response.json();
+    dispatch(updateCrRelationFeatures(data));
     return Promise.resolve(data);
   } catch (err) {
     throw new Error(err);

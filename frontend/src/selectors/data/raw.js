@@ -150,3 +150,8 @@ export const getRawCrRelations = createSelector(
   rootSelector,
   state => state.crRelations
 );
+
+export const getRawCrRelationFeatures = createSelector(
+  rootSelector,
+  state => state.crRelationFeatures
+);

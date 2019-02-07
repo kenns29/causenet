@@ -38,9 +38,10 @@ export default class Content extends PureComponent {
     } = this.props;
     const data = rows.map((row, index) => {
       const [x, y] = [ph - 5, index * h + h / 2 + pv];
+      const {id, name} = row;
       return {
-        id: row,
-        name: row.toString(),
+        id,
+        name,
         position: [x, y]
       };
     });
@@ -65,9 +66,10 @@ export default class Content extends PureComponent {
     } = this.props;
     const data = cols.map((col, index) => {
       const [x, y] = [index * w + w / 2 + ph, pv - 5];
+      const {id, name} = col;
       return {
-        id: col,
-        name: col.toString(),
+        id,
+        name,
         position: [x, y]
       };
     });

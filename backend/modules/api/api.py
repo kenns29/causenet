@@ -12,7 +12,7 @@ from modules.service.data_utils import load_data, load_pdist, load_clustering, g
     get_dataset_config, update_current_dataset_name as update_current_dataset_name_util, get_index2col, \
     get_column_mean_aggregated_data
 from modules.service.clustering_utils import tree2dict, tree_to_non_binary_dict
-from modules.service.sqlite_utils.query import query_bilateral_trade_averaged_by_country_by_item_group
+from modules.service.sqlite_utils.query import query_bilateral_trade_averaged_by_country_by_item_group, query_countries
 from scipy.cluster.hierarchy import to_tree
 from itertools import combinations
 
@@ -365,3 +365,12 @@ def route_load_data():
 def route_load_cr_relations():
     cr_relations = query_bilateral_trade_averaged_by_country_by_item_group(1)
     return jsonify(cr_relations)
+
+
+@blueprint.route('/load_cr_relation_features', methods=['GET'])
+def route_load_relation_features():
+    features = query_countries()
+    return jsonify([{
+        'id': d['country_code'],
+        'name': d['country']
+    } for d in features])

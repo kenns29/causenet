@@ -3,15 +3,24 @@ import Matrix, {links2generator, flattener, sort2d} from 'sortable-matrix';
 import {scaleSequential} from 'd3-scale';
 import {interpolateGreys} from 'd3-scale-chromatic';
 import {rgb} from 'd3-color';
+import {array2Object} from '../../utils';
 import {rootSelector} from '../base';
-import {getRawCrRelations} from './raw';
+import {getRawCrRelations, getRawCrRelationFeatures} from './raw';
 
 const CELL_SIZE = [20, 20];
 const PADDINGS = [100, 100];
 
+const getRelationFeatureIdToNameMap = createSelector(
+  getRawCrRelationFeatures,
+  features => array2Object(features, d => d.id, d => d.name)
+);
+
 export const getRelationMatrix = createSelector(
-  getRawCrRelations,
-  crRelations => {
+  [getRawCrRelations, getRelationFeatureIdToNameMap],
+  (crRelations, id2Name) => {
+    if (crRelations.length === 0 || Object.keys(id2Name).length === 0) {
+      return {rows: [], cols: [], cells: []};
+    }
     const generate = links2generator()
       .links(crRelations)
       .source(d => d.source)
@@ -21,7 +30,12 @@ export const getRelationMatrix = createSelector(
 
     const matrix = sort2d(generate());
     const {rows, cols, cells} = flattener().matrix(matrix);
-    return {rows: rows(), cols: cols(), cells: cells()};
+
+    return {
+      rows: rows().map(id => ({id, name: id2Name[id]})),
+      cols: cols().map(id => ({id, name: id2Name[id]})),
+      cells: cells()
+    };
   }
 );
 
