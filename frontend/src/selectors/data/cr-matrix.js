@@ -3,9 +3,13 @@ import Matrix, {links2generator, flattener, sort2d} from 'sortable-matrix';
 import {scaleSequential} from 'd3-scale';
 import {interpolateGreys} from 'd3-scale-chromatic';
 import {rgb} from 'd3-color';
-import {array2Object} from '../../utils';
+import {array2Object, isCrBayesianNetwork} from '../../utils';
 import {rootSelector} from '../base';
-import {getRawCrRelations, getRawCrRelationFeatures} from './raw';
+import {
+  getRawCrRelations,
+  getRawCrRelationFeatures,
+  getRawBayesianNetwork
+} from './raw';
 
 const CELL_SIZE = [20, 20];
 const PADDINGS = [100, 100];
@@ -77,5 +81,25 @@ export const getRelationMatrixLayout = createSelector(
         };
       })
     };
+  }
+);
+
+export const getCrRowBayesianNetwork = createSelector(
+  getRawBayesianNetwork,
+  network => {
+    if (!isCrBayesianNetwork(network)) {
+      return [];
+    }
+    return network
+      .filter(({source, target}) =>
+        [source, target]
+          .map(d => d.split(',')[1].match(/\d+/)[0])
+          .every(d => d === '0')
+      )
+      .map(({source, target, ...rest}) => ({
+        ...rest,
+        source: source.split(',')[0].match(/\w+/)[0],
+        target: target.split(',')[0].match(/\d+/)[0]
+      }));
   }
 );
