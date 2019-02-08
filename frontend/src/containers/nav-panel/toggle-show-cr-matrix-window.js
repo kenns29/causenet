@@ -17,7 +17,7 @@ class ToggleShowCrMatrixWindow extends PureComponent {
     const {showCrMatrixWindow} = this.props;
     return (
       <div>
-        <span>{`Show Distribution`}</span>
+        <span>{`Show CR Matrix`}</span>
         <Switch
           checked={showCrMatrixWindow}
           onChange={checked => this.props.updateShowCrMatrixWindow(checked)}

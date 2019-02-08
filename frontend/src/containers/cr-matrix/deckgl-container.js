@@ -82,6 +82,9 @@ export default class Content extends PureComponent {
     ];
   }
   _renderRowNetwork() {
+    if (!this.props.options.showRowNetwork) {
+      return [];
+    }
     const {rowNetwork} = this.props;
     return [
       new PathLayer({
@@ -94,6 +97,9 @@ export default class Content extends PureComponent {
     ];
   }
   _renderRowNetworkArrows() {
+    if (!this.props.options.showRowNetwork) {
+      return [];
+    }
     const {rowNetwork} = this.props;
     return [
       new PolygonLayer({
@@ -112,6 +118,9 @@ export default class Content extends PureComponent {
     ];
   }
   _renderColNetwork() {
+    if (!this.props.options.showColNetwork) {
+      return [];
+    }
     const {colNetwork} = this.props;
     return [
       new PathLayer({
@@ -124,11 +133,50 @@ export default class Content extends PureComponent {
     ];
   }
   _renderColNetworkArrows() {
+    if (!this.props.options.showColNetwork) {
+      return [];
+    }
     const {colNetwork} = this.props;
     return [
       new PolygonLayer({
-        id: ID + '-row-network-arrows',
+        id: ID + '-col-network-arrows',
         data: colNetwork,
+        getPolygon: ({points}) =>
+          makeLineArrow({
+            line: points.slice(points.length - 2),
+            l: 7,
+            w: 3.5
+          }),
+        getFillColor: [10, 10, 10],
+        getLineColor: [10, 10, 10],
+        coordinateSystem: COORDINATE_SYSTEM.IDENTITY
+      })
+    ];
+  }
+  _renderCrossNetwork() {
+    if (!this.props.options.showCrossNetwork) {
+      return [];
+    }
+    const {crossNetwork} = this.props;
+    return [
+      new PathLayer({
+        id: ID + '-cross-network',
+        data: crossNetwork,
+        getPath: d => d.points,
+        getWidth: 1,
+        coordinateSystem: COORDINATE_SYSTEM.IDENTITY
+      })
+    ];
+  }
+  _renderCrossNetworkArrows() {
+    if (!this.props.options.showCrossNetwork) {
+      return [];
+    }
+    const {crossNetwork} = this.props;
+    return [
+      new PolygonLayer({
+        id: ID + '-cross-network-arrows',
+        data: crossNetwork,
         getPolygon: ({points}) =>
           makeLineArrow({
             line: points.slice(points.length - 2),
@@ -149,7 +197,9 @@ export default class Content extends PureComponent {
       ...this._renderRowNetwork(),
       ...this._renderRowNetworkArrows(),
       ...this._renderColNetwork(),
-      ...this._renderColNetworkArrows()
+      ...this._renderColNetworkArrows(),
+      ...this._renderCrossNetwork(),
+      ...this._renderCrossNetworkArrows()
     ];
   }
   render() {

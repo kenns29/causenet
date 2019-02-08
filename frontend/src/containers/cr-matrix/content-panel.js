@@ -11,6 +11,7 @@ import {
   getRelationMatrixLayout,
   getCrRowBayesianNetworkLayout,
   getCrColBayesianNetworkLayout,
+  getCrCrossBayesianNetworkLayout,
   getRawCrMatrixOptions
 } from '../../selectors/data';
 import {
@@ -30,6 +31,7 @@ const mapStateToProps = state => ({
   cellSize: getRelationMatrixCellSize(state),
   rowNetwork: getCrRowBayesianNetworkLayout(state),
   colNetwork: getCrColBayesianNetworkLayout(state),
+  crossNetwork: getCrCrossBayesianNetworkLayout(state),
   options: getRawCrMatrixOptions(state)
 });
 

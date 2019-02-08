@@ -159,6 +159,13 @@ export const getCrColBayesianNetwork = createSelector(
   }
 );
 
+/**
+ * returns {
+ *  source: [feature, u],
+ *  target: [feature, u],
+ *  value
+ * }
+ */
 export const getCrCrossBayesianNetwork = createSelector(
   getFilteredCrBayesianNetwork,
   network => {
@@ -171,8 +178,8 @@ export const getCrCrossBayesianNetwork = createSelector(
       )
       .map(({source, target, ...rest}) => ({
         ...rest,
-        source: source[0],
-        target: target[0]
+        source,
+        target
       }));
   }
 );
@@ -216,6 +223,53 @@ export const getCrColBayesianNetworkLayout = createSelector(
         source: sn,
         target: tn,
         points: [[sx, sy], [sx, sy - r], [tx, ty - r], [tx, ty]]
+      };
+    });
+  }
+);
+
+export const getCrCrossBayesianNetworkLayout = createSelector(
+  [getCrCrossBayesianNetwork, getRelationMatrixLayout],
+  (network, {rows, cols}) => {
+    const maps = [rows, cols].map((nodes, u) =>
+      array2Object(
+        nodes,
+        d => d.id,
+        ({x, y, ...d}, index) => ({
+          ...d,
+          x: u ? x : x - 20,
+          y: u ? y - 20 : y,
+          index,
+          u
+        })
+      )
+    );
+    return network.map(({source, target, ...rest}) => {
+      const [[sn, su], [tn, tu]] = [source, target].map(([k, u]) => [
+        maps[u][k],
+        u
+      ]);
+      const [sx, sy, tx, ty] = [sn.x, sn.y, tn.x, tn.y];
+      const [rx, ry] = [sn, tn].map(d => (d.index + 1) * 10);
+      return {
+        ...rest,
+        source: sn,
+        target: tn,
+        points: su
+          ? [
+            [sx, sy],
+            [sx, sy - ry],
+            [tx - rx, sy - ry],
+            [tx - rx, ty],
+            [tx, ty]
+          ]
+          : [
+            [sx, sy],
+            [sx - rx, sy],
+            [sx - rx, ty - ry],
+            [tx, ty - ry],
+            [tx, ty]
+          ]
       };
     });
   }
