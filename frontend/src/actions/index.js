@@ -74,6 +74,7 @@ export const UPDATE_SELECTED_SUB_BAYESIAN_NETWORK_ID =
   'UPDATE_SELECTED_SUB_BAYESIAN_NETWORK_ID';
 export const UPDATE_CR_RELATIONS = 'UPDATE_CR_RELATIONS';
 export const UPDATE_CR_RELATION_FEATURES = 'UPDATE_CR_RELATION_FEATURES';
+export const UPDATE_CR_MATRIX_OPTIONS = 'UPDATE_CR_MATRIX_OPTIONS';
 
 // UI actions
 export const updateScreenSize = createAction(UPDATE_SCREEN_SIZE);
@@ -187,6 +188,7 @@ export const updateCrRelations = createAction(UPDATE_CR_RELATIONS);
 export const updateCrRelationFeatures = createAction(
   UPDATE_CR_RELATION_FEATURES
 );
+export const updateCrMatrixOptions = createAction(UPDATE_CR_MATRIX_OPTIONS);
 
 // async actions
 export const fetchCurrentDatasetName = () => async dispatch => {

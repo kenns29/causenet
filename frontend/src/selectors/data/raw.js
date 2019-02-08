@@ -155,3 +155,8 @@ export const getRawCrRelationFeatures = createSelector(
   rootSelector,
   state => state.crRelationFeatures
 );
+
+export const getRawCrMatrixOptions = createSelector(
+  rootSelector,
+  state => state.crMatrixOptions
+);

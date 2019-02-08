@@ -41,7 +41,8 @@ import {
   UPDATE_SELECTED_NORMALIZED_FEATURE_DISTRIBUTION_MAP,
   UPDATE_SELECTED_SUB_BAYESIAN_NETWORK_ID,
   UPDATE_CR_RELATIONS,
-  UPDATE_CR_RELATION_FEATURES
+  UPDATE_CR_RELATION_FEATURES,
+  UPDATE_CR_MATRIX_OPTIONS
 } from './actions';
 
 import {HIERARICAL_CLUSTERING_OPTION} from './constants';
@@ -214,7 +215,12 @@ const DEFAULT_STATE = {
   //  },
   //  ...
   // ]
-  crRelationFeatures: []
+  crRelationFeatures: [],
+  crMatrixOptions: {
+    showRowNetwork: true,
+    showColNetwork: true,
+    showCrossNetwork: true
+  }
 };
 
 const handleUpdateScreenSize = (state, {payload}) => ({
@@ -448,6 +454,11 @@ const handleUpdateCrRelationFeatures = (state, {payload}) => ({
   crRelationFeatures: payload
 });
 
+const handleUpdateCrMatrixOptions = (state, {payload}) => ({
+  ...state,
+  crMatrixOptions: payload
+});
+
 export default handleActions(
   {
     [UPDATE_SCREEN_SIZE]: handleUpdateScreenSize,
@@ -491,7 +502,8 @@ export default handleActions(
     [UPDATE_SELECTED_NORMALIZED_FEATURE_DISTRIBUTION_MAP]: handleUpdateSelectedNormalizedFeatureDistributionMap,
     [UPDATE_SELECTED_SUB_BAYESIAN_NETWORK_ID]: handleUpdateSelectedSubBayesianNetworkId,
     [UPDATE_CR_RELATIONS]: handleUpdateCrRelations,
-    [UPDATE_CR_RELATION_FEATURES]: handleUpdateCrRelationFeatures
+    [UPDATE_CR_RELATION_FEATURES]: handleUpdateCrRelationFeatures,
+    [UPDATE_CR_MATRIX_OPTIONS]: handleUpdateCrMatrixOptions
   },
   DEFAULT_STATE
 );
