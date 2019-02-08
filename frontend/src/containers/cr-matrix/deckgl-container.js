@@ -1,7 +1,8 @@
 import React, {PureComponent} from 'react';
-import {TextLayer, PathLayer, COORDINATE_SYSTEM} from 'deck.gl';
+import {TextLayer, PathLayer, PolygonLayer, COORDINATE_SYSTEM} from 'deck.gl';
 import {MatrixLayer} from '../../components/deckgl-layers';
 import ZoomableContainer from '../../components/zoomable-container';
+import {makeLineArrow} from '../../utils';
 
 const ID = 'cr-matrix';
 
@@ -92,12 +93,63 @@ export default class Content extends PureComponent {
       })
     ];
   }
+  _renderRowNetworkArrows() {
+    const {rowNetwork} = this.props;
+    return [
+      new PolygonLayer({
+        id: ID + '-row-network-arrows',
+        data: rowNetwork,
+        getPolygon: ({points}) =>
+          makeLineArrow({
+            line: points.slice(points.length - 2),
+            l: 7,
+            w: 3.5
+          }),
+        getFillColor: [10, 10, 10],
+        getLineColor: [10, 10, 10],
+        coordinateSystem: COORDINATE_SYSTEM.IDENTITY
+      })
+    ];
+  }
+  _renderColNetwork() {
+    const {colNetwork} = this.props;
+    return [
+      new PathLayer({
+        id: ID + '-col-network',
+        data: colNetwork,
+        getPath: d => d.points,
+        getWidth: 1,
+        coordinateSystem: COORDINATE_SYSTEM.IDENTITY
+      })
+    ];
+  }
+  _renderColNetworkArrows() {
+    const {colNetwork} = this.props;
+    return [
+      new PolygonLayer({
+        id: ID + '-row-network-arrows',
+        data: colNetwork,
+        getPolygon: ({points}) =>
+          makeLineArrow({
+            line: points.slice(points.length - 2),
+            l: 7,
+            w: 3.5
+          }),
+        getFillColor: [10, 10, 10],
+        getLineColor: [10, 10, 10],
+        coordinateSystem: COORDINATE_SYSTEM.IDENTITY
+      })
+    ];
+  }
   _renderLayers() {
     return [
       ...this._renderMatrix(),
       ...this._renderRowTitle(),
       ...this._renderColTitle(),
-      ...this._renderRowNetwork()
+      ...this._renderRowNetwork(),
+      ...this._renderRowNetworkArrows(),
+      ...this._renderColNetwork(),
+      ...this._renderColNetworkArrows()
     ];
   }
   render() {
@@ -106,10 +158,10 @@ export default class Content extends PureComponent {
       <ZoomableContainer
         width={width}
         height={height}
-        left={0}
-        right={width}
-        bottom={height}
         top={0}
+        left={0}
+        bottom={height}
+        right={width}
         layers={this._renderLayers()}
       />
     );

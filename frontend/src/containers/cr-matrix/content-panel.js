@@ -9,7 +9,8 @@ import {
 import {
   getRelationMatrixCellSize,
   getRelationMatrixLayout,
-  getCrRowBayesianNetworkLayout
+  getCrRowBayesianNetworkLayout,
+  getCrColBayesianNetworkLayout
 } from '../../selectors/data';
 import {
   updateShowCrMatrixWindow,
@@ -26,7 +27,8 @@ const mapStateToProps = state => ({
   windowSize: getCrMatrixWindowSize(state),
   matrix: getRelationMatrixLayout(state),
   cellSize: getRelationMatrixCellSize(state),
-  rowNetwork: getCrRowBayesianNetworkLayout(state)
+  rowNetwork: getCrRowBayesianNetworkLayout(state),
+  colNetwork: getCrColBayesianNetworkLayout(state)
 });
 
 class ContentPanel extends PureComponent {
