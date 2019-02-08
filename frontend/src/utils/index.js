@@ -6,3 +6,4 @@ export * from './text-utils';
 export * from './bayesian-network-utils';
 export * from './cr-matrix-utils';
 export * from './transform';
+export * from './ui-utils';

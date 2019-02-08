@@ -36,14 +36,84 @@ const mapStateToProps = state => ({
 });
 
 class ContentPanel extends PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = {
+      getCursor: () => 'auto'
+    };
+  }
+  _getDeck = () =>
+    this.deckGLContainer &&
+    this.deckGLContainer.container &&
+    this.deckGLContainer.container.deck &&
+    this.deckGLContainer.container.deck.deck;
+
+  _pickObject = param => {
+    const deck = this._getDeck();
+    return deck && deck.pickObject(param);
+  };
+
+  _getEventMouse = event => {
+    const {clientX, clientY} = event;
+    const {left, top} = this.container.contentContainer.getBoundingClientRect();
+    return [clientX - left, clientY - top];
+  };
+
+  _handleMouseMove = event => {
+    if (this._getDeck()) {
+      const [x, y] = this._getEventMouse(event);
+      const info = this._pickObject({
+        x,
+        y
+      });
+
+      if (info) {
+        const {layer} = info;
+        if (
+          layer.id.startsWith('cr-matrix-y-axis') ||
+          layer.id.startsWith('cr-matrix-x-axis')
+        ) {
+          this.setState({
+            getCursor: () => 'pointer'
+          });
+        } else {
+          this.setState({getCursor: () => 'auto'});
+        }
+      } else {
+        this.setState({getCursor: () => 'auto'});
+      }
+    }
+  };
+
+  _handleClick = event => {
+    if (this._getDeck()) {
+      const [x, y] = this._getEventMouse(event);
+      const info = this._pickObject({
+        x,
+        y
+      });
+
+      if (info) {
+        const {layer} = info;
+        if (layer.id.startsWith('cr-matrix-y-axis')) {
+          const {object} = info;
+        } else if (layer.id.startsWith('cr-matrix-x-axis')) {
+          const {object} = info;
+        }
+      }
+    }
+  };
+
   render() {
     const {
       showWindow,
       windowSize: [width, height]
     } = this.props;
+    const {getCursor} = this.state;
     return (
       showWindow && (
         <PopupWindow
+          ref={input => (this.container = input)}
           x={600}
           y={50}
           width={width}
@@ -53,8 +123,20 @@ class ContentPanel extends PureComponent {
             this.props.updateCrMatrixWindowSize([width, height]);
           }}
           onClose={() => this.props.updateShowCrMatrixWindow(false)}
+          contentProps={{
+            onClick: this._handleClick,
+            onMouseMove: this._handleMouseMove
+          }}
         >
-          <DeckGLContainer {...this.props} width={width} height={height - 20} />
+          <DeckGLContainer
+            ref={input => {
+              this.deckGLContainer = input;
+            }}
+            {...this.props}
+            width={width}
+            height={height - 20}
+            getCursor={getCursor}
+          />
         </PopupWindow>
       )
     );

@@ -2,11 +2,17 @@ import React, {PureComponent} from 'react';
 import {TextLayer, PathLayer, PolygonLayer, COORDINATE_SYSTEM} from 'deck.gl';
 import {MatrixLayer} from '../../components/deckgl-layers';
 import ZoomableContainer from '../../components/zoomable-container';
-import {makeLineArrow} from '../../utils';
+import {
+  makeLineArrow,
+  makeTextLengthComputer,
+  rotatePolygonOnZ
+} from '../../utils';
 
 const ID = 'cr-matrix';
 
 export default class Content extends PureComponent {
+  _computeTextLength = makeTextLengthComputer({fontSize: 10});
+
   _renderMatrix() {
     const {
       matrix: {cols, rows, cells},
@@ -30,19 +36,37 @@ export default class Content extends PureComponent {
       })
     ];
   }
+
   _renderRowTitle() {
     const {
-      matrix: {rows}
+      matrix: {rows},
+      cellSize: [w, h]
     } = this.props;
     const data = rows.map((row, index) => {
       const {id, name, x, y} = row;
+      const len = this._computeTextLength(name);
       return {
         id,
         name,
-        position: [x, y]
+        position: [x, y],
+        polygon: [
+          [x, y - h / 2],
+          [x, y + h / 2],
+          [x - len, y + h / 2],
+          [x - len, y - h / 2],
+          [x, y - h / 2]
+        ]
       };
     });
     return [
+      new PolygonLayer({
+        id: ID + '-y-axis-polygon',
+        data,
+        getFillColor: [255, 255, 255],
+        getLineWidth: 0,
+        coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+        pickable: true
+      }),
       new TextLayer({
         id: ID + '-y-axis',
         data,
@@ -51,23 +75,46 @@ export default class Content extends PureComponent {
         getPosition: d => d.position,
         getColor: [10, 10, 10],
         getTextAnchor: 'end',
-        coordinateSystem: COORDINATE_SYSTEM.IDENTITY
+        coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+        pickable: true
       })
     ];
   }
+
   _renderColTitle() {
     const {
-      matrix: {cols}
+      matrix: {cols},
+      cellSize: [w, h]
     } = this.props;
     const data = cols.map((col, index) => {
       const {id, name, x, y} = col;
+      const len = this._computeTextLength(name);
       return {
         id,
         name,
-        position: [x, y]
+        position: [x, y],
+        polygon: rotatePolygonOnZ({
+          points: [
+            [x, y - h / 2],
+            [x, y + h / 2],
+            [x + len, y + h / 2],
+            [x + len, y - h / 2],
+            [x, y - h / 2]
+          ],
+          origin: [x, y, 0],
+          theta: (-90 / 180) * Math.PI
+        })
       };
     });
     return [
+      new PolygonLayer({
+        id: ID + '-x-axis-polygon',
+        data,
+        getFillColor: [255, 255, 255],
+        getLineWidth: 0,
+        coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+        pickable: true
+      }),
       new TextLayer({
         id: ID + '-x-axis',
         data,
@@ -77,10 +124,12 @@ export default class Content extends PureComponent {
         getColor: [10, 10, 10],
         getTextAnchor: 'start',
         getAngle: 90,
-        coordinateSystem: COORDINATE_SYSTEM.IDENTITY
+        coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+        pickable: true
       })
     ];
   }
+
   _renderRowNetwork() {
     if (!this.props.options.showRowNetwork) {
       return [];
@@ -96,6 +145,7 @@ export default class Content extends PureComponent {
       })
     ];
   }
+
   _renderRowNetworkArrows() {
     if (!this.props.options.showRowNetwork) {
       return [];
@@ -117,6 +167,7 @@ export default class Content extends PureComponent {
       })
     ];
   }
+
   _renderColNetwork() {
     if (!this.props.options.showColNetwork) {
       return [];
@@ -132,6 +183,7 @@ export default class Content extends PureComponent {
       })
     ];
   }
+
   _renderColNetworkArrows() {
     if (!this.props.options.showColNetwork) {
       return [];
@@ -153,6 +205,7 @@ export default class Content extends PureComponent {
       })
     ];
   }
+
   _renderCrossNetwork() {
     if (!this.props.options.showCrossNetwork) {
       return [];
@@ -168,6 +221,7 @@ export default class Content extends PureComponent {
       })
     ];
   }
+
   _renderCrossNetworkArrows() {
     if (!this.props.options.showCrossNetwork) {
       return [];
@@ -189,6 +243,7 @@ export default class Content extends PureComponent {
       })
     ];
   }
+
   _renderLayers() {
     return [
       ...this._renderMatrix(),
@@ -202,10 +257,12 @@ export default class Content extends PureComponent {
       ...this._renderCrossNetworkArrows()
     ];
   }
+
   render() {
-    const {width, height} = this.props;
+    const {width, height, getCursor} = this.props;
     return (
       <ZoomableContainer
+        ref={input => (this.container = input)}
         width={width}
         height={height}
         top={0}
@@ -213,6 +270,7 @@ export default class Content extends PureComponent {
         bottom={height}
         right={width}
         layers={this._renderLayers()}
+        getCursor={getCursor}
       />
     );
   }

@@ -21,7 +21,8 @@ export default class PopupWindow extends PureComponent {
     show: true,
     onClose: () => {},
     onDrag: () => {},
-    onResize: () => {}
+    onResize: () => {},
+    contentProps: {}
   };
   static getDerivedStateFromProps(props, state) {
     const {width, height, x, y, show} = props;
@@ -84,6 +85,7 @@ export default class PopupWindow extends PureComponent {
               backgroundColor: 'lightgrey',
               textAlign: 'right',
               verticalAlign: 'middle',
+              cursor: 'move',
               ...this.props.headerStyle,
               height: headerHeight,
               width
@@ -106,6 +108,8 @@ export default class PopupWindow extends PureComponent {
           </div>
         </div>
         <div
+          ref={input => (this.contentContainer = input)}
+          {...this.props.contentProps}
           style={{
             position: 'relative',
             backgroundColor: 'white',
