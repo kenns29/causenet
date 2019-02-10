@@ -19,6 +19,33 @@ const getRelationFeatureIdToNameMap = createSelector(
   features => array2Object(features, d => d.id, d => d.name)
 );
 
+export const getRelationMatrixFeatureSets = createSelector(
+  getRawCrRelations,
+  crRelations => {
+    const [rowSet, colSet] = [new Set(), new Set()];
+    crRelations.forEach(({source, target}) => {
+      rowSet.add(source.toString());
+      colSet.add(target.toString());
+    });
+    return [rowSet, colSet];
+  }
+);
+
+export const getCrBayesianNetwork = createSelector(
+  [getRawBayesianNetwork, getRelationMatrixFeatureSets],
+  (network, [rowSet, colSet]) => {
+    if (!isCrBayesianNetwork(network)) {
+      return [];
+    }
+    return network.filter(({source, target}) => {
+      const [sf, tf] = [source, target].map(
+        d => d.split(',')[0].match(/\w+/)[0]
+      );
+      return rowSet.has(sf) && colSet.has(tf);
+    });
+  }
+);
+
 export const getRelationMatrix = createSelector(
   [getRawCrRelations, getRelationFeatureIdToNameMap],
   (crRelations, id2Name) => {
@@ -97,8 +124,8 @@ export const getRelationMatrixLayout = createSelector(
   }
 );
 
-export const getCrBayesianNetwork = createSelector(
-  getRawBayesianNetwork,
+const getCleanedCrBayesianNetwork = createSelector(
+  getCrBayesianNetwork,
   network => {
     if (!isCrBayesianNetwork(network)) {
       return network;
@@ -117,18 +144,8 @@ export const getCrBayesianNetwork = createSelector(
   }
 );
 
-export const getFilteredCrBayesianNetwork = createSelector(
-  [getCrBayesianNetwork, getRelationMatrix],
-  (network, {rows, cols}) => {
-    const featureSet = new Set([...rows, ...cols].map(d => d.id.toString()));
-    return network.filter(({source, target}) =>
-      [source, target].every(d => featureSet.has(d[0].toString()))
-    );
-  }
-);
-
 export const getCrRowBayesianNetwork = createSelector(
-  getFilteredCrBayesianNetwork,
+  getCleanedCrBayesianNetwork,
   network => {
     if (!isCrBayesianNetwork(network)) {
       return network;
@@ -144,7 +161,7 @@ export const getCrRowBayesianNetwork = createSelector(
 );
 
 export const getCrColBayesianNetwork = createSelector(
-  getFilteredCrBayesianNetwork,
+  getCleanedCrBayesianNetwork,
   network => {
     if (!isCrBayesianNetwork(network)) {
       return network;
@@ -167,7 +184,7 @@ export const getCrColBayesianNetwork = createSelector(
  * }
  */
 export const getCrCrossBayesianNetwork = createSelector(
-  getFilteredCrBayesianNetwork,
+  getCleanedCrBayesianNetwork,
   network => {
     if (!isCrBayesianNetwork(network)) {
       return [];
