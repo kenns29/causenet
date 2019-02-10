@@ -3,12 +3,17 @@ import Matrix, {links2generator, flattener, sort2d} from 'sortable-matrix';
 import {scaleSequential} from 'd3-scale';
 import {interpolateGreys} from 'd3-scale-chromatic';
 import {rgb} from 'd3-color';
-import {array2Object, isCrBayesianNetwork} from '../../utils';
+import {
+  array2Object,
+  isCrBayesianNetwork,
+  getPathLinksThroughNode
+} from '../../utils';
 import {rootSelector} from '../base';
 import {
   getRawCrRelations,
   getRawCrRelationFeatures,
-  getRawBayesianNetwork
+  getRawBayesianNetwork,
+  getRawCrMatrixFocus
 } from './raw';
 
 const CELL_SIZE = [20, 20];
@@ -33,16 +38,27 @@ export const getRelationMatrixFeatureSets = createSelector(
 
 export const getCrBayesianNetwork = createSelector(
   [getRawBayesianNetwork, getRelationMatrixFeatureSets],
-  (network, [rowSet, colSet]) => {
+  (network, [rowSet, colSet], focus) => {
     if (!isCrBayesianNetwork(network)) {
       return [];
     }
+
     return network.filter(({source, target}) => {
       const [sf, tf] = [source, target].map(
         d => d.split(',')[0].match(/\w+/)[0]
       );
       return rowSet.has(sf) && colSet.has(tf);
     });
+  }
+);
+
+export const getFocusedCrBayesianNetwork = createSelector(
+  [getCrBayesianNetwork, getRawCrMatrixFocus],
+  (network, focus) => {
+    if (!focus) {
+      return network;
+    }
+    return getPathLinksThroughNode(focus, network);
   }
 );
 
@@ -125,7 +141,7 @@ export const getRelationMatrixLayout = createSelector(
 );
 
 const getCleanedCrBayesianNetwork = createSelector(
-  getCrBayesianNetwork,
+  getFocusedCrBayesianNetwork,
   network => {
     if (!isCrBayesianNetwork(network)) {
       return network;

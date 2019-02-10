@@ -1,5 +1,5 @@
 import dagre from 'dagre';
-import {array2Object, makeAccessor} from './base';
+import {array2Object, makeAccessor, isArray} from './base';
 import {
   clipLine,
   getLineLength,
@@ -287,7 +287,10 @@ export const abstractLinksToReducedAbstractLinks = (
     .sort((a, b) => a.weight - b.weight)
     .slice(...slice);
 
-export const getPathLinksFromNode = (id, sourceAdjacencyMap) => {
+export const getPathLinksFromNode = (id, graph) => {
+  const sourceAdjacencyMap = isArray(graph)
+    ? linksToSourceAdjacencyMap(graph)
+    : graph;
   const links = [];
   if (!sourceAdjacencyMap.hasOwnProperty(id)) {
     return links;
@@ -307,7 +310,10 @@ export const getPathLinksFromNode = (id, sourceAdjacencyMap) => {
   return links;
 };
 
-export const getPathLinksToNode = (id, targetAdjacencyMap) => {
+export const getPathLinksToNode = (id, graph) => {
+  const targetAdjacencyMap = isArray(graph)
+    ? linksToTargetAdjacencyMap(graph)
+    : graph;
   const links = [];
   if (!targetAdjacencyMap.hasOwnProperty(id)) {
     return links;
@@ -327,16 +333,25 @@ export const getPathLinksToNode = (id, targetAdjacencyMap) => {
   return links;
 };
 
-export const getPathLinksThroughNode = (
-  id,
-  sourceAdjacencyMap,
-  targetAdjacencyMap
-) => [
-  ...getPathLinksFromNode(id, sourceAdjacencyMap),
-  ...getPathLinksToNode(id, targetAdjacencyMap)
-];
+export const getPathLinksThroughNode = (id, ...args) => {
+  if (args.length === 1) {
+    const [links] = args;
+    return [
+      ...getPathLinksFromNode(id, links),
+      ...getPathLinksToNode(id, links)
+    ];
+  }
+  const [sourceAdjacencyMap, targetAdjacencyMap] = args;
+  return [
+    ...getPathLinksFromNode(id, sourceAdjacencyMap),
+    ...getPathLinksToNode(id, targetAdjacencyMap)
+  ];
+};
 
-export const getPathLinksBetweenNodes = ([id1, id2], sourceAdjacencyMap) => {
+export const getPathLinksBetweenNodes = ([id1, id2], graph) => {
+  const sourceAdjacencyMap = isArray(graph)
+    ? linksToSourceAdjacencyMap(graph)
+    : graph;
   const links = [];
   visit(id1, new Set([id2]));
   return links;

@@ -12,16 +12,19 @@ import {
   getCrRowBayesianNetworkLayout,
   getCrColBayesianNetworkLayout,
   getCrCrossBayesianNetworkLayout,
-  getRawCrMatrixOptions
+  getRawCrMatrixOptions,
+  getRawCrMatrixFocus
 } from '../../selectors/data';
 import {
   updateShowCrMatrixWindow,
-  updateCrMatrixWindowSize
+  updateCrMatrixWindowSize,
+  updateCrMatrixFocus
 } from '../../actions';
 
 const mapDispatchToProps = {
   updateShowCrMatrixWindow,
-  updateCrMatrixWindowSize
+  updateCrMatrixWindowSize,
+  updateCrMatrixFocus
 };
 
 const mapStateToProps = state => ({
@@ -32,7 +35,8 @@ const mapStateToProps = state => ({
   rowNetwork: getCrRowBayesianNetworkLayout(state),
   colNetwork: getCrColBayesianNetworkLayout(state),
   crossNetwork: getCrCrossBayesianNetworkLayout(state),
-  options: getRawCrMatrixOptions(state)
+  options: getRawCrMatrixOptions(state),
+  focus: getRawCrMatrixFocus(state)
 });
 
 class ContentPanel extends PureComponent {
@@ -97,9 +101,15 @@ class ContentPanel extends PureComponent {
         const {layer} = info;
         if (layer.id.startsWith('cr-matrix-y-axis')) {
           const {object} = info;
+          this.props.updateCrMatrixFocus(`(${object.id}, ${0})`);
         } else if (layer.id.startsWith('cr-matrix-x-axis')) {
           const {object} = info;
+          this.props.updateCrMatrixFocus(`(${object.id}, ${1})`);
+        } else {
+          this.props.updateCrMatrixFocus(null);
         }
+      } else {
+        this.props.updateCrMatrixFocus(null);
       }
     }
   };

@@ -160,3 +160,8 @@ export const getRawCrMatrixOptions = createSelector(
   rootSelector,
   state => state.crMatrixOptions
 );
+
+export const getRawCrMatrixFocus = createSelector(
+  rootSelector,
+  state => state.crMatrixFocus
+);
