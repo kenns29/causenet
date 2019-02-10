@@ -1,5 +1,5 @@
 import {createSelector} from 'reselect';
-import Matrix, {links2generator, flattener, sort2d} from 'sortable-matrix';
+import {links2generator, flattener, sort2d} from 'sortable-matrix';
 import {scaleSequential} from 'd3-scale';
 import {interpolateGreys} from 'd3-scale-chromatic';
 import {rgb} from 'd3-color';
@@ -19,30 +19,32 @@ import {
 const CELL_SIZE = [20, 20];
 const PADDINGS = [100, 100];
 
+const getMatrixObject = createSelector(getRawCrRelations, crRelations => {
+  if (!crRelations.length) {
+    return null;
+  }
+  const generate = links2generator()
+    .links(crRelations)
+    .source(d => d.source)
+    .target(d => d.target)
+    .value(d => Math.log(d.value || 0.1))
+    .null(0);
+  return generate();
+});
+
 const getRelationFeatureIdToNameMap = createSelector(
   getRawCrRelationFeatures,
   features => array2Object(features, d => d.id, d => d.name)
 );
 
-export const getRelationMatrixFeatureSets = createSelector(
-  getRawCrRelations,
-  crRelations => {
-    const [rowSet, colSet] = [new Set(), new Set()];
-    crRelations.forEach(({source, target}) => {
-      rowSet.add(source.toString());
-      colSet.add(target.toString());
-    });
-    return [rowSet, colSet];
-  }
-);
-
 export const getCrBayesianNetwork = createSelector(
-  [getRawBayesianNetwork, getRelationMatrixFeatureSets],
-  (network, [rowSet, colSet], focus) => {
+  [getRawBayesianNetwork, getMatrixObject],
+  (network, matrix) => {
     if (!isCrBayesianNetwork(network)) {
       return [];
     }
-
+    const rowSet = new Set(matrix.row_id_order().map(d => d.toString()));
+    const colSet = new Set(matrix.col_id_order().map(d => d.toString()));
     return network.filter(({source, target}) => {
       const [sf, tf] = [source, target].map(
         d => d.split(',')[0].match(/\w+/)[0]
@@ -62,22 +64,71 @@ export const getFocusedCrBayesianNetwork = createSelector(
   }
 );
 
+const getCleanedCrBayesianNetwork = createSelector(
+  getFocusedCrBayesianNetwork,
+  network => {
+    if (!isCrBayesianNetwork(network)) {
+      return network;
+    }
+    return network.map(({source, target, ...rest}) => {
+      const [s, t] = [source, target].map(d => {
+        const [f, t] = d.split(',').map(d => d.match(/\w+/)[0]);
+        return [f, Number(t)];
+      });
+      return {
+        ...rest,
+        source: s,
+        target: t
+      };
+    });
+  }
+);
+
+const getCrBayesianNetworkFeatureSets = createSelector(
+  getCleanedCrBayesianNetwork,
+  network => {
+    const [rowSet, colSet] = [new Set(), new Set()];
+    network.forEach(({source, target}) => {
+      [source, target].forEach(([f, u]) => {
+        if (u) {
+          colSet.add(f.toString());
+        } else {
+          rowSet.add(f.toString());
+        }
+      });
+    });
+    return [rowSet, colSet];
+  }
+);
+
 export const getRelationMatrix = createSelector(
-  [getRawCrRelations, getRelationFeatureIdToNameMap],
-  (crRelations, id2Name) => {
-    if (crRelations.length === 0 || Object.keys(id2Name).length === 0) {
+  [
+    getMatrixObject,
+    getRelationFeatureIdToNameMap,
+    getCleanedCrBayesianNetwork,
+    getCrBayesianNetworkFeatureSets
+  ],
+  (matrix, id2Name, network, [rowSet, colSet]) => {
+    if (!matrix || Object.keys(id2Name).length === 0) {
       return {rows: [], cols: [], cells: []};
     }
-    const generate = links2generator()
-      .links(crRelations)
-      .source(d => d.source)
-      .target(d => d.target)
-      .value(d => Math.log(d.value || 0.1))
-      .null(0);
-
-    const matrix = sort2d(generate());
-    const {rows, cols, cells} = flattener().matrix(matrix);
-
+    if (network.length) {
+      matrix.row_id_order().forEach(id => {
+        if (rowSet.has(id.toString())) {
+          matrix.activate_row_by_id(id);
+        } else {
+          matrix.deactivate_row_by_id(id);
+        }
+      });
+      matrix.col_id_order().forEach(id => {
+        if (colSet.has(id.toString())) {
+          matrix.activate_col_by_id(id);
+        } else {
+          matrix.deactivate_col_by_id(id);
+        }
+      });
+    }
+    const {rows, cols, cells} = flattener().matrix(sort2d(matrix));
     return {
       rows: rows().map(id => ({id, name: id2Name[id]})),
       cols: cols().map(id => ({id, name: id2Name[id]})),
@@ -137,26 +188,6 @@ export const getRelationMatrixLayout = createSelector(
         };
       })
     };
-  }
-);
-
-const getCleanedCrBayesianNetwork = createSelector(
-  getFocusedCrBayesianNetwork,
-  network => {
-    if (!isCrBayesianNetwork(network)) {
-      return network;
-    }
-    return network.map(({source, target, ...rest}) => {
-      const [s, t] = [source, target].map(d => {
-        const [f, t] = d.split(',').map(d => d.match(/\w+/)[0]);
-        return [f, Number(t)];
-      });
-      return {
-        ...rest,
-        source: s,
-        target: t
-      };
-    });
   }
 );
 
