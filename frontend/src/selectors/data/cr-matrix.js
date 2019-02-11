@@ -256,7 +256,7 @@ export const getCrRowBayesianNetworkLayout = createSelector(
       d => d.id,
       ({x, y, ...d}, index) => ({...d, x: x - 20, y, index})
     );
-    return network.map(({source, target, ...rest}) => {
+    return network.map(({source, target, corr, ...rest}) => {
       const [sn, tn] = [source, target].map(d => nodeMap[d]);
       const [sx, sy, tx, ty] = [sn.x, sn.y, tn.x, tn.y];
       const r = Math.abs(sn.index - tn.index) * 10;
@@ -264,7 +264,9 @@ export const getCrRowBayesianNetworkLayout = createSelector(
         ...rest,
         source: sn,
         target: tn,
-        points: [[sx, sy], [sx - r, sy], [tx - r, ty], [tx, ty]]
+        points: [[sx, sy], [sx - r, sy], [tx - r, ty], [tx, ty]],
+        corr,
+        color: corr >= 0 ? [0, 0, 200] : [200, 0, 0]
       };
     });
   }
@@ -278,7 +280,7 @@ export const getCrColBayesianNetworkLayout = createSelector(
       d => d.id,
       ({x, y, ...d}, index) => ({...d, x, y: y - 20, index})
     );
-    return network.map(({source, target, ...rest}) => {
+    return network.map(({source, target, corr, ...rest}) => {
       const [sn, tn] = [source, target].map(d => nodeMap[d]);
       const [sx, sy, tx, ty] = [sn.x, sn.y, tn.x, tn.y];
       const r = Math.abs(sn.index - tn.index) * 10;
@@ -286,7 +288,9 @@ export const getCrColBayesianNetworkLayout = createSelector(
         ...rest,
         source: sn,
         target: tn,
-        points: [[sx, sy], [sx, sy - r], [tx, ty - r], [tx, ty]]
+        points: [[sx, sy], [sx, sy - r], [tx, ty - r], [tx, ty]],
+        corr,
+        color: corr >= 0 ? [0, 0, 200] : [200, 0, 0]
       };
     });
   }
@@ -308,7 +312,7 @@ export const getCrCrossBayesianNetworkLayout = createSelector(
         })
       )
     );
-    return network.map(({source, target, ...rest}) => {
+    return network.map(({source, target, corr, ...rest}) => {
       const [[sn, su], [tn, tu]] = [source, target].map(([k, u]) => [
         maps[u][k],
         u
@@ -333,7 +337,9 @@ export const getCrCrossBayesianNetworkLayout = createSelector(
             [sx - rx, ty - ry],
             [tx, ty - ry],
             [tx, ty]
-          ]
+          ],
+        corr,
+        color: corr >= 0 ? [0, 0, 200] : [200, 0, 0]
       };
     });
   }
