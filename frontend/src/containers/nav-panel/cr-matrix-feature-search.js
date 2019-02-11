@@ -1,6 +1,7 @@
 import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
 import {AutoComplete} from 'antd';
+import {array2Object} from '../../utils';
 import {getRawCrRelationFeatures} from '../../selectors/data';
 import {updateCrMatrixFocus} from '../../actions';
 
@@ -14,6 +15,7 @@ class CrMatrixFeatureSearch extends PureComponent {
     const dataSource = features
       .map(d => d.name)
       .sort((a, b) => (a <= b ? -1 : 1));
+    const name2Id = array2Object(features, d => d.name, d => d.id);
     return (
       <React.Fragment>
         <div>
@@ -28,6 +30,9 @@ class CrMatrixFeatureSearch extends PureComponent {
                 .toUpperCase()
                 .indexOf(inputValue.toUpperCase()) !== -1
             }
+            onSelect={value =>
+              this.props.updateCrMatrixFocus(`(${name2Id[value]}, ${0})`)
+            }
           />
         </div>
         <div>
@@ -41,6 +46,9 @@ class CrMatrixFeatureSearch extends PureComponent {
               option.props.children
                 .toUpperCase()
                 .indexOf(inputValue.toUpperCase()) !== -1
+            }
+            onSelect={value =>
+              this.props.updateCrMatrixFocus(`(${name2Id[value]}, ${1})`)
             }
           />
         </div>
