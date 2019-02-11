@@ -58,27 +58,29 @@ export default class Content extends PureComponent {
         ]
       };
     });
-    return [
-      new PolygonLayer({
-        id: ID + '-y-axis-polygon',
-        data,
-        getFillColor: [255, 255, 255],
-        getLineWidth: 0,
-        coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
-        pickable: true
-      }),
-      new TextLayer({
-        id: ID + '-y-axis',
-        data,
-        getSize: 10,
-        getText: d => d.name,
-        getPosition: d => d.position,
-        getColor: [10, 10, 10],
-        getTextAnchor: 'end',
-        coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
-        pickable: true
-      })
-    ];
+    return data.length
+      ? [
+        new PolygonLayer({
+          id: ID + '-y-axis-polygon',
+          data,
+          getFillColor: [255, 255, 255],
+          getLineWidth: 0,
+          coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+          pickable: true
+        }),
+        new TextLayer({
+          id: ID + '-y-axis',
+          data,
+          getSize: 10,
+          getText: d => d.name,
+          getPosition: d => d.position,
+          getColor: [10, 10, 10],
+          getTextAnchor: 'end',
+          coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+          pickable: true
+        })
+      ]
+      : [];
   }
 
   _renderColTitle() {
@@ -106,28 +108,30 @@ export default class Content extends PureComponent {
         })
       };
     });
-    return [
-      new PolygonLayer({
-        id: ID + '-x-axis-polygon',
-        data,
-        getFillColor: [255, 255, 255],
-        getLineWidth: 0,
-        coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
-        pickable: true
-      }),
-      new TextLayer({
-        id: ID + '-x-axis',
-        data,
-        getSize: 10,
-        getText: d => d.name,
-        getPosition: d => d.position,
-        getColor: [10, 10, 10],
-        getTextAnchor: 'start',
-        getAngle: 90,
-        coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
-        pickable: true
-      })
-    ];
+    return data.length
+      ? [
+        new PolygonLayer({
+          id: ID + '-x-axis-polygon',
+          data,
+          getFillColor: [255, 255, 255],
+          getLineWidth: 0,
+          coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+          pickable: true
+        }),
+        new TextLayer({
+          id: ID + '-x-axis',
+          data,
+          getSize: 10,
+          getText: d => d.name,
+          getPosition: d => d.position,
+          getColor: [10, 10, 10],
+          getTextAnchor: 'start',
+          getAngle: 90,
+          coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+          pickable: true
+        })
+      ]
+      : [];
   }
 
   _renderRowNetwork() {
