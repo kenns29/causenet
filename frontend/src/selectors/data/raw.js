@@ -145,3 +145,23 @@ export const getSelectedSubBayesianNetworkId = createSelector(
   rootSelector,
   state => state.selectedSubBayesianNetworkId
 );
+
+export const getRawCrRelations = createSelector(
+  rootSelector,
+  state => state.crRelations
+);
+
+export const getRawCrRelationFeatures = createSelector(
+  rootSelector,
+  state => state.crRelationFeatures
+);
+
+export const getRawCrMatrixOptions = createSelector(
+  rootSelector,
+  state => state.crMatrixOptions
+);
+
+export const getRawCrMatrixFocus = createSelector(
+  rootSelector,
+  state => state.crMatrixFocus
+);

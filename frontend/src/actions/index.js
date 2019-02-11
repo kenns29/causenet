@@ -16,6 +16,8 @@ export const UPDATE_FEATURE_DISTRIBUTION_WINDOW_SIZE =
   'UPDATE_FEATURE_DISTRIBUTION_WINDOW_SIZE';
 export const UPDATE_SHOW_BAYESIAN_NETWORK_SUB_NETWORK_DETAIL_WINDOW =
   'UPDATE_SHOW_BAYESIAN_NETWORK_SUB_NETWORK_DETAIL_WINDOW';
+export const UPDATE_SHOW_CR_MATRIX_WINDOW = 'UPDATE_SHOW_CR_MATRIX_WINDOW';
+export const UPDATE_CR_MATRIX_WINDOW_SIZE = 'UPDATE_CR_MATRIX_WINDOW_SIZE';
 
 // data Action ids
 export const UPDATE_CURRENT_DATASET_NAME = 'UPDDATE_CURRENT_DATASET_NAME';
@@ -70,6 +72,10 @@ export const UPDATE_SELECTED_NORMALIZED_FEATURE_DISTRIBUTION_MAP =
   'UPDATE_SELECTED_NORMALIZED_FEATURE_DISTRIBUTION_MAP';
 export const UPDATE_SELECTED_SUB_BAYESIAN_NETWORK_ID =
   'UPDATE_SELECTED_SUB_BAYESIAN_NETWORK_ID';
+export const UPDATE_CR_RELATIONS = 'UPDATE_CR_RELATIONS';
+export const UPDATE_CR_RELATION_FEATURES = 'UPDATE_CR_RELATION_FEATURES';
+export const UPDATE_CR_MATRIX_OPTIONS = 'UPDATE_CR_MATRIX_OPTIONS';
+export const UPDATE_CR_MATRIX_FOCUS = 'UPDATE_CR_MATRIX_FOCUS';
 
 // UI actions
 export const updateScreenSize = createAction(UPDATE_SCREEN_SIZE);
@@ -91,6 +97,12 @@ export const updateFeatureDistributionWindowSize = createAction(
 );
 export const updateShowBayesianNetworkSubNetworkDetailWindow = createAction(
   UPDATE_SHOW_BAYESIAN_NETWORK_SUB_NETWORK_DETAIL_WINDOW
+);
+export const updateShowCrMatrixWindow = createAction(
+  UPDATE_SHOW_CR_MATRIX_WINDOW
+);
+export const updateCrMatrixWindowSize = createAction(
+  UPDATE_CR_MATRIX_WINDOW_SIZE
 );
 
 // data actions
@@ -173,6 +185,12 @@ export const updateSelectedNormalizedFeatureDistributionMap = createAction(
 export const updateSelectedSubBayesianNetworkId = createAction(
   UPDATE_SELECTED_SUB_BAYESIAN_NETWORK_ID
 );
+export const updateCrRelations = createAction(UPDATE_CR_RELATIONS);
+export const updateCrRelationFeatures = createAction(
+  UPDATE_CR_RELATION_FEATURES
+);
+export const updateCrMatrixOptions = createAction(UPDATE_CR_MATRIX_OPTIONS);
+export const updateCrMatrixFocus = createAction(UPDATE_CR_MATRIX_FOCUS);
 
 // async actions
 export const fetchCurrentDatasetName = () => async dispatch => {
@@ -591,7 +609,7 @@ export const requestUpdateModelFeatureValueSelectionMap = ({
   }
 };
 
-export const requestFetchData = ({
+export const fetchData = ({
   data_type = 'normalized_raw_data_file',
   featureSelection = null
 }) => async dispatch => {
@@ -604,6 +622,28 @@ export const requestFetchData = ({
       }
     );
     const data = response.json();
+    return Promise.resolve(data);
+  } catch (err) {
+    throw new Error(err);
+  }
+};
+
+export const fetchCrRelations = () => async dispatch => {
+  try {
+    const response = await fetch(`${BACKEND_URL}/load_cr_relations`);
+    const data = await response.json();
+    dispatch(updateCrRelations(data));
+    return Promise.resolve(data);
+  } catch (err) {
+    throw new Error(err);
+  }
+};
+
+export const fetchCrRelationFeatures = () => async dispatch => {
+  try {
+    const response = await fetch(`${BACKEND_URL}/load_cr_relation_features`);
+    const data = await response.json();
+    dispatch(updateCrRelationFeatures(data));
     return Promise.resolve(data);
   } catch (err) {
     throw new Error(err);
@@ -675,7 +715,7 @@ export const bundleFetchAddToSelectedNormalizedFeatureDistributionMap = ({
   selectedNormalizedFeatureDistributionMap
 }) => async dispatch => {
   try {
-    const data = await dispatch(requestFetchData({featureSelection}));
+    const data = await dispatch(fetchData({featureSelection}));
     const rMap = {...selectedNormalizedFeatureDistributionMap, ...data};
     dispatch(updateSelectedNormalizedFeatureDistributionMap(rMap));
     return Promise.resolve(rMap);

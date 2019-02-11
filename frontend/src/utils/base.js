@@ -7,7 +7,10 @@ export const makeAccessor = v =>
 
 export const array2Object = (array, key, value) => {
   const [fk, fv] = [key, value].map(makeAccessor);
-  return array.reduce((m, v) => Object.assign(m, {[fk(v)]: fv(v)}), {});
+  return array.reduce(
+    (m, v, i) => Object.assign(m, {[fk(v, i)]: fv(v, i)}),
+    {}
+  );
 };
 
 export const isArray = v =>

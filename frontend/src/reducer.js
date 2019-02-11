@@ -8,6 +8,8 @@ import {
   UPDATE_SHOW_FEATURE_DISTRIBUTION_WINDOW,
   UPDATE_FEATURE_DISTRIBUTION_WINDOW_SIZE,
   UPDATE_SHOW_BAYESIAN_NETWORK_SUB_NETWORK_DETAIL_WINDOW,
+  UPDATE_SHOW_CR_MATRIX_WINDOW,
+  UPDATE_CR_MATRIX_WINDOW_SIZE,
   UPDATE_CURRENT_DATASET_NAME,
   UPDATE_DATASET_LIST,
   FETCH_BAYESIAN_NETWORK_START,
@@ -37,7 +39,11 @@ import {
   UPDATE_FEATURE_VALUES_MAP,
   UPDATE_DISTRIBUTION_FEATURE_PAIRS,
   UPDATE_SELECTED_NORMALIZED_FEATURE_DISTRIBUTION_MAP,
-  UPDATE_SELECTED_SUB_BAYESIAN_NETWORK_ID
+  UPDATE_SELECTED_SUB_BAYESIAN_NETWORK_ID,
+  UPDATE_CR_RELATIONS,
+  UPDATE_CR_RELATION_FEATURES,
+  UPDATE_CR_MATRIX_OPTIONS,
+  UPDATE_CR_MATRIX_FOCUS
 } from './actions';
 
 import {HIERARICAL_CLUSTERING_OPTION} from './constants';
@@ -162,12 +168,14 @@ const DEFAULT_STATE = {
   modelList: [],
   nodeLinkViewOptions: {
     showLabels: false,
-    useHierarchy: true
+    useHierarchy: false
   },
-  showFeatureDistributionWindow: true,
+  showFeatureDistributionWindow: false,
   featureDistributionWindowSize: [600, 620],
-  showBayesianNetworkDistributionWindow: true,
+  showBayesianNetworkDistributionWindow: false,
   bayesianNetworkDistributionWindowSize: [600, 620],
+  showCrMatrixWindow: true,
+  crMatrixWindowSize: [1200, 900],
   // feature pair list that will be shown in the distribution window
   // [
   //  {
@@ -188,7 +196,33 @@ const DEFAULT_STATE = {
   // }
   selectedNormalizedFeatureDistributionMap: {},
   showBayesianNetworkSubNetworkDetailWindow: false,
-  selectedSubBayesianNetworkId: null
+  selectedSubBayesianNetworkId: null,
+  // the relation data in the cr-matrix
+  // [
+  //  {
+  //    id: (pair id),
+  //    source: (source id),
+  //    target: (target id),
+  //    value
+  //  },
+  //  ...
+  // ]
+  crRelations: [],
+  // the cr relation features
+  // [
+  //  {
+  //    id: (id),
+  //    name: (name)
+  //  },
+  //  ...
+  // ]
+  crRelationFeatures: [],
+  crMatrixOptions: {
+    showRowNetwork: true,
+    showColNetwork: true,
+    showCrossNetwork: true
+  },
+  crMatrixFocus: null
 };
 
 const handleUpdateScreenSize = (state, {payload}) => ({
@@ -239,6 +273,16 @@ const handleUpdateShowBayesianNetworkSubNetworkDetailWindow = (
 ) => ({
   ...state,
   showBayesianNetworkSubNetworkDetailWindow: payload
+});
+
+const handleUpdateShowCrMatrixWindow = (state, {payload}) => ({
+  ...state,
+  showCrMatrixWindow: payload
+});
+
+const handleUpdateCrMatrixWindowSize = (state, {payload}) => ({
+  ...state,
+  crMatrixWindowSize: payload
 });
 
 const handleUpdateCurrentDatasetName = (state, {payload}) => ({
@@ -402,6 +446,26 @@ const handleUpdateSelectedSubBayesianNetworkId = (state, {payload}) => ({
   selectedSubBayesianNetworkId: payload
 });
 
+const handleUpdateCrRelations = (state, {payload}) => ({
+  ...state,
+  crRelations: payload
+});
+
+const handleUpdateCrRelationFeatures = (state, {payload}) => ({
+  ...state,
+  crRelationFeatures: payload
+});
+
+const handleUpdateCrMatrixOptions = (state, {payload}) => ({
+  ...state,
+  crMatrixOptions: payload
+});
+
+const handleUpdateCrMatrixFocus = (state, {payload}) => ({
+  ...state,
+  crMatrixFocus: payload
+});
+
 export default handleActions(
   {
     [UPDATE_SCREEN_SIZE]: handleUpdateScreenSize,
@@ -411,6 +475,8 @@ export default handleActions(
     [UPDATE_BAYESIAN_NETWORK_DISTRIBUTION_WINDOW_SIZE]: handleUpdateBayesianNetworkDistributionWindowSize,
     [UPDATE_SHOW_FEATURE_DISTRIBUTION_WINDOW]: handleUpdateShowFeatureDistributionWindow,
     [UPDATE_FEATURE_DISTRIBUTION_WINDOW_SIZE]: handleUpdateFeatureDistributionWindowSize,
+    [UPDATE_SHOW_CR_MATRIX_WINDOW]: handleUpdateShowCrMatrixWindow,
+    [UPDATE_CR_MATRIX_WINDOW_SIZE]: handleUpdateCrMatrixWindowSize,
     [UPDATE_SHOW_BAYESIAN_NETWORK_SUB_NETWORK_DETAIL_WINDOW]: handleUpdateShowBayesianNetworkSubNetworkDetailWindow,
     [UPDATE_CURRENT_DATASET_NAME]: handleUpdateCurrentDatasetName,
     [UPDATE_DATASET_LIST]: handleUpdateDatasetList,
@@ -441,7 +507,11 @@ export default handleActions(
     [UPDATE_FEATURE_VALUES_MAP]: handleUpdateFeatureValuesMap,
     [UPDATE_DISTRIBUTION_FEATURE_PAIRS]: handleUpdateDistributionFeaturePairs,
     [UPDATE_SELECTED_NORMALIZED_FEATURE_DISTRIBUTION_MAP]: handleUpdateSelectedNormalizedFeatureDistributionMap,
-    [UPDATE_SELECTED_SUB_BAYESIAN_NETWORK_ID]: handleUpdateSelectedSubBayesianNetworkId
+    [UPDATE_SELECTED_SUB_BAYESIAN_NETWORK_ID]: handleUpdateSelectedSubBayesianNetworkId,
+    [UPDATE_CR_RELATIONS]: handleUpdateCrRelations,
+    [UPDATE_CR_RELATION_FEATURES]: handleUpdateCrRelationFeatures,
+    [UPDATE_CR_MATRIX_OPTIONS]: handleUpdateCrMatrixOptions,
+    [UPDATE_CR_MATRIX_FOCUS]: handleUpdateCrMatrixFocus
   },
   DEFAULT_STATE
 );

@@ -43,7 +43,8 @@ class ContentPanel extends PureComponent {
       <PopupWindow
         x={1000}
         y={200}
-        size={{width, height}}
+        width={width}
+        height={height}
         style={{zIndex: 99, boxShadow: '10px 10px 5px grey'}}
         onResize={(event, {width, height}) =>
           this.setState({size: [width, height]})

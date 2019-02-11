@@ -138,7 +138,8 @@ class ContentPanel extends PureComponent {
         <PopupWindow
           x={300}
           y={800}
-          size={{width, height}}
+          width={width}
+          height={height}
           style={{zIndex: 99, boxShadow: '10px 10px 5px grey'}}
           onResize={(event, {width, height}) => {
             this.props.updateFeatureDistributionWindowSize([width, height]);

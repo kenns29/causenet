@@ -5,7 +5,6 @@ import {
   isArray,
   linksToNodeMap,
   createDagLayout,
-  array2Object,
   linksToAbstractLinks,
   abstractLinksToReducedAbstractLinks,
   createUpdatedNodeLink,
@@ -15,7 +14,6 @@ import {
   getPathLinksBetweenNodes
 } from '../../utils';
 import {
-  getRawClusterBayesianModelFeatures,
   getRawFeatureSlicedBayesianNetwork,
   getRawClusterBayesianNetworkFocus,
   getRawSubBayesianNetworkMap,

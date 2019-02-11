@@ -2,9 +2,10 @@ import React, {PureComponent} from 'react';
 import PropTypes from 'prop-types';
 import {Rnd} from 'react-rnd';
 
-const compareChanger = (changer1, changer2) =>
-  !['width', 'height', 'x', 'y', 'show'].some(
-    key => changer1[key] !== changer2[key]
+const getChangerDiff = (c1, c2) =>
+  ['width', 'height', 'x', 'y', 'show'].reduce(
+    (m, k) => (c1[k] == c2[k] ? m : Object.assign(m, {[k]: c2[k]})),
+    {}
   );
 
 export default class PopupWindow extends PureComponent {
@@ -20,18 +21,17 @@ export default class PopupWindow extends PureComponent {
     show: true,
     onClose: () => {},
     onDrag: () => {},
-    onResize: () => {}
+    onResize: () => {},
+    contentProps: {}
   };
   static getDerivedStateFromProps(props, state) {
     const {width, height, x, y, show} = props;
     const newChanger = {width, height, x, y, show};
     const {changer} = state;
-    if (compareChanger(newChanger, changer)) {
-      return state;
-    }
+    const diff = getChangerDiff(changer, newChanger);
     return {
       ...state,
-      ...newChanger,
+      ...diff,
       changer: newChanger
     };
   }
@@ -77,7 +77,7 @@ export default class PopupWindow extends PureComponent {
         }}
         style={this.props.style}
       >
-        <div style={{border: '1px solid grey', position: 'relative'}}>
+        <div style={{position: 'relative'}}>
           <div
             className="header draggable"
             style={{
@@ -85,6 +85,7 @@ export default class PopupWindow extends PureComponent {
               backgroundColor: 'lightgrey',
               textAlign: 'right',
               verticalAlign: 'middle',
+              cursor: 'move',
               ...this.props.headerStyle,
               height: headerHeight,
               width
@@ -107,6 +108,8 @@ export default class PopupWindow extends PureComponent {
           </div>
         </div>
         <div
+          ref={input => (this.contentContainer = input)}
+          {...this.props.contentProps}
           style={{
             position: 'relative',
             backgroundColor: 'white',

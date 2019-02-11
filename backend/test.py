@@ -89,11 +89,11 @@ def load_full_features_test():
     return features
 
 
-def test_connection():
-    from setup import db_fao_dir
-    import sqlite3
-    conn = sqlite3.connect(db_fao_dir)
-    conn.close()
+def test_query():
+    from modules.service.sqlite_utils.query import query_country_by_year_with_import_export_data_frame_by_item_group
+    data = query_country_by_year_with_import_export_data_frame_by_item_group(1)
+    print(data)
+    return data
 
 
 if __name__ == '__main__':
@@ -103,5 +103,5 @@ if __name__ == '__main__':
     # # print(json.dumps(test_learn_parameters(), indent='\t'))
     # raw_data, normalized_data, data = load_data_test()
     # features = load_full_features_test()
-    test_connection()
+    test_query()
     print('---')

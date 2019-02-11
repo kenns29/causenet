@@ -62,6 +62,8 @@ def load_clustering():
 
 def get_times(data, base_feature=None):
     time_set = set()
+    if any([not isinstance(key, str) for key in data.keys()]):
+        return time_set
     for key in data.keys():
         finds = None
         if base_feature is None:

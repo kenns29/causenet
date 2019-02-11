@@ -8,7 +8,9 @@ import {
   fetchHierarchicalClusteringTree,
   fetchDistanceMap,
   fetchFeatureSelection,
-  fetchFeatureValuesMap
+  fetchFeatureValuesMap,
+  fetchCrRelations,
+  fetchCrRelationFeatures
 } from '../actions';
 
 const mapDispatchToProps = {
@@ -18,7 +20,9 @@ const mapDispatchToProps = {
   fetchHierarchicalClusteringTree,
   fetchDistanceMap,
   fetchFeatureSelection,
-  fetchFeatureValuesMap
+  fetchFeatureValuesMap,
+  fetchCrRelations,
+  fetchCrRelationFeatures
 };
 
 const mapStateToProps = state => ({
@@ -28,6 +32,8 @@ const mapStateToProps = state => ({
 class DataLoader extends PureComponent {
   async componentDidMount() {
     const {hierarchicalClusteringOption} = this.props;
+    this.props.fetchCrRelations();
+    this.props.fetchCrRelationFeatures();
     await Promise.all([
       this.props.fetchDatasetList(),
       this.props.fetchCurrentDatasetName()

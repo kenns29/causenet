@@ -2,7 +2,6 @@ import React, {PureComponent} from 'react';
 import {PolygonLayer, COORDINATE_SYSTEM} from 'deck.gl';
 import {SplineLayer} from '../../components/deckgl-layers';
 import ZoomableContainer from '../../components/zoomable-container';
-import {makeLineArrow} from '../../utils';
 
 const ID = 'bayesian-network-sub-network-detail';
 
