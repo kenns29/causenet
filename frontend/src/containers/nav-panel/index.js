@@ -15,6 +15,7 @@ import ToggleShowFeatureDistributionHistogramWindow from './toggle-show-feature-
 import ToggleShowCrMatrixWindow from './toggle-show-cr-matrix-window';
 import BayesianModelFeatureSlicesTable from './bayesian-model-feature-slices-table';
 import CrMatrixOptions from './cr-matrix-options';
+import CrMatrixFeatureSearch from './cr-matrix-feature-search';
 import {updateNavPanelWidth} from '../../actions';
 import {getNavPanelWidth, getContentPanelHeight} from '../../selectors/base';
 
@@ -60,6 +61,7 @@ class NavPanel extends PureComponent {
         <BayesianModelFeatureSlicesTable />
         <ToggleShowCrMatrixWindow />
         <CrMatrixOptions />
+        <CrMatrixFeatureSearch />
       </Rnd>
     );
   }
