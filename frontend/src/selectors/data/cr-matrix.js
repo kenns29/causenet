@@ -27,9 +27,9 @@ const getMatrixObject = createSelector(getRawCrRelations, crRelations => {
     .links(crRelations)
     .source(d => d.source)
     .target(d => d.target)
-    .value(d => Math.log(d.value || 0.1))
+    .value(d => d.value)
     .null(0);
-  return generate();
+  return generate().cell_value(d => Math.log(d || 0.1));
 });
 
 const getRelationFeatureIdToNameMap = createSelector(
