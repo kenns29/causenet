@@ -4,7 +4,8 @@ import {AutoComplete, Tag} from 'antd';
 import {array2Object} from '../../utils';
 import {
   getRawCrRelationFeatures,
-  getRawCrMatrixFocus
+  getRawCrMatrixFocus,
+  getCrRelationFeatureIdToNameMap
 } from '../../selectors/data';
 import {updateCrMatrixFocus} from '../../actions';
 
@@ -12,7 +13,8 @@ const mapDispatchToProps = {updateCrMatrixFocus};
 
 const mapStateToProps = state => ({
   features: getRawCrRelationFeatures(state),
-  focus: getRawCrMatrixFocus(state)
+  focus: getRawCrMatrixFocus(state),
+  id2Name: getCrRelationFeatureIdToNameMap(state)
 });
 
 const parseFocus = focus => {
@@ -25,7 +27,7 @@ const parseFocus = focus => {
 
 class CrMatrixFeatureSearch extends PureComponent {
   render() {
-    const {features, focus} = this.props;
+    const {features, focus, id2Name} = this.props;
     const dataSource = features
       .map(d => d.name)
       .sort((a, b) => (a <= b ? -1 : 1));
@@ -57,7 +59,7 @@ class CrMatrixFeatureSearch extends PureComponent {
                 closable
                 onClose={() => this.props.updateCrMatrixFocus(null)}
               >
-                {feature}
+                {id2Name[feature]}
               </Tag>
             </div>
           ) : null}
@@ -86,7 +88,7 @@ class CrMatrixFeatureSearch extends PureComponent {
                 closable
                 onClose={() => this.props.updateCrMatrixFocus(null)}
               >
-                {feature}
+                {id2Name[feature]}
               </Tag>
             </div>
           ) : null}
