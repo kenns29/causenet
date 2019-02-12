@@ -108,8 +108,6 @@ class ContentPanel extends PureComponent {
         } else {
           this.props.updateCrMatrixFocus(null);
         }
-      } else {
-        this.props.updateCrMatrixFocus(null);
       }
     }
   };
