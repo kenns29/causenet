@@ -137,6 +137,47 @@ export const getRelationMatrix = createSelector(
   }
 );
 
+const getCrBayesianNetworkPreLayout = createSelector(
+  [getFocusedCrBayesianNetwork, getRelationMatrix],
+  (network, {rows, cols}) => {
+    // get id to index
+    const nodeId2Index = {};
+    rows.forEach(({id}, i) => {
+      id2Index[`(${id}, ${0})`] = rows.length - i - 1;
+    });
+    cols.forEach(({id}, i) => {
+      id2Index[`(${id}, ${1})`] = i;
+    });
+
+    // network
+    network.forEach(link => {
+      const {source, target} = link;
+      link.id = `${source}-${target}`;
+    });
+    const links = network.map(({source, target, ...rest}) => {
+      const id = `${source}-${target}`;
+      const sourceIndex = nodeId2Index[source];
+      const targetIndex = nodeId2Index[target];
+      const dist = Math.abs(sourceIndex - targetIndex);
+      return {
+        ...rest,
+        id,
+        source,
+        target,
+        sourceIndex,
+        targetIndex,
+        dist
+      };
+    });
+    const id2Link = array2Object(links, d => d.id);
+
+    // sort edges
+    links.sort((a, b) => a.dist - b.dist);
+
+    links.forEach(link => {});
+  }
+);
+
 export const getRelationMatrixDomain = createSelector(
   getRelationMatrix,
   ({rows, cols, cells}) =>
