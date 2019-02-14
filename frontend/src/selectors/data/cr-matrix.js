@@ -32,7 +32,7 @@ const getMatrixObject = createSelector(getRawCrRelations, crRelations => {
   return generate().cell_value(d => Math.log(d || 0.1));
 });
 
-const getRelationFeatureIdToNameMap = createSelector(
+export const getCrRelationFeatureIdToNameMap = createSelector(
   getRawCrRelationFeatures,
   features => array2Object(features, d => d.id, d => d.name)
 );
@@ -104,7 +104,7 @@ const getCrBayesianNetworkFeatureSets = createSelector(
 export const getRelationMatrix = createSelector(
   [
     getMatrixObject,
-    getRelationFeatureIdToNameMap,
+    getCrRelationFeatureIdToNameMap,
     getCleanedCrBayesianNetwork,
     getCrBayesianNetworkFeatureSets
   ],
