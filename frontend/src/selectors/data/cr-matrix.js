@@ -214,9 +214,10 @@ const getCrBayesianNetworkPreLayout = createSelector(
       const overlap = getOverlap(link, overlaps);
       if (overlap) {
         link.h = overlap.h = overlap.h + 1;
+        const [s, t] = overlap.range;
         overlap.range = [
-          Math.min(sourceIndex, targetIndex),
-          Math.max(sourceIndex, targetIndex)
+          Math.min(sourceIndex, targetIndex, s),
+          Math.max(sourceIndex, targetIndex, t)
         ];
       } else {
         link.h = 1;
@@ -391,16 +392,25 @@ export const getCrRowBayesianNetworkLayout = createSelector(
 );
 
 export const getCrColBayesianNetworkLayout = createSelector(
-  [getCrColBayesianNetwork, getRelationMatrixLayout],
-  (network, {cols}) => {
+  [getCrColBayesianNetwork, getRelationMatrixLayout, getRelationMatrixCellSize],
+  (network, {cols}, [cw, ch]) => {
     const nodeMap = array2Object(
       cols,
       d => d.id,
       ({x, y, ...d}, index) => ({...d, x, y: y - 20, index})
     );
-    return network.map(({source, target, corr, h, bi, dir, ...rest}) => {
+    return network.map(({source, target, corr, h, bi, dir, bn, ...rest}) => {
       const [sn, tn] = [source, target].map(d => nodeMap[d]);
-      const [sx, sy, tx, ty] = [sn.x, sn.y, tn.x, tn.y];
+      const [sy, ty] = [sn.y, tn.y];
+      // const [sx, sy, tx, ty] = [sn.x, sn.y, tn.x, tn.y];
+      const sx =
+        dir === 0
+          ? sn.x + cw / 2 - (cw / bn) * bi
+          : sn.x - cw / 2 + (cw / bn) * bi;
+      const tx =
+        dir === 0
+          ? tn.x - cw / 2 + (cw / bn) * bi
+          : tn.x + cw / 2 - (cw / bn) * bi;
       const r = h * 10;
       return {
         ...rest,
