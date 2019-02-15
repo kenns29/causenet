@@ -150,16 +150,14 @@ export const getRelationMatrixDomain = createSelector(
 const getCrBayesianNetworkPreLayout = createSelector(
   [getCleanedCrBayesianNetwork, getRelationMatrix],
   (network, {rows, cols}) => {
-    // get id to index
     const nodeId2Index = {};
     rows.forEach(({id}, i) => {
       nodeId2Index[`(${id}, ${0})`] = rows.length - i - 1;
     });
     cols.forEach(({id}, i) => {
-      nodeId2Index[`(${id}, ${1})`] = i;
+      nodeId2Index[`(${id}, ${1})`] = rows.length + i;
     });
 
-    // network
     network.forEach(link => {
       const {source, target} = link;
       link.id = `${source}-${target}`;
@@ -180,70 +178,81 @@ const getCrBayesianNetworkPreLayout = createSelector(
       };
     });
 
-    // sort edges
     links.sort((a, b) => a.dist - b.dist);
 
-    // [{
-    //  range: [s, t],
-    //  h
-    // }]
-    const overlaps = [];
+    /** [{
+     *    id,
+     *    range: [s, t],
+     *    h
+     * }]
+     */
+    let bounds = [];
     const bins = Array(rows.length + cols.length)
       .fill(0)
       .map(_ => [[], []]);
 
-    const getOverlap = (link, overlaps) => {
+    const findOverlaps = (link, bounds) => {
       const {sourceIndex, targetIndex} = link;
-      for (const o of overlaps) {
+      const [s, t] = [
+        Math.min(sourceIndex, targetIndex),
+        Math.max(sourceIndex, targetIndex)
+      ];
+      const overlaps = [];
+      bounds.forEach(bound => {
         const {
-          range: [s, t]
-        } = o;
-        if (sourceIndex < targetIndex) {
-          if (targetIndex < s && targetIndex >= t) {
-            return o;
-          }
-        } else if (targetIndex <= s && targetIndex < t) {
-          return o;
+          range: [rs, rt],
+          h
+        } = bound;
+        if ((s <= rt && t >= rt) || (s <= rs && t >= rs && t <= rt)) {
+          overlaps.push(bound);
         }
-      }
-      return null;
+      });
+      return overlaps;
     };
 
     links.forEach(link => {
       const {sourceIndex, targetIndex} = link;
-      const overlap = getOverlap(link, overlaps);
-      if (overlap) {
-        link.h = overlap.h = overlap.h + 1;
-        const [s, t] = overlap.range;
-        overlap.range = [
-          Math.min(sourceIndex, targetIndex, s),
-          Math.max(sourceIndex, targetIndex, t)
-        ];
+      const overlaps = findOverlaps(link, bounds);
+      if (overlaps.length) {
+        const oSet = new Set();
+        let [ms, mt, mh] = [Infinity, -Infinity, 1];
+        overlaps.forEach(({id, range: [rs, rt], h}) => {
+          oSet.add(id);
+          [ms, mt, mh] = [Math.min(ms, rs), Math.max(mt, rt), Math.max(mh, h)];
+        });
+        bounds = bounds.filter(b => !oSet.has(b.id));
+        bounds.push({
+          id: `${ms}=${mt}`,
+          range: [ms, mt],
+          h: mh + 1
+        });
+        link.h = mh + 1;
       } else {
-        link.h = 1;
-        overlaps.push({
-          range: [
-            Math.min(sourceIndex, targetIndex),
-            Math.max(sourceIndex, targetIndex)
-          ],
+        const [ms, mt] = [
+          Math.max(sourceIndex, targetIndex),
+          Math.max(sourceIndex, targetIndex)
+        ];
+        bounds.push({
+          id: `${ms}=${mt}`,
+          range: [ms, mt],
           h: 1
         });
+        link.h = 1;
       }
       bins[sourceIndex][0].push(link);
       bins[targetIndex][1].push(link);
+      link.dir = sourceIndex <= targetIndex ? 0 : 1;
     });
 
     bins.forEach(bin => {
       const bn = bin[0].length + bin[1].length;
       bin[0].sort((a, b) => a.h - b.h).forEach((link, i) => {
-        link.dir = 0;
-        link.bi = i;
-        link.bn = bn;
+        link.sbi = i;
+        link.sbn = bn;
       });
       bin[1].sort((a, b) => a.h - b.h).forEach((link, i) => {
-        link.dir = 0;
-        link.bi = i;
-        link.bn = bn;
+        link.tbi = i;
+        link.tbn = bn;
       });
     });
     return links;
@@ -350,8 +359,8 @@ export const getCrCrossBayesianNetwork = createSelector(
       )
       .map(({csource, ctarget, ...rest}) => ({
         ...rest,
-        source: csource,
-        target: ctarget,
+        source: csource[0],
+        target: ctarget[0],
         csource,
         ctarget
       }));
@@ -366,28 +375,23 @@ export const getCrRowBayesianNetworkLayout = createSelector(
       d => d.id,
       ({x, y, ...d}, index) => ({...d, x: x - 20, y, index})
     );
-    return network.map(({source, target, corr, h, bi, dir, bn, ...rest}) => {
-      const [sn, tn] = [source, target].map(d => nodeMap[d]);
-      const [sx, tx] = [sn.x, tn.x];
-      const sy =
-        dir === 0
-          ? sn.y - ch / 2 + (ch / bn) * bi
-          : sn.y + ch / 2 - (ch / bn) * bi;
-      const ty =
-        dir === 0
-          ? tn.y + ch / 2 - (ch / bn) * bi
-          : tn.y - ch / 2 + (ch / bn) * bi;
-      // const [sx, sy, tx, ty] = [sn.x, sn.y, tn.x, tn.y];
-      const r = h * 10;
-      return {
-        ...rest,
-        source: sn,
-        target: tn,
-        points: [[sx, sy], [sx - r, sy], [tx - r, ty], [tx, ty]],
-        corr,
-        color: corr >= 0 ? [0, 0, 200] : [200, 0, 0]
-      };
-    });
+    return network.map(
+      ({source, target, corr, h, dir, sbi, sbn, tbi, tbn, ...rest}) => {
+        const [sn, tn] = [source, target].map(d => nodeMap[d]);
+        const [sx, tx] = [sn.x, tn.x];
+        const sy = sn.y + 1 + ((ch - 2) / sbn) * sbi;
+        const ty = tn.y - 1 - ((ch - 2) / tbn) * tbi;
+        const r = h * 10;
+        return {
+          ...rest,
+          source: sn,
+          target: tn,
+          points: [[sx, sy], [sx - r, sy], [tx - r, ty], [tx, ty]],
+          corr,
+          color: corr >= 0 ? [0, 0, 200] : [200, 0, 0]
+        };
+      }
+    );
   }
 );
 
@@ -399,28 +403,23 @@ export const getCrColBayesianNetworkLayout = createSelector(
       d => d.id,
       ({x, y, ...d}, index) => ({...d, x, y: y - 20, index})
     );
-    return network.map(({source, target, corr, h, bi, dir, bn, ...rest}) => {
-      const [sn, tn] = [source, target].map(d => nodeMap[d]);
-      const [sy, ty] = [sn.y, tn.y];
-      // const [sx, sy, tx, ty] = [sn.x, sn.y, tn.x, tn.y];
-      const sx =
-        dir === 0
-          ? sn.x + cw / 2 - (cw / bn) * bi
-          : sn.x - cw / 2 + (cw / bn) * bi;
-      const tx =
-        dir === 0
-          ? tn.x - cw / 2 + (cw / bn) * bi
-          : tn.x + cw / 2 - (cw / bn) * bi;
-      const r = h * 10;
-      return {
-        ...rest,
-        source: sn,
-        target: tn,
-        points: [[sx, sy], [sx, sy - r], [tx, ty - r], [tx, ty]],
-        corr,
-        color: corr >= 0 ? [0, 0, 200] : [200, 0, 0]
-      };
-    });
+    return network.map(
+      ({source, target, corr, h, dir, sbi, sbn, tbi, tbn, ...rest}) => {
+        const [sn, tn] = [source, target].map(d => nodeMap[d]);
+        const [sy, ty] = [sn.y, tn.y];
+        const sx = sn.x - 1 - ((cw - 2) / sbn) * sbi;
+        const tx = tn.x + 1 + ((cw - 2) / tbn) * tbi;
+        const r = h * 10;
+        return {
+          ...rest,
+          source: sn,
+          target: tn,
+          points: [[sx, sy], [sx, sy - r], [tx, ty - r], [tx, ty]],
+          corr,
+          color: corr >= 0 ? [0, 0, 200] : [200, 0, 0]
+        };
+      }
+    );
   }
 );
 
@@ -444,40 +443,38 @@ export const getCrCrossBayesianNetworkLayout = createSelector(
         })
       )
     );
-    return network.map(({source, target, corr, h, bi, dir, bn, ...rest}) => {
-      const [[sn, su], [tn, tu]] = [source, target].map(([k, u]) => [
-        maps[u][k],
-        u
-      ]);
-
-      // const sx = dir === 0 ? sn.x : sn.x - cw / 2 + cw / bn * i;
-      // const sy = dir === 0 ? sn.y - ch/2 + ch / bn * i : sn.y;
-      // const tx = dir === 0 ? tn.x - cw/2
-
-      const [sx, sy, tx, ty] = [sn.x, sn.y, tn.x, tn.y];
-      const [rx, ry] = [h * 10, h * 10];
-      return {
-        ...rest,
-        source: sn,
-        target: tn,
-        points: su
-          ? [
-            [sx, sy],
-            [sx, sy - ry],
-            [tx - rx, sy - ry],
-            [tx - rx, ty],
-            [tx, ty]
-          ]
-          : [
-            [sx, sy],
-            [sx - rx, sy],
-            [sx - rx, ty - ry],
-            [tx, ty - ry],
-            [tx, ty]
-          ],
-        corr,
-        color: corr >= 0 ? [0, 0, 200] : [200, 0, 0]
-      };
-    });
+    return network.map(
+      ({csource, ctarget, corr, h, dir, sbi, sbn, tbi, tbn, ...rest}) => {
+        const [sn, tn] = [csource, ctarget].map(([k, u]) => maps[u][k]);
+        const sx = dir === 0 ? sn.x : sn.x - 1 - ((cw - 2) / sbn) * sbi;
+        const sy = dir === 0 ? sn.y + 1 + ((ch - 2) / sbn) * sbi : sn.y;
+        const tx = dir === 0 ? tn.x + 1 + ((cw - 2) / tbn) * tbi : tn.x;
+        const ty = dir === 0 ? tn.y : tn.y - 1 - (ch / 2 / tbn) * tbi;
+        const [rx, ry] = [h * 10, h * 10];
+        return {
+          ...rest,
+          source: sn,
+          target: tn,
+          points:
+            dir === 0
+              ? [
+                [sx, sy],
+                [sx - rx, sy],
+                [sx - rx, ty - ry],
+                [tx, ty - ry],
+                [tx, ty]
+              ]
+              : [
+                [sx, sy],
+                [sx, sy - ry],
+                [tx - rx, sy - ry],
+                [tx - rx, ty],
+                [tx, ty]
+              ],
+          corr,
+          color: corr >= 0 ? [0, 0, 200] : [200, 0, 0]
+        };
+      }
+    );
   }
 );
