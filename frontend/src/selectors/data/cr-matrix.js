@@ -229,7 +229,7 @@ const getCrBayesianNetworkPreLayout = createSelector(
         link.h = mh + 1;
       } else {
         const [ms, mt] = [
-          Math.max(sourceIndex, targetIndex),
+          Math.min(sourceIndex, targetIndex),
           Math.max(sourceIndex, targetIndex)
         ];
         bounds.push({
