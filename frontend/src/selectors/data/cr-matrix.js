@@ -203,7 +203,7 @@ const getCrBayesianNetworkPreLayout = createSelector(
           range: [rs, rt],
           h
         } = bound;
-        if ((s <= rt && t >= rt) || (s <= rs && t >= rs && t <= rt)) {
+        if (s <= rt && t >= rs) {
           overlaps.push(bound);
         }
       });
@@ -213,27 +213,27 @@ const getCrBayesianNetworkPreLayout = createSelector(
     links.forEach(link => {
       const {sourceIndex, targetIndex} = link;
       const overlaps = findOverlaps(link, bounds);
+      let [ms, mt] = [
+        Math.min(sourceIndex, targetIndex),
+        Math.max(sourceIndex, targetIndex)
+      ];
       if (overlaps.length) {
         const oSet = new Set();
-        let [ms, mt, mh] = [Infinity, -Infinity, 1];
+        let mh = 1;
         overlaps.forEach(({id, range: [rs, rt], h}) => {
           oSet.add(id);
           [ms, mt, mh] = [Math.min(ms, rs), Math.max(mt, rt), Math.max(mh, h)];
         });
         bounds = bounds.filter(b => !oSet.has(b.id));
         bounds.push({
-          id: `${ms}=${mt}`,
+          id: `${ms}-${mt}`,
           range: [ms, mt],
           h: mh + 1
         });
         link.h = mh + 1;
       } else {
-        const [ms, mt] = [
-          Math.min(sourceIndex, targetIndex),
-          Math.max(sourceIndex, targetIndex)
-        ];
         bounds.push({
-          id: `${ms}=${mt}`,
+          id: `${ms}-${mt}`,
           range: [ms, mt],
           h: 1
         });
