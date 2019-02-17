@@ -382,10 +382,14 @@ export const getCrRowBayesianNetworkLayout = createSelector(
     );
     return network.map(
       ({source, target, corr, h, dir, sbi, sbn, tbi, tbn, ...rest}) => {
+        const sitv = sbn > 1 ? Math.min(2, (ch - 2) / sbn) : 0;
+        const titv = tbn > 1 ? Math.min(2, (ch - 2) / tbn) : 0;
+        const [sbs, tbs] = [sitv * sbn, titv * tbn];
         const [sn, tn] = [source, target].map(d => nodeMap[d]);
         const [sx, tx] = [sn.x, tn.x];
-        const sy = sn.y + ch / 2 - 1 - ((ch - 2) / sbn) * sbi;
-        const ty = tn.y + ch / 2 - 1 - ((ch - 2) / tbn) * tbi;
+
+        const sy = sn.y + sbs / 2 - sitv * sbi;
+        const ty = tn.y + tbs / 2 - titv * tbi;
         const r = h * 5;
         return {
           ...rest,
@@ -410,10 +414,14 @@ export const getCrColBayesianNetworkLayout = createSelector(
     );
     return network.map(
       ({source, target, corr, h, dir, sbi, sbn, tbi, tbn, ...rest}) => {
+        const sitv = sbn > 1 ? Math.min(2, (cw - 2) / sbn) : 0;
+        const titv = tbn > 1 ? Math.min(2, (cw - 2) / tbn) : 0;
+        const [sbs, tbs] = [sitv * sbn, titv * tbn];
         const [sn, tn] = [source, target].map(d => nodeMap[d]);
         const [sy, ty] = [sn.y, tn.y];
-        const sx = sn.x - cw / 2 + 1 + ((cw - 2) / sbn) * sbi;
-        const tx = tn.x - cw / 2 + 1 + ((cw - 2) / tbn) * tbi;
+
+        const sx = sn.x - sbs / 2 + sitv * sbi;
+        const tx = tn.x - tbs / 2 + titv * tbi;
         const r = h * 5;
         return {
           ...rest,
@@ -450,15 +458,15 @@ export const getCrCrossBayesianNetworkLayout = createSelector(
     );
     return network.map(
       ({csource, ctarget, corr, h, dir, sbi, sbn, tbi, tbn, ...rest}) => {
+        const sitv = sbn > 1 ? Math.min(2, ((dir ? cw : ch) - 2) / sbn) : 0;
+        const titv = tbn > 1 ? Math.min(2, ((dir ? ch : cw) - 2) / tbn) : 0;
+        const [sbs, tbs] = [sitv * sbn, titv * tbn];
         const [sn, tn] = [csource, ctarget].map(([k, u]) => maps[u][k]);
-        const sx =
-          dir === 0 ? sn.x : sn.x - cw / 2 + 1 + ((cw - 2) / sbn) * sbi;
-        const sy =
-          dir === 0 ? sn.y + ch / 2 - 1 - ((ch - 2) / sbn) * sbi : sn.y;
-        const tx =
-          dir === 0 ? tn.x + cw / 2 + 1 - ((cw - 2) / tbn) * tbi : tn.x;
-        const ty =
-          dir === 0 ? tn.y : tn.y + ch / 2 - 1 - ((ch - 2) / tbn) * tbi;
+
+        const sx = dir ? sn.x - sbs / 2 + sitv * sbi : sn.x;
+        const sy = dir ? sn.y : sn.y + sbs / 2 - sitv * sbi;
+        const tx = dir ? tn.x : tn.x - tbs / 2 + titv * tbi;
+        const ty = dir ? tn.y + tbs / 2 - titv * tbi : tn.y;
         const [rx, ry] = [h * 5, h * 5];
         return {
           ...rest,
