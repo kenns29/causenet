@@ -472,22 +472,21 @@ export const getCrCrossBayesianNetworkLayout = createSelector(
           ...rest,
           source: sn,
           target: tn,
-          points:
-            dir === 0
-              ? [
-                [sx, sy],
-                [sx - rx, sy],
-                [sx - rx, ty - ry],
-                [tx, ty - ry],
-                [tx, ty]
-              ]
-              : [
-                [sx, sy],
-                [sx, sy - ry],
-                [tx - rx, sy - ry],
-                [tx - rx, ty],
-                [tx, ty]
-              ],
+          points: dir
+            ? [
+              [sx, sy],
+              [sx, sy - ry],
+              [tx - rx, sy - ry],
+              [tx - rx, ty],
+              [tx, ty]
+            ]
+            : [
+              [sx, sy],
+              [sx - rx, sy],
+              [sx - rx, ty - ry],
+              [tx, ty - ry],
+              [tx, ty]
+            ],
           corr,
           color: corr >= 0 ? [0, 0, 200] : [200, 0, 0]
         };
