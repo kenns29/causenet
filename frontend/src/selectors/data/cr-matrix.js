@@ -245,14 +245,19 @@ const getCrBayesianNetworkPreLayout = createSelector(
     });
 
     bins.forEach(bin => {
-      const bn = bin[0].length + bin[1].length;
+      const [bn0, bn1] = bin.map(d => d.length);
+      const bn = bn0 + bn1;
       bin[0].sort((a, b) => a.h - b.h).forEach((link, i) => {
         link.sbi = i;
         link.sbn = bn;
+        link.sbn0 = bn0;
+        link.sbn1 = bn1;
       });
       bin[1].sort((a, b) => a.h - b.h).forEach((link, i) => {
-        link.tbi = i;
+        link.tbi = bn0 + i;
         link.tbn = bn;
+        link.tbn0 = bn0;
+        link.tbn1 = bn1;
       });
     });
     return links;
@@ -379,9 +384,9 @@ export const getCrRowBayesianNetworkLayout = createSelector(
       ({source, target, corr, h, dir, sbi, sbn, tbi, tbn, ...rest}) => {
         const [sn, tn] = [source, target].map(d => nodeMap[d]);
         const [sx, tx] = [sn.x, tn.x];
-        const sy = sn.y + 1 + ((ch - 2) / sbn) * sbi;
-        const ty = tn.y - 1 - ((ch - 2) / tbn) * tbi;
-        const r = h * 10;
+        const sy = sn.y + ch / 2 - 1 - ((ch - 2) / sbn) * sbi;
+        const ty = tn.y + ch / 2 - 1 - ((ch - 2) / tbn) * tbi;
+        const r = h * 5;
         return {
           ...rest,
           source: sn,
@@ -407,9 +412,9 @@ export const getCrColBayesianNetworkLayout = createSelector(
       ({source, target, corr, h, dir, sbi, sbn, tbi, tbn, ...rest}) => {
         const [sn, tn] = [source, target].map(d => nodeMap[d]);
         const [sy, ty] = [sn.y, tn.y];
-        const sx = sn.x - 1 - ((cw - 2) / sbn) * sbi;
-        const tx = tn.x + 1 + ((cw - 2) / tbn) * tbi;
-        const r = h * 10;
+        const sx = sn.x - cw / 2 + 1 + ((cw - 2) / sbn) * sbi;
+        const tx = tn.x - cw / 2 + 1 + ((cw - 2) / tbn) * tbi;
+        const r = h * 5;
         return {
           ...rest,
           source: sn,
@@ -446,11 +451,15 @@ export const getCrCrossBayesianNetworkLayout = createSelector(
     return network.map(
       ({csource, ctarget, corr, h, dir, sbi, sbn, tbi, tbn, ...rest}) => {
         const [sn, tn] = [csource, ctarget].map(([k, u]) => maps[u][k]);
-        const sx = dir === 0 ? sn.x : sn.x - 1 - ((cw - 2) / sbn) * sbi;
-        const sy = dir === 0 ? sn.y + 1 + ((ch - 2) / sbn) * sbi : sn.y;
-        const tx = dir === 0 ? tn.x + 1 + ((cw - 2) / tbn) * tbi : tn.x;
-        const ty = dir === 0 ? tn.y : tn.y - 1 - (ch / 2 / tbn) * tbi;
-        const [rx, ry] = [h * 10, h * 10];
+        const sx =
+          dir === 0 ? sn.x : sn.x - cw / 2 + 1 + ((cw - 2) / sbn) * sbi;
+        const sy =
+          dir === 0 ? sn.y + ch / 2 - 1 - ((ch - 2) / sbn) * sbi : sn.y;
+        const tx =
+          dir === 0 ? tn.x + cw / 2 + 1 - ((cw - 2) / tbn) * tbi : tn.x;
+        const ty =
+          dir === 0 ? tn.y : tn.y + ch / 2 - 1 - ((ch - 2) / tbn) * tbi;
+        const [rx, ry] = [h * 5, h * 5];
         return {
           ...rest,
           source: sn,
