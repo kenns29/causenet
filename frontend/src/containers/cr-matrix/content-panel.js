@@ -105,11 +105,7 @@ class ContentPanel extends PureComponent {
         } else if (layer.id.startsWith('cr-matrix-x-axis')) {
           const {object} = info;
           this.props.updateCrMatrixFocus(`(${object.id}, ${1})`);
-        } else {
-          this.props.updateCrMatrixFocus(null);
         }
-      } else {
-        this.props.updateCrMatrixFocus(null);
       }
     }
   };

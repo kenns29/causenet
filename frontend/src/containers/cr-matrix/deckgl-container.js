@@ -145,6 +145,7 @@ export default class Content extends PureComponent {
         data: rowNetwork,
         getPath: d => d.points,
         getWidth: 1,
+        getColor: d => d.color,
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY
       })
     ];
@@ -165,8 +166,8 @@ export default class Content extends PureComponent {
             l: 7,
             w: 3.5
           }),
-        getFillColor: [10, 10, 10],
-        getLineColor: [10, 10, 10],
+        getFillColor: d => d.color,
+        getLineColor: d => d.color,
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY
       })
     ];
@@ -183,6 +184,7 @@ export default class Content extends PureComponent {
         data: colNetwork,
         getPath: d => d.points,
         getWidth: 1,
+        getColor: d => d.color,
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY
       })
     ];
@@ -203,8 +205,8 @@ export default class Content extends PureComponent {
             l: 7,
             w: 3.5
           }),
-        getFillColor: [10, 10, 10],
-        getLineColor: [10, 10, 10],
+        getFillColor: d => d.color,
+        getLineColor: d => d.color,
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY
       })
     ];
@@ -221,6 +223,7 @@ export default class Content extends PureComponent {
         data: crossNetwork,
         getPath: d => d.points,
         getWidth: 1,
+        getColor: d => d.color,
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY
       })
     ];
@@ -241,8 +244,8 @@ export default class Content extends PureComponent {
             l: 7,
             w: 3.5
           }),
-        getFillColor: [10, 10, 10],
-        getLineColor: [10, 10, 10],
+        getFillColor: d => d.color,
+        getLineColor: d => d.color,
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY
       })
     ];
