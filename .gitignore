@@ -142,3 +142,4 @@ ENV/
 #C
 test
 *.dSYM
+*.swp

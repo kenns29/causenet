@@ -1,7 +1,8 @@
 import React, {PureComponent} from 'react';
-import DeckGL, {PolygonLayer} from 'deck.gl';
+import DeckGL, {GeoJsonLayer} from 'deck.gl';
 import {StaticMap} from 'react-map-gl';
 import shape from '../../data/world.json';
+
 const ID = 'world-map';
 
 const MAPBOX_TOKEN = process.env.MapboxAccessToken;
@@ -16,11 +17,24 @@ const INITIAL_VIEW_STATE = {
 };
 
 export default class ContentPanel extends PureComponent {
+  _renderGeoJson() {
+    return [
+      new GeoJsonLayer({
+        id: ID + '-geojson',
+        data: shape,
+        stroked: true,
+        filled: false,
+        getLineWidth: 10,
+        lineWidthMinPixels: 1,
+        getFillColor: [255, 255, 255],
+        getLineColor: [0, 0, 0]
+      })
+    ];
+  }
   _renderLayers() {
-    return [];
+    return [this._renderGeoJson()];
   }
   render() {
-    console.log('MAPBOX_TOKEN', MAPBOX_TOKEN);
     return (
       <DeckGL
         initialViewState={INITIAL_VIEW_STATE}
