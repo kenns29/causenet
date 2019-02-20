@@ -661,10 +661,10 @@ export const bundleRequestUpdateSelectedDataset = (
     await dispatch(requestUpdateCurrentDatasetName(name));
     await dispatch(fetchModelList());
     await dispatch(fetchFeatureSelection());
-    await dispatch(fetchDistanceMap(hierarchicalClusteringOption));
-    await dispatch(
-      fetchHierarchicalClusteringTree(hierarchicalClusteringOption)
-    );
+    // await dispatch(fetchDistanceMap(hierarchicalClusteringOption));
+    // await dispatch(
+    //   fetchHierarchicalClusteringTree(hierarchicalClusteringOption)
+    // );
     dispatch(updateSelectedModel(null));
     dispatch(updateDistributionFeaturePairs([]));
     dispatch(updateSelectedNormalizedFeatureDistributionMap({}));

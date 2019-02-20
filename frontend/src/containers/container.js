@@ -149,16 +149,20 @@ class AppContainer extends PureComponent {
                 />
               </Layout.Content>
               <Layout.Content style={this.bottomLeftSubPanelStyle}>
-                <BayesianNetworkMatrix
-                  width={this.props.bottomLeftSubPanelSize[0]}
-                  height={this.props.bottomLeftSubPanelSize[1]}
-                />
+                {
+                  //   <BayesianNetworkMatrix
+                  //   width={this.props.bottomLeftSubPanelSize[0]}
+                  //   height={this.props.bottomLeftSubPanelSize[1]}
+                  // />
+                }
               </Layout.Content>
               <Layout.Content style={this.bottomRightSubPanelStyle}>
-                <BayesianNetworkNodeLinkView
-                  width={this.props.bottomRightSubPanelSize[0]}
-                  height={this.props.bottomRightSubPanelSize[1]}
-                />
+                {
+                  //   <BayesianNetworkNodeLinkView
+                  //   width={this.props.bottomRightSubPanelSize[0]}
+                  //   height={this.props.bottomRightSubPanelSize[1]}
+                  // />
+                }
               </Layout.Content>
               <ContentPanelCenter />
             </Layout.Content>

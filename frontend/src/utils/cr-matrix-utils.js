@@ -18,7 +18,8 @@ export const isCrBayesianNetwork = network => {
       d =>
         d &&
         ((isArray(d) && d.length === 2) ||
-          (typeof d === 'string' && d.match(/^\s*\(\s*\w+\s*,\s*\w+\s*\)\s*$/)))
+          (typeof d === 'string' &&
+            d.match(/^\s*\(\s*\w+\s*(?:,\s*\w+\s*)+\)\s*$/)))
     )
   ) {
     return true;
