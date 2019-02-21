@@ -17,14 +17,6 @@ const mapStateToProps = state => ({
   id2Name: getCrRelationFeatureIdToNameMap(state)
 });
 
-const parseFocus = focus => {
-  if (!focus) {
-    return [null, 3];
-  }
-  const [f, u] = focus.split(',').map(d => d.match(/\w+/)[0]);
-  return [f, Number(u)];
-};
-
 class CrMatrixFeatureSearch extends PureComponent {
   render() {
     const {features, focus, id2Name} = this.props;
@@ -32,7 +24,7 @@ class CrMatrixFeatureSearch extends PureComponent {
       .map(d => d.name)
       .sort((a, b) => (a <= b ? -1 : 1));
     const name2Id = array2Object(features, d => d.name, d => d.id);
-    const [feature, u] = parseFocus(focus);
+    const [feature, u] = focus || [null, 3];
     return (
       <React.Fragment>
         <div>
@@ -49,7 +41,7 @@ class CrMatrixFeatureSearch extends PureComponent {
                   .indexOf(inputValue.toUpperCase()) !== -1
               }
               onSelect={value =>
-                this.props.updateCrMatrixFocus(`(${name2Id[value]}, ${0})`)
+                this.props.updateCrMatrixFocus([name2Id[value], 0])
               }
             />
           </div>
@@ -78,7 +70,7 @@ class CrMatrixFeatureSearch extends PureComponent {
                   .indexOf(inputValue.toUpperCase()) !== -1
               }
               onSelect={value =>
-                this.props.updateCrMatrixFocus(`(${name2Id[value]}, ${1})`)
+                this.props.updateCrMatrixFocus([name2Id[value], 1])
               }
             />
           </div>

@@ -64,10 +64,18 @@ export const getCrBayesianNetwork = createSelector(
 export const getFocusedCrBayesianNetwork = createSelector(
   [getCrBayesianNetwork, getRawCrMatrixFocus],
   (network, focus) => {
+    if (network.length === 0) {
+      return [];
+    }
     if (!focus) {
       return network;
     }
-    return getPathLinksThroughNode(focus, network);
+    const p = network[0].source.split(',').map(g => g.match(/\w+/)[0]);
+    const foc =
+      p.length > 2
+        ? `(${focus[0]}, ${p[1]}, ${focus[1]})`
+        : `(${focus[0]}, ${focus[1]})`;
+    return getPathLinksThroughNode(foc, network);
   }
 );
 
