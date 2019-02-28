@@ -13,6 +13,7 @@ import BayesianNetworkDistribution from './bayesian-network-distribution';
 import BayesianNetworkSubNetworkDetail from './bayesian-network-sub-network-detail';
 import FeatureDistribution from './feature-distribution';
 import CrMatrix from './cr-matrix';
+import CChord from './c-chord';
 import FeatureList from './feature-list';
 import WorldMap from './world-map';
 import ContentPanelCenter from './content-panel-center';
@@ -171,6 +172,7 @@ class AppContainer extends PureComponent {
           <FeatureDistribution />
           <BayesianNetworkSubNetworkDetail />
           <CrMatrix />
+          <CChord />
           <WorldMap />
         </Layout>
       </React.Fragment>

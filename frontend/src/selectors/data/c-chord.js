@@ -1,4 +1,8 @@
 import {createSelector} from 'reselect';
+import {document} from 'global';
+import {chord, ribbon} from 'd3-chord';
+import {descending as d3Descending} from 'd3-array';
+import {links2generator} from 'sortable-matrix';
 import {rootSelector} from '../base';
 import {
   getRawCrRelations,
@@ -54,3 +58,54 @@ export const getCcCategoryNetwork = createSelector(
     return Object.entries(cmap).map(([id, link]) => ({id, ...link}));
   }
 );
+
+export const getCcCategoryMatrixObject = createSelector(
+  getCcCategoryNetwork,
+  network => {
+    const generate = links2generator()
+      .links(network)
+      .source(d => Number(d.source))
+      .target(d => Number(d.target))
+      .value(d => d.count)
+      .null(0);
+    const mo = generate();
+    const [rows, cols] = [mo.row_id_order(), mo.col_id_order()];
+    mo.order_rows_by_id(rows.sort((a, b) => a - b));
+    mo.order_cols_by_id(cols.sort((a, b) => a - b));
+    return mo;
+  }
+);
+
+export const getCcCategoryMatrix = createSelector(
+  getCcCategoryMatrixObject,
+  mo => {
+    const [rows, cols] = [mo.active_row_id_order(), mo.active_col_id_order()];
+    const matrix = rows.map(() => Array(cols.length));
+    rows.forEach((row, ri) => {
+      cols.forEach((col, ci) => {
+        matrix[ri][ci] = mo.cell_value_by_id(row, col);
+      });
+    });
+    return matrix;
+  }
+);
+
+export const getCcLayout = createSelector(getCcCategoryMatrix, matrix => {
+  console.log('matrix', matrix);
+  const cGen = chord()
+    .padAngle(0.05)
+    .sortSubgroups(d3Descending);
+  const chords = cGen(matrix);
+
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+
+  const rGen = ribbon()
+    .radius(200)
+    .context(ctx);
+
+  chords.forEach(d => {
+    const p = rGen(d);
+    console.log('p', p);
+  });
+});
