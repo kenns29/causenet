@@ -18,6 +18,7 @@ export const UPDATE_SHOW_BAYESIAN_NETWORK_SUB_NETWORK_DETAIL_WINDOW =
   'UPDATE_SHOW_BAYESIAN_NETWORK_SUB_NETWORK_DETAIL_WINDOW';
 export const UPDATE_SHOW_CR_MATRIX_WINDOW = 'UPDATE_SHOW_CR_MATRIX_WINDOW';
 export const UPDATE_CR_MATRIX_WINDOW_SIZE = 'UPDATE_CR_MATRIX_WINDOW_SIZE';
+export const UPDATE_SHOW_WORLD_MAP_WINDOW = 'UPDATE_SHOW_WORLD_MAP_WINDOW';
 
 // data Action ids
 export const UPDATE_CURRENT_DATASET_NAME = 'UPDDATE_CURRENT_DATASET_NAME';
@@ -103,6 +104,9 @@ export const updateShowCrMatrixWindow = createAction(
 );
 export const updateCrMatrixWindowSize = createAction(
   UPDATE_CR_MATRIX_WINDOW_SIZE
+);
+export const updateShowWorldMapWindow = createAction(
+  UPDATE_SHOW_WORLD_MAP_WINDOW
 );
 
 // data actions

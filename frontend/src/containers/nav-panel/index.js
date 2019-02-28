@@ -13,6 +13,7 @@ import ToggleHierarchicalBayesianNetwork from './toggle-hierarchical-bayesian-ne
 import ToggleShowBayesianNetworkDistributionWindow from './toggle-show-bayesian-network-distribution-window';
 import ToggleShowFeatureDistributionHistogramWindow from './toggle-show-feature-distribution-histogram-window';
 import ToggleShowCrMatrixWindow from './toggle-show-cr-matrix-window';
+import ToggleShowWorldMapWindow from './toggle-show-world-map-window';
 import BayesianModelFeatureSlicesTable from './bayesian-model-feature-slices-table';
 import CrMatrixOptions from './cr-matrix-options';
 import CrMatrixFeatureSearch from './cr-matrix-feature-search';
@@ -59,6 +60,7 @@ class NavPanel extends PureComponent {
         <ToggleShowBayesianNetworkDistributionWindow />
         <ToggleShowFeatureDistributionHistogramWindow />
         <BayesianModelFeatureSlicesTable />
+        <ToggleShowWorldMapWindow />
         <ToggleShowCrMatrixWindow />
         <CrMatrixOptions />
         <CrMatrixFeatureSearch />

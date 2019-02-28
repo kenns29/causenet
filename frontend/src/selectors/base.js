@@ -96,3 +96,8 @@ export const getCrMatrixWindowSize = createSelector(
   rootSelector,
   state => state.crMatrixWindowSize
 );
+
+export const getShowWorldMapWindow = createSelector(
+  rootSelector,
+  state => state.showWorldMapWindow
+);

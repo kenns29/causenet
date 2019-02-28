@@ -10,6 +10,7 @@ import {
   UPDATE_SHOW_BAYESIAN_NETWORK_SUB_NETWORK_DETAIL_WINDOW,
   UPDATE_SHOW_CR_MATRIX_WINDOW,
   UPDATE_CR_MATRIX_WINDOW_SIZE,
+  UPDATE_SHOW_WORLD_MAP_WINDOW,
   UPDATE_CURRENT_DATASET_NAME,
   UPDATE_DATASET_LIST,
   FETCH_BAYESIAN_NETWORK_START,
@@ -176,6 +177,7 @@ const DEFAULT_STATE = {
   bayesianNetworkDistributionWindowSize: [600, 620],
   showCrMatrixWindow: true,
   crMatrixWindowSize: [1200, 900],
+  showWorldMapWindow: false,
   // feature pair list that will be shown in the distribution window
   // [
   //  {
@@ -278,6 +280,11 @@ const handleUpdateShowBayesianNetworkSubNetworkDetailWindow = (
 const handleUpdateShowCrMatrixWindow = (state, {payload}) => ({
   ...state,
   showCrMatrixWindow: payload
+});
+
+const handleUpdateShowWorldMapWindow = (state, {payload}) => ({
+  ...state,
+  showWorldMapWindow: payload
 });
 
 const handleUpdateCrMatrixWindowSize = (state, {payload}) => ({
@@ -478,6 +485,7 @@ export default handleActions(
     [UPDATE_SHOW_CR_MATRIX_WINDOW]: handleUpdateShowCrMatrixWindow,
     [UPDATE_CR_MATRIX_WINDOW_SIZE]: handleUpdateCrMatrixWindowSize,
     [UPDATE_SHOW_BAYESIAN_NETWORK_SUB_NETWORK_DETAIL_WINDOW]: handleUpdateShowBayesianNetworkSubNetworkDetailWindow,
+    [UPDATE_SHOW_WORLD_MAP_WINDOW]: handleUpdateShowWorldMapWindow,
     [UPDATE_CURRENT_DATASET_NAME]: handleUpdateCurrentDatasetName,
     [UPDATE_DATASET_LIST]: handleUpdateDatasetList,
     [FETCH_BAYESIAN_NETWORK_START]: handleFetchBayesianNetworkStart,
