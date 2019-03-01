@@ -1,7 +1,10 @@
 import {createSelector} from 'reselect';
 import {document} from 'global';
-import {chord, ribbon} from 'd3-chord';
+import {chord as d3Chord, ribbon as d3Ribbon} from 'd3-chord';
+import {arc as d3Arc} from 'd3-shape';
 import {descending as d3Descending} from 'd3-array';
+import {scaleOrdinal} from 'd3-scale';
+import {schemeCategory10} from 'd3-scale-chromatic';
 import {links2generator} from 'sortable-matrix';
 import {rootSelector} from '../base';
 import {
@@ -91,21 +94,38 @@ export const getCcCategoryMatrix = createSelector(
 );
 
 export const getCcLayout = createSelector(getCcCategoryMatrix, matrix => {
-  console.log('matrix', matrix);
-  const cGen = chord()
+  const innerRadius = 200;
+  const outerRadius = 240;
+  const colorScale = scaleOrdinal(schemeCategory10);
+
+  const cGen = d3Chord()
     .padAngle(0.05)
     .sortSubgroups(d3Descending);
-  const chords = cGen(matrix);
+  const cLayout = cGen(matrix);
+  const pGen = d3Ribbon().radius(innerRadius);
+  const aGen = d3Arc()
+    .innerRadius(innerRadius)
+    .outerRadius(outerRadius);
 
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-
-  const rGen = ribbon()
-    .radius(200)
-    .context(ctx);
-
-  chords.forEach(d => {
-    const p = rGen(d);
-    console.log('p', p);
+  const chords = cLayout.map(chord => {
+    const path = pGen(chord);
+    return {
+      key: `${chord.source.index}-${chord.target.index}`,
+      path,
+      chord,
+      color: colorScale(chord.source.index)
+    };
   });
+
+  const groups = cLayout.groups.map(group => {
+    const path = aGen(group);
+    return {
+      key: group.index,
+      path,
+      group,
+      color: colorScale(group.index)
+    };
+  });
+
+  return {chords, groups};
 });
