@@ -23,6 +23,7 @@ class ContentPanel extends PureComponent {
     } = this.props;
     const {chords, groups} = layout;
     const [width, height] = [windowWidth, windowHeight - 20];
+    console.log('chords', chords, 'groups', groups);
     return show ? (
       <PopupWindow
         ref={input => (this.container = input)}
