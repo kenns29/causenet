@@ -6,7 +6,7 @@ from pandas import DataFrame
 
 def query_country_by_year_with_import_export_data_frame_by_item_group(item_group):
     item_group_code = item_group if isinstance(item_group, int) else query_country_name_to_code()[item_group]
-    start_year = 1986
+    start_year = 1996
     end_year = 2014
     try:
         conn = sqlite3.connect(db_dir)
@@ -37,7 +37,7 @@ def query_country_by_year_with_import_export_data_frame_by_item_group(item_group
 
 
 def query_country_by_year_with_import_export_item_group_data_frame():
-    start_year = 1986
+    start_year = 1996
     end_year = 2014
     try:
         conn = sqlite3.connect(db_dir)
@@ -63,6 +63,32 @@ def query_country_by_year_with_import_export_item_group_data_frame():
                 data[country_code, item_code, 1] = np.zeros(end_year - start_year)
             data[country_code, item_code, 0][year] = export_quantity
             data[country_code, item_code, 1][year] = import_quantity
+        return data
+    finally:
+        conn.close()
+
+
+def query_political_stability_by_year_data_frame():
+    start_year = 1996
+    end_year = 2014
+    try:
+        conn = sqlite3.connect(db_dir)
+        conn.row_factory = sqlite3.Row
+        iterator = conn.execute('''
+            SELECT * 
+            FROM Political_Stability p, ALL_Countries c
+            WHERE p.FAO_CountryCode = c.FAO_CountryCode AND c.Use_Flag = 1
+        ''')
+
+        data = DataFrame(index=range(start_year, end_year))
+        data.index.name = 'year'
+        for d in iterator:
+            country_code = int(d['FAO_CountryCode'])
+            data[country_code, -1, 0] = np.zeros(end_year - start_year)
+            for year in range(start_year, end_year):
+                key = str(year) + 'Estimate'
+                value = d[key] if key in d.keys() else (d[str(year - 1) + 'Estimate'] + d[str(year + 1) + 'Estimate']) / 2
+                data[country_code, -1, 0][year] = value
         return data
     finally:
         conn.close()

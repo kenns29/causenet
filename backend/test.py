@@ -96,6 +96,12 @@ def test_query():
     return data
 
 
+def test_concat():
+    from generate_open_source_data import load_country_by_year_with_import_export_item_group_and_stability_cut_10_data
+    data = load_country_by_year_with_import_export_item_group_and_stability_cut_10_data()
+    print(data)
+
+
 if __name__ == '__main__':
     # import json
     # # print(test_bn_edge_weights())
@@ -103,5 +109,5 @@ if __name__ == '__main__':
     # # print(json.dumps(test_learn_parameters(), indent='\t'))
     # raw_data, normalized_data, data = load_data_test()
     # features = load_full_features_test()
-    test_query()
+    test_concat()
     print('---')
