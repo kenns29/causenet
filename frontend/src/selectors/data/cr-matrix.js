@@ -46,11 +46,8 @@ export const getCrBayesianNetwork = createSelector(
     const rowSet = new Set(matrix.row_id_order().map(d => d.toString()));
     const colSet = new Set(matrix.col_id_order().map(d => d.toString()));
     return network.filter(({source, target}) => {
-      // const [sf, tf] = [source, target].map(
-      //   d => d.split(',')[0].match(/\w+/)[0]
-      // );
       const [[sf, sc, su], [tf, tc, tu]] = [source, target].map(d => {
-        const p = d.split(',').map(g => g.match(/\w+/)[0]);
+        const p = d.split(',').map(g => g.match(/-?\w+/)[0]);
         return p.length > 2
           ? [p[0], p[1], Number(p[2])]
           : [p[0], '1', Number(p[1])];
@@ -70,7 +67,7 @@ export const getFocusedCrBayesianNetwork = createSelector(
     if (!focus) {
       return network;
     }
-    const p = network[0].source.split(',').map(g => g.match(/\w+/)[0]);
+    const p = network[0].source.split(',').map(g => g.match(/-?\w+/)[0]);
     const foc =
       p.length > 2
         ? `(${focus[0]}, ${p[1]}, ${focus[1]})`
@@ -86,12 +83,8 @@ const getCleanedCrBayesianNetwork = createSelector(
       return network;
     }
     return network.map(({source, target, ...rest}) => {
-      // const [s, t] = [source, target].map(d => {
-      //   const [f, t] = d.split(',').map(d => d.match(/\w+/)[0]);
-      //   return [f, Number(t)];
-      // });
       const [s, t] = [source, target].map(d => {
-        const p = d.split(',').map(g => g.match(/\w+/)[0]);
+        const p = d.split(',').map(g => g.match(/-?\w+/)[0]);
         return p.length > 2
           ? [p[0], p[1], Number(p[2])]
           : [p[0], '1', Number(p[1])];
