@@ -179,7 +179,7 @@ const DEFAULT_STATE = {
   bayesianNetworkDistributionWindowSize: [600, 620],
   showCrMatrixWindow: true,
   crMatrixWindowSize: [1200, 900],
-  showCChordWindow: true,
+  showCChordWindow: false,
   cChordWindowSize: [1200, 900],
   showWorldMapWindow: false,
   // feature pair list that will be shown in the distribution window
