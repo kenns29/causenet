@@ -36,27 +36,36 @@ const getCleanedBayesianNetwork = createSelector(
 );
 
 export const getCmJointCorrelations = createSelector(
-  [getRawCmCorrelations, getRawBayesianNetwork],
+  [getRawCmCorrelations, getCleanedBayesianNetwork],
   (cmCorrelations, network) => {
-    const cmap = array2Object(
-      network.filter(({csource, ctarget}) => {
-        const [[sf, sc, su], [tf, tc, tu]] = [csource, ctarget];
-        return sf === tf && su === 0 && tu === 0 && (sc === -1 || tc === -1);
-      }),
-      ({csource, ctarget}) => {
-        const [[sf, sc, su], [tf, tc, tu]] = [csource, ctarget];
-        const [country, item] = [sf, sc === -1 ? tc : sc];
-        return `${country}-${item}`;
-      }
-    );
-    return cmCorrelations.map(({country, item, corr}) => {
-      return {
-        country,
-        item,
-        corr,
-        isSpurious: !cmap.hasOwnProperty(`${country}-${item}`)
-      };
-    });
+    const corrs = cmCorrelations.map(({country, item, corr}) => ({
+      country,
+      item,
+      corr,
+      isSpurious: false
+    }));
+    if (network.length) {
+      const cmap = array2Object(
+        network.filter(({csource, ctarget}) => {
+          const [[sf, sc, su], [tf, tc, tu]] = [csource, ctarget];
+          return (
+            sf === tf && su === 0 && tu === 0 && (sc === '-1' || tc === '-1')
+          );
+        }),
+        ({csource, ctarget}) => {
+          const [[sf, sc, su], [tf, tc, tu]] = [csource, ctarget];
+          const [country, item] = [sf, sc === '-1' ? tc : sc];
+          return `${country}-${item}`;
+        }
+      );
+      console.log('cmap', cmap);
+      corrs.forEach(corr => {
+        const {country, item} = corr;
+        corr.isSpurious = !cmap.hasOwnProperty(`${country}-${item}`);
+      });
+      console.log('corrs', corrs);
+    }
+    return corrs;
   }
 );
 

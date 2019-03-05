@@ -1,5 +1,12 @@
 import React, {PureComponent} from 'react';
-import {TextLayer, PathLayer, PolygonLayer, COORDINATE_SYSTEM} from 'deck.gl';
+import {
+  TextLayer,
+  PathLayer,
+  LineLayer,
+  PolygonLayer,
+  ScatterplotLayer,
+  COORDINATE_SYSTEM
+} from 'deck.gl';
 import {MatrixLayer} from '../../components/deckgl-layers';
 import ZoomableContainer from '../../components/zoomable-container';
 import {makeTextLengthComputer, rotatePolygonOnZ} from '../../utils';
@@ -14,21 +21,65 @@ export default class Content extends PureComponent {
       matrix: {cols, rows, cells},
       cellSize: [w, h]
     } = this.props;
+    // return [
+    //   new MatrixLayer({
+    //     id: ID + '-matrix-layer',
+    //     data: cells,
+    //     coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+    //     getPosition: ({x, y}) => [x, y],
+    //     getColor: ({color}) => [...color, 255],
+    //     layout: {
+    //       x: 0,
+    //       y: 0,
+    //       dx: w,
+    //       dy: h,
+    //       width: cols.length * w,
+    //       height: rows.length * h
+    //     }
+    //   })
+    // ];
+    const radius = Math.min(w, h) / 2;
+    const nonCells = cells.filter(cell => cell.data.corr === 0);
+    const causeCells = cells.filter(
+      cell => cell.data.corr !== 0 && !cell.data.isSpurious
+    );
+    const spuriousCells = cells.filter(
+      cell => cell.data.corr !== 0 && cell.data.isSpurious
+    );
+    console.log('causeCells', causeCells);
+    console.log('spuriousCells', spuriousCells);
     return [
-      new MatrixLayer({
-        id: ID + '-matrix-layer',
-        data: cells,
+      new PolygonLayer({
+        id: `${ID}-cause-cells`,
+        data: causeCells,
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
-        getPosition: ({x, y}) => [x, y],
-        getColor: ({color}) => [...color, 255],
-        layout: {
-          x: 0,
-          y: 0,
-          dx: w,
-          dy: h,
-          width: cols.length * w,
-          height: rows.length * h
-        }
+        getPolygon: ({x, y}) => [
+          [x, y],
+          [x, y + h],
+          [x + w, y + h],
+          [x + w, y],
+          [x, y]
+        ],
+        stroked: true,
+        getLineWidth: 1,
+        getLineColor: [255, 255, 255, 255],
+        getFillColor: d => d.color
+      }),
+      new LineLayer({
+        id: `${ID}-non-cells`,
+        data: nonCells,
+        coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+        getSourcePosition: ({x, y}) => [x, y + h],
+        getTargetPosition: ({x, y}) => [x + w, y],
+        getColor: [60, 60, 60]
+      }),
+      new ScatterplotLayer({
+        id: `${ID}-spurious-cells`,
+        data: spuriousCells,
+        coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+        getPosition: ({x, y}) => [x + w / 2, y + h / 2],
+        getRadius: radius,
+        getColor: d => d.color
       })
     ];
   }
