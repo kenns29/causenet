@@ -2,15 +2,29 @@ import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
 import PopupWindow from '../../components/popup-window';
 import DeckGLContainer from './deckgl-container';
+import {
+  getShowCmMatrixWindow,
+  getCmMatrixWindowSize
+} from '../../selectors/base';
+import {
+  updateShowCmMatrixWindow,
+  updateCmMatrixWindowSize
+} from '../../actions';
 
-const mapDispatchToProps = {};
+const mapDispatchToProps = {updateShowCmMatrixWindow, updateCmMatrixWindowSize};
 
-const mapStateToProps = state => ({});
+const mapStateToProps = state => ({
+  showWindow: getShowCmMatrixWindow(state),
+  windowSize: getCmMatrixWindowSize(state)
+});
 
 class ContentPanel extends PureComponent {
   render() {
-    const [width, height] = [800, 800];
-    return (
+    const {
+      showWindow,
+      windowSize: [width, height]
+    } = this.props;
+    return showWindow ? (
       <PopupWindow
         ref={input => (this.container = input)}
         x={600}
@@ -18,6 +32,10 @@ class ContentPanel extends PureComponent {
         width={width}
         height={height}
         style={{zIndex: 99, boxShadow: '10px 10px 5px grey'}}
+        onResize={(event, {width, height}) => {
+          this.props.updateCmMatrixWindowSize([width, height]);
+        }}
+        onClose={() => this.props.updateShowCmMatrixWindow(false)}
       >
         <DeckGLContainer
           ref={input => {
@@ -28,7 +46,7 @@ class ContentPanel extends PureComponent {
           height={height - 20}
         />
       </PopupWindow>
-    );
+    ) : null;
   }
 }
 

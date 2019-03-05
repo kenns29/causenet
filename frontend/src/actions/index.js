@@ -20,6 +20,8 @@ export const UPDATE_SHOW_CR_MATRIX_WINDOW = 'UPDATE_SHOW_CR_MATRIX_WINDOW';
 export const UPDATE_CR_MATRIX_WINDOW_SIZE = 'UPDATE_CR_MATRIX_WINDOW_SIZE';
 export const UPDATE_SHOW_C_CHORD_WINDOW = 'UPDATE_SHOW_C_CHORD_WINDOW';
 export const UPDATE_C_CHORD_WINDOW_SIZE = 'UPDATE_C_CHORD_WINDOW_SIZE';
+export const UPDATE_SHOW_CM_MATRIX_WINDOW = 'UPDATE_SHOW_CM_MATRIX_WINDOW';
+export const UPDATE_CM_MATRIX_WINDOW_SIZE = 'UPDATE_CM_MATRIX_WINDOW_SIZE';
 export const UPDATE_SHOW_WORLD_MAP_WINDOW = 'UPDATE_SHOW_WORLD_MAP_WINDOW';
 
 // data Action ids
@@ -112,6 +114,12 @@ export const updateCrMatrixWindowSize = createAction(
 );
 export const updateShowCChordWindow = createAction(UPDATE_SHOW_C_CHORD_WINDOW);
 export const updateCChordWindowSize = createAction(UPDATE_C_CHORD_WINDOW_SIZE);
+export const updateShowCmMatrixWindow = createAction(
+  UPDATE_SHOW_CM_MATRIX_WINDOW
+);
+export const updateCmMatrixWindowSize = createAction(
+  UPDATE_CM_MATRIX_WINDOW_SIZE
+);
 export const updateShowWorldMapWindow = createAction(
   UPDATE_SHOW_WORLD_MAP_WINDOW
 );

@@ -107,6 +107,16 @@ export const getCChordWindowSize = createSelector(
   state => state.cChordWindowSize
 );
 
+export const getShowCmMatrixWindow = createSelector(
+  rootSelector,
+  state => state.showCmMatrixWindow
+);
+
+export const getCmMatrixWindowSize = createSelector(
+  rootSelector,
+  state => state.cmMatrixWindowSize
+);
+
 export const getShowWorldMapWindow = createSelector(
   rootSelector,
   state => state.showWorldMapWindow
