@@ -12,7 +12,8 @@ from modules.service.data_utils import load_data, load_pdist, load_clustering, g
     get_dataset_config, update_current_dataset_name as update_current_dataset_name_util, get_index2col, \
     get_column_mean_aggregated_data
 from modules.service.clustering_utils import tree2dict, tree_to_non_binary_dict
-from modules.service.sqlite_utils.query import query_bilateral_trade_averaged_by_country_by_item_group, query_countries
+from modules.service.sqlite_utils.query import query_bilateral_trade_averaged_by_country_by_item_group, \
+    query_countries, query_import_social_correlation_by_country_item, query_items
 from scipy.cluster.hierarchy import to_tree
 from itertools import combinations
 
@@ -374,3 +375,21 @@ def route_load_relation_features():
         'id': d['country_code'],
         'name': d['country']
     } for d in features])
+
+
+@blueprint.route('/load_cm_correlations', methods=['GET'])
+def route_load_cm_correlations():
+    correlations = query_import_social_correlation_by_country_item()
+    return jsonify(correlations)
+
+
+@blueprint.route('/load_fao_countries', methods=['GET'])
+def route_load_fao_countries():
+    countries = query_countries()
+    return jsonify(countries)
+
+
+@blueprint.route('/load_fao_items', methods=['GET'])
+def route_load_fao_items():
+    items = query_items()
+    return jsonify(items)

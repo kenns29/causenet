@@ -79,6 +79,9 @@ export const UPDATE_CR_RELATIONS = 'UPDATE_CR_RELATIONS';
 export const UPDATE_CR_RELATION_FEATURES = 'UPDATE_CR_RELATION_FEATURES';
 export const UPDATE_CR_MATRIX_OPTIONS = 'UPDATE_CR_MATRIX_OPTIONS';
 export const UPDATE_CR_MATRIX_FOCUS = 'UPDATE_CR_MATRIX_FOCUS';
+export const UPDATE_CM_CORRELATIONS = 'UPDATE_CM_CORRELATIONS';
+export const UPDATE_COUNTRIES = 'UPDATE_COUNTRIES';
+export const UPDATE_ITEMS = 'UPDATE_ITEMS';
 
 // UI actions
 export const updateScreenSize = createAction(UPDATE_SCREEN_SIZE);
@@ -199,6 +202,9 @@ export const updateCrRelationFeatures = createAction(
 );
 export const updateCrMatrixOptions = createAction(UPDATE_CR_MATRIX_OPTIONS);
 export const updateCrMatrixFocus = createAction(UPDATE_CR_MATRIX_FOCUS);
+export const updateCmCorrelations = createAction(UPDATE_CM_CORRELATIONS);
+export const updateCountries = createAction(UPDATE_COUNTRIES);
+export const updateItems = createAction(UPDATE_ITEMS);
 
 // async actions
 export const fetchCurrentDatasetName = () => async dispatch => {
@@ -652,6 +658,39 @@ export const fetchCrRelationFeatures = () => async dispatch => {
     const response = await fetch(`${BACKEND_URL}/load_cr_relation_features`);
     const data = await response.json();
     dispatch(updateCrRelationFeatures(data));
+    return Promise.resolve(data);
+  } catch (err) {
+    throw new Error(err);
+  }
+};
+
+export const fetchCmCorrelations = () => async dispatch => {
+  try {
+    const response = await fetch(`${BACKEND_URL}/load_cm_correlations`);
+    const data = await response.json();
+    dispatch(updateCmCorrelations(data));
+    return Promise.resolve(data);
+  } catch (err) {
+    throw new Error(err);
+  }
+};
+
+export const fetchCountries = () => async dispatch => {
+  try {
+    const response = await fetch(`${BACKEND_URL}/load_fao_countries`);
+    const data = await response.json();
+    dispatch(updateCountries(data));
+    return Promise.resolve(data);
+  } catch (err) {
+    throw new Error(err);
+  }
+};
+
+export const fetchItems = () => async dispatch => {
+  try {
+    const response = await fetch(`${BACKEND_URL}/load_fao_items`);
+    const data = await response.json();
+    dispatch(updateItems(data));
     return Promise.resolve(data);
   } catch (err) {
     throw new Error(err);

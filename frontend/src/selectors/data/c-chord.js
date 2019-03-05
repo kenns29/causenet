@@ -1,5 +1,4 @@
 import {createSelector} from 'reselect';
-import {document} from 'global';
 import {chord as d3Chord, ribbon as d3Ribbon} from 'd3-chord';
 import {arc as d3Arc} from 'd3-shape';
 import {descending as d3Descending} from 'd3-array';

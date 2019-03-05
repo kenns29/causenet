@@ -143,6 +143,25 @@ def query_countries():
         conn.close()
 
 
+def query_items():
+    try:
+        conn = sqlite3.connect(db_dir)
+        conn.row_factory = sqlite3.Row
+
+        iterator = conn.execute('''
+            SELECT *
+            FROM FAO_Item_Groups
+            WHERE ItemGroupCode <= 20
+        ''')
+
+        return [{
+            'item_code': d['ItemGroupCode'],
+            'item': d['ItemGroupName']
+        } for d in iterator]
+    finally:
+        conn.close()
+
+
 def query_country_code_to_name():
     try:
         conn = sqlite3.connect(db_dir)
@@ -201,5 +220,27 @@ def query_item_group_name_to_code():
         ''')
 
         return dict((d['ItemGroupName'], int(d['ItemGroupCode'])) for d in iterator)
+    finally:
+        conn.close()
+
+
+def query_import_social_correlation_by_country_item():
+    try:
+        conn = sqlite3.connect(db_dir)
+        conn.row_factory = sqlite3.Row
+
+        iterator = conn.execute('''
+            SELECT * 
+            FROM trade_social_correlation_new tsc, ALL_Countries c
+            WHERE tsc.FAO_CountryCode = c.FAO_CountryCode AND c.Use_Flag = 1
+                AND tsc.TradeAttribute = 'import_quantity'
+                AND tsc.Lag = 0 AND tsc.SocialAttribute = 'stability'
+        ''')
+
+        return [{
+            'country': int(d['FAO_CountryCode']),
+            'item': int(d['ItemGroupCode']),
+            'corr': int(d['Correlation'])
+        } for d in iterator]
     finally:
         conn.close()

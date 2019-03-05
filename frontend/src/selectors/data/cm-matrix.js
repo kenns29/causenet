@@ -1,0 +1,153 @@
+import {createSelector} from 'reselect';
+import {links2generator, flattener, sort2d} from 'sortable-matrix';
+import {scaleSequential} from 'd3-scale';
+import {interpolateGreys} from 'd3-scale-chromatic';
+import {rgb} from 'd3-color';
+import {array2Object} from '../../utils';
+import {rootSelector} from '../base';
+import {
+  getRawCmCorrelations,
+  getRawBayesianNetwork,
+  getRawCountries,
+  getRawItems
+} from './raw';
+
+const CELL_SIZE = [20, 20];
+const PADDINGS = [100, 100];
+
+const getCleanedBayesianNetwork = createSelector(
+  getRawBayesianNetwork,
+  network =>
+    network.map(({source, target, ...rest}) => {
+      const [csource, ctarget] = [source, target].map(d => {
+        const p = d.split(',').map(g => g.match(/-?\w+/)[0]);
+        return p.length > 2
+          ? [p[0], p[1], Number(p[2])]
+          : [p[0], '1', Number(p[1])];
+      });
+      return {
+        source,
+        target,
+        csource,
+        ctarget,
+        ...rest
+      };
+    })
+);
+
+export const getCmJointCorrelations = createSelector(
+  [getRawCmCorrelations, getRawBayesianNetwork],
+  (cmCorrelations, network) => {
+    const cmap = array2Object(
+      network.filter(({csource, ctarget}) => {
+        const [[sf, sc, su], [tf, tc, tu]] = [csource, ctarget];
+        return sf === tf && su === 0 && tu === 0 && (sc === -1 || tc === -1);
+      }),
+      ({csource, ctarget}) => {
+        const [[sf, sc, su], [tf, tc, tu]] = [csource, ctarget];
+        const [country, item] = [sf, sc === -1 ? tc : sc];
+        return `${country}-${item}`;
+      }
+    );
+    return cmCorrelations.map(({country, item, corr}) => {
+      return {
+        country,
+        item,
+        corr,
+        isSpurious: cmap.has(`${country}-${item}`)
+      };
+    });
+  }
+);
+
+const getCmMatrixObject = createSelector(getCmJointCorrelations, corrs => {
+  if (!corrs.length) {
+    return null;
+  }
+  const generate = links2generator()
+    .links(corrs)
+    .source(d => d.country)
+    .target(d => d.item)
+    .value(({corr, isSpurious}) => ({
+      corr,
+      isSpurious
+    }))
+    .null({corr: 0, isSpurious: false});
+  return generate().cell_value(d => d.corr);
+});
+
+const getCountryIdToName = createSelector(getRawCountries, countries =>
+  array2Object(countries, d => d.country_code, d => d.country)
+);
+
+const getItemIdToName = createSelector(getRawItems, items =>
+  array2Object(items, d => d.item_code, d => d.item)
+);
+
+const getCmMatrix = createSelector(
+  [getCmMatrixObject, getCountryIdToName, getItemIdToName],
+  (matrix, rid2Name, cid2Name) => {
+    if (
+      !matrix ||
+      !Object.keys(cid2Name).length ||
+      !Object.keys(iid2Name).length
+    ) {
+      return {rows: [], cols: [], cells: []};
+    }
+    const {rows, cols, cells} = flattener().matrix(sort2d(matrix));
+    return {
+      rows: rows().map(id => ({id, name: rid2Name[id]})),
+      cols: cols().map(id => ({id, name: cid2Name[id]})),
+      cells: cells()
+    };
+  }
+);
+
+export const getCmMatrixDomain = createSelector(
+  getCmMatrix,
+  ({rows, cols, cells}) =>
+    cells.reduce(
+      ([min, max], {value}) => [Math.min(min, value), Math.max(max, value)],
+      [Infinity, -Infinity]
+    )
+);
+
+export const getCmMatrixPaddings = createSelector(
+  rootSelector,
+  state => PADDINGS
+);
+
+export const getCmMatrixCellSize = createSelector(
+  rootSelector,
+  state => CELL_SIZE
+);
+
+export const getCmMatrixLayout = createSelector(
+  [getCmMatrix, getCmMatrixCellSize, getCmMatrixPaddings, getCmMatrixDomain],
+  ({rows, cols, cells}, [w, h], [pv, ph], [min, max]) => {
+    const scale = scaleSequential(interpolateGreys).domain([0, max]);
+    return {
+      rows: rows.map((d, i) => ({
+        ...d,
+        x: ph - 5,
+        y: i * h + h / 2 + pv
+      })),
+      cols: cols.map((d, i) => ({
+        ...d,
+        x: i * w + w / 2 + ph,
+        y: pv - 5
+      })),
+      cells: cells.map(cell => {
+        const {r, g, b} = rgb(scale(cell.value));
+        return {
+          ...cell,
+          x: cell.col_index * w + ph,
+          y: cell.row_index * h + pv,
+          w,
+          h,
+          color: [r, g, b]
+        };
+      })
+    };
+  }
+);

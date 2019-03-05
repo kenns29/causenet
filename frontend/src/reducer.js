@@ -46,7 +46,8 @@ import {
   UPDATE_CR_RELATIONS,
   UPDATE_CR_RELATION_FEATURES,
   UPDATE_CR_MATRIX_OPTIONS,
-  UPDATE_CR_MATRIX_FOCUS
+  UPDATE_CR_MATRIX_FOCUS,
+  UPDATE_CM_CORRELATIONS
 } from './actions';
 
 import {HIERARICAL_CLUSTERING_OPTION} from './constants';
@@ -228,7 +229,10 @@ const DEFAULT_STATE = {
     showColNetwork: true,
     showCrossNetwork: true
   },
-  crMatrixFocus: null
+  crMatrixFocus: null,
+  cmCorrelations: [],
+  countries: [],
+  items: []
 };
 
 const handleUpdateScreenSize = (state, {payload}) => ({
@@ -487,6 +491,11 @@ const handleUpdateCrMatrixFocus = (state, {payload}) => ({
   crMatrixFocus: payload
 });
 
+const handleUpdateCmCorrelations = (state, {payload}) => ({
+  ...state,
+  cmCorrelations: payload
+});
+
 export default handleActions(
   {
     [UPDATE_SCREEN_SIZE]: handleUpdateScreenSize,
@@ -535,7 +544,8 @@ export default handleActions(
     [UPDATE_CR_RELATIONS]: handleUpdateCrRelations,
     [UPDATE_CR_RELATION_FEATURES]: handleUpdateCrRelationFeatures,
     [UPDATE_CR_MATRIX_OPTIONS]: handleUpdateCrMatrixOptions,
-    [UPDATE_CR_MATRIX_FOCUS]: handleUpdateCrMatrixFocus
+    [UPDATE_CR_MATRIX_FOCUS]: handleUpdateCrMatrixFocus,
+    [UPDATE_CM_CORRELATIONS]: handleUpdateCmCorrelations
   },
   DEFAULT_STATE
 );

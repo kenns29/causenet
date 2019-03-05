@@ -10,3 +10,4 @@ export * from './sub-bayesian-network-detail';
 export * from './bayesian-model-feature-slices-table';
 export * from './cr-matrix';
 export * from './c-chord';
+export * from './cm-matrix';

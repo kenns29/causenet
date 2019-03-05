@@ -1,16 +1,16 @@
 import React, {PureComponent} from 'react';
 import {TextLayer, PathLayer, PolygonLayer, COORDINATE_SYSTEM} from 'deck.gl';
+import {MatrixLayer} from '../../components/deckgl-layers';
 import ZoomableContainer from '../../components/zoomable-container';
 
-const ID = 'c-chord';
+const ID = 'corr-matrix';
 
 export default class Content extends PureComponent {
   _renderLayers() {
     return [];
   }
-
   render() {
-    const {width, height} = this.props;
+    const {width, height, getCursor} = this.props;
     return (
       <ZoomableContainer
         ref={input => (this.container = input)}

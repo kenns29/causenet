@@ -165,3 +165,15 @@ export const getRawCrMatrixFocus = createSelector(
   rootSelector,
   state => state.crMatrixFocus
 );
+
+export const getRawCmCorrelations = createSelector(
+  rootSelector,
+  state => state.cmCorrelations
+);
+
+export const getRawCountries = createSelector(
+  rootSelector,
+  state => state.countries
+);
+
+export const getRawItems = createSelector(rootSelector, state => state.items);
