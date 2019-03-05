@@ -1,7 +1,7 @@
 import {createSelector} from 'reselect';
 import {links2generator, flattener, sort2d} from 'sortable-matrix';
-import {scaleSequential} from 'd3-scale';
-import {interpolateGreys} from 'd3-scale-chromatic';
+import {scaleDiverging} from 'd3-scale';
+import {interpolateRdBu} from 'd3-scale-chromatic';
 import {rgb} from 'd3-color';
 import {array2Object} from '../../utils';
 import {rootSelector} from '../base';
@@ -54,7 +54,7 @@ export const getCmJointCorrelations = createSelector(
         country,
         item,
         corr,
-        isSpurious: cmap.has(`${country}-${item}`)
+        isSpurious: !cmap.hasOwnProperty(`${country}-${item}`)
       };
     });
   }
@@ -89,8 +89,8 @@ const getCmMatrix = createSelector(
   (matrix, rid2Name, cid2Name) => {
     if (
       !matrix ||
-      !Object.keys(cid2Name).length ||
-      !Object.keys(iid2Name).length
+      !Object.keys(rid2Name).length ||
+      !Object.keys(cid2Name).length
     ) {
       return {rows: [], cols: [], cells: []};
     }
@@ -101,15 +101,6 @@ const getCmMatrix = createSelector(
       cells: cells()
     };
   }
-);
-
-export const getCmMatrixDomain = createSelector(
-  getCmMatrix,
-  ({rows, cols, cells}) =>
-    cells.reduce(
-      ([min, max], {value}) => [Math.min(min, value), Math.max(max, value)],
-      [Infinity, -Infinity]
-    )
 );
 
 export const getCmMatrixPaddings = createSelector(
@@ -123,9 +114,9 @@ export const getCmMatrixCellSize = createSelector(
 );
 
 export const getCmMatrixLayout = createSelector(
-  [getCmMatrix, getCmMatrixCellSize, getCmMatrixPaddings, getCmMatrixDomain],
-  ({rows, cols, cells}, [w, h], [pv, ph], [min, max]) => {
-    const scale = scaleSequential(interpolateGreys).domain([0, max]);
+  [getCmMatrix, getCmMatrixCellSize, getCmMatrixPaddings],
+  ({rows, cols, cells}, [w, h], [pv, ph]) => {
+    const scale = scaleDiverging(interpolateRdBu).domain([-1, 0, 1]);
     return {
       rows: rows.map((d, i) => ({
         ...d,

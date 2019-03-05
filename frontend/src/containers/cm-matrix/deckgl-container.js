@@ -2,13 +2,142 @@ import React, {PureComponent} from 'react';
 import {TextLayer, PathLayer, PolygonLayer, COORDINATE_SYSTEM} from 'deck.gl';
 import {MatrixLayer} from '../../components/deckgl-layers';
 import ZoomableContainer from '../../components/zoomable-container';
+import {makeTextLengthComputer, rotatePolygonOnZ} from '../../utils';
 
-const ID = 'corr-matrix';
+const ID = 'cm-matrix';
 
 export default class Content extends PureComponent {
-  _renderLayers() {
-    return [];
+  _computeTextLength = makeTextLengthComputer({fontSize: 10});
+
+  _renderMatrix() {
+    const {
+      matrix: {cols, rows, cells},
+      cellSize: [w, h]
+    } = this.props;
+    return [
+      new MatrixLayer({
+        id: ID + '-matrix-layer',
+        data: cells,
+        coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+        getPosition: ({x, y}) => [x, y],
+        getColor: ({color}) => [...color, 255],
+        layout: {
+          x: 0,
+          y: 0,
+          dx: w,
+          dy: h,
+          width: cols.length * w,
+          height: rows.length * h
+        }
+      })
+    ];
   }
+
+  _renderRowTitle() {
+    const {
+      matrix: {rows},
+      cellSize: [w, h]
+    } = this.props;
+    const data = rows.map((row, index) => {
+      const {id, name, x, y} = row;
+      const len = this._computeTextLength(name);
+      return {
+        id,
+        name,
+        position: [x, y],
+        polygon: [
+          [x, y - h / 2],
+          [x, y + h / 2],
+          [x - len, y + h / 2],
+          [x - len, y - h / 2],
+          [x, y - h / 2]
+        ]
+      };
+    });
+    return data.length
+      ? [
+        new PolygonLayer({
+          id: ID + '-y-axis-polygon',
+          data,
+          getFillColor: [255, 255, 255],
+          getLineWidth: 0,
+          coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+          pickable: true
+        }),
+        new TextLayer({
+          id: ID + '-y-axis',
+          data,
+          getSize: 10,
+          getText: d => d.name,
+          getPosition: d => d.position,
+          getColor: [10, 10, 10],
+          getTextAnchor: 'end',
+          coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+          pickable: true
+        })
+      ]
+      : [];
+  }
+
+  _renderColTitle() {
+    const {
+      matrix: {cols},
+      cellSize: [w, h]
+    } = this.props;
+    const data = cols.map((col, index) => {
+      const {id, name, x, y} = col;
+      const len = this._computeTextLength(name);
+      return {
+        id,
+        name,
+        position: [x, y],
+        polygon: rotatePolygonOnZ({
+          points: [
+            [x, y - h / 2],
+            [x, y + h / 2],
+            [x + len, y + h / 2],
+            [x + len, y - h / 2],
+            [x, y - h / 2]
+          ],
+          origin: [x, y, 0],
+          theta: (-90 / 180) * Math.PI
+        })
+      };
+    });
+    return data.length
+      ? [
+        new PolygonLayer({
+          id: ID + '-x-axis-polygon',
+          data,
+          getFillColor: [255, 255, 255],
+          getLineWidth: 0,
+          coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+          pickable: true
+        }),
+        new TextLayer({
+          id: ID + '-x-axis',
+          data,
+          getSize: 10,
+          getText: d => d.name,
+          getPosition: d => d.position,
+          getColor: [10, 10, 10],
+          getTextAnchor: 'start',
+          getAngle: 90,
+          coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+          pickable: true
+        })
+      ]
+      : [];
+  }
+
+  _renderLayers() {
+    return [
+      ...this._renderMatrix(),
+      ...this._renderRowTitle(),
+      ...this._renderColTitle()
+    ];
+  }
+
   render() {
     const {width, height, getCursor} = this.props;
     return (

@@ -6,6 +6,7 @@ import {
   getShowCmMatrixWindow,
   getCmMatrixWindowSize
 } from '../../selectors/base';
+import {getCmMatrixLayout, getCmMatrixCellSize} from '../../selectors/data';
 import {
   updateShowCmMatrixWindow,
   updateCmMatrixWindowSize
@@ -15,7 +16,9 @@ const mapDispatchToProps = {updateShowCmMatrixWindow, updateCmMatrixWindowSize};
 
 const mapStateToProps = state => ({
   showWindow: getShowCmMatrixWindow(state),
-  windowSize: getCmMatrixWindowSize(state)
+  windowSize: getCmMatrixWindowSize(state),
+  matrix: getCmMatrixLayout(state),
+  cellSize: getCmMatrixCellSize(state)
 });
 
 class ContentPanel extends PureComponent {

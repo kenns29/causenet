@@ -11,6 +11,7 @@ import {
   fetchFeatureValuesMap,
   fetchCrRelations,
   fetchCrRelationFeatures,
+  fetchCmCorrelations,
   fetchCountries,
   fetchItems
 } from '../actions';
@@ -25,6 +26,7 @@ const mapDispatchToProps = {
   fetchFeatureValuesMap,
   fetchCrRelations,
   fetchCrRelationFeatures,
+  fetchCmCorrelations,
   fetchCountries,
   fetchItems
 };
@@ -47,6 +49,7 @@ class DataLoader extends PureComponent {
     // this.props.fetchHierarchicalClusteringTree(hierarchicalClusteringOption);
     await this.props.fetchFeatureValuesMap();
     this.props.fetchFeatureSelection();
+    this.props.fetchCmCorrelations();
     this.props.fetchCountries();
     this.props.fetchItems();
   }

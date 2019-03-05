@@ -240,7 +240,7 @@ def query_import_social_correlation_by_country_item():
         return [{
             'country': int(d['FAO_CountryCode']),
             'item': int(d['ItemGroupCode']),
-            'corr': int(d['Correlation'])
+            'corr': float(d['Correlation'])
         } for d in iterator]
     finally:
         conn.close()
