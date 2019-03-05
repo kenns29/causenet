@@ -49,7 +49,8 @@ export const getCmJointCorrelations = createSelector(
         network.filter(({csource, ctarget}) => {
           const [[sf, sc, su], [tf, tc, tu]] = [csource, ctarget];
           return (
-            sf === tf && su === 0 && tu === 0 && (sc === '-1' || tc === '-1')
+            sf === tf &&
+            ((sc === '-1' && tu === 1) || (tc === '-1' && su === 1))
           );
         }),
         ({csource, ctarget}) => {
