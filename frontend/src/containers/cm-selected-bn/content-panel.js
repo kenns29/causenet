@@ -7,7 +7,10 @@ import {
   getShowCmSelectedBnWindow,
   getCmSelectedBnWindowSize
 } from '../../selectors/base';
-import {getCmSelectedBnLayout} from '../../selectors/data';
+import {
+  getCmSelectedBnLayout,
+  getRawCmSelectedBnFocusLink
+} from '../../selectors/data';
 import {
   updateShowCmSelectedBnWindow,
   updateCmSelectedBnWindowSize
@@ -21,13 +24,51 @@ const mapDispatchToProps = {
 const mapStateToProps = state => ({
   show: getShowCmSelectedBnWindow(state),
   windowSize: getCmSelectedBnWindowSize(state),
-  nodeLink: getCmSelectedBnLayout(state)
+  nodeLink: getCmSelectedBnLayout(state),
+  focusLink: getRawCmSelectedBnFocusLink(state)
 });
 
+const tooltipStyle = {
+  position: 'absolute',
+  padding: '4px',
+  background: 'rgba(0, 0, 0, 0.8)',
+  color: '#fff',
+  maxWidth: '300px',
+  fontSize: '10px',
+  zIndex: 9,
+  pointerEvents: 'none'
+};
+
 class ContentPanel extends PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = {
+      tooltip: null
+    };
+  }
+  _getEventMouse = event => {
+    const {clientX, clientY} = event;
+    const {left, top} = this.container.contentContainer.getBoundingClientRect();
+    return [clientX - left, clientY - top];
+  };
+
+  _renderTooltip() {
+    const {tooltip} = this.state;
+    if (tooltip) {
+      const {content, x, y} = tooltip;
+      return (
+        <div style={{...tooltipStyle, left: x + 10, top: y - 20}}>
+          {content}
+        </div>
+      );
+    }
+    return null;
+  }
+
   _renderNodeLink() {
     const {
-      nodeLink: {nodes, edges}
+      nodeLink: {nodes, edges},
+      focusLink: {source: focs, target: foct}
     } = this.props;
     const lineg = d3Line()
       .x(d => d[0])
@@ -36,13 +77,18 @@ class ContentPanel extends PureComponent {
     return (
       <g transform="translate(50 50)">
         <g>
-          {nodes.map(({id, x, y, width, height}) => (
+          {nodes.map(({id, x, y, width, height, data: {fname, cname}}) => (
             <circle
               key={id}
               cx={x}
               cy={y}
               r={Math.min(width, height) / 2}
-              fill="black"
+              fill={id === focs || id === foct ? 'orange' : 'black'}
+              onMouseOver={event => {
+                const [x, y] = this._getEventMouse(event);
+                this.setState({tooltip: {x, y, content: `${fname}, ${cname}`}});
+              }}
+              onMouseOut={() => this.setState({tooltip: null})}
             />
           ))}
         </g>
@@ -52,7 +98,9 @@ class ContentPanel extends PureComponent {
               key={`${source.id}-${target.id}`}
               d={lineg(points)}
               fill="none"
-              stroke="black"
+              stroke={
+                source.id === focs && target.id === foct ? 'orange' : 'black'
+              }
               strokeWidth={1}
             />
           ))}
@@ -84,6 +132,7 @@ class ContentPanel extends PureComponent {
             {this._renderNodeLink()}
           </svg>
         </UncontrolledReactSVGPanZoom>
+        {this._renderTooltip()}
       </PopupWindow>
     ) : null;
   }

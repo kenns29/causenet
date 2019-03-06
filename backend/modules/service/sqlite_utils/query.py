@@ -47,8 +47,9 @@ def query_country_by_year_with_import_export_item_group_data_frame():
         iterator = conn.execute('''
                 SELECT *
                 FROM FAO_Item_Group_TradeTotal t, ALL_Countries c
-                WHERE t.FAO_CountryCode = c.FAO_CountryCode AND c.Use_Flag = 1                
-            ''')
+                WHERE t.FAO_CountryCode = c.FAO_CountryCode AND c.Use_Flag = 1
+                WHERE Year >= ? AND Year < ?                
+            ''', (start_year, end_year))
 
         data = DataFrame(index=[i for i in range(start_year, end_year)])
         data.index.name = 'year'

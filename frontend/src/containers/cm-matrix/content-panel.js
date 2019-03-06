@@ -68,12 +68,14 @@ class ContentPanel extends PureComponent {
           if (direction === -1) {
             this.props.updateCmSelectedBnFocusLink({
               source: `(${f}, ${-1}, 0)`,
-              target: `(${f}, ${c}, 1)`
+              target: `(${f}, ${c}, 1)`,
+              direction
             });
           } else if (direction === 1) {
             this.props.updateCmSelectedBnFocusLink({
               source: `(${f}, ${c}, 1)`,
-              target: `(${f}, ${-1}, 0)`
+              target: `(${f}, ${-1}, 0)`,
+              direction
             });
           }
           this.props.updateShowCmSelectedBnWindow(true);

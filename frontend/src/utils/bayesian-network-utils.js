@@ -377,7 +377,8 @@ export const getPathLinksBetweenNodes = ([id1, id2], graph) => {
   }
 };
 
-export const getPathLinksThroughLink = ({source, target}, graph) => [
+export const getPathLinksThroughLink = ({source, target, ...rest}, graph) => [
   ...getPathLinksToNode(source, graph),
+  {source, target, ...rest},
   ...getPathLinksFromNode(target, graph)
 ];
