@@ -1,6 +1,11 @@
 import {createSelector} from 'reselect';
 import {rootSelector} from '../base';
 import {getRawCmSelectedBnFocusLink, getRawBayesianNetwork} from './raw';
+import {
+  linksToNodeMap,
+  createDagLayout,
+  getPathLinksThroughLink
+} from '../../utils';
 
 const getCleanedBayesianNetwork = createSelector(
   getRawBayesianNetwork,
@@ -28,5 +33,30 @@ const getCleanedBayesianNetwork = createSelector(
 
 const getCmFocusedBayesianNetwork = createSelector(
   [getRawCmSelectedBnFocusLink, getCleanedBayesianNetwork],
-  (focus, network) => {}
+  (focusLink, network) => {
+    if (!focusLink) {
+      return [];
+    }
+    return getPathLinksThroughLink(focusLink, network);
+  }
+);
+
+export const getCmSelectedBnLayout = createSelector(
+  getCmFocusedBayesianNetwork,
+  network => {
+    const nmap = linksToNodeMap(network);
+    const nodes = Object.values(nmap);
+    nodes.forEach(node => {
+      node.width = 10;
+      node.height = 10;
+    });
+    const links = network.map(({source, target, ...rest}) => {
+      return {
+        source: nmap[source],
+        target: nmap[target],
+        ...rest
+      };
+    });
+    return createDagLayout({nodes, links}, null, d => d.id);
+  }
 );

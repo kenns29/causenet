@@ -10,13 +10,15 @@ import {getCmMatrixLayout, getCmMatrixCellSize} from '../../selectors/data';
 import {
   updateShowCmMatrixWindow,
   updateCmMatrixWindowSize,
-  updateShowCmSelectedBnWindow
+  updateShowCmSelectedBnWindow,
+  updateCmSelectedBnFocusLink
 } from '../../actions';
 
 const mapDispatchToProps = {
   updateShowCmMatrixWindow,
   updateCmMatrixWindowSize,
-  updateShowCmSelectedBnWindow
+  updateShowCmSelectedBnWindow,
+  updateCmSelectedBnFocusLink
 };
 
 const mapStateToProps = state => ({
@@ -58,6 +60,22 @@ class ContentPanel extends PureComponent {
           layer.id === 'cm-matrix-non-cells' ||
           layer.id === 'cm-matrix-spurious-cells'
         ) {
+          const {
+            data: {direction},
+            row_id: f,
+            col_id: c
+          } = info.object;
+          if (direction === -1) {
+            this.props.updateCmSelectedBnFocusLink({
+              source: `(${f}, ${-1}, 0)`,
+              target: `(${f}, ${c}, 1)`
+            });
+          } else if (direction === 1) {
+            this.props.updateCmSelectedBnFocusLink({
+              source: `(${f}, ${c}, 1)`,
+              target: `(${f}, ${-1}, 0)`
+            });
+          }
           this.props.updateShowCmSelectedBnWindow(true);
         }
       }

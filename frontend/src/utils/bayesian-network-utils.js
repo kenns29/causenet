@@ -376,3 +376,8 @@ export const getPathLinksBetweenNodes = ([id1, id2], graph) => {
     return keepEdge;
   }
 };
+
+export const getPathLinksThroughLink = ({source, target}, graph) => [
+  ...getPathLinksToNode(source, graph),
+  ...getPathLinksFromNode(target, graph)
+];

@@ -1,11 +1,13 @@
 import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
 import {UncontrolledReactSVGPanZoom} from 'react-svg-pan-zoom';
+import {line as d3Line, curveCardinal} from 'd3-shape';
 import PopupWindow from '../../components/popup-window';
 import {
   getShowCmSelectedBnWindow,
   getCmSelectedBnWindowSize
 } from '../../selectors/base';
+import {getCmSelectedBnLayout} from '../../selectors/data';
 import {
   updateShowCmSelectedBnWindow,
   updateCmSelectedBnWindowSize
@@ -18,10 +20,46 @@ const mapDispatchToProps = {
 
 const mapStateToProps = state => ({
   show: getShowCmSelectedBnWindow(state),
-  windowSize: getCmSelectedBnWindowSize(state)
+  windowSize: getCmSelectedBnWindowSize(state),
+  nodeLink: getCmSelectedBnLayout(state)
 });
 
 class ContentPanel extends PureComponent {
+  _renderNodeLink() {
+    const {
+      nodeLink: {nodes, edges}
+    } = this.props;
+    const lineg = d3Line()
+      .x(d => d[0])
+      .y(d => d[1])
+      .curve(curveCardinal);
+    return (
+      <g transform="translate(50 50)">
+        <g>
+          {nodes.map(({id, x, y, width, height}) => (
+            <circle
+              key={id}
+              cx={x}
+              cy={y}
+              r={Math.min(width, height) / 2}
+              fill="black"
+            />
+          ))}
+        </g>
+        <g>
+          {edges.map(({source, target, points}) => (
+            <path
+              key={`${source.id}-${target.id}`}
+              d={lineg(points)}
+              fill="none"
+              stroke="black"
+              strokeWidth={1}
+            />
+          ))}
+        </g>
+      </g>
+    );
+  }
   render() {
     const {
       show,
@@ -42,7 +80,9 @@ class ContentPanel extends PureComponent {
         }
       >
         <UncontrolledReactSVGPanZoom width={width} height={height}>
-          <svg width={width} height={height} />
+          <svg width={width} height={height}>
+            {this._renderNodeLink()}
+          </svg>
         </UncontrolledReactSVGPanZoom>
       </PopupWindow>
     ) : null;

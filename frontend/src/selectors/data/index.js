@@ -11,3 +11,4 @@ export * from './bayesian-model-feature-slices-table';
 export * from './cr-matrix';
 export * from './c-chord';
 export * from './cm-matrix';
+export * from './cm-selected-bn';

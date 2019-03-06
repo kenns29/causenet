@@ -46,29 +46,57 @@ export const getCmJointCorrelations = createSelector(
       country,
       item,
       corr,
-      isSpurious: false
+      isSpurious: false,
+      // 0 -- non-directional
+      // 1 -- trade to social
+      // -1 -- social to trade
+      // 2 -- double direction
+      direction: 0
     }));
     if (network.length) {
-      const cmap = array2Object(
-        network.filter(({csource, ctarget}) => {
+      // const cmap = array2Object(
+      //   network.filter(({csource, ctarget}) => {
+      //     const [[sf, sc, su], [tf, tc, tu]] = [csource, ctarget];
+      //     return (
+      //       sf === tf &&
+      //       ((sc === '-1' && tu === 1) || (tc === '-1' && su === 1))
+      //     );
+      //   }),
+      //   ({csource, ctarget}) => {
+      //     const [[sf, sc, su], [tf, tc, tu]] = [csource, ctarget];
+      //     const [country, item] = [sf, sc === '-1' ? tc : sc];
+      //     return `${country}-${item}`;
+      //   },
+      //   ({csource, ctarget, ...rest}) => {
+      //     const [[sf, sc, su], [tf, tc, tu]] = [csource, ctarget];
+      //     return {csource, ctarget, ...rest, direction: sc === -1 ? -1 : 1};
+      //   }
+      // );
+
+      const cmap = network
+        .filter(({csource, ctarget}) => {
           const [[sf, sc, su], [tf, tc, tu]] = [csource, ctarget];
           return (
             sf === tf &&
             ((sc === '-1' && tu === 1) || (tc === '-1' && su === 1))
           );
-        }),
-        ({csource, ctarget}) => {
+        })
+        .reduce((m, {csource, ctarget, ...rest}) => {
           const [[sf, sc, su], [tf, tc, tu]] = [csource, ctarget];
           const [country, item] = [sf, sc === '-1' ? tc : sc];
-          return `${country}-${item}`;
-        }
-      );
-      console.log('cmap', cmap);
+          const key = `${country}-${item}`;
+          const direction = m.hasOwnProperty(key) ? 2 : sc === -1 ? -1 : 1;
+          m[key] = {csource, ctarget, ...rest, direction};
+          return m;
+        }, {});
       corrs.forEach(corr => {
         const {country, item} = corr;
-        corr.isSpurious = !cmap.hasOwnProperty(`${country}-${item}`);
+        const n = cmap.hasOwnProperty(`${country}-${item}`)
+          ? cmap[`${country}-${item}`]
+          : null;
+        corr.isSpurious = !n;
+        corr.direction = n ? n.direction : 0;
       });
-      console.log('corrs', corrs);
     }
     return corrs;
   }
@@ -82,11 +110,12 @@ const getCmMatrixObject = createSelector(getCmJointCorrelations, corrs => {
     .links(corrs)
     .source(d => d.country)
     .target(d => d.item)
-    .value(({corr, isSpurious}) => ({
+    .value(({corr, isSpurious, direction}) => ({
       corr,
-      isSpurious
+      isSpurious,
+      direction
     }))
-    .null({corr: 0, isSpurious: false});
+    .null({corr: 0, isSpurious: false, direction: 0});
   return generate().cell_value(d => d.corr);
 });
 
