@@ -117,6 +117,16 @@ export const getCmMatrixWindowSize = createSelector(
   state => state.cmMatrixWindowSize
 );
 
+export const getShowCmSelectedBnWindow = createSelector(
+  rootSelector,
+  state => state.showCmSelectedBnWindow
+);
+
+export const getCmSelectedBnWindowSize = createSelector(
+  rootSelector,
+  state => state.cmSelectedBnWindowSize
+);
+
 export const getShowWorldMapWindow = createSelector(
   rootSelector,
   state => state.showWorldMapWindow

@@ -9,10 +9,15 @@ import {
 import {getCmMatrixLayout, getCmMatrixCellSize} from '../../selectors/data';
 import {
   updateShowCmMatrixWindow,
-  updateCmMatrixWindowSize
+  updateCmMatrixWindowSize,
+  updateShowCmSelectedBnWindow
 } from '../../actions';
 
-const mapDispatchToProps = {updateShowCmMatrixWindow, updateCmMatrixWindowSize};
+const mapDispatchToProps = {
+  updateShowCmMatrixWindow,
+  updateCmMatrixWindowSize,
+  updateShowCmSelectedBnWindow
+};
 
 const mapStateToProps = state => ({
   showWindow: getShowCmMatrixWindow(state),
@@ -22,6 +27,43 @@ const mapStateToProps = state => ({
 });
 
 class ContentPanel extends PureComponent {
+  _getDeck = () =>
+    this.deckGLContainer &&
+    this.deckGLContainer.container &&
+    this.deckGLContainer.container.deck &&
+    this.deckGLContainer.container.deck.deck;
+
+  _pickObject = param => {
+    const deck = this._getDeck();
+    return deck && deck.pickObject(param);
+  };
+
+  _getEventMouse = event => {
+    const {clientX, clientY} = event;
+    const {left, top} = this.container.contentContainer.getBoundingClientRect();
+    return [clientX - left, clientY - top];
+  };
+
+  _handleClick = event => {
+    if (this._getDeck()) {
+      const [x, y] = this._getEventMouse(event);
+      const info = this._pickObject({
+        x,
+        y
+      });
+      if (info) {
+        const {layer} = info;
+        if (
+          layer.id === 'cm-matrix-cause-cells' ||
+          layer.id === 'cm-matrix-non-cells' ||
+          layer.id === 'cm-matrix-spurious-cells'
+        ) {
+          this.props.updateShowCmSelectedBnWindow(true);
+        }
+      }
+    }
+  };
+
   render() {
     const {
       showWindow,
@@ -39,6 +81,9 @@ class ContentPanel extends PureComponent {
           this.props.updateCmMatrixWindowSize([width, height]);
         }}
         onClose={() => this.props.updateShowCmMatrixWindow(false)}
+        contentProps={{
+          onClick: this._handleClick
+        }}
       >
         <DeckGLContainer
           ref={input => {

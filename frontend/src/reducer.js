@@ -14,6 +14,8 @@ import {
   UPDATE_C_CHORD_WINDOW_SIZE,
   UPDATE_SHOW_CM_MATRIX_WINDOW,
   UPDATE_CM_MATRIX_WINDOW_SIZE,
+  UPDATE_SHOW_CM_SELECTED_BN_WINDOW,
+  UPDATE_CM_SELECTED_BN_WINDOW_SIZE,
   UPDATE_SHOW_WORLD_MAP_WINDOW,
   UPDATE_CURRENT_DATASET_NAME,
   UPDATE_DATASET_LIST,
@@ -50,6 +52,7 @@ import {
   UPDATE_CR_MATRIX_OPTIONS,
   UPDATE_CR_MATRIX_FOCUS,
   UPDATE_CM_CORRELATIONS,
+  UPDATE_CM_SELECED_BN_FOCUS_LINK,
   UPDATE_COUNTRIES,
   UPDATE_ITEMS
 } from './actions';
@@ -188,6 +191,8 @@ const DEFAULT_STATE = {
   cChordWindowSize: [1200, 900],
   showCmMatrixWindow: true,
   cmMatrixWindowSize: [1200, 900],
+  showCmSelectedBnWindow: false,
+  cmSelectedBnWindowSize: [800, 600],
   showWorldMapWindow: false,
   // feature pair list that will be shown in the distribution window
   // [
@@ -236,7 +241,13 @@ const DEFAULT_STATE = {
     showCrossNetwork: true
   },
   crMatrixFocus: null,
+  // [
+  //  {
+  //    country, item, corr
+  //  }
+  // ]
   cmCorrelations: [],
+  cmSelectedBnFocusLink: null,
   countries: [],
   items: []
 };
@@ -314,6 +325,16 @@ const handleUpdateShowCmMatrixWindow = (state, {payload}) => ({
 const handleUpdateCmMatrixWindowSize = (state, {payload}) => ({
   ...state,
   cmMatrixWindowSize: payload
+});
+
+const handleUpdateShowCmSelectedBnWindow = (state, {payload}) => ({
+  ...state,
+  showCmSelectedBnWindow: payload
+});
+
+const handleUpdateCmSelectedBnWindowSize = (state, {payload}) => ({
+  ...state,
+  cmSelectedBnWindowSize: payload
 });
 
 const handleUpdateShowWorldMapWindow = (state, {payload}) => ({
@@ -512,6 +533,11 @@ const handleUpdateCmCorrelations = (state, {payload}) => ({
   cmCorrelations: payload
 });
 
+const handleUpdateCmSelectedBnFocusLink = (state, {payload}) => ({
+  ...state,
+  cmSelectedBnFocusLink: payload
+});
+
 const handleUpdateCountries = (state, {payload}) => ({
   ...state,
   countries: payload
@@ -536,6 +562,8 @@ export default handleActions(
     [UPDATE_C_CHORD_WINDOW_SIZE]: handleUpdateCChordWindowSize,
     [UPDATE_CR_MATRIX_WINDOW_SIZE]: handleUpdateCrMatrixWindowSize,
     [UPDATE_SHOW_BAYESIAN_NETWORK_SUB_NETWORK_DETAIL_WINDOW]: handleUpdateShowBayesianNetworkSubNetworkDetailWindow,
+    [UPDATE_SHOW_CM_SELECTED_BN_WINDOW]: handleUpdateShowCmSelectedBnWindow,
+    [UPDATE_CM_SELECTED_BN_WINDOW_SIZE]: handleUpdateCmSelectedBnWindowSize,
     [UPDATE_SHOW_CM_MATRIX_WINDOW]: handleUpdateShowCmMatrixWindow,
     [UPDATE_CM_MATRIX_WINDOW_SIZE]: handleUpdateCmMatrixWindowSize,
     [UPDATE_SHOW_WORLD_MAP_WINDOW]: handleUpdateShowWorldMapWindow,
@@ -574,6 +602,7 @@ export default handleActions(
     [UPDATE_CR_MATRIX_OPTIONS]: handleUpdateCrMatrixOptions,
     [UPDATE_CR_MATRIX_FOCUS]: handleUpdateCrMatrixFocus,
     [UPDATE_CM_CORRELATIONS]: handleUpdateCmCorrelations,
+    [UPDATE_CM_SELECED_BN_FOCUS_LINK]: handleUpdateCmSelectedBnFocusLink,
     [UPDATE_COUNTRIES]: handleUpdateCountries,
     [UPDATE_ITEMS]: handleUpdateItems
   },

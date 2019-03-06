@@ -22,6 +22,10 @@ export const UPDATE_SHOW_C_CHORD_WINDOW = 'UPDATE_SHOW_C_CHORD_WINDOW';
 export const UPDATE_C_CHORD_WINDOW_SIZE = 'UPDATE_C_CHORD_WINDOW_SIZE';
 export const UPDATE_SHOW_CM_MATRIX_WINDOW = 'UPDATE_SHOW_CM_MATRIX_WINDOW';
 export const UPDATE_CM_MATRIX_WINDOW_SIZE = 'UPDATE_CM_MATRIX_WINDOW_SIZE';
+export const UPDATE_SHOW_CM_SELECTED_BN_WINDOW =
+  'UPDATE_SHOW_CM_SELECTED_BN_WINDOW';
+export const UPDATE_CM_SELECTED_BN_WINDOW_SIZE =
+  'UPDATE_CM_SELECTED_BN_WINDOW_SIZE';
 export const UPDATE_SHOW_WORLD_MAP_WINDOW = 'UPDATE_SHOW_WORLD_MAP_WINDOW';
 
 // data Action ids
@@ -82,6 +86,8 @@ export const UPDATE_CR_RELATION_FEATURES = 'UPDATE_CR_RELATION_FEATURES';
 export const UPDATE_CR_MATRIX_OPTIONS = 'UPDATE_CR_MATRIX_OPTIONS';
 export const UPDATE_CR_MATRIX_FOCUS = 'UPDATE_CR_MATRIX_FOCUS';
 export const UPDATE_CM_CORRELATIONS = 'UPDATE_CM_CORRELATIONS';
+export const UPDATE_CM_SELECED_BN_FOCUS_LINK =
+  'UPDATE_CM_SELECTED_BN_FOCUS_LINK';
 export const UPDATE_COUNTRIES = 'UPDATE_COUNTRIES';
 export const UPDATE_ITEMS = 'UPDATE_ITEMS';
 
@@ -119,6 +125,12 @@ export const updateShowCmMatrixWindow = createAction(
 );
 export const updateCmMatrixWindowSize = createAction(
   UPDATE_CM_MATRIX_WINDOW_SIZE
+);
+export const updateShowCmSelectedBnWindow = createAction(
+  UPDATE_SHOW_CM_SELECTED_BN_WINDOW
+);
+export const updateCmSelectedBnWindowSize = createAction(
+  UPDATE_CM_SELECTED_BN_WINDOW_SIZE
 );
 export const updateShowWorldMapWindow = createAction(
   UPDATE_SHOW_WORLD_MAP_WINDOW
@@ -211,6 +223,9 @@ export const updateCrRelationFeatures = createAction(
 export const updateCrMatrixOptions = createAction(UPDATE_CR_MATRIX_OPTIONS);
 export const updateCrMatrixFocus = createAction(UPDATE_CR_MATRIX_FOCUS);
 export const updateCmCorrelations = createAction(UPDATE_CM_CORRELATIONS);
+export const updateCmSelectedBnFocusLink = createAction(
+  UPDATE_CM_SELECED_BN_FOCUS_LINK
+);
 export const updateCountries = createAction(UPDATE_COUNTRIES);
 export const updateItems = createAction(UPDATE_ITEMS);
 

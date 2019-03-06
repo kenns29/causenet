@@ -21,23 +21,7 @@ export default class Content extends PureComponent {
       matrix: {cols, rows, cells},
       cellSize: [w, h]
     } = this.props;
-    // return [
-    //   new MatrixLayer({
-    //     id: ID + '-matrix-layer',
-    //     data: cells,
-    //     coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
-    //     getPosition: ({x, y}) => [x, y],
-    //     getColor: ({color}) => [...color, 255],
-    //     layout: {
-    //       x: 0,
-    //       y: 0,
-    //       dx: w,
-    //       dy: h,
-    //       width: cols.length * w,
-    //       height: rows.length * h
-    //     }
-    //   })
-    // ];
+
     const radius = Math.min(w, h) / 2;
     const nonCells = cells.filter(cell => cell.data.corr === 0);
     const causeCells = cells.filter(
@@ -63,7 +47,8 @@ export default class Content extends PureComponent {
         stroked: true,
         getLineWidth: 1,
         getLineColor: [255, 255, 255, 255],
-        getFillColor: d => d.color
+        getFillColor: d => d.color,
+        pickable: true
       }),
       new LineLayer({
         id: `${ID}-non-cells`,
@@ -71,7 +56,8 @@ export default class Content extends PureComponent {
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
         getSourcePosition: ({x, y}) => [x, y + h],
         getTargetPosition: ({x, y}) => [x + w, y],
-        getColor: [60, 60, 60]
+        getColor: [60, 60, 60],
+        pickable: true
       }),
       new ScatterplotLayer({
         id: `${ID}-spurious-cells`,
@@ -79,7 +65,8 @@ export default class Content extends PureComponent {
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
         getPosition: ({x, y}) => [x + w / 2, y + h / 2],
         getRadius: radius,
-        getColor: d => d.color
+        getColor: d => d.color,
+        pickable: true
       })
     ];
   }

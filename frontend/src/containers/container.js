@@ -15,6 +15,7 @@ import FeatureDistribution from './feature-distribution';
 import CrMatrix from './cr-matrix';
 import CChord from './c-chord';
 import CmMatrix from './cm-matrix';
+import CmSelectedBn from './cm-selected-bn';
 import FeatureList from './feature-list';
 import WorldMap from './world-map';
 import ContentPanelCenter from './content-panel-center';
@@ -175,6 +176,7 @@ class AppContainer extends PureComponent {
           <CrMatrix />
           <CChord />
           <CmMatrix />
+          <CmSelectedBn />
           <WorldMap />
         </Layout>
       </React.Fragment>

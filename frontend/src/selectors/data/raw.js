@@ -171,6 +171,11 @@ export const getRawCmCorrelations = createSelector(
   state => state.cmCorrelations
 );
 
+export const getRawCmSelectedBnFocusLink = createSelector(
+  rootSelector,
+  state => state.cmSelectedBnFocusLink
+);
+
 export const getRawCountries = createSelector(
   rootSelector,
   state => state.countries
