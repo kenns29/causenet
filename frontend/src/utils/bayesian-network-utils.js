@@ -177,6 +177,17 @@ export const createBayesianNetworkNodeLinkLayout = (
     ? createTemporalDagLayout(nodeLink, features)
     : createDagLayout(nodeLink);
 
+export const linksToNeighborAdjacencyMap = links => {
+  const map = links.reduce((map, {source, target, ...rest}) => {
+    if (!map.hasOwnProperty(source)) {
+      map[source] = {};
+    }
+    if (!map.hasOwnProperty(target)) {
+      map[target] = {};
+    }
+  }, {});
+};
+
 export const linksToSourceAdjacencyMap = links => {
   const map = links.reduce((map, {source, target, ...rest}) => {
     const targetMap = map.hasOwnProperty(source) ? map[source] : {};
@@ -382,3 +393,5 @@ export const getPathLinksThroughLink = ({source, target, ...rest}, graph) => [
   {source, target, ...rest},
   ...getPathLinksFromNode(target, graph)
 ];
+
+export const getUndirectedPathLinksThroughNode = (id, ...args) => {};

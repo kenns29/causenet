@@ -54,25 +54,6 @@ export const getCmJointCorrelations = createSelector(
       direction: 0
     }));
     if (network.length) {
-      // const cmap = array2Object(
-      //   network.filter(({csource, ctarget}) => {
-      //     const [[sf, sc, su], [tf, tc, tu]] = [csource, ctarget];
-      //     return (
-      //       sf === tf &&
-      //       ((sc === '-1' && tu === 1) || (tc === '-1' && su === 1))
-      //     );
-      //   }),
-      //   ({csource, ctarget}) => {
-      //     const [[sf, sc, su], [tf, tc, tu]] = [csource, ctarget];
-      //     const [country, item] = [sf, sc === '-1' ? tc : sc];
-      //     return `${country}-${item}`;
-      //   },
-      //   ({csource, ctarget, ...rest}) => {
-      //     const [[sf, sc, su], [tf, tc, tu]] = [csource, ctarget];
-      //     return {csource, ctarget, ...rest, direction: sc === -1 ? -1 : 1};
-      //   }
-      // );
-
       const cmap = network
         .filter(({csource, ctarget}) => {
           const [[sf, sc, su], [tf, tc, tu]] = [csource, ctarget];
