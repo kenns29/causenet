@@ -176,6 +176,11 @@ export const getRawCmSelectedBnFocusLink = createSelector(
   state => state.cmSelectedBnFocusLink
 );
 
+export const getRawCmUSelection = createSelector(
+  rootSelector,
+  state => state.cmUSelection
+);
+
 export const getRawCountries = createSelector(
   rootSelector,
   state => state.countries

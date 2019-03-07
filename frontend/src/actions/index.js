@@ -88,6 +88,7 @@ export const UPDATE_CR_MATRIX_FOCUS = 'UPDATE_CR_MATRIX_FOCUS';
 export const UPDATE_CM_CORRELATIONS = 'UPDATE_CM_CORRELATIONS';
 export const UPDATE_CM_SELECED_BN_FOCUS_LINK =
   'UPDATE_CM_SELECTED_BN_FOCUS_LINK';
+export const UPDATE_CM_U_SELECTION = 'UPDATE_CM_U_SELECTION';
 export const UPDATE_COUNTRIES = 'UPDATE_COUNTRIES';
 export const UPDATE_ITEMS = 'UPDATE_ITEMS';
 
@@ -226,6 +227,7 @@ export const updateCmCorrelations = createAction(UPDATE_CM_CORRELATIONS);
 export const updateCmSelectedBnFocusLink = createAction(
   UPDATE_CM_SELECED_BN_FOCUS_LINK
 );
+export const updateCmUSelection = createAction(UPDATE_CM_U_SELECTION);
 export const updateCountries = createAction(UPDATE_COUNTRIES);
 export const updateItems = createAction(UPDATE_ITEMS);
 
@@ -687,9 +689,9 @@ export const fetchCrRelationFeatures = () => async dispatch => {
   }
 };
 
-export const fetchCmCorrelations = () => async dispatch => {
+export const fetchCmCorrelations = ({u = 1}) => async dispatch => {
   try {
-    const response = await fetch(`${BACKEND_URL}/load_cm_correlations`);
+    const response = await fetch(`${BACKEND_URL}/load_cm_correlations?u=${u}`);
     const data = await response.json();
     dispatch(updateCmCorrelations(data));
     return Promise.resolve(data);
@@ -852,5 +854,15 @@ export const bundleRequestUpdateBayesianModelFeatureSlices = ({
     return Promise.resolve([edges, ...datas]);
   } catch (err) {
     throw new Error(err);
+  }
+};
+
+export const bundleFetchUpdateCmUSelection = ({u = 1}) => async dispatch => {
+  try {
+    dispatch(updateCmUSelection(u));
+    const data = await dispatch(fetchCmCorrelations({u}));
+    return Promise.resolve(data);
+  } catch (err) {
+    return new Error(err);
   }
 };

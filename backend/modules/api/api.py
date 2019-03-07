@@ -13,7 +13,8 @@ from modules.service.data_utils import load_data, load_pdist, load_clustering, g
     get_column_mean_aggregated_data
 from modules.service.clustering_utils import tree2dict, tree_to_non_binary_dict
 from modules.service.sqlite_utils.query import query_bilateral_trade_averaged_by_country_by_item_group, \
-    query_countries, query_import_social_correlation_by_country_item, query_items
+    query_countries, query_import_social_correlation_by_country_item, query_items, \
+    query_trade_social_correlation_by_country_item
 from scipy.cluster.hierarchy import to_tree
 from itertools import combinations
 
@@ -379,7 +380,11 @@ def route_load_relation_features():
 
 @blueprint.route('/load_cm_correlations', methods=['GET'])
 def route_load_cm_correlations():
-    correlations = query_import_social_correlation_by_country_item()
+    u = request.args.get('u') if request.args.get('u') else 1
+    print('u = {}'.format(u))
+    trade_attribute = 'import_quantity' if int(u) else 'export_quantity'
+    # correlations = query_import_social_correlation_by_country_item()
+    correlations = query_trade_social_correlation_by_country_item(trade_attribute)
     return jsonify(correlations)
 
 

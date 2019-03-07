@@ -53,6 +53,7 @@ import {
   UPDATE_CR_MATRIX_FOCUS,
   UPDATE_CM_CORRELATIONS,
   UPDATE_CM_SELECED_BN_FOCUS_LINK,
+  UPDATE_CM_U_SELECTION,
   UPDATE_COUNTRIES,
   UPDATE_ITEMS
 } from './actions';
@@ -248,6 +249,7 @@ const DEFAULT_STATE = {
   // ]
   cmCorrelations: [],
   cmSelectedBnFocusLink: null,
+  cmUSelection: 1,
   countries: [],
   items: []
 };
@@ -538,6 +540,11 @@ const handleUpdateCmSelectedBnFocusLink = (state, {payload}) => ({
   cmSelectedBnFocusLink: payload
 });
 
+const handleUpdateCmUSelection = (state, {payload}) => ({
+  ...state,
+  cmUSelection: payload
+});
+
 const handleUpdateCountries = (state, {payload}) => ({
   ...state,
   countries: payload
@@ -603,6 +610,7 @@ export default handleActions(
     [UPDATE_CR_MATRIX_FOCUS]: handleUpdateCrMatrixFocus,
     [UPDATE_CM_CORRELATIONS]: handleUpdateCmCorrelations,
     [UPDATE_CM_SELECED_BN_FOCUS_LINK]: handleUpdateCmSelectedBnFocusLink,
+    [UPDATE_CM_U_SELECTION]: handleUpdateCmUSelection,
     [UPDATE_COUNTRIES]: handleUpdateCountries,
     [UPDATE_ITEMS]: handleUpdateItems
   },

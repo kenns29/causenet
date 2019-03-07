@@ -49,7 +49,7 @@ class DataLoader extends PureComponent {
     // this.props.fetchHierarchicalClusteringTree(hierarchicalClusteringOption);
     await this.props.fetchFeatureValuesMap();
     this.props.fetchFeatureSelection();
-    this.props.fetchCmCorrelations();
+    this.props.fetchCmCorrelations({});
     this.props.fetchCountries();
     this.props.fetchItems();
   }

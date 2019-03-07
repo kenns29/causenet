@@ -246,3 +246,25 @@ def query_import_social_correlation_by_country_item():
         } for d in iterator]
     finally:
         conn.close()
+
+
+def query_trade_social_correlation_by_country_item(trade_attribute):
+    try:
+        conn = sqlite3.connect(db_dir)
+        conn.row_factory = sqlite3.Row
+
+        iterator = conn.execute('''
+            SELECT * 
+            FROM trade_social_correlation_new tsc, ALL_Countries c
+            WHERE tsc.FAO_CountryCode = c.FAO_CountryCode AND c.Use_Flag = 1
+                AND tsc.TradeAttribute = ?
+                AND tsc.Lag = 0 AND tsc.SocialAttribute = 'stability'
+        ''', (trade_attribute, ))
+
+        return [{
+            'country': int(d['FAO_CountryCode']),
+            'item': int(d['ItemGroupCode']),
+            'corr': float(d['Correlation'])
+        } for d in iterator]
+    finally:
+        conn.close()

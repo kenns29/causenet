@@ -19,6 +19,7 @@ import ToggleShowWorldMapWindow from './toggle-show-world-map-window';
 import BayesianModelFeatureSlicesTable from './bayesian-model-feature-slices-table';
 import CrMatrixOptions from './cr-matrix-options';
 import CrMatrixFeatureSearch from './cr-matrix-feature-search';
+import CmMatrixUSelectionRadio from './cm-matrix-u-selection-radio';
 import {updateNavPanelWidth} from '../../actions';
 import {getNavPanelWidth, getContentPanelHeight} from '../../selectors/base';
 
@@ -68,6 +69,7 @@ class NavPanel extends PureComponent {
         <ToggleShowCmMatrixWindow />
         <CrMatrixOptions />
         <CrMatrixFeatureSearch />
+        <CmMatrixUSelectionRadio />
       </Rnd>
     );
   }
