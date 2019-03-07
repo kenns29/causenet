@@ -10,7 +10,8 @@ import {
   array2Object,
   linksToNodeMap,
   createDagLayout,
-  getPathLinksThroughLink
+  getPathLinksThroughLink,
+  getUndirectedPathLinksBetweenNodes
 } from '../../utils';
 
 const idToCid = id => {
@@ -45,6 +46,23 @@ const getCmFocusedBayesianNetwork = createSelector(
     if (!focusLink) {
       return [];
     }
+    console.log('focusLink', focusLink);
+    const {source, target, isSpurious} = focusLink;
+    if (isSpurious) {
+      // const slinks = getUndirectedPathLinksThroughNode(source, network);
+      // const tlinks = getUndirectedPathLinksThroughNode(target, network);
+      // const slmap = array2Object(
+      //   slinks,
+      //   ({source, target}) => `${source}-${target}`
+      // );
+      // return [
+      //   ...slinks,
+      //   ...tlinks.filter(
+      //     ({source, target}) => !slmap.hasOwnProperty(`${source}-${target}`)
+      //   )
+      // ];
+      return getUndirectedPathLinksBetweenNodes([source, target], network);
+    }
     return getPathLinksThroughLink(focusLink, network);
   }
 );
@@ -70,6 +88,7 @@ export const getCmSelectedBnLayout = createSelector(
             label: id,
             fname: fid2Name[f],
             cname: c === '-1' ? 'stability' : cid2Name[c],
+            uname: u ? 'import' : 'export',
             width: 10,
             height: 10
           };

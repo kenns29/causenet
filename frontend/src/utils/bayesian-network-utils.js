@@ -185,7 +185,14 @@ export const linksToNeighborAdjacencyMap = links => {
     if (!map.hasOwnProperty(target)) {
       map[target] = {};
     }
+    map[source][target] = {id: target, direction: 1, ...rest};
+    map[target][source] = {id: source, direction: -1, ...rest};
+    return map;
   }, {});
+  Object.keys(map).forEach(key => {
+    map[key] = Object.values(map[key]);
+  });
+  return map;
 };
 
 export const linksToSourceAdjacencyMap = links => {
@@ -394,4 +401,79 @@ export const getPathLinksThroughLink = ({source, target, ...rest}, graph) => [
   ...getPathLinksFromNode(target, graph)
 ];
 
-export const getUndirectedPathLinksThroughNode = (id, ...args) => {};
+export const getUndirectedPathLinksThroughNode = (id, graph) => {
+  const neighborAdjacencyMap = isArray(graph)
+    ? linksToNeighborAdjacencyMap(graph)
+    : graph;
+  if (!neighborAdjacencyMap.hasOwnProperty(id)) {
+    return [];
+  }
+  const lmap = {};
+  const stack = [id];
+  const visited = new Set();
+  const keyg = (id1, id2) => (id1 <= id2 ? `${id1}-${id2}` : `${id2}-${id1}`);
+  while (stack.length) {
+    const node = stack.pop();
+    visited.add(node);
+    neighborAdjacencyMap[node].forEach(({id: neighbor, direction, ...rest}) => {
+      const key = keyg(node, neighbor);
+      if (!lmap.hasOwnProperty(key)) {
+        const [source, target] =
+          direction === 1 ? [node, neighbor] : [neighbor, node];
+        lmap[key] = {
+          source,
+          target,
+          ...rest
+        };
+      }
+      if (!visited.has(neighbor)) {
+        stack.push(neighbor);
+      }
+    });
+  }
+  return Object.values(lmap);
+};
+
+export const getUndirectedPathLinksBetweenNodes = ([id1, id2], graph) => {
+  const neighborAdjacencyMap = isArray(graph)
+    ? linksToNeighborAdjacencyMap(graph)
+    : graph;
+
+  const keyg = (id1, id2) => (id1 <= id2 ? `${id1}-${id2}` : `${id2}-${id1}`);
+  const lmap = {};
+  visit(id1, new Set([id2]), new Set());
+  return Object.values(lmap);
+
+  function visit(node, nodeSet, visited) {
+    const neighbors = neighborAdjacencyMap[node];
+    if (!neighbors) {
+      return false;
+    }
+    if (nodeSet.has(node)) {
+      return true;
+    }
+    if (visited.has(node)) {
+      return false;
+    }
+    visited.add(node);
+    let keepEdge = false;
+    neighbors.forEach(({id: neighbor, direction, ...rest}) => {
+      const keepTarget = visit(neighbor, nodeSet, visited);
+      if (keepTarget) {
+        keepEdge = true;
+        const key = keyg(node, neighbor);
+        if (!lmap.hasOwnProperty(key)) {
+          const [source, target] =
+            direction === 1 ? [node, neighbor] : [neighbor, node];
+          lmap[key] = {
+            source,
+            target,
+            ...rest
+          };
+        }
+        nodeSet.add(neighbor);
+      }
+    });
+    return keepEdge;
+  }
+};

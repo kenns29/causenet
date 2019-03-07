@@ -80,23 +80,27 @@ class ContentPanel extends PureComponent {
     return (
       <g transform="translate(50 50)">
         <g>
-          {nodes.map(({id, x, y, width, height, data: {fname, cname}}) => (
-            <circle
-              key={id}
-              cx={x}
-              cy={y}
-              r={Math.min(width, height) / 2}
-              fill={id === focs || id === foct ? 'orange' : 'black'}
-              onMouseOver={event => {
-                const [x, y] = this._getEventMouse(event);
-                this.setState({tooltip: {x, y, content: `${fname}, ${cname}`}});
-              }}
-              onMouseOut={() => this.setState({tooltip: null})}
-            />
-          ))}
+          {nodes.map(
+            ({id, x, y, width, height, data: {fname, cname, uname}}) => (
+              <circle
+                key={id}
+                cx={x}
+                cy={y}
+                r={Math.min(width, height) / 2}
+                fill={id === focs || id === foct ? 'orange' : 'black'}
+                onMouseOver={event => {
+                  const [x, y] = this._getEventMouse(event);
+                  this.setState({
+                    tooltip: {x, y, content: `${fname}, ${cname}, ${uname}`}
+                  });
+                }}
+                onMouseOut={() => this.setState({tooltip: null})}
+              />
+            )
+          )}
         </g>
         <g>
-          {edges.map(({source, target, points}) => {
+          {edges.map(({source, target, points, corr}) => {
             const clippedEnd = clipLine({
               line: points.slice(points.length - 2),
               clipLengths: [0, 5]
@@ -111,7 +115,11 @@ class ContentPanel extends PureComponent {
                 d={lineg(clippedPoints)}
                 fill="none"
                 stroke={
-                  source.id === focs && target.id === foct ? 'orange' : 'black'
+                  source.id === focs && target.id === foct
+                    ? 'orange'
+                    : corr > 0
+                      ? 'blue'
+                      : 'red'
                 }
                 strokeWidth={1}
                 markerEnd={`url(#${ID}-arrow-marker)`}
