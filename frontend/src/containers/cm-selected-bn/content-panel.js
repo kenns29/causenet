@@ -3,6 +3,7 @@ import {connect} from 'react-redux';
 import {UncontrolledReactSVGPanZoom} from 'react-svg-pan-zoom';
 import {line as d3Line, curveCardinal} from 'd3-shape';
 import PopupWindow from '../../components/popup-window';
+import {clipLine} from '../../utils';
 import {
   getShowCmSelectedBnWindow,
   getCmSelectedBnWindowSize
@@ -38,6 +39,8 @@ const tooltipStyle = {
   zIndex: 9,
   pointerEvents: 'none'
 };
+
+const ID = 'cm-selected-bn';
 
 class ContentPanel extends PureComponent {
   constructor(props) {
@@ -93,19 +96,47 @@ class ContentPanel extends PureComponent {
           ))}
         </g>
         <g>
-          {edges.map(({source, target, points}) => (
-            <path
-              key={`${source.id}-${target.id}`}
-              d={lineg(points)}
-              fill="none"
-              stroke={
-                source.id === focs && target.id === foct ? 'orange' : 'black'
-              }
-              strokeWidth={1}
-            />
-          ))}
+          {edges.map(({source, target, points}) => {
+            const clippedEnd = clipLine({
+              line: points.slice(points.length - 2),
+              clipLengths: [0, 5]
+            });
+            const clippedPoints = [
+              ...points.slice(0, points.length - 1),
+              clippedEnd[1]
+            ];
+            return (
+              <path
+                key={`${source.id}-${target.id}`}
+                d={lineg(clippedPoints)}
+                fill="none"
+                stroke={
+                  source.id === focs && target.id === foct ? 'orange' : 'black'
+                }
+                strokeWidth={1}
+                markerEnd={`url(#${ID}-arrow-marker)`}
+              />
+            );
+          })}
         </g>
       </g>
+    );
+  }
+  _renderMarker() {
+    return (
+      <defs>
+        <marker
+          id={`${ID}-arrow-marker`}
+          refX="0"
+          refY="3"
+          markerUnits="strokeWidth"
+          markerWidth="6"
+          markerHeight="6"
+          orient="auto"
+        >
+          <path d="M0,0 L0,6 L9,3 z" fill="black" />
+        </marker>
+      </defs>
     );
   }
   render() {
@@ -129,6 +160,7 @@ class ContentPanel extends PureComponent {
       >
         <UncontrolledReactSVGPanZoom width={width} height={height}>
           <svg width={width} height={height}>
+            {this._renderMarker()}
             {this._renderNodeLink()}
           </svg>
         </UncontrolledReactSVGPanZoom>

@@ -61,21 +61,23 @@ class ContentPanel extends PureComponent {
           layer.id === 'cm-matrix-spurious-cells'
         ) {
           const {
-            data: {direction},
+            data: {direction, isSpurious},
             row_id: f,
             col_id: c
           } = info.object;
-          if (direction === -1) {
-            this.props.updateCmSelectedBnFocusLink({
-              source: `(${f}, ${-1}, 0)`,
-              target: `(${f}, ${c}, 1)`,
-              direction
-            });
-          } else if (direction === 1) {
+          if (isSpurious || direction === 1) {
             this.props.updateCmSelectedBnFocusLink({
               source: `(${f}, ${c}, 1)`,
               target: `(${f}, ${-1}, 0)`,
-              direction
+              direction,
+              isSpurious
+            });
+          } else if (direction === -1) {
+            this.props.updateCmSelectedBnFocusLink({
+              source: `(${f}, ${-1}, 0)`,
+              target: `(${f}, ${c}, 1)`,
+              direction,
+              isSpurious
             });
           }
           this.props.updateShowCmSelectedBnWindow(true);

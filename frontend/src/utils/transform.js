@@ -28,6 +28,21 @@ export const rotatePolygonOnZ = ({points = [], origin, theta, cos, sin}) => {
   return points.map(point => rotatePointOnZ({point, origin, theta, cos, sin}));
 };
 
+export const clipLine = ({
+  line: [[sx = 0, sy = 0, sz = 0], [tx = 0, ty = 0, tz = 0]],
+  clipLengths: [sc = 0, tc = 0]
+}) => {
+  const hyp = getLineLength({
+    line: [[sx, sy, sz], [tx, ty, tz]]
+  });
+  const sin = (ty - sy) / hyp;
+  const cos = (tx - sx) / hyp;
+  return [
+    [sx + cos * sc, sy + sin * sc, sz],
+    [tx - cos * tc, ty - sin * tc, tz]
+  ];
+};
+
 export const makeLineArrow = ({
   line: [[sx = 0, sy = 0, sz = 0], [tx = 0, ty = 0, tz = 0]],
   l, // the length of the arrow
@@ -49,21 +64,6 @@ export const makeLineArrow = ({
     cos,
     sin
   }).map(([rx, ry, rz]) => [rx + sx, ry + sy, rz + sz]);
-};
-
-export const clipLine = ({
-  line: [[sx = 0, sy = 0, sz = 0], [tx = 0, ty = 0, tz = 0]],
-  clipLengths: [sc = 0, tc = 0]
-}) => {
-  const hyp = getLineLength({
-    line: [[sx, sy, sz], [tx, ty, tz]]
-  });
-  const sin = (ty - sy) / hyp;
-  const cos = (tx - sx) / hyp;
-  return [
-    [sx + cos * sc, sy + sin * sc, sz],
-    [tx - cos * tc, ty - sin * tc, tz]
-  ];
 };
 
 export const getPointOnPerpendicularBisector = ({
