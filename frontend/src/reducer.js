@@ -254,6 +254,15 @@ const DEFAULT_STATE = {
   cmCorrelations: [],
   cmSelectedBnFocusLink: null,
   cmUSelection: 1,
+  // cmSelectedFeatureTimelineData
+  // {
+  //  feature_id : {
+  //    year : (value),
+  //    ...
+  //  },
+  //  ...
+  // }
+  cmSelectedFeatureTimelineData: {},
   countries: [],
   items: []
 };

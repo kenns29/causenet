@@ -93,6 +93,8 @@ export const UPDATE_CM_CORRELATIONS = 'UPDATE_CM_CORRELATIONS';
 export const UPDATE_CM_SELECED_BN_FOCUS_LINK =
   'UPDATE_CM_SELECTED_BN_FOCUS_LINK';
 export const UPDATE_CM_U_SELECTION = 'UPDATE_CM_U_SELECTION';
+export const UPDATE_CM_SELECTED_FEATURE_TIMELINE_DATA =
+  'UPDATE_CM_SELECTED_FEATURE_TIMELINE_DATA';
 export const UPDATE_COUNTRIES = 'UPDATE_COUNTRIES';
 export const UPDATE_ITEMS = 'UPDATE_ITEMS';
 
@@ -238,6 +240,9 @@ export const updateCmSelectedBnFocusLink = createAction(
   UPDATE_CM_SELECED_BN_FOCUS_LINK
 );
 export const updateCmUSelection = createAction(UPDATE_CM_U_SELECTION);
+export const updateCmSelectedFeatureTimelineData = createAction(
+  UPDATE_CM_SELECTED_FEATURE_TIMELINE_DATA
+);
 export const updateCountries = createAction(UPDATE_COUNTRIES);
 export const updateItems = createAction(UPDATE_ITEMS);
 
@@ -876,3 +881,5 @@ export const bundleFetchUpdateCmUSelection = ({u = 1}) => async dispatch => {
     return new Error(err);
   }
 };
+
+export const bundleFetchUpdateCmSelectedFeatureTimelineData = () => async dispatch => {};
