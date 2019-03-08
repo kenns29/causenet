@@ -14,12 +14,14 @@ import {
 } from '../../selectors/data';
 import {
   updateShowCmSelectedBnWindow,
-  updateCmSelectedBnWindowSize
+  updateCmSelectedBnWindowSize,
+  updateShowCmSelectedFeatureTimelineWindow
 } from '../../actions';
 
 const mapDispatchToProps = {
   updateShowCmSelectedBnWindow,
-  updateCmSelectedBnWindowSize
+  updateCmSelectedBnWindowSize,
+  updateShowCmSelectedFeatureTimelineWindow
 };
 
 const mapStateToProps = state => ({
@@ -114,15 +116,13 @@ class ContentPanel extends PureComponent {
                 key={`${source.id}-${target.id}`}
                 d={lineg(clippedPoints)}
                 fill="none"
-                stroke={
-                  source.id === focs && target.id === foct
-                    ? 'orange'
-                    : corr > 0
-                      ? 'blue'
-                      : 'red'
-                }
+                stroke={corr > 0 ? 'blue' : 'red'}
                 strokeWidth={1}
                 markerEnd={`url(#${ID}-arrow-marker)`}
+                style={{cursor: 'pointer'}}
+                onClick={event =>
+                  this.props.updateShowCmSelectedFeatureTimelineWindow(true)
+                }
               />
             );
           })}

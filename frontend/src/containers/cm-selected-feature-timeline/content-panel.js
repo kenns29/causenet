@@ -3,10 +3,24 @@ import {connect} from 'react-redux';
 import {UncontrolledReactSVGPanZoom} from 'react-svg-pan-zoom';
 import {line as d3Line, curveCardinal} from 'd3-shape';
 import PopupWindow from '../../components/popup-window';
+import {
+  getShowCmSelectedFeatureTimelineWindow,
+  getCmSelectedFeatureTimelineWindowSize
+} from '../../selectors/base';
+import {
+  updateShowCmSelectedFeatureTimelineWindow,
+  updateCmSelectedFeatureTimelineWindowSize
+} from '../../actions';
 
-const mapDispatchToProps = {};
+const mapDispatchToProps = {
+  updateShowCmSelectedFeatureTimelineWindow,
+  updateCmSelectedFeatureTimelineWindowSize
+};
 
-const mapStateToProps = state => ({});
+const mapStateToProps = state => ({
+  show: getShowCmSelectedFeatureTimelineWindow(state),
+  windowSize: getCmSelectedFeatureTimelineWindowSize(state)
+});
 
 const tooltipStyle = {
   position: 'absolute',
@@ -28,6 +42,7 @@ class ContentPanel extends PureComponent {
       tooltip: null
     };
   }
+
   _getEventMouse = event => {
     const {clientX, clientY} = event;
     const {left, top} = this.container.contentContainer.getBoundingClientRect();
@@ -53,6 +68,7 @@ class ContentPanel extends PureComponent {
       windowSize: [windowWidth, windowHeight]
     } = this.props;
     const [width, height] = [windowWidth, windowHeight - 20];
+    console.log('width', width, 'height', height);
     return show ? (
       <PopupWindow
         ref={input => (this.container = input)}
@@ -61,6 +77,12 @@ class ContentPanel extends PureComponent {
         width={windowWidth}
         height={windowHeight}
         style={{zIndex: 99, boxShadow: '10px 10px 5px grey'}}
+        onClose={() =>
+          this.props.updateShowCmSelectedFeatureTimelineWindow(false)
+        }
+        onResize={(event, {width, height}) =>
+          this.props.updateCmSelectedFeatureTimelineWindowSize([width, height])
+        }
       >
         <UncontrolledReactSVGPanZoom width={width} height={height}>
           <svg width={width} height={height} />

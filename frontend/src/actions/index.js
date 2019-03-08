@@ -26,6 +26,10 @@ export const UPDATE_SHOW_CM_SELECTED_BN_WINDOW =
   'UPDATE_SHOW_CM_SELECTED_BN_WINDOW';
 export const UPDATE_CM_SELECTED_BN_WINDOW_SIZE =
   'UPDATE_CM_SELECTED_BN_WINDOW_SIZE';
+export const UPDATE_SHOW_CM_SELECTED_FEATURE_TIMELINE_WINDOW =
+  'UPDATE_SHOW_CM_SELECTED_FEATURE_TIMELINE_WINDOW';
+export const UPDATE_CM_SELECTED_FEATURE_TIMELINE_WINDOW_SIZE =
+  'UPDATE_CM_SELECTED_FEATURE_TIMELINE_WINDOW_SIZE';
 export const UPDATE_SHOW_WORLD_MAP_WINDOW = 'UPDATE_SHOW_WORLD_MAP_WINDOW';
 
 // data Action ids
@@ -132,6 +136,12 @@ export const updateShowCmSelectedBnWindow = createAction(
 );
 export const updateCmSelectedBnWindowSize = createAction(
   UPDATE_CM_SELECTED_BN_WINDOW_SIZE
+);
+export const updateShowCmSelectedFeatureTimelineWindow = createAction(
+  UPDATE_SHOW_CM_SELECTED_FEATURE_TIMELINE_WINDOW
+);
+export const updateCmSelectedFeatureTimelineWindowSize = createAction(
+  UPDATE_CM_SELECTED_FEATURE_TIMELINE_WINDOW_SIZE
 );
 export const updateShowWorldMapWindow = createAction(
   UPDATE_SHOW_WORLD_MAP_WINDOW

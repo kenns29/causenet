@@ -16,6 +16,8 @@ import {
   UPDATE_CM_MATRIX_WINDOW_SIZE,
   UPDATE_SHOW_CM_SELECTED_BN_WINDOW,
   UPDATE_CM_SELECTED_BN_WINDOW_SIZE,
+  UPDATE_SHOW_CM_SELECTED_FEATURE_TIMELINE_WINDOW,
+  UPDATE_CM_SELECTED_FEATURE_TIMELINE_WINDOW_SIZE,
   UPDATE_SHOW_WORLD_MAP_WINDOW,
   UPDATE_CURRENT_DATASET_NAME,
   UPDATE_DATASET_LIST,
@@ -194,6 +196,8 @@ const DEFAULT_STATE = {
   cmMatrixWindowSize: [1200, 900],
   showCmSelectedBnWindow: false,
   cmSelectedBnWindowSize: [800, 600],
+  showCmSelectedFeatureTimelineWindow: false,
+  cmSelectedFeatureTimelineWindowSize: [800, 600],
   showWorldMapWindow: false,
   // feature pair list that will be shown in the distribution window
   // [
@@ -337,6 +341,16 @@ const handleUpdateShowCmSelectedBnWindow = (state, {payload}) => ({
 const handleUpdateCmSelectedBnWindowSize = (state, {payload}) => ({
   ...state,
   cmSelectedBnWindowSize: payload
+});
+
+const handleUpdateShowCmSelectedFeatureTimelineWindow = (state, {payload}) => ({
+  ...state,
+  showCmSelectedFeatureTimelineWindow: payload
+});
+
+const handleUpdateCmSelectedFeatureTimelineWindowSize = (state, {payload}) => ({
+  ...state,
+  cmSelectedFeatureTimelineWindowSize: payload
 });
 
 const handleUpdateShowWorldMapWindow = (state, {payload}) => ({
@@ -573,6 +587,8 @@ export default handleActions(
     [UPDATE_CM_SELECTED_BN_WINDOW_SIZE]: handleUpdateCmSelectedBnWindowSize,
     [UPDATE_SHOW_CM_MATRIX_WINDOW]: handleUpdateShowCmMatrixWindow,
     [UPDATE_CM_MATRIX_WINDOW_SIZE]: handleUpdateCmMatrixWindowSize,
+    [UPDATE_SHOW_CM_SELECTED_FEATURE_TIMELINE_WINDOW]: handleUpdateShowCmSelectedFeatureTimelineWindow,
+    [UPDATE_CM_SELECTED_FEATURE_TIMELINE_WINDOW_SIZE]: handleUpdateCmSelectedFeatureTimelineWindowSize,
     [UPDATE_SHOW_WORLD_MAP_WINDOW]: handleUpdateShowWorldMapWindow,
     [UPDATE_CURRENT_DATASET_NAME]: handleUpdateCurrentDatasetName,
     [UPDATE_DATASET_LIST]: handleUpdateDatasetList,

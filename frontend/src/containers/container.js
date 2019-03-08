@@ -16,6 +16,7 @@ import CrMatrix from './cr-matrix';
 import CChord from './c-chord';
 import CmMatrix from './cm-matrix';
 import CmSelectedBn from './cm-selected-bn';
+import CmSelectedFeatureTimeline from './cm-selected-feature-timeline';
 import FeatureList from './feature-list';
 import WorldMap from './world-map';
 import ContentPanelCenter from './content-panel-center';
@@ -177,6 +178,7 @@ class AppContainer extends PureComponent {
           <CChord />
           <CmMatrix />
           <CmSelectedBn />
+          <CmSelectedFeatureTimeline />
           <WorldMap />
         </Layout>
       </React.Fragment>

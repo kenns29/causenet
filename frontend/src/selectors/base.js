@@ -127,6 +127,16 @@ export const getCmSelectedBnWindowSize = createSelector(
   state => state.cmSelectedBnWindowSize
 );
 
+export const getShowCmSelectedFeatureTimelineWindow = createSelector(
+  rootSelector,
+  state => state.showCmSelectedFeatureTimelineWindow
+);
+
+export const getCmSelectedFeatureTimelineWindowSize = createSelector(
+  rootSelector,
+  state => state.cmSelectedFeatureTimelineWindowSize
+);
+
 export const getShowWorldMapWindow = createSelector(
   rootSelector,
   state => state.showWorldMapWindow
