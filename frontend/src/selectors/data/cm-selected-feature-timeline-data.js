@@ -126,7 +126,7 @@ export const getCmTimelineLayout = createSelector(
         d &&
         scaleLinear()
           .domain(d)
-          .range([height - mb + mt, mt])
+          .range([height + mt, mt])
     );
     const [tline, sline] = [tscale, sscale].map(
       scale =>
@@ -178,7 +178,7 @@ export const getCmTimelineTradeAxisTicks = createSelector(
     }
     const scale = scaleLinear()
       .domain(domain)
-      .range([height - mb + mt, mt]);
+      .range([height + mt, mt]);
     const format = d3Format('~s');
     return scale.ticks(10).map(value => ({
       value,
@@ -200,7 +200,7 @@ export const getCmTimelineStabilityAxisTicks = createSelector(
     }
     const scale = scaleLinear()
       .domain(domain)
-      .range([height - mb + mt, mt]);
+      .range([height + mt, mt]);
     const format = d3Format('.2f');
     return scale.ticks(10).map(value => ({
       value,
