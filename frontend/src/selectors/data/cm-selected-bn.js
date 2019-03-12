@@ -49,18 +49,6 @@ const getCmFocusedBayesianNetwork = createSelector(
     console.log('focusLink', focusLink);
     const {source, target, isSpurious} = focusLink;
     if (isSpurious) {
-      // const slinks = getUndirectedPathLinksThroughNode(source, network);
-      // const tlinks = getUndirectedPathLinksThroughNode(target, network);
-      // const slmap = array2Object(
-      //   slinks,
-      //   ({source, target}) => `${source}-${target}`
-      // );
-      // return [
-      //   ...slinks,
-      //   ...tlinks.filter(
-      //     ({source, target}) => !slmap.hasOwnProperty(`${source}-${target}`)
-      //   )
-      // ];
       return getUndirectedPathLinksBetweenNodes([source, target], network);
     }
     return getPathLinksThroughLink(focusLink, network);

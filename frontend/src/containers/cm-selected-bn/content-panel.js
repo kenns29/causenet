@@ -15,13 +15,15 @@ import {
 import {
   updateShowCmSelectedBnWindow,
   updateCmSelectedBnWindowSize,
-  updateShowCmSelectedFeatureTimelineWindow
+  updateShowCmSelectedFeatureTimelineWindow,
+  bundleFetchUpdateCmSelectedFeatureTimelineData
 } from '../../actions';
 
 const mapDispatchToProps = {
   updateShowCmSelectedBnWindow,
   updateCmSelectedBnWindowSize,
-  updateShowCmSelectedFeatureTimelineWindow
+  updateShowCmSelectedFeatureTimelineWindow,
+  bundleFetchUpdateCmSelectedFeatureTimelineData
 };
 
 const mapStateToProps = state => ({
@@ -120,9 +122,12 @@ class ContentPanel extends PureComponent {
                 strokeWidth={1}
                 markerEnd={`url(#${ID}-arrow-marker)`}
                 style={{cursor: 'pointer'}}
-                onClick={event =>
-                  this.props.updateShowCmSelectedFeatureTimelineWindow(true)
-                }
+                onClick={event => {
+                  this.props.bundleFetchUpdateCmSelectedFeatureTimelineData({
+                    featureSelection: [source.id, target.id]
+                  });
+                  this.props.updateShowCmSelectedFeatureTimelineWindow(true);
+                }}
               />
             );
           })}

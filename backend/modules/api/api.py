@@ -381,7 +381,6 @@ def route_load_relation_features():
 @blueprint.route('/load_cm_correlations', methods=['GET'])
 def route_load_cm_correlations():
     u = request.args.get('u') if request.args.get('u') else 1
-    print('u = {}'.format(u))
     trade_attribute = 'import_quantity' if int(u) else 'export_quantity'
     # correlations = query_import_social_correlation_by_country_item()
     correlations = query_trade_social_correlation_by_country_item(trade_attribute)

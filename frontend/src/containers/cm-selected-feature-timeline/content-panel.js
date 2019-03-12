@@ -8,6 +8,11 @@ import {
   getCmSelectedFeatureTimelineWindowSize
 } from '../../selectors/base';
 import {
+  getCmTimelineViewLayout,
+  getCmTimelineMargins,
+  getCmTimelineLayoutSize
+} from '../../selectors/data';
+import {
   updateShowCmSelectedFeatureTimelineWindow,
   updateCmSelectedFeatureTimelineWindowSize
 } from '../../actions';
@@ -19,7 +24,10 @@ const mapDispatchToProps = {
 
 const mapStateToProps = state => ({
   show: getShowCmSelectedFeatureTimelineWindow(state),
-  windowSize: getCmSelectedFeatureTimelineWindowSize(state)
+  windowSize: getCmSelectedFeatureTimelineWindowSize(state),
+  layout: getCmTimelineViewLayout(state),
+  layoutSize: getCmTimelineLayoutSize(state),
+  margins: getCmTimelineMargins(state)
 });
 
 const tooltipStyle = {
@@ -62,6 +70,63 @@ class ContentPanel extends PureComponent {
     return null;
   }
 
+  _renderTimelines() {
+    const {layout} = this.props;
+    const {timelines} = layout;
+    return (
+      <g>
+        {timelines.map(d => (
+          <path d={d.path} fill="none" strokeWidth={1} stroke={d.color} />
+        ))}
+      </g>
+    );
+  }
+
+  _renderYearAxis() {
+    const {layout, layoutSize, margins} = this.props;
+    const {yearTicks} = layout;
+    if (!yearTicks) {
+      return null;
+    }
+    const {width, height} = layoutSize;
+    const [ml, mt, mr, mb] = margins;
+    return (
+      <g>
+        <line
+          x1={ml}
+          y1={mt + height}
+          x2={ml + width}
+          y2={mt + height}
+          stroke="black"
+          strokeWidth={1}
+        />
+        {yearTicks.map(({position: [x, y]}) => (
+          <line
+            x1={x}
+            y1={y}
+            x2={x}
+            y2={y + 5}
+            stroke="black"
+            strokeWidth={1}
+          />
+        ))}
+        {yearTicks.map((value, position: [x, y]) => (
+          <text
+            textAnchor="middle"
+            alignmentBaseline="top"
+            x={x}
+            y={y + 8}
+            color="black"
+          >
+            {value}
+          </text>
+        ))}
+      </g>
+    );
+  }
+
+  _renderTradeAxis() {}
+
   render() {
     const {
       show,
@@ -86,6 +151,8 @@ class ContentPanel extends PureComponent {
       >
         <UncontrolledReactSVGPanZoom width={width} height={height}>
           <svg width={width} height={height} />
+          {this._renderTimelines()}
+          {this._renderYearAxis()}
         </UncontrolledReactSVGPanZoom>
         {this._renderTooltip()}
       </PopupWindow>

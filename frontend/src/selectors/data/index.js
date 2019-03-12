@@ -12,3 +12,4 @@ export * from './cr-matrix';
 export * from './c-chord';
 export * from './cm-matrix';
 export * from './cm-selected-bn';
+export * from './cm-selected-feature-timeline-data';

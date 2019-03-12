@@ -882,4 +882,16 @@ export const bundleFetchUpdateCmUSelection = ({u = 1}) => async dispatch => {
   }
 };
 
-export const bundleFetchUpdateCmSelectedFeatureTimelineData = () => async dispatch => {};
+export const bundleFetchUpdateCmSelectedFeatureTimelineData = ({
+  featureSelection
+}) => async dispatch => {
+  try {
+    const data = dispatch(
+      fetchData({data_type: 'raw_data_file', featureSelection})
+    );
+    dispatch(updateCmSelectedFeatureTimelineData(data));
+    return Promise.resolve(data);
+  } catch (err) {
+    return new Error(err);
+  }
+};

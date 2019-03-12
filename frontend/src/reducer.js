@@ -56,6 +56,7 @@ import {
   UPDATE_CM_CORRELATIONS,
   UPDATE_CM_SELECED_BN_FOCUS_LINK,
   UPDATE_CM_U_SELECTION,
+  UPDATE_CM_SELECTED_FEATURE_TIMELINE_DATA,
   UPDATE_COUNTRIES,
   UPDATE_ITEMS
 } from './actions';
@@ -568,6 +569,11 @@ const handleUpdateCmUSelection = (state, {payload}) => ({
   cmUSelection: payload
 });
 
+const handleUpdateCmSelectedFeatureTimelineData = (state, {payload}) => ({
+  ...state,
+  cmSelectedFeatureTimelineData: payload
+});
+
 const handleUpdateCountries = (state, {payload}) => ({
   ...state,
   countries: payload
@@ -636,6 +642,7 @@ export default handleActions(
     [UPDATE_CM_CORRELATIONS]: handleUpdateCmCorrelations,
     [UPDATE_CM_SELECED_BN_FOCUS_LINK]: handleUpdateCmSelectedBnFocusLink,
     [UPDATE_CM_U_SELECTION]: handleUpdateCmUSelection,
+    [UPDATE_CM_SELECTED_FEATURE_TIMELINE_DATA]: handleUpdateCmSelectedFeatureTimelineData,
     [UPDATE_COUNTRIES]: handleUpdateCountries,
     [UPDATE_ITEMS]: handleUpdateItems
   },
