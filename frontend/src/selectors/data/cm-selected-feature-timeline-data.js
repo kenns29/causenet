@@ -3,18 +3,33 @@ import {line as d3Line, curveCardinal} from 'd3-shape';
 import {scaleLinear, scaleOrdinal} from 'd3-scale';
 import {range as d3Range} from 'd3-array';
 import {schemeCategory10} from 'd3-scale-chromatic';
+import {format as d3Format} from 'd3-format';
 import {rootSelector, getCmSelectedFeatureTimelineWindowSize} from '../base';
 import {getRawCmSelectedFeatureTimelineData} from './raw';
 
-const MARGINS = [30, 60, 30, 30];
-const HEIGHT = 500;
+const MARGINS = [30, 60, 60, 30];
+const HEIGHT = 300;
+
+const idToCid = id => {
+  const p = id.split(',').map(g => g.match(/-?\w+/)[0]);
+  if (p.length > 2) {
+    return [p[0], p[1], Number(p[2])];
+  }
+  if (p.length > 1) {
+    return [p[0], '1', Number(p[1])];
+  }
+  return [p[0], '1', 0];
+};
 
 const getCmTimelines = createSelector(
   getRawCmSelectedFeatureTimelineData,
   data =>
     Object.entries(data).map(([id, valueMap]) => ({
       id,
-      values: Object.entries(valueMap).map(([year, value]) => ({year, value}))
+      values: Object.entries(valueMap).map(([year, value]) => ({
+        year: Number(year),
+        value
+      }))
     }))
 );
 
@@ -31,12 +46,15 @@ const getCmTimelineYearDomain = createSelector(getCmTimelines, timelines => {
 const getCmTimelineTradeValueDomain = createSelector(
   getCmTimelines,
   timelines => {
-    const tls = timelines.filter(d => d.id !== 'stability');
+    const tls = timelines.filter(({id}) => {
+      const c = idToCid(id)[1];
+      return c !== '-1';
+    });
     if (tls.length === 0) {
       return null;
     }
-    let [min, max] = [-Infinity, Infinity];
-    timelines.forEach(({values}) => {
+    let [min, max] = [Infinity, -Infinity];
+    tls.forEach(({values}) => {
       values.forEach(({value}) => {
         min = Math.min(value, min);
         max = Math.max(value, max);
@@ -49,12 +67,15 @@ const getCmTimelineTradeValueDomain = createSelector(
 const getCmTimelineStabilityValueDomain = createSelector(
   getCmTimelines,
   timelines => {
-    const tls = timelines.filter(d => d.id === 'stability');
+    const tls = timelines.filter(({id}) => {
+      const c = idToCid(id)[1];
+      return c === '-1';
+    });
     if (tls.length === 0) {
       return null;
     }
-    let [min, max] = [-Infinity, Infinity];
-    timelines.forEach(({values}) => {
+    let [min, max] = [Infinity, -Infinity];
+    tls.forEach(({values}) => {
       values.forEach(({value}) => {
         min = Math.min(value, min);
         max = Math.max(value, max);
@@ -99,25 +120,25 @@ export const getCmTimelineLayout = createSelector(
     }
     const yscale = scaleLinear()
       .domain(yearDomain)
-      .range([ml, width]);
+      .range([ml, ml + width]);
     const [tscale, sscale] = [tradeDomain, stabilityDomain].map(
       d =>
         d &&
         scaleLinear()
           .domain(d)
-          .range([HEIGHT - mb, mt])
+          .range([height - mb + mt, mt])
     );
     const [tline, sline] = [tscale, sscale].map(
       scale =>
-        scale ||
+        scale &&
         d3Line()
           .x(d => yscale(d.year))
           .y(d => scale(d.value))
-          .curve(curveCardinal)
     );
     const colorScale = scaleOrdinal(schemeCategory10);
     return timelines.map(({id, values}, index) => {
-      const line = id === 'stability' ? sline : tline;
+      const c = idToCid(id)[1];
+      const line = c === '-1' ? sline : tline;
       return {
         id,
         values,
@@ -136,10 +157,11 @@ export const getCmTimelineYearAxisTicks = createSelector(
     }
     const scale = scaleLinear()
       .domain(domain)
-      .range([ml, width]);
-    return d3Range(...domain).map(value => ({
+      .range([ml, ml + width]);
+    return d3Range(domain[0], domain[1] + 1).map(value => ({
       value,
-      position: [value, HEIGHT - mb]
+      position: [scale(value), mt + height],
+      label: value.toString()
     }));
   }
 );
@@ -156,10 +178,12 @@ export const getCmTimelineTradeAxisTicks = createSelector(
     }
     const scale = scaleLinear()
       .domain(domain)
-      .range([HEIGHT - mb, mt]);
-    return d3Range(...domain).map(value => ({
+      .range([height - mb + mt, mt]);
+    const format = d3Format('~s');
+    return scale.ticks(10).map(value => ({
       value,
-      position: [ml, value]
+      position: [ml, scale(value)],
+      label: format(value)
     }));
   }
 );
@@ -176,10 +200,12 @@ export const getCmTimelineStabilityAxisTicks = createSelector(
     }
     const scale = scaleLinear()
       .domain(domain)
-      .range([HEIGHT - mb, mt]);
-    return d3Range(...domain).map(value => ({
+      .range([height - mb + mt, mt]);
+    const format = d3Format('.2f');
+    return scale.ticks(10).map(value => ({
       value,
-      position: [ml + width, value]
+      position: [ml + width, scale(value)],
+      label: format(value)
     }));
   }
 );

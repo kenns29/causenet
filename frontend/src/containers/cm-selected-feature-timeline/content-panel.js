@@ -76,20 +76,27 @@ class ContentPanel extends PureComponent {
     return (
       <g>
         {timelines.map(d => (
-          <path d={d.path} fill="none" strokeWidth={1} stroke={d.color} />
+          <path
+            key={d.id}
+            d={d.path}
+            fill="none"
+            strokeWidth={1}
+            stroke={d.color}
+          />
         ))}
       </g>
     );
   }
 
   _renderYearAxis() {
-    const {layout, layoutSize, margins} = this.props;
-    const {yearTicks} = layout;
+    const {
+      layout: {yearTicks},
+      layoutSize: [width, height],
+      margins: [ml, mt, mr, mb]
+    } = this.props;
     if (!yearTicks) {
       return null;
     }
-    const {width, height} = layoutSize;
-    const [ml, mt, mr, mb] = margins;
     return (
       <g>
         <line
@@ -100,8 +107,9 @@ class ContentPanel extends PureComponent {
           stroke="black"
           strokeWidth={1}
         />
-        {yearTicks.map(({position: [x, y]}) => (
+        {yearTicks.map(({value, position: [x, y]}) => (
           <line
+            key={value}
             x1={x}
             y1={y}
             x2={x}
@@ -110,30 +118,119 @@ class ContentPanel extends PureComponent {
             strokeWidth={1}
           />
         ))}
-        {yearTicks.map((value, position: [x, y]) => (
+        {yearTicks.map(({value, position: [x, y], label}) => (
           <text
+            key={value}
             textAnchor="middle"
-            alignmentBaseline="top"
+            alignmentBaseline="hanging"
             x={x}
             y={y + 8}
             color="black"
           >
-            {value}
+            {label}
           </text>
         ))}
       </g>
     );
   }
 
-  _renderTradeAxis() {}
+  _renderTradeAxis() {
+    const {
+      layout: {tradeTicks},
+      layoutSize: [width, height],
+      margins: [ml, mt, mr, mb]
+    } = this.props;
+    if (!tradeTicks) {
+      return null;
+    }
+    return (
+      <g>
+        <line
+          x1={ml}
+          y1={mt + height}
+          x2={ml}
+          y2={mt}
+          stroke="black"
+          strokeWidth={1}
+        />
+        {tradeTicks.map(({position: [x, y]}, index) => (
+          <line
+            key={index}
+            x1={x}
+            y1={y}
+            x2={x - 5}
+            y2={y}
+            stroke="black"
+            strokeWidth={1}
+          />
+        ))}
+        {tradeTicks.map(({position: [x, y], label}, index) => (
+          <text
+            key={index}
+            textAnchor="end"
+            alignmentBaseline="middle"
+            x={x - 8}
+            y={y}
+            color="black"
+          >
+            {label}
+          </text>
+        ))}
+      </g>
+    );
+  }
 
+  _renderStabilityAxis() {
+    const {
+      layout: {stabilityTicks},
+      layoutSize: [width, height],
+      margins: [ml, mt, mr, mb]
+    } = this.props;
+    if (!stabilityTicks) {
+      return null;
+    }
+    return (
+      <g>
+        <line
+          x1={ml + width}
+          y1={mt + height}
+          x2={ml + width}
+          y2={mt}
+          stroke="black"
+          strokeWidth={1}
+        />
+        {stabilityTicks.map(({position: [x, y]}, index) => (
+          <line
+            key={index}
+            x1={x}
+            y1={y}
+            x2={x + 5}
+            y2={y}
+            stroke="black"
+            strokeWidth={1}
+          />
+        ))}
+        {stabilityTicks.map(({position: [x, y], label}, index) => (
+          <text
+            key={index}
+            textAnchor="start"
+            alignmentBaseline="middle"
+            x={x + 8}
+            y={y}
+            color="black"
+          >
+            {label}
+          </text>
+        ))}
+      </g>
+    );
+  }
   render() {
     const {
       show,
       windowSize: [windowWidth, windowHeight]
     } = this.props;
     const [width, height] = [windowWidth, windowHeight - 20];
-    console.log('width', width, 'height', height);
     return show ? (
       <PopupWindow
         ref={input => (this.container = input)}
@@ -150,9 +247,12 @@ class ContentPanel extends PureComponent {
         }
       >
         <UncontrolledReactSVGPanZoom width={width} height={height}>
-          <svg width={width} height={height} />
-          {this._renderTimelines()}
-          {this._renderYearAxis()}
+          <svg width={width} height={height}>
+            {this._renderTimelines()}
+            {this._renderYearAxis()}
+            {this._renderTradeAxis()}
+            {this._renderStabilityAxis()}
+          </svg>
         </UncontrolledReactSVGPanZoom>
         {this._renderTooltip()}
       </PopupWindow>

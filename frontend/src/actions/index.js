@@ -886,7 +886,7 @@ export const bundleFetchUpdateCmSelectedFeatureTimelineData = ({
   featureSelection
 }) => async dispatch => {
   try {
-    const data = dispatch(
+    const data = await dispatch(
       fetchData({data_type: 'raw_data_file', featureSelection})
     );
     dispatch(updateCmSelectedFeatureTimelineData(data));

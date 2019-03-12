@@ -26,12 +26,12 @@ def query_country_by_year_with_import_export_data_frame_by_item_group(item_group
                 country_code = int(d['FAO_CountryCode'])
                 import_quantity = int(d['ImportQuantity'])
                 export_quantity = int(d['ExportQuantity'])
-                if (country_code, 0) not in data:
-                    data[country_code, 0] = np.zeros(end_year - start_year)
-                if (country_code, 1) not in data:
-                    data[country_code, 1] = np.zeros(end_year - start_year)
-                data[country_code, 0][year] = export_quantity
-                data[country_code, 1][year] = import_quantity
+                if '({}, {})'.format(country_code, 0) not in data:
+                    data['({}, {})'.format(country_code, 0)] = np.zeros(end_year - start_year)
+                if '({}, {})'.format(country_code, 1) not in data:
+                    data['({}, {})'.format(country_code, 1)] = np.zeros(end_year - start_year)
+                data['({}, {})'.format(country_code, 0)][year] = export_quantity
+                data['({}, {})'.format(country_code, 1)][year] = import_quantity
         return data
     finally:
         conn.close()
@@ -48,7 +48,7 @@ def query_country_by_year_with_import_export_item_group_data_frame():
                 SELECT *
                 FROM FAO_Item_Group_TradeTotal t, ALL_Countries c
                 WHERE t.FAO_CountryCode = c.FAO_CountryCode AND c.Use_Flag = 1
-                WHERE Year >= ? AND Year < ?                
+                AND Year >= ? AND Year < ?                
             ''', (start_year, end_year))
 
         data = DataFrame(index=[i for i in range(start_year, end_year)])
@@ -60,12 +60,12 @@ def query_country_by_year_with_import_export_item_group_data_frame():
                 item_code = int(d['ItemCode'])
                 import_quantity = int(d['ImportQuantity'])
                 export_quantity = int(d['ExportQuantity'])
-                if (country_code, item_code, 0) not in data:
-                    data[country_code, item_code, 0] = np.zeros(end_year - start_year)
-                if (country_code, item_code, 1) not in data:
-                    data[country_code, item_code, 1] = np.zeros(end_year - start_year)
-                data[country_code, item_code, 0][year] = export_quantity
-                data[country_code, item_code, 1][year] = import_quantity
+                if '({}, {}, {})'.format(country_code, item_code, 0) not in data:
+                    data['({}, {}, {})'.format(country_code, item_code, 0)] = np.zeros(end_year - start_year)
+                if '({}, {}, {})'.format(country_code, item_code, 1) not in data:
+                    data['({}, {}, {})'.format(country_code, item_code, 1)] = np.zeros(end_year - start_year)
+                data['({}, {}, {})'.format(country_code, item_code, 0)][year] = export_quantity
+                data['({}, {}, {})'.format(country_code, item_code, 1)][year] = import_quantity
         return data
     finally:
         conn.close()
@@ -87,11 +87,11 @@ def query_political_stability_by_year_data_frame():
         data.index.name = 'year'
         for d in iterator:
             country_code = int(d['FAO_CountryCode'])
-            data[country_code, -1, 0] = np.zeros(end_year - start_year)
+            data['({}, {}, {})'.format(country_code, -1, 0)] = np.zeros(end_year - start_year)
             for year in range(start_year, end_year):
                 key = str(year) + 'Estimate'
                 value = d[key] if key in d.keys() else (d[str(year - 1) + 'Estimate'] + d[str(year + 1) + 'Estimate']) / 2
-                data[country_code, -1, 0][year] = value
+                data['({}, {}, {})'.format(country_code, -1, 0)][year] = value
         return data
     finally:
         conn.close()

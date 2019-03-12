@@ -359,7 +359,7 @@ def route_load_data():
 
     data = load_data(data_type=data_type)
     data = get_column_mean_aggregated_data(data, feature_selection) if feature_selection is not None else data
-    return jsonify(dict((str(key), dict((index, data[str(key)][index])
+    return jsonify(dict((str(key), dict((str(index), data[str(key)][index])
                                         for index in data.index)) for key in data.keys()))
 
 
