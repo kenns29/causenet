@@ -1,6 +1,5 @@
 import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
-import {UncontrolledReactSVGPanZoom} from 'react-svg-pan-zoom';
 import {line as d3Line, curveCardinal} from 'd3-shape';
 import PopupWindow from '../../components/popup-window';
 import {
@@ -246,14 +245,12 @@ class ContentPanel extends PureComponent {
           this.props.updateCmSelectedFeatureTimelineWindowSize([width, height])
         }
       >
-        <UncontrolledReactSVGPanZoom width={width} height={height}>
-          <svg width={width} height={height}>
-            {this._renderTimelines()}
-            {this._renderYearAxis()}
-            {this._renderTradeAxis()}
-            {this._renderStabilityAxis()}
-          </svg>
-        </UncontrolledReactSVGPanZoom>
+        <svg width={width} height={height}>
+          {this._renderTimelines()}
+          {this._renderYearAxis()}
+          {this._renderTradeAxis()}
+          {this._renderStabilityAxis()}
+        </svg>
         {this._renderTooltip()}
       </PopupWindow>
     ) : null;

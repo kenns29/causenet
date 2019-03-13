@@ -1,7 +1,7 @@
 import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
-import {UncontrolledReactSVGPanZoom} from 'react-svg-pan-zoom';
 import PopupWindow from '../../components/popup-window';
+import ZoomableSVG from '../../components/zoomable-svg';
 import {getShowCChordWindow, getCChordWindowSize} from '../../selectors/base';
 import {getCcLayout} from '../../selectors/data';
 import {updateShowCChordWindow, updateCChordWindowSize} from '../../actions';
@@ -36,22 +36,16 @@ class ContentPanel extends PureComponent {
           this.props.updateCChordWindowSize([width, height])
         }
       >
-        <UncontrolledReactSVGPanZoom width={width} height={height}>
-          <svg width={width} height={height}>
-            <g transform={`translate(${width / 2} ${height / 2})`}>
-              <g>
-                {chords.map(d => (
-                  <path key={d.key} d={d.path} fill={d.color} />
-                ))}
-              </g>
-              <g>
-                {groups.map(d => (
-                  <path key={d.key} d={d.path} fill={d.color} />
-                ))}
-              </g>
+        <ZoomableSVG width={width} height={height}>
+          <g transform={`translate(${width / 2} ${height / 2})`}>
+            <g>
+              {chords.map(d => <path key={d.key} d={d.path} fill={d.color} />)}
             </g>
-          </svg>
-        </UncontrolledReactSVGPanZoom>
+            <g>
+              {groups.map(d => <path key={d.key} d={d.path} fill={d.color} />)}
+            </g>
+          </g>
+        </ZoomableSVG>
       </PopupWindow>
     ) : null;
   }
