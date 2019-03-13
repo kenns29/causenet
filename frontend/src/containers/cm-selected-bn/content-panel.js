@@ -1,8 +1,8 @@
 import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
-import {UncontrolledReactSVGPanZoom} from 'react-svg-pan-zoom';
 import {line as d3Line, curveCardinal} from 'd3-shape';
 import PopupWindow from '../../components/popup-window';
+import ZoomableSVG from '../../components/zoomable-svg';
 import {clipLine} from '../../utils';
 import {
   getShowCmSelectedBnWindow,
@@ -171,12 +171,10 @@ class ContentPanel extends PureComponent {
           this.props.updateCmSelectedBnWindowSize([width, height])
         }
       >
-        <UncontrolledReactSVGPanZoom width={width} height={height}>
-          <svg width={width} height={height}>
-            {this._renderMarker()}
-            {this._renderNodeLink()}
-          </svg>
-        </UncontrolledReactSVGPanZoom>
+        <ZoomableSVG width={width} height={height}>
+          {this._renderMarker()}
+          {this._renderNodeLink()}
+        </ZoomableSVG>
         {this._renderTooltip()}
       </PopupWindow>
     ) : null;
