@@ -1,41 +1,40 @@
 import React, {PureComponent} from 'react';
 import PropTypes from 'prop-types';
 
-const isNull = v => v === null || v === undefined;
-
 export default class ZoomableContainer extends PureComponent {
   static defaultProps = {
     zoomStep: 0.1,
     width: 0,
     height: 0,
-    onZoom: () => {},
-    onMove: () => {},
     disableZoom: false,
     disableMove: false
   };
 
   static propTypes = {
     zoomStep: PropTypes.number.isRequired,
-    top: PropTypes.number,
-    left: PropTypes.number,
-    right: PropTypes.number,
-    bottom: PropTypes.number,
+    viewBox: PropTypes.arrayOf(PropTypes.number),
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
-    onZoom: PropTypes.func.isRequired, // callback function after zoom is triggered
-    onMove: PropTypes.func.isRequired, // callback function after pan is triggered,
     disableZoom: PropTypes.bool.isRequired,
     disableMove: PropTypes.bool.isRequired
   };
 
+  static getDerivedStateFromProps(props, state) {
+    const {viewBox} = state;
+    if (!viewBox) {
+      const {width, height} = props;
+      return {...state, viewBox: [0, 0, width, height]};
+    }
+    return state;
+  }
+
   constructor(props) {
     super(props);
     this.state = {
-      zoomScale: 1, // zoomScale < 1 for zoom in, zoomScale > 1 for zoom out
-      zoomOffset: [0, 0], // the panning offset -- [x offset, y offset]
       drag: {
         move: null // drag start mouse position - [x, y]
-      }
+      },
+      viewBox: null
     };
   }
   // obtain the event mouse position relative to the current context (the svg)
@@ -45,23 +44,24 @@ export default class ZoomableContainer extends PureComponent {
     return [clientX - left, clientY - top];
   };
 
-  _zoomIn = () => {
-    const zoomScale = Math.max(
-      0.001,
-      this.state.zoomScale - this.props.zoomStep
-    );
-    this.setState({
-      zoomScale
-    });
-    return zoomScale;
+  _zoomIn = event => {
+    const {width, height, zoomStep} = this.props;
+    const {
+      viewBox: [l, t, w, h]
+    } = this.state;
+    const [nw, nh] = [w * (1 - zoomStep), h * (1 - zoomStep)];
+    const [nl, nt] = [l + (w - nw) / 2, t + (h - nh) / 2];
+    this.setState({viewBox: [nl, nt, nw, nh]});
   };
 
-  _zoomOut = () => {
-    const zoomScale = Math.min(100, this.state.zoomScale + this.props.zoomStep);
-    this.setState({
-      zoomScale
-    });
-    return zoomScale;
+  _zoomOut = event => {
+    const {width, height, zoomStep} = this.props;
+    const {
+      viewBox: [l, t, w, h]
+    } = this.state;
+    const [nw, nh] = [w * (1 + zoomStep), h * (1 + zoomStep)];
+    const [nl, nt] = [l + (w - nw) / 2, t + (h - nh) / 2];
+    this.setState({viewBox: [nl, nt, nw, nh]});
   };
 
   _moveStart = event => {
@@ -71,15 +71,16 @@ export default class ZoomableContainer extends PureComponent {
 
   _moveOn = event => {
     if (this.state.drag.move) {
+      const {
+        viewBox: [l, t, w, h]
+      } = this.state;
       const [x, y] = this._getEventMouse(event);
       const [sx, sy] = this.state.drag.move;
-      const [ox, oy] = this.state.zoomOffset;
-      const [dx, dy] = [ox + sx - x, oy + sy - y];
+      const [dx, dy] = [sx - x, sy - y];
       this.setState({
-        zoomOffset: [dx, dy],
-        drag: {...this.state.drag, move: [x, y]}
+        drag: {...this.state.drag, move: [x, y]},
+        viewBox: [l + dx, t + dy, w, h]
       });
-      this.props.onMove([dx, dy], event);
     }
   };
 
@@ -89,13 +90,11 @@ export default class ZoomableContainer extends PureComponent {
 
   _handleWheel = event => {
     if (!this.props.disableZoom) {
-      let zoomScale;
       if (event.deltaY < 0) {
-        zoomScale = this._zoomIn(event);
+        this._zoomIn(event);
       } else {
-        zoomScale = this._zoomOut(event);
+        this._zoomOut(event);
       }
-      this.props.onZoom(zoomScale, event);
     }
   };
 
@@ -118,25 +117,13 @@ export default class ZoomableContainer extends PureComponent {
   };
 
   render() {
-    const {left, right, bottom, top, width, height} = this.props;
+    const {width, height} = this.props;
     const {
-      zoomScale,
-      zoomOffset: [dx, dy]
+      viewBox: [l, t, w, h]
     } = this.state;
-
-    let l = isNull(left) ? 0 : left;
-    let r = isNull(right) ? width : right;
-    let b = isNull(bottom) ? height : bottom;
-    let t = isNull(top) ? 0 : top;
-
-    l += dx * zoomScale + (r - l) * (1 - zoomScale) * 0.5;
-    r += dx * zoomScale - (r - l) * (1 - zoomScale) * 0.5;
-    b += dy * zoomScale - (b - t) * (1 - zoomScale) * 0.5;
-    t += dy * zoomScale + (b - t) * (1 - zoomScale) * 0.5;
-
     return (
       <svg
-        viewBox={`${l} ${t} ${r} ${b}`}
+        viewBox={`${l} ${t} ${w} ${h}`}
         width={width}
         height={height}
         ref={input => (this.container = input)}
