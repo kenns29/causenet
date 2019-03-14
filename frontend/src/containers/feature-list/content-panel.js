@@ -4,6 +4,7 @@ import {Tabs} from 'antd';
 import AllFeatureList from './all-feature-list';
 import SelectedFeatureList from './selected-feature-list';
 import ModelFeatureList from './model-feature-list';
+import ModelTuning from './model-tuning';
 import {getBayesianModelFeatures} from '../../selectors/data';
 
 const mapDispatchToProps = {};
@@ -36,6 +37,9 @@ class ContentPanel extends PureComponent {
                 <ModelFeatureList width={width} height={height - 100} />
               </Tabs.TabPane>
             )}
+            <Tabs.TabPane tab="Model Tuning" key="model-tuning">
+              <ModelTuning width={width} height={height - 100} />
+            </Tabs.TabPane>
           </Tabs>
         )}
       </div>

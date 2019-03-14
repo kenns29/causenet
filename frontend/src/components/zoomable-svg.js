@@ -7,8 +7,7 @@ export default class ZoomableContainer extends PureComponent {
     width: 0,
     height: 0,
     disableZoom: false,
-    disableMove: false,
-    style: {}
+    disableMove: false
   };
 
   static propTypes = {
@@ -118,7 +117,14 @@ export default class ZoomableContainer extends PureComponent {
   };
 
   render() {
-    const {width, height, style} = this.props;
+    const {
+      width,
+      height,
+      disableZoom,
+      disableMove,
+      zoomStep,
+      ...rest
+    } = this.props;
     const {
       viewBox: [l, t, w, h]
     } = this.state;
@@ -132,7 +138,7 @@ export default class ZoomableContainer extends PureComponent {
         onMouseMove={this._handleMouseMove}
         onMouseUp={this._handleMouseUp}
         onWheel={this._handleWheel}
-        style={style}
+        {...rest}
       >
         {this.props.children &&
           React.Children.map(

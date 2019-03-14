@@ -7,7 +7,7 @@ import {format as d3Format} from 'd3-format';
 import {rootSelector, getCmSelectedFeatureTimelineWindowSize} from '../base';
 import {getRawCmSelectedFeatureTimelineData} from './raw';
 
-const MARGINS = [30, 60, 60, 30];
+const MARGINS = [60, 80, 60, 30];
 const HEIGHT = 300;
 
 const idToCid = id => {
