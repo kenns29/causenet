@@ -13,3 +13,4 @@ export * from './c-chord';
 export * from './cm-matrix';
 export * from './cm-selected-bn';
 export * from './cm-selected-feature-timeline-data';
+export * from './model-tuning';

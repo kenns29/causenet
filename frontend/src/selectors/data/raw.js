@@ -192,3 +192,23 @@ export const getRawCountries = createSelector(
 );
 
 export const getRawItems = createSelector(rootSelector, state => state.items);
+
+export const getRawMtSelectedModel = createSelector(
+  rootSelector,
+  state => state.mtSelectedModel
+);
+
+export const getRawMtFeatureSelection = createSelector(
+  rootSelector,
+  state => state.mtFeatureSelection
+);
+
+export const getRawMtModelFeatures = createSelector(
+  rootSelector,
+  state => state.mtModelFeatures
+);
+
+export const getRawMtModelMods = createSelector(
+  rootSelector,
+  state => state.mtModelMods
+);

@@ -265,7 +265,11 @@ const DEFAULT_STATE = {
   // }
   cmSelectedFeatureTimelineData: {},
   countries: [],
-  items: []
+  items: [],
+  mtSelectedModel: null,
+  mtFeatureSelection: null,
+  mtModelFeatures: [],
+  mtModelMods: {}
 };
 
 const handleUpdateScreenSize = (state, {payload}) => ({
