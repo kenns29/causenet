@@ -1,6 +1,7 @@
 import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
 import {Select, Tag, Divider} from 'antd';
+import {estimateDivHeight, makeTextLengthComputer} from '../../utils';
 import {
   getModelList,
   getRawMtSelectedModel,
@@ -25,9 +26,12 @@ const mapStateToProps = state => ({
   pfElements: getMtPreFilteredElements(state)
 });
 
+const computeTextLength = makeTextLengthComputer({fontSize: 13});
+
 class ModelTuning extends PureComponent {
   render() {
     const {
+      width,
       height,
       modelList,
       model,
@@ -76,43 +80,55 @@ class ModelTuning extends PureComponent {
           style={{height: height - 30, overflow: 'auto', position: 'relative'}}
         >
           <div>
-            {fsui.map(({key, name, items, pfItems}) => (
-              <div key={key} style={{marginTop: 10, position: 'relative'}}>
-                <div
-                  style={{
-                    width: 100,
-                    float: 'left',
-                    marginLeft: 10,
-                    position: 'relative'
-                  }}
-                >
-                  {name}
+            {fsui.map(({key, name, items, pfItems}) => {
+              const itemh = estimateDivHeight(
+                items.map(d => [
+                  computeTextLength(d.name.slice(0, 6)) + 24,
+                  24
+                ]),
+                350
+              );
+
+              return (
+                <div key={key} style={{marginTop: 10, position: 'relative'}}>
+                  <div
+                    style={{
+                      width: 100,
+                      float: 'left',
+                      marginLeft: 10,
+                      position: 'relative'
+                    }}
+                  >
+                    {name}
+                  </div>
+                  <div
+                    style={{
+                      width: 350,
+                      height: Math.min(itemh, 200),
+                      marginLeft: 10,
+                      float: 'left',
+                      position: 'relative',
+                      overflow: 'auto'
+                    }}
+                  >
+                    {items.map(d => <Tag key={d.id}>{d.name.slice(0, 6)}</Tag>)}
+                  </div>
+                  <div
+                    style={{
+                      width: 80,
+                      height: Math.min(itemh, 200),
+                      marginLeft: 10,
+                      position: 'relative',
+                      overflow: 'auto'
+                    }}
+                  >
+                    {pfItems.map(d => (
+                      <Tag key={d.id}>{d.name.slice(0, 6)}</Tag>
+                    ))}
+                  </div>
                 </div>
-                <div
-                  style={{
-                    width: 350,
-                    height: 300,
-                    marginLeft: 10,
-                    float: 'left',
-                    position: 'relative',
-                    overflow: 'auto'
-                  }}
-                >
-                  {items.map(d => <Tag key={d.id}>{d.name.slice(0, 6)}</Tag>)}
-                </div>
-                <div
-                  style={{
-                    width: 80,
-                    height: 300,
-                    marginLeft: 10,
-                    position: 'relative',
-                    overflow: 'auto'
-                  }}
-                >
-                  {pfItems.map(d => <Tag key={d.id}>{d.name.slice(0, 6)}</Tag>)}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </React.Fragment>
