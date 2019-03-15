@@ -19,7 +19,10 @@ const mapStateToProps = state => ({
   model: getRawMtSelectedModel(state),
   categories: getMtCategories(state),
   features: getMtFeatures(state),
-  elements: getMtElements(state)
+  elements: getMtElements(state),
+  pfCategories: getMtPreFilteredCategories(state),
+  pfFeatures: getMtPreFilteredFeatures(state),
+  pfElements: getMtPreFilteredElements(state)
 });
 
 class ModelTuning extends PureComponent {
@@ -30,9 +33,32 @@ class ModelTuning extends PureComponent {
       model,
       categories,
       features,
-      elements
+      elements,
+      pfCategories,
+      pfFeatures,
+      pfElements
     } = this.props;
 
+    const fsui = [
+      {
+        key: 'categories',
+        name: 'Categories',
+        items: categories,
+        pfItems: pfCategories
+      },
+      {
+        key: 'features',
+        name: 'Features',
+        items: features,
+        pfItems: pfFeatures
+      },
+      {
+        key: 'elements',
+        name: 'Elements',
+        items: elements,
+        pfItems: pfElements
+      }
+    ];
     return (
       <React.Fragment>
         <div style={{height: 20, position: 'relative'}}>
@@ -50,37 +76,43 @@ class ModelTuning extends PureComponent {
           style={{height: height - 30, overflow: 'auto', position: 'relative'}}
         >
           <div>
-            <div style={{marginTop: 10, position: 'relative'}}>
-              <div
-                style={{
-                  width: 100,
-                  float: 'left',
-                  marginLeft: 10,
-                  position: 'relative'
-                }}
-              >
-                Categories
+            {fsui.map(({key, name, items, pfItems}) => (
+              <div key={key} style={{marginTop: 10, position: 'relative'}}>
+                <div
+                  style={{
+                    width: 100,
+                    float: 'left',
+                    marginLeft: 10,
+                    position: 'relative'
+                  }}
+                >
+                  {name}
+                </div>
+                <div
+                  style={{
+                    width: 350,
+                    height: 300,
+                    marginLeft: 10,
+                    float: 'left',
+                    position: 'relative',
+                    overflow: 'auto'
+                  }}
+                >
+                  {items.map(d => <Tag key={d.id}>{d.name.slice(0, 6)}</Tag>)}
+                </div>
+                <div
+                  style={{
+                    width: 80,
+                    height: 300,
+                    marginLeft: 10,
+                    position: 'relative',
+                    overflow: 'auto'
+                  }}
+                >
+                  {pfItems.map(d => <Tag key={d.id}>{d.name.slice(0, 6)}</Tag>)}
+                </div>
               </div>
-              <div
-                style={{
-                  width: 350,
-                  height: 300,
-                  float: 'left',
-                  position: 'relative',
-                  overflow: 'auto'
-                }}
-              >
-                {categories.map(d => (
-                  <Tag key={d.item_code}>{d.item.slice(0, 6)}</Tag>
-                ))}
-              </div>
-            </div>
-            <div style={{marginTop: 10}}>
-              <div />
-            </div>
-            <div style={{marginTop: 10}}>
-              <div />
-            </div>
+            ))}
           </div>
         </div>
       </React.Fragment>

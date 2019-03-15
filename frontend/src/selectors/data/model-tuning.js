@@ -51,42 +51,45 @@ const getMtUS = createSelector(getMtCleanedRFS, rfs => {
   return new Set(rfs.filter(d => d[2] !== null));
 });
 
+// full features
+const getMtFF = createSelector(getRawCountries, countries =>
+  countries.map(d => ({id: d.country_code, name: d.country}))
+);
+
+// full categories
+const getMtFC = createSelector(getRawItems, items =>
+  items.map(d => ({id: d.item_code, name: d.item}))
+);
+
 // feature selection
 export const getMtFeatures = createSelector(
-  [getMtFS, getRawCountries],
-  (fs, countries) =>
-    fs ? countries.filter(d => fs.has(d.country_code)) : countries
+  [getMtFS, getMtFF],
+  (fs, ff) => (fs ? ff.filter(d => fs.has(d.id)) : ff)
 );
 
 // category selection
 export const getMtCategories = createSelector(
-  [getMtCS, getRawItems],
-  (cs, items) => (cs ? items.filter(d => cs.has(d.item_code)) : items)
+  [getMtCS, getMtFC],
+  (cs, fc) => (cs ? fc.filter(d => cs.has(d.id)) : fc)
 );
 
 // element selection
 export const getMtElements = createSelector(getMtUS, us => {
-  const elements = [
-    {element_code: 0, element: 'Export'},
-    {element_code: 1, element: 'Import'}
-  ];
-  return us ? elements.filter(d => us.has(d.element_code)) : elements;
+  const elements = [{id: 0, name: 'Export'}, {id: 1, name: 'Import'}];
+  return us ? elements.filter(d => us.has(d.id)) : elements;
 });
 
 export const getMtPreFilteredFeatures = createSelector(
-  [getMtFS, getRawCountries],
-  (fs, countries) => (fs ? countries.filter(d => !fs.has(d.country_code)) : [])
+  [getMtFS, getMtFF],
+  (fs, countries) => (fs ? ff.filter(d => !fs.has(d.id)) : [])
 );
 
 export const getMtPreFilteredCategories = createSelector(
-  [getMtCS, getRawItems],
-  (cs, items) => (cs ? items.filter(d => !cs.has(d.item_code)) : [])
+  [getMtCS, getMtFC],
+  (cs, items) => (cs ? fc.filter(d => !cs.has(d.id)) : [])
 );
 
 export const getMtPreFilteredElements = createSelector(us => {
-  const elements = [
-    {element_code: 0, element: 'Export'},
-    {element_code: 1, element: 'Import'}
-  ];
-  return us ? elements.filter(d => !us.has(d.element_code)) : [];
+  const elements = [{id: 0, name: 'Export'}, {id: 1, name: 'Import'}];
+  return us ? elements.filter(d => !us.has(d.id)) : [];
 });
