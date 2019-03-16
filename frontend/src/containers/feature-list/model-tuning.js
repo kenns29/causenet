@@ -159,6 +159,7 @@ class ModelTuning extends PureComponent {
                               )}
                             </Draggable>
                           ))}
+                          {provided.placeholder}
                         </div>
                       )}
                     </Droppable>
@@ -177,6 +178,7 @@ class ModelTuning extends PureComponent {
                           {pfItems.map(d => (
                             <Tag key={d.id}>{d.name.slice(0, 6)}</Tag>
                           ))}
+                          {provided.placeholder}
                         </div>
                       )}
                     </Droppable>
