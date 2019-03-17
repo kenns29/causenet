@@ -13,7 +13,7 @@ import {
   getMtPreFilteredFeatures,
   getMtPreFilteredCategories
 } from '../../selectors/data';
-
+import {updateMtSelectedModel, updateMtModelMod} from '../../actions';
 const mapDispatchToProps = {};
 
 const mapStateToProps = state => ({

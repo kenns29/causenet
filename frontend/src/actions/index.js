@@ -98,9 +98,8 @@ export const UPDATE_CM_SELECTED_FEATURE_TIMELINE_DATA =
 export const UPDATE_COUNTRIES = 'UPDATE_COUNTRIES';
 export const UPDATE_ITEMS = 'UPDATE_ITEMS';
 export const UPDATE_MT_SELECTED_MODEL = 'UPDATE_MT_SELECTED_MODEL';
-export const UPDATE_MT_FEATURE_SELECTION = 'UPDATE_MT_FEATURE_SELECTION';
+export const UPDATE_MT_MODEL_MOD = 'UPDATE_MT_MODEL_MOD';
 export const UPDATE_MT_MODEL_FEATURES = 'UPDATE_MT_MODEL_FEATURES';
-export const UPDATE_MT_MODEL_MODS = 'UPDATE_MT_MODEL_MODS';
 
 // UI actions
 export const updateScreenSize = createAction(UPDATE_SCREEN_SIZE);
@@ -250,11 +249,8 @@ export const updateCmSelectedFeatureTimelineData = createAction(
 export const updateCountries = createAction(UPDATE_COUNTRIES);
 export const updateItems = createAction(UPDATE_ITEMS);
 export const updateMtSelectedModel = createAction(UPDATE_MT_SELECTED_MODEL);
-export const updateMtFeatureSelection = createAction(
-  UPDATE_MT_FEATURE_SELECTION
-);
+export const updateMtModelMod = createAction(UPDATE_MT_MODEL_MOD);
 export const updateMtModelFeatures = createAction(UPDATE_MT_MODEL_FEATURES);
-export const updateMtModelMods = createAction(UPDATE_MT_MODEL_MODS);
 
 // async actions
 export const fetchCurrentDatasetName = () => async dispatch => {

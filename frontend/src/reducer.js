@@ -58,7 +58,10 @@ import {
   UPDATE_CM_U_SELECTION,
   UPDATE_CM_SELECTED_FEATURE_TIMELINE_DATA,
   UPDATE_COUNTRIES,
-  UPDATE_ITEMS
+  UPDATE_ITEMS,
+  UPDATE_MT_SELECTED_MODEL,
+  UPDATE_MT_MODEL_MOD,
+  UPDATE_MT_MODEL_FEATURES
 } from './actions';
 
 import {HIERARICAL_CLUSTERING_OPTION} from './constants';
@@ -267,9 +270,8 @@ const DEFAULT_STATE = {
   countries: [],
   items: [],
   mtSelectedModel: null,
-  mtFeatureSelection: null,
-  mtModelFeatures: [],
-  mtModelMods: {}
+  mtModelMod: null,
+  mtModelFeatures: []
 };
 
 const handleUpdateScreenSize = (state, {payload}) => ({
@@ -588,6 +590,21 @@ const handleUpdateItems = (state, {payload}) => ({
   items: payload
 });
 
+const handleUpdateMtSelectedModel = (state, {payload}) => ({
+  ...state,
+  mtSelectedModel: payload
+});
+
+const handleUpdateMtModelMod = (state, {payload}) => ({
+  ...state,
+  mtModelMod: payload
+});
+
+const handleUpdateMtModelFeatures = (state, {payload}) => ({
+  ...state,
+  mtModelFeatures: payload
+});
+
 export default handleActions(
   {
     [UPDATE_SCREEN_SIZE]: handleUpdateScreenSize,
@@ -648,7 +665,10 @@ export default handleActions(
     [UPDATE_CM_U_SELECTION]: handleUpdateCmUSelection,
     [UPDATE_CM_SELECTED_FEATURE_TIMELINE_DATA]: handleUpdateCmSelectedFeatureTimelineData,
     [UPDATE_COUNTRIES]: handleUpdateCountries,
-    [UPDATE_ITEMS]: handleUpdateItems
+    [UPDATE_ITEMS]: handleUpdateItems,
+    [UPDATE_MT_SELECTED_MODEL]: handleUpdateMtSelectedModel,
+    [UPDATE_MT_MODEL_MOD]: handleUpdateMtModelMod,
+    [UPDATE_MT_MODEL_FEATURES]: handleUpdateMtModelFeatures
   },
   DEFAULT_STATE
 );

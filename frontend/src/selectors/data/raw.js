@@ -198,17 +198,12 @@ export const getRawMtSelectedModel = createSelector(
   state => state.mtSelectedModel
 );
 
-export const getRawMtFeatureSelection = createSelector(
+export const getRawMtModelMod = createSelector(
   rootSelector,
-  state => state.mtFeatureSelection
+  state => state.mtModelMod
 );
 
 export const getRawMtModelFeatures = createSelector(
   rootSelector,
   state => state.mtModelFeatures
-);
-
-export const getRawMtModelMods = createSelector(
-  rootSelector,
-  state => state.mtModelMods
 );
