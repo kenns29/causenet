@@ -102,10 +102,11 @@ class ModelTuning extends PureComponent {
                   key={key}
                   onDragEnd={result => {
                     const {source, destination} = result;
-                    console.log('source', source, 'destination', destination);
                     if (
                       !destination ||
-                      source.droppableId === destination.droppableId
+                      source.droppableId === destination.droppableId ||
+                      source.droppableId.split('-')[0] !==
+                        destination.droppableId.split('-')[0]
                     ) {
                       return;
                     }
@@ -115,17 +116,13 @@ class ModelTuning extends PureComponent {
                       c: categories.map(d => d.id),
                       u: elements.map(d => d.id)
                     };
-                    console.log('inn nmod', nmod);
                     if (source.droppableId === `${key}-items`) {
                       const {id, name} = items[source.index];
-                      console.log('id', id, 'name', name);
                       nmod[key] = nmod[key].filter(d => d !== id);
                     } else if (source.droppableId === `${key}-pfitems`) {
                       const {id, name} = pfItems[source.index];
-                      console.log('id', id, 'name', name);
                       nmod[key].push(id);
                     }
-                    console.log('nmod', nmod);
                     this.props.updateMtModelMod({...nmod});
                   }}
                 >
@@ -201,10 +198,12 @@ class ModelTuning extends PureComponent {
                         <div
                           ref={provided.innerRef}
                           style={{
-                            width: 80,
+                            width: 100,
                             height: Math.min(itemh, 200),
                             marginLeft: 10,
                             position: 'relative',
+                            display: 'flex',
+                            flexWrap: 'wrap',
                             overflow: 'auto'
                           }}
                         >
