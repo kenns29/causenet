@@ -34,6 +34,30 @@ const computeTextLength = makeTextLengthComputer({fontSize: 13});
 
 class ModelTuning extends PureComponent {
   _renderFeatureSelectionUI() {
+    const featureButtonStyle = {
+      fontSize: 12,
+      marginLeft: 8,
+      marginTop: 2,
+      padding: '2px 7px',
+      backgroundColor: 'white',
+      height: 24,
+      whiteSpace: 'nowrap',
+      border: '1px solid lightgray',
+      borderRadius: '4px',
+      cursor: 'pointer'
+    };
+
+    const featureBoxStyle = {
+      marginLeft: 10,
+      position: 'relative',
+      display: 'flex',
+      flexWrap: 'wrap',
+      alignContent: 'flex-start',
+      border: '1px solid lightgray',
+      borderRadius: '4px',
+      overflow: 'auto'
+    };
+
     const {
       categories,
       features,
@@ -63,8 +87,42 @@ class ModelTuning extends PureComponent {
         pfItems: pfElements
       }
     ];
+
     return (
       <div>
+        <div
+          style={{
+            position: 'relative',
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignContent: 'flex-start'
+          }}
+        >
+          <div
+            style={{
+              position: 'relative',
+              marginLeft: 120,
+              width: 350,
+              height: 30,
+              textAlign: 'center',
+              padding: '5px 0px'
+            }}
+          >
+            Selected
+          </div>
+          <div
+            style={{
+              position: 'relative',
+              marginLeft: 10,
+              width: 100,
+              height: 30,
+              textAlign: 'center',
+              padding: '5px 0px'
+            }}
+          >
+            Filtered
+          </div>
+        </div>
         {fsui.map(({key, name, items, pfItems}) => {
           const itemh =
             estimateDivHeight(
@@ -86,11 +144,13 @@ class ModelTuning extends PureComponent {
                   return;
                 }
                 const {mod} = this.props;
-                const nmod = mod || {
-                  f: features.map(d => d.id),
-                  c: categories.map(d => d.id),
-                  u: elements.map(d => d.id)
-                };
+                const nmod = mod
+                  ? {...mod}
+                  : {
+                    f: features.map(d => d.id),
+                    c: categories.map(d => d.id),
+                    u: elements.map(d => d.id)
+                  };
                 if (source.droppableId === `${key}-items`) {
                   const {id, name} = items[source.index];
                   nmod[key] = nmod[key].filter(d => d !== id);
@@ -98,7 +158,7 @@ class ModelTuning extends PureComponent {
                   const {id, name} = pfItems[source.index];
                   nmod[key].push(id);
                 }
-                this.props.updateMtModelMod({...nmod});
+                this.props.updateMtModelMod(nmod);
               }}
             >
               <div
@@ -126,14 +186,7 @@ class ModelTuning extends PureComponent {
                       style={{
                         width: 350,
                         height: Math.min(itemh, 200),
-                        marginLeft: 10,
-                        position: 'relative',
-                        display: 'flex',
-                        flexWrap: 'wrap',
-                        alignContent: 'flex-start',
-                        border: '1px solid lightgray',
-                        borderRadius: '4px',
-                        overflow: 'auto'
+                        ...featureBoxStyle
                       }}
                     >
                       {items.map((d, i) => (
@@ -149,16 +202,7 @@ class ModelTuning extends PureComponent {
                               {...provided.draggableProps}
                               {...provided.dragHandleProps}
                               style={{
-                                fontSize: 12,
-                                marginLeft: 8,
-                                marginTop: 2,
-                                padding: '2px 7px',
-                                backgroundColor: 'white',
-                                height: 24,
-                                whiteSpace: 'nowrap',
-                                border: '1px solid lightgray',
-                                borderRadius: '4px',
-                                cursor: 'pointer',
+                                ...featureButtonStyle,
                                 ...provided.draggableProps.style
                               }}
                             >
@@ -178,14 +222,7 @@ class ModelTuning extends PureComponent {
                       style={{
                         width: 100,
                         height: Math.min(itemh, 200),
-                        marginLeft: 10,
-                        position: 'relative',
-                        display: 'flex',
-                        flexWrap: 'wrap',
-                        alignContent: 'flex-start',
-                        border: '1px solid lightgray',
-                        borderRadius: '4px',
-                        overflow: 'auto'
+                        ...featureBoxStyle
                       }}
                     >
                       {pfItems.map((d, i) => (
@@ -201,16 +238,7 @@ class ModelTuning extends PureComponent {
                               {...provided.draggableProps}
                               {...provided.dragHandleProps}
                               style={{
-                                fontSize: 12,
-                                marginLeft: 8,
-                                marginTop: 2,
-                                padding: '2px 7px',
-                                backgroundColor: 'white',
-                                height: 24,
-                                whiteSpace: 'nowrap',
-                                border: '1px solid lightgray',
-                                borderRadius: '4px',
-                                cursor: 'pointer',
+                                ...featureButtonStyle,
                                 ...provided.draggableProps.style
                               }}
                             >
@@ -236,7 +264,7 @@ class ModelTuning extends PureComponent {
 
     return (
       <React.Fragment>
-        <div style={{height: 20, position: 'relative'}}>
+        <div style={{position: 'relative'}}>
           <span> Model: </span>
           <Select style={{width: 150}}>
             {modelList.map(d => (
