@@ -33,12 +33,8 @@ const mapStateToProps = state => ({
 const computeTextLength = makeTextLengthComputer({fontSize: 13});
 
 class ModelTuning extends PureComponent {
-  render() {
+  _renderFeatureSelectionUI() {
     const {
-      width,
-      height,
-      modelList,
-      model,
       categories,
       features,
       elements,
@@ -68,6 +64,170 @@ class ModelTuning extends PureComponent {
       }
     ];
     return (
+      <div>
+        {fsui.map(({key, name, items, pfItems}) => {
+          const itemh = estimateDivHeight(
+            items.map(d => [computeTextLength(d.name.slice(0, 6)) + 24, 26]),
+            350
+          );
+
+          return (
+            <DragDropContext
+              key={key}
+              onDragEnd={result => {
+                const {source, destination} = result;
+                if (
+                  !destination ||
+                  source.droppableId === destination.droppableId ||
+                  source.droppableId.split('-')[0] !==
+                    destination.droppableId.split('-')[0]
+                ) {
+                  return;
+                }
+                const {mod} = this.props;
+                const nmod = mod || {
+                  f: features.map(d => d.id),
+                  c: categories.map(d => d.id),
+                  u: elements.map(d => d.id)
+                };
+                if (source.droppableId === `${key}-items`) {
+                  const {id, name} = items[source.index];
+                  nmod[key] = nmod[key].filter(d => d !== id);
+                } else if (source.droppableId === `${key}-pfitems`) {
+                  const {id, name} = pfItems[source.index];
+                  nmod[key].push(id);
+                }
+                this.props.updateMtModelMod({...nmod});
+              }}
+            >
+              <div
+                key={key}
+                style={{
+                  marginTop: 10,
+                  position: 'relative',
+                  display: 'flex',
+                  flexWrap: 'wrap'
+                }}
+              >
+                <div
+                  style={{
+                    width: 100,
+                    marginLeft: 10,
+                    position: 'relative'
+                  }}
+                >
+                  {name}
+                </div>
+                <Droppable droppableId={`${key}-items`}>
+                  {(provided, snapshot) => (
+                    <div
+                      ref={provided.innerRef}
+                      style={{
+                        width: 350,
+                        height: Math.min(itemh, 200),
+                        marginLeft: 10,
+                        position: 'relative',
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        overflow: 'auto'
+                      }}
+                    >
+                      {items.map((d, i) => (
+                        <Draggable
+                          key={d.id}
+                          draggableId={d.id.toString()}
+                          index={i}
+                          direction="horizontal"
+                        >
+                          {(provided, snapshot) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                              style={{
+                                fontSize: 12,
+                                marginLeft: 8,
+                                marginTop: 2,
+                                padding: '2px 7px',
+                                backgroundColor: 'white',
+                                height: 24,
+                                whiteSpace: 'nowrap',
+                                border: '1px solid lightgray',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                                ...provided.draggableProps.style
+                              }}
+                            >
+                              {d.name.slice(0, 6)}
+                            </div>
+                          )}
+                        </Draggable>
+                      ))}
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+                <Droppable droppableId={`${key}-pfitems`}>
+                  {(provided, snapshot) => (
+                    <div
+                      ref={provided.innerRef}
+                      style={{
+                        width: 100,
+                        height: Math.min(itemh, 200),
+                        marginLeft: 10,
+                        position: 'relative',
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        overflow: 'auto'
+                      }}
+                    >
+                      {pfItems.map((d, i) => (
+                        <Draggable
+                          key={d.id}
+                          draggableId={d.id.toString()}
+                          index={i}
+                          direction="horizontal"
+                        >
+                          {(provided, snapshot) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                              style={{
+                                fontSize: 12,
+                                marginLeft: 8,
+                                marginTop: 2,
+                                padding: '2px 7px',
+                                backgroundColor: 'white',
+                                height: 24,
+                                whiteSpace: 'nowrap',
+                                border: '1px solid lightgray',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                                ...provided.draggableProps.style
+                              }}
+                            >
+                              {d.name.slice(0, 6)}
+                            </div>
+                          )}
+                        </Draggable>
+                      ))}
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+              </div>
+            </DragDropContext>
+          );
+        })}
+      </div>
+    );
+  }
+
+  render() {
+    const {width, height, modelList, model} = this.props;
+
+    return (
       <React.Fragment>
         <div style={{height: 20, position: 'relative'}}>
           <span> Model: </span>
@@ -87,166 +247,7 @@ class ModelTuning extends PureComponent {
             position: 'relative'
           }}
         >
-          <div>
-            {fsui.map(({key, name, items, pfItems}) => {
-              const itemh = estimateDivHeight(
-                items.map(d => [
-                  computeTextLength(d.name.slice(0, 6)) + 24,
-                  26
-                ]),
-                350
-              );
-
-              return (
-                <DragDropContext
-                  key={key}
-                  onDragEnd={result => {
-                    const {source, destination} = result;
-                    if (
-                      !destination ||
-                      source.droppableId === destination.droppableId ||
-                      source.droppableId.split('-')[0] !==
-                        destination.droppableId.split('-')[0]
-                    ) {
-                      return;
-                    }
-                    const {mod} = this.props;
-                    const nmod = mod || {
-                      f: features.map(d => d.id),
-                      c: categories.map(d => d.id),
-                      u: elements.map(d => d.id)
-                    };
-                    if (source.droppableId === `${key}-items`) {
-                      const {id, name} = items[source.index];
-                      nmod[key] = nmod[key].filter(d => d !== id);
-                    } else if (source.droppableId === `${key}-pfitems`) {
-                      const {id, name} = pfItems[source.index];
-                      nmod[key].push(id);
-                    }
-                    this.props.updateMtModelMod({...nmod});
-                  }}
-                >
-                  <div
-                    key={key}
-                    style={{
-                      marginTop: 10,
-                      position: 'relative',
-                      display: 'flex',
-                      flexWrap: 'wrap'
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: 100,
-                        marginLeft: 10,
-                        position: 'relative'
-                      }}
-                    >
-                      {name}
-                    </div>
-                    <Droppable droppableId={`${key}-items`}>
-                      {(provided, snapshot) => (
-                        <div
-                          ref={provided.innerRef}
-                          style={{
-                            width: 350,
-                            height: Math.min(itemh, 200),
-                            marginLeft: 10,
-                            position: 'relative',
-                            display: 'flex',
-                            flexWrap: 'wrap',
-                            overflow: 'auto'
-                          }}
-                        >
-                          {items.map((d, i) => (
-                            <Draggable
-                              key={d.id}
-                              draggableId={d.id.toString()}
-                              index={i}
-                              direction="horizontal"
-                            >
-                              {(provided, snapshot) => (
-                                <div
-                                  ref={provided.innerRef}
-                                  {...provided.draggableProps}
-                                  {...provided.dragHandleProps}
-                                  style={{
-                                    fontSize: 12,
-                                    marginLeft: 8,
-                                    marginTop: 2,
-                                    padding: '2px 7px',
-                                    backgroundColor: 'white',
-                                    height: 24,
-                                    whiteSpace: 'nowrap',
-                                    border: '1px solid lightgray',
-                                    borderRadius: '4px',
-                                    cursor: 'pointer',
-                                    ...provided.draggableProps.style
-                                  }}
-                                >
-                                  {d.name.slice(0, 6)}
-                                </div>
-                              )}
-                            </Draggable>
-                          ))}
-                          {provided.placeholder}
-                        </div>
-                      )}
-                    </Droppable>
-                    <Droppable droppableId={`${key}-pfitems`}>
-                      {(provided, snapshot) => (
-                        <div
-                          ref={provided.innerRef}
-                          style={{
-                            width: 100,
-                            height: Math.min(itemh, 200),
-                            marginLeft: 10,
-                            position: 'relative',
-                            display: 'flex',
-                            flexWrap: 'wrap',
-                            overflow: 'auto'
-                          }}
-                        >
-                          {pfItems.map((d, i) => (
-                            <Draggable
-                              key={d.id}
-                              draggableId={d.id.toString()}
-                              index={i}
-                              direction="horizontal"
-                            >
-                              {(provided, snapshot) => (
-                                <div
-                                  ref={provided.innerRef}
-                                  {...provided.draggableProps}
-                                  {...provided.dragHandleProps}
-                                  style={{
-                                    fontSize: 12,
-                                    marginLeft: 8,
-                                    marginTop: 2,
-                                    padding: '2px 7px',
-                                    backgroundColor: 'white',
-                                    height: 24,
-                                    whiteSpace: 'nowrap',
-                                    border: '1px solid lightgray',
-                                    borderRadius: '4px',
-                                    cursor: 'pointer',
-                                    ...provided.draggableProps.style
-                                  }}
-                                >
-                                  {d.name.slice(0, 6)}
-                                </div>
-                              )}
-                            </Draggable>
-                          ))}
-                          {provided.placeholder}
-                        </div>
-                      )}
-                    </Droppable>
-                  </div>
-                </DragDropContext>
-              );
-            })}
-          </div>
+          {this._renderFeatureSelectionUI()}
         </div>
       </React.Fragment>
     );
