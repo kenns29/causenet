@@ -6,7 +6,8 @@ from modules.service.model_utils import get_model, delete_model, learn_structure
     train_model_on_clusters, train_sub_model_within_clusters, calc_sub_models_edge_weights, get_sub_models, \
     get_full_model_features, get_model_clusters, replace_sub_models, check_is_cluster_model, \
     calc_model_edge_correlations, train_feature_sliced_model, get_current_dataset_model_dir, \
-    get_feature_sliced_model, get_feature_sliced_model_weighted_edges, get_feature_slices
+    get_feature_sliced_model, get_feature_sliced_model_weighted_edges, get_feature_slices, model_mod_to_feature_selection, \
+    get_model_mod, write_model_mod
 from modules.service.edge_weights import get_edge_weights
 from modules.service.data_utils import load_data, load_pdist, load_clustering, get_current_dataset_name, \
     get_dataset_config, update_current_dataset_name as update_current_dataset_name_util, get_index2col, \
@@ -213,6 +214,12 @@ def load_feature_values_map():
     return jsonify(dict((str(key), data[key].cat.categories.tolist()) for key in features))
 
 
+@blueprint.route('/load_model_mod', methods=['GET'])
+def load_model_mod():
+    name = request.args.get('name') if request.args.get('name') else 'model.bin'
+    return jsonify(get_model_mod(name))
+
+
 @blueprint.route('/delete_model', methods=['GET'])
 def route_delete_model():
     name = request.args.get('name') if request.args.get('name') else 'model.bin'
@@ -234,9 +241,14 @@ def train_bayesian_model():
     feature_selection = request.args.get('feature_selection')
     calc_edge_weights = str2bool(request.args.get('calc_edge_weights')) \
         if request.args.get('calc_edge_weights') else True
+    model_mod = request.args('model_mod')
+
+    feature_selection = model_mod_to_feature_selection(model_mod) if model_mod else feature_selection
     data = load_data()
     print('training models ...')
     model = train_model(data, name, feature_selection)
+    if model_mod:
+        write_model_mod(model_mod, name)
     if not model:
         return jsonify([])
     if calc_edge_weights:

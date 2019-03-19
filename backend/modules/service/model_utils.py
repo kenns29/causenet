@@ -165,6 +165,31 @@ def write_full_model_features(features, name):
     return features
 
 
+def get_model_mod(name):
+    current_dataset_model_dir = get_current_dataset_model_dir()
+    if not os.path.exists(os.path.join(current_dataset_model_dir, 'mod.' + name)):
+        return None
+    with open(os.path.join(current_dataset_model_dir, 'mod.' + name), mode='rb') as file:
+        return pickle.load(file)
+
+
+def write_model_mod(mod, name):
+    current_dataset_name = get_current_dataset_name()
+    with open(os.path.join(get_current_dataset_model_dir(), 'mod.' + name), mode='wb') as file:
+        pickle.dump(mod, file)
+    with open(model_config_dir, mode='r+', encoding='utf-8') as file:
+        config = json.load(file)
+        status = config[current_dataset_name]
+        models = status['models']
+        if name not in models:
+            models[name] = {}
+        models[name]['mod'] = 'mod.' + name
+        file.seek(0)
+        json.dump(config, file, indent='\t')
+        file.truncate()
+    return mod
+
+
 def get_model_clusters(name):
     current_dataset_model_dir = get_current_dataset_model_dir()
     if not os.path.exists(os.path.join(current_dataset_model_dir, 'clusters.' + name)):
@@ -688,6 +713,12 @@ def get_feature_selection():
         config = json.load(file)
         status = config[get_current_dataset_name()]
         return status['feature_selection'] if 'feature_selection' in status else None
+
+
+def model_mod_to_feature_selection(mod):
+    if not mod:
+        return None
+    return ['({}, {}, {})'.format(f, c, u) for f in mod['f'] for c in mod['c'] for u in mod['u']]
 
 
 def reduce_model(model, values=[]):

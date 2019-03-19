@@ -1,6 +1,6 @@
 import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
-import {Select, Tag, Divider} from 'antd';
+import {Select, Tag, Divider, Button} from 'antd';
 import {DragDropContext, Droppable, Draggable} from 'react-beautiful-dnd';
 import {estimateDivHeight, makeTextLengthComputer} from '../../utils';
 import {
@@ -14,9 +14,17 @@ import {
   getMtPreFilteredCategories,
   getRawMtModelMod
 } from '../../selectors/data';
-import {updateMtSelectedModel, updateMtModelMod} from '../../actions';
+import {
+  updateMtModelMod,
+  requestTrainBayesianModel,
+  fetchMtModelMod
+} from '../../actions';
 
-const mapDispatchToProps = {updateMtSelectedModel, updateMtModelMod};
+const mapDispatchToProps = {
+  updateMtModelMod,
+  requestTrainBayesianModel,
+  fetchMtModelMod
+};
 
 const mapStateToProps = state => ({
   modelList: getModelList(state),
@@ -33,6 +41,55 @@ const mapStateToProps = state => ({
 const computeTextLength = makeTextLengthComputer({fontSize: 13});
 
 class ModelTuning extends PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = {
+      modelName: null
+    };
+  }
+
+  _renderModelSelection() {
+    const {modelList} = this.props;
+    const {model, modelName} = this.state;
+    return (
+      <React.Fragment>
+        <span style={{marginLeft: 10, marginRight: 10}}> Model:</span>
+        <Select
+          showSearch
+          placeholder="Select/Add Model"
+          value={model}
+          style={{width: 150}}
+          onChange={value => {
+            console.log('value', value);
+          }}
+          onBlur={value => {}}
+        >
+          {modelList.map(d => (
+            <Select.Option key={d.name} value={d.name}>
+              {d.name}
+            </Select.Option>
+          ))}
+        </Select>
+      </React.Fragment>
+    );
+  }
+
+  _renderTrainModelButton() {
+    return (
+      <Button type="primary" style={{float: 'right', marginRight: 10}}>
+        Train Model
+      </Button>
+    );
+  }
+
+  _renderLoadButton() {
+    return (
+      <Button type="default" style={{float: 'right', marginRight: 10}}>
+        Reload
+      </Button>
+    );
+  }
+
   _renderFeatureSelectionUI() {
     const featureButtonStyle = {
       fontSize: 12,
@@ -260,19 +317,13 @@ class ModelTuning extends PureComponent {
   }
 
   render() {
-    const {width, height, modelList, model} = this.props;
+    const {width, height} = this.props;
 
     return (
       <React.Fragment>
         <div style={{position: 'relative'}}>
-          <span> Model: </span>
-          <Select style={{width: 150}}>
-            {modelList.map(d => (
-              <Select.Option key={d.name} value={d.name}>
-                {d.name}
-              </Select.Option>
-            ))}
-          </Select>
+          {this._renderModelSelection()}
+          {this._renderTrainModelButton()}
         </div>
         <Divider />
         <div
