@@ -901,3 +901,14 @@ export const bundleFetchUpdateCmSelectedFeatureTimelineData = ({
     return new Error(err);
   }
 };
+
+export const fetchMtModelMod = ({name = 'model'}) => async dispatch => {
+  try {
+    const reponse = await fetch(`${BACKEND_URL}/load_model_mod?name=${name}`);
+    const data = await response.json();
+    dispatch(updateMtModelMod(data));
+    return Promise.resolve(data);
+  } catch (err) {
+    throw new Error(err);
+  }
+};

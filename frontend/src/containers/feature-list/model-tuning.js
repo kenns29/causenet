@@ -11,10 +11,12 @@ import {
   getMtElements,
   getMtPreFilteredElements,
   getMtPreFilteredFeatures,
-  getMtPreFilteredCategories
+  getMtPreFilteredCategories,
+  getRawMtModelMod
 } from '../../selectors/data';
 import {updateMtSelectedModel, updateMtModelMod} from '../../actions';
-const mapDispatchToProps = {};
+
+const mapDispatchToProps = {updateMtSelectedModel, updateMtModelMod};
 
 const mapStateToProps = state => ({
   modelList: getModelList(state),
@@ -24,7 +26,8 @@ const mapStateToProps = state => ({
   elements: getMtElements(state),
   pfCategories: getMtPreFilteredCategories(state),
   pfFeatures: getMtPreFilteredFeatures(state),
-  pfElements: getMtPreFilteredElements(state)
+  pfElements: getMtPreFilteredElements(state),
+  mod: getRawMtModelMod(state)
 });
 
 const computeTextLength = makeTextLengthComputer({fontSize: 13});
@@ -46,19 +49,19 @@ class ModelTuning extends PureComponent {
 
     const fsui = [
       {
-        key: 'categories',
+        key: 'c',
         name: 'Categories',
         items: categories,
         pfItems: pfCategories
       },
       {
-        key: 'features',
+        key: 'f',
         name: 'Features',
         items: features,
         pfItems: pfFeatures
       },
       {
-        key: 'elements',
+        key: 'u',
         name: 'Elements',
         items: elements,
         pfItems: pfElements
@@ -95,7 +98,37 @@ class ModelTuning extends PureComponent {
               );
 
               return (
-                <DragDropContext key={key} onDragEnd={() => {}}>
+                <DragDropContext
+                  key={key}
+                  onDragEnd={result => {
+                    const {source, destination} = result;
+                    console.log('source', source, 'destination', destination);
+                    if (
+                      !destination ||
+                      source.droppableId === destination.droppableId
+                    ) {
+                      return;
+                    }
+                    const {mod} = this.props;
+                    const nmod = mod || {
+                      f: features.map(d => d.id),
+                      c: categories.map(d => d.id),
+                      u: elements.map(d => d.id)
+                    };
+                    console.log('inn nmod', nmod);
+                    if (source.droppableId === `${key}-items`) {
+                      const {id, name} = items[source.index];
+                      console.log('id', id, 'name', name);
+                      nmod[key] = nmod[key].filter(d => d !== id);
+                    } else if (source.droppableId === `${key}-pfitems`) {
+                      const {id, name} = pfItems[source.index];
+                      console.log('id', id, 'name', name);
+                      nmod[key].push(id);
+                    }
+                    console.log('nmod', nmod);
+                    this.props.updateMtModelMod({...nmod});
+                  }}
+                >
                   <div
                     key={key}
                     style={{
@@ -175,8 +208,36 @@ class ModelTuning extends PureComponent {
                             overflow: 'auto'
                           }}
                         >
-                          {pfItems.map(d => (
-                            <Tag key={d.id}>{d.name.slice(0, 6)}</Tag>
+                          {pfItems.map((d, i) => (
+                            <Draggable
+                              key={d.id}
+                              draggableId={d.id.toString()}
+                              index={i}
+                              direction="horizontal"
+                            >
+                              {(provided, snapshot) => (
+                                <div
+                                  ref={provided.innerRef}
+                                  {...provided.draggableProps}
+                                  {...provided.dragHandleProps}
+                                  style={{
+                                    fontSize: 12,
+                                    marginLeft: 8,
+                                    marginTop: 2,
+                                    padding: '2px 7px',
+                                    backgroundColor: 'white',
+                                    height: 24,
+                                    whiteSpace: 'nowrap',
+                                    border: '1px solid lightgray',
+                                    borderRadius: '4px',
+                                    cursor: 'pointer',
+                                    ...provided.draggableProps.style
+                                  }}
+                                >
+                                  {d.name.slice(0, 6)}
+                                </div>
+                              )}
+                            </Draggable>
                           ))}
                           {provided.placeholder}
                         </div>
