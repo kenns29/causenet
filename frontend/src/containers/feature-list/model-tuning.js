@@ -66,10 +66,11 @@ class ModelTuning extends PureComponent {
     return (
       <div>
         {fsui.map(({key, name, items, pfItems}) => {
-          const itemh = estimateDivHeight(
-            items.map(d => [computeTextLength(d.name.slice(0, 6)) + 24, 26]),
-            350
-          );
+          const itemh =
+            estimateDivHeight(
+              items.map(d => [computeTextLength(d.name.slice(0, 6)) + 24, 26]),
+              350
+            ) + 4;
 
           return (
             <DragDropContext
@@ -130,6 +131,8 @@ class ModelTuning extends PureComponent {
                         display: 'flex',
                         flexWrap: 'wrap',
                         alignContent: 'flex-start',
+                        border: '1px solid lightgray',
+                        borderRadius: '4px',
                         overflow: 'auto'
                       }}
                     >
@@ -180,6 +183,8 @@ class ModelTuning extends PureComponent {
                         display: 'flex',
                         flexWrap: 'wrap',
                         alignContent: 'flex-start',
+                        border: '1px solid lightgray',
+                        borderRadius: '4px',
                         overflow: 'auto'
                       }}
                     >
