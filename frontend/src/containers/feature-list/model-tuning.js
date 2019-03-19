@@ -129,6 +129,7 @@ class ModelTuning extends PureComponent {
                         position: 'relative',
                         display: 'flex',
                         flexWrap: 'wrap',
+                        alignContent: 'flex-start',
                         overflow: 'auto'
                       }}
                     >
@@ -178,6 +179,7 @@ class ModelTuning extends PureComponent {
                         position: 'relative',
                         display: 'flex',
                         flexWrap: 'wrap',
+                        alignContent: 'flex-start',
                         overflow: 'auto'
                       }}
                     >
