@@ -235,20 +235,22 @@ def route_learn_structure():
     return jsonify(edge_list)
 
 
-@blueprint.route('/train_bayesian_model', methods=['GET'])
+@blueprint.route('/train_bayesian_model', methods=['GET', 'POST'])
 def train_bayesian_model():
     name = request.args.get('name') if request.args.get('name') else 'model.bin'
     feature_selection = request.args.get('feature_selection')
     calc_edge_weights = str2bool(request.args.get('calc_edge_weights')) \
         if request.args.get('calc_edge_weights') else True
-    model_mod = request.args('model_mod')
+    mod = json.loads(request.data) if request.method == 'POST' else request.args('mod')
 
-    feature_selection = model_mod_to_feature_selection(model_mod) if model_mod else feature_selection
+    print('mod= {}'.format(mod))
+
+    feature_selection = model_mod_to_feature_selection(mod) if mod else feature_selection
     data = load_data()
     print('training models ...')
     model = train_model(data, name, feature_selection)
-    if model_mod:
-        write_model_mod(model_mod, name)
+    if mod:
+        write_model_mod(mod, name)
     if not model:
         return jsonify([])
     if calc_edge_weights:

@@ -1,6 +1,6 @@
 import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
-import {Select, Tag, Divider, Button} from 'antd';
+import {Select, Tag, Divider, Button, Icon, Input, Alert} from 'antd';
 import {DragDropContext, Droppable, Draggable} from 'react-beautiful-dnd';
 import {estimateDivHeight, makeTextLengthComputer} from '../../utils';
 import {
@@ -15,15 +15,19 @@ import {
   getRawMtModelMod
 } from '../../selectors/data';
 import {
-  updateMtModelMod,
+  updateMtSelectedModel,
   requestTrainBayesianModel,
-  fetchMtModelMod
+  fetchMtModelMod,
+  fetchModelList,
+  updateMtModelMod
 } from '../../actions';
 
 const mapDispatchToProps = {
-  updateMtModelMod,
+  updateMtSelectedModel,
   requestTrainBayesianModel,
-  fetchMtModelMod
+  fetchMtModelMod,
+  fetchModelList,
+  updateMtModelMod
 };
 
 const mapStateToProps = state => ({
@@ -44,47 +48,145 @@ class ModelTuning extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      modelName: null
+      newModel: '',
+      alertProps: null
     };
   }
 
+  _renderAlert() {
+    const {alertProps} = this.state;
+    return alertProps ? <Alert {...alertProps} /> : null;
+  }
+
   _renderModelSelection() {
-    const {modelList} = this.props;
-    const {model, modelName} = this.state;
+    const {modelList, model} = this.props;
     return (
-      <React.Fragment>
+      <div
+        style={{
+          position: 'relative',
+          display: 'inline-flex',
+          flexWrap: 'wrap',
+          alignItems: 'center'
+        }}
+      >
         <span style={{marginLeft: 10, marginRight: 10}}> Model:</span>
         <Select
           showSearch
-          placeholder="Select/Add Model"
+          placeholder="Select Model"
           value={model}
           style={{width: 150}}
           onChange={value => {
-            console.log('value', value);
+            if (value === 'None') {
+              this.props.updateMtSelectedModel(null);
+              this.props.updateMtModelMod(null);
+            } else {
+              this.props.updateMtSelectedModel(value);
+              this.setState({
+                newModel: value
+              });
+              this.props.fetchMtModelMod({name: value});
+            }
           }}
-          onBlur={value => {}}
         >
-          {modelList.map(d => (
+          {[...modelList, {name: 'None'}].map(d => (
             <Select.Option key={d.name} value={d.name}>
               {d.name}
             </Select.Option>
           ))}
         </Select>
-      </React.Fragment>
+        {this._renderArrow()}
+        {this._renderNewModelNameInput()}
+      </div>
+    );
+  }
+
+  _renderArrow() {
+    return (
+      <div
+        style={{
+          marginLeft: 10,
+          position: 'relative',
+          display: 'inline-flex',
+          flexWrap: 'wrap',
+          alignItems: 'center'
+        }}
+      >
+        <div
+          style={{
+            height: 20,
+            width: 50,
+            backgroundColor: 'lightblue'
+          }}
+        />
+        <div
+          style={{
+            width: 0,
+            height: 0,
+            borderTop: '20px solid transparent',
+            borderBottom: '20px solid transparent',
+            borderLeft: '20px solid lightblue'
+          }}
+        />
+      </div>
+    );
+  }
+
+  _renderNewModelNameInput() {
+    const {newModel} = this.state;
+    return (
+      <Input
+        style={{marginLeft: 10, width: 100}}
+        placeholder="To Model"
+        value={newModel}
+        onChange={event => this.setState({newModel: event.target.value})}
+      />
     );
   }
 
   _renderTrainModelButton() {
+    const {mod} = this.props;
+    const {newModel} = this.state;
     return (
-      <Button type="primary" style={{float: 'right', marginRight: 10}}>
+      <Button
+        type="primary"
+        style={{float: 'right', marginRight: 10}}
+        onClick={async event => {
+          if (newModel === '') {
+            this.setState({
+              alertProps: {
+                message: 'Error',
+                description: 'Please specify a name for the model.',
+                type: 'error',
+                showIcon: true,
+                closable: true,
+                onClose: () => this.setState({alertProps: null})
+              }
+            });
+          } else {
+            await this.props.requestTrainBayesianModel({name: newModel, mod});
+            this.props.fetchModelList();
+          }
+        }}
+      >
         Train Model
       </Button>
     );
   }
 
-  _renderLoadButton() {
+  _renderReloadButton() {
+    const {model} = this.props;
     return (
-      <Button type="default" style={{float: 'right', marginRight: 10}}>
+      <Button
+        type="default"
+        style={{float: 'right', marginRight: 10}}
+        onClick={event => {
+          if (model === null) {
+            this.props.updateMtModelMod(null);
+          } else {
+            this.props.fetchMtModelMod({name: model});
+          }
+        }}
+      >
         Reload
       </Button>
     );
@@ -318,24 +420,25 @@ class ModelTuning extends PureComponent {
 
   render() {
     const {width, height} = this.props;
-
     return (
-      <React.Fragment>
+      <div style={{overflowY: 'auto', overflowX: 'hidden', height}}>
+        {this._renderAlert()}
         <div style={{position: 'relative'}}>
           {this._renderModelSelection()}
+          {this._renderReloadButton()}
           {this._renderTrainModelButton()}
         </div>
         <Divider />
         <div
           style={{
-            height: height - 30,
+            height: height - 90,
             overflow: 'auto',
             position: 'relative'
           }}
         >
           {this._renderFeatureSelectionUI()}
         </div>
-      </React.Fragment>
+      </div>
     );
   }
 }

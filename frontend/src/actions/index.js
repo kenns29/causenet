@@ -334,7 +334,7 @@ export const fetchBayesianModelFeatures = ({
 
 export const fetchMtModelMod = ({name = 'model'}) => async dispatch => {
   try {
-    const reponse = await fetch(`${BACKEND_URL}/load_model_mod?name=${name}`);
+    const response = await fetch(`${BACKEND_URL}/load_model_mod?name=${name}`);
     const data = await response.json();
     dispatch(updateMtModelMod(data));
     return Promise.resolve(data);
@@ -490,11 +490,16 @@ export const requestDeleteModel = ({name = 'model'}) => async dispatch => {
 };
 
 export const requestTrainBayesianModel = ({
-  name = 'model'
+  name = 'model',
+  mod = null
 }) => async dispatch => {
   try {
     const response = await fetch(
-      `${BACKEND_URL}/train_bayesian_model?name=${name}`
+      `${BACKEND_URL}/train_bayesian_model?name=${name}`,
+      {
+        method: 'POST',
+        body: JSON.stringify(mod)
+      }
     );
     const data = await response.json();
     return Promise.resolve(data);
