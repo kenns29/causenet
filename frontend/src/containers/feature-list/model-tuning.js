@@ -6,6 +6,9 @@ import {estimateDivHeight, makeTextLengthComputer} from '../../utils';
 import {
   getModelList,
   getRawMtSelectedModel,
+  getMtFF,
+  getMtFC,
+  getMtFU,
   getMtFeatures,
   getMtCategories,
   getMtElements,
@@ -34,6 +37,9 @@ const mapStateToProps = state => ({
   modelList: getModelList(state),
   model: getRawMtSelectedModel(state),
   categories: getMtCategories(state),
+  fullFeatures: getMtFF(state),
+  fullCategories: getMtFC(state),
+  fullElements: getMtFU(state),
   features: getMtFeatures(state),
   elements: getMtElements(state),
   pfCategories: getMtPreFilteredCategories(state),
@@ -207,7 +213,6 @@ class ModelTuning extends PureComponent {
     };
 
     const featureBoxStyle = {
-      marginLeft: 10,
       position: 'relative',
       display: 'flex',
       flexWrap: 'wrap',
@@ -217,7 +222,21 @@ class ModelTuning extends PureComponent {
       overflow: 'auto'
     };
 
+    const transferButtonStyle = {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: 'white',
+      whiteSpace: 'nowrap',
+      border: '1px solid lightgray',
+      borderRadius: '4px',
+      cursor: 'pointer'
+    };
+
     const {
+      fullCategories,
+      fullFeatures,
+      fullElements,
       categories,
       features,
       elements,
@@ -273,7 +292,7 @@ class ModelTuning extends PureComponent {
             style={{
               position: 'relative',
               marginLeft: 10,
-              width: 100,
+              width: 350,
               height: 30,
               textAlign: 'center',
               padding: '5px 0px'
@@ -288,6 +307,21 @@ class ModelTuning extends PureComponent {
               items.map(d => [computeTextLength(d.name.slice(0, 6)) + 24, 26]),
               350
             ) + 4;
+
+          const pfitemh =
+            estimateDivHeight(
+              pfItems.map(d => [
+                computeTextLength(d.name.slice(0, 6)) + 24,
+                26
+              ]),
+              350
+            ) + 4;
+
+          const height = Math.max(
+            Math.min(itemh, 200),
+            Math.min(pfitemh, 200),
+            50
+          );
 
           return (
             <DragDropContext
@@ -344,7 +378,8 @@ class ModelTuning extends PureComponent {
                       ref={provided.innerRef}
                       style={{
                         width: 350,
-                        height: Math.min(itemh, 200),
+                        height,
+                        marginLeft: 10,
                         ...featureBoxStyle
                       }}
                     >
@@ -374,13 +409,67 @@ class ModelTuning extends PureComponent {
                     </div>
                   )}
                 </Droppable>
+                <div
+                  style={{
+                    width: 30,
+                    height,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignContent: 'center',
+                    alignItems: 'center'
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 20,
+                      height: 20,
+                      ...transferButtonStyle
+                    }}
+                    onClick={event => {
+                      const {mod} = this.props;
+                      const nmod = mod
+                        ? {...mod}
+                        : {
+                          f: features.map(d => d.id),
+                          c: categories.map(d => d.id),
+                          u: elements.map(d => d.id)
+                        };
+                      nmod[key] = [];
+                      this.props.updateMtModelMod(nmod);
+                    }}
+                  >
+                    {'>'}
+                  </div>
+                  <div
+                    style={{
+                      marginTop: 5,
+                      width: 20,
+                      height: 20,
+                      ...transferButtonStyle
+                    }}
+                    onClick={event => {
+                      const {mod} = this.props;
+                      const fmod = {
+                        f: fullFeatures.map(d => d.id),
+                        c: fullCategories.map(d => d.id),
+                        u: fullElements.map(d => d.id)
+                      };
+                      const nmod = mod ? {...mod} : fmod;
+                      nmod[key] = fmod[key];
+                      this.props.updateMtModelMod(nmod);
+                    }}
+                  >
+                    {'<'}
+                  </div>
+                </div>
                 <Droppable droppableId={`${key}-pfitems`}>
                   {(provided, snapshot) => (
                     <div
                       ref={provided.innerRef}
                       style={{
-                        width: 100,
-                        height: Math.min(itemh, 200),
+                        width: 350,
+                        height,
                         ...featureBoxStyle
                       }}
                     >

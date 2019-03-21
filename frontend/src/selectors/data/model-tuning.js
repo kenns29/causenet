@@ -11,17 +11,17 @@ import {
 const ELEMENTS = [{id: 0, name: 'Export'}, {id: 1, name: 'Import'}];
 
 // full features
-const getMtFF = createSelector(getRawCountries, countries =>
+export const getMtFF = createSelector(getRawCountries, countries =>
   countries.map(d => ({id: d.country_code, name: d.country}))
 );
 
 // full categories
-const getMtFC = createSelector(getRawItems, items =>
+export const getMtFC = createSelector(getRawItems, items =>
   items.map(d => ({id: d.item_code, name: d.item}))
 );
 
 // full elements
-const getMtFU = createSelector(rootSelector, () => ELEMENTS);
+export const getMtFU = createSelector(rootSelector, () => ELEMENTS);
 
 export const getMtFeatures = createSelector(
   [getMtFF, getRawMtModelMod],
