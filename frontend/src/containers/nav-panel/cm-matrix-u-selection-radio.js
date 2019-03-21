@@ -20,7 +20,7 @@ class CmMatrixUSelectionRadio extends PureComponent {
     const {cmUSelection} = this.props;
     return (
       <div>
-        <div>{`CM U Selection`}</div>
+        <div>{`CM Element Selection`}</div>
         <Radio.Group onChange={this._handleChange} value={cmUSelection}>
           <Radio value={0}>Export</Radio>
           <Radio value={1}>Import</Radio>
