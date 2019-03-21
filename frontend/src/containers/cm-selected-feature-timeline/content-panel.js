@@ -4,7 +4,8 @@ import {line as d3Line, curveCardinal} from 'd3-shape';
 import PopupWindow from '../../components/popup-window';
 import {
   getShowCmSelectedFeatureTimelineWindow,
-  getCmSelectedFeatureTimelineWindowSize
+  getCmSelectedFeatureTimelineWindowSize,
+  getPopupWindowOrder
 } from '../../selectors/base';
 import {
   getCmTimelineViewLayout,
@@ -13,12 +14,14 @@ import {
 } from '../../selectors/data';
 import {
   updateShowCmSelectedFeatureTimelineWindow,
-  updateCmSelectedFeatureTimelineWindowSize
+  updateCmSelectedFeatureTimelineWindowSize,
+  updatePopupWindowOrder
 } from '../../actions';
 
 const mapDispatchToProps = {
   updateShowCmSelectedFeatureTimelineWindow,
-  updateCmSelectedFeatureTimelineWindowSize
+  updateCmSelectedFeatureTimelineWindowSize,
+  updatePopupWindowOrder
 };
 
 const mapStateToProps = state => ({
@@ -26,7 +29,8 @@ const mapStateToProps = state => ({
   windowSize: getCmSelectedFeatureTimelineWindowSize(state),
   layout: getCmTimelineViewLayout(state),
   layoutSize: getCmTimelineLayoutSize(state),
-  margins: getCmTimelineMargins(state)
+  margins: getCmTimelineMargins(state),
+  popupWindowOrder: getPopupWindowOrder(state)
 });
 
 const tooltipStyle = {
@@ -41,6 +45,7 @@ const tooltipStyle = {
 };
 
 const ID = 'cm-selected-feature-timeline';
+const NAME = 'CmSelectedFeatureTimeline';
 
 class ContentPanel extends PureComponent {
   constructor(props) {
@@ -227,7 +232,8 @@ class ContentPanel extends PureComponent {
   render() {
     const {
       show,
-      windowSize: [windowWidth, windowHeight]
+      windowSize: [windowWidth, windowHeight],
+      popupWindowOrder
     } = this.props;
     const [width, height] = [windowWidth, windowHeight - 20];
     return show ? (
@@ -243,6 +249,12 @@ class ContentPanel extends PureComponent {
         }
         onResize={(event, {width, height}) =>
           this.props.updateCmSelectedFeatureTimelineWindowSize([width, height])
+        }
+        onClick={() =>
+          this.props.updatePopupWindowOrder([
+            ...popupWindowOrder.filter(d => d !== NAME),
+            NAME
+          ])
         }
       >
         <svg width={width} height={height}>

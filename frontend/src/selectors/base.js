@@ -141,3 +141,8 @@ export const getShowWorldMapWindow = createSelector(
   rootSelector,
   state => state.showWorldMapWindow
 );
+
+export const getPopupWindowOrder = createSelector(
+  rootSelector,
+  state => state.popupWindowOrder
+);

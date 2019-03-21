@@ -718,7 +718,8 @@ def get_feature_selection():
 def model_mod_to_feature_selection(mod):
     if not mod:
         return None
-    return ['({}, {}, {})'.format(f, c, u) for f in mod['f'] for c in mod['c'] for u in mod['u']]
+    return ['({}, {}, {})'.format(f, c, u) for f in mod['f'] for c in mod['c'] for u in mod['u']] \
+         + ['({}, {}, {})'.format(f, t, 0) for f in mod['f'] for t in mod['t']]
 
 
 def reduce_model(model, values=[]):

@@ -31,6 +31,7 @@ export const UPDATE_SHOW_CM_SELECTED_FEATURE_TIMELINE_WINDOW =
 export const UPDATE_CM_SELECTED_FEATURE_TIMELINE_WINDOW_SIZE =
   'UPDATE_CM_SELECTED_FEATURE_TIMELINE_WINDOW_SIZE';
 export const UPDATE_SHOW_WORLD_MAP_WINDOW = 'UPDATE_SHOW_WORLD_MAP_WINDOW';
+export const UPDATE_POPUP_WINDOW_ORDER = 'UPDATE_POPUP_WINDOW_ORDER';
 
 // data Action ids
 export const UPDATE_CURRENT_DATASET_NAME = 'UPDDATE_CURRENT_DATASET_NAME';
@@ -151,6 +152,7 @@ export const updateCmSelectedFeatureTimelineWindowSize = createAction(
 export const updateShowWorldMapWindow = createAction(
   UPDATE_SHOW_WORLD_MAP_WINDOW
 );
+export const updatePopupWindowOrder = createAction(UPDATE_POPUP_WINDOW_ORDER);
 
 // data actions
 export const updateCurrentDatasetName = createAction(

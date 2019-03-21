@@ -1,6 +1,6 @@
 import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
-import {Select, Tag, Divider, Button, Icon, Input, Alert} from 'antd';
+import {Select, Tag, Divider, Button, Radio, Icon, Input, Alert} from 'antd';
 import {DragDropContext, Droppable, Draggable} from 'react-beautiful-dnd';
 import {estimateDivHeight, makeTextLengthComputer} from '../../utils';
 import {
@@ -342,7 +342,8 @@ class ModelTuning extends PureComponent {
                   : {
                     f: features.map(d => d.id),
                     c: categories.map(d => d.id),
-                    u: elements.map(d => d.id)
+                    u: elements.map(d => d.id),
+                    t: [-1]
                   };
                 if (source.droppableId === `${key}-items`) {
                   const {id, name} = items[source.index];
@@ -416,7 +417,6 @@ class ModelTuning extends PureComponent {
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'center',
-                    alignContent: 'center',
                     alignItems: 'center'
                   }}
                 >
@@ -433,7 +433,8 @@ class ModelTuning extends PureComponent {
                         : {
                           f: features.map(d => d.id),
                           c: categories.map(d => d.id),
-                          u: elements.map(d => d.id)
+                          u: elements.map(d => d.id),
+                          t: [-1]
                         };
                       nmod[key] = [];
                       this.props.updateMtModelMod(nmod);
@@ -453,7 +454,8 @@ class ModelTuning extends PureComponent {
                       const fmod = {
                         f: fullFeatures.map(d => d.id),
                         c: fullCategories.map(d => d.id),
-                        u: fullElements.map(d => d.id)
+                        u: fullElements.map(d => d.id),
+                        t: [-1]
                       };
                       const nmod = mod ? {...mod} : fmod;
                       nmod[key] = fmod[key];
@@ -507,6 +509,19 @@ class ModelTuning extends PureComponent {
     );
   }
 
+  _renderTargetRadio() {
+    return (
+      <div
+        style={{display: 'inline-flex', flexWrap: 'wrap', alignItems: 'center'}}
+      >
+        <span style={{marginLeft: 10}}>Target:</span>
+        <Radio defaultChecked disabled style={{marginLeft: 10}}>
+          Stability
+        </Radio>
+      </div>
+    );
+  }
+
   render() {
     const {width, height} = this.props;
     return (
@@ -526,6 +541,8 @@ class ModelTuning extends PureComponent {
           }}
         >
           {this._renderFeatureSelectionUI()}
+          <Divider />
+          {this._renderTargetRadio()}
         </div>
       </div>
     );

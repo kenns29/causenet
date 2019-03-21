@@ -4,29 +4,35 @@ import PopupWindow from '../../components/popup-window';
 import DeckGLContainer from './deckgl-container';
 import {
   getShowCmMatrixWindow,
-  getCmMatrixWindowSize
+  getCmMatrixWindowSize,
+  getPopupWindowOrder
 } from '../../selectors/base';
 import {getCmMatrixLayout, getCmMatrixCellSize} from '../../selectors/data';
 import {
   updateShowCmMatrixWindow,
   updateCmMatrixWindowSize,
   updateShowCmSelectedBnWindow,
-  updateCmSelectedBnFocusLink
+  updateCmSelectedBnFocusLink,
+  updatePopupWindowOrder
 } from '../../actions';
 
 const mapDispatchToProps = {
   updateShowCmMatrixWindow,
   updateCmMatrixWindowSize,
   updateShowCmSelectedBnWindow,
-  updateCmSelectedBnFocusLink
+  updateCmSelectedBnFocusLink,
+  updatePopupWindowOrder
 };
 
 const mapStateToProps = state => ({
   showWindow: getShowCmMatrixWindow(state),
   windowSize: getCmMatrixWindowSize(state),
   matrix: getCmMatrixLayout(state),
-  cellSize: getCmMatrixCellSize(state)
+  cellSize: getCmMatrixCellSize(state),
+  popupWindowOrder: getPopupWindowOrder(state)
 });
+
+const NAME = 'CmMatrix';
 
 class ContentPanel extends PureComponent {
   _getDeck = () =>
@@ -89,7 +95,8 @@ class ContentPanel extends PureComponent {
   render() {
     const {
       showWindow,
-      windowSize: [width, height]
+      windowSize: [width, height],
+      popupWindowOrder
     } = this.props;
     return showWindow ? (
       <PopupWindow
@@ -106,6 +113,12 @@ class ContentPanel extends PureComponent {
         contentProps={{
           onClick: this._handleClick
         }}
+        onClick={() =>
+          this.props.updatePopupWindowOrder([
+            ...popupWindowOrder.filter(d => d !== NAME),
+            NAME
+          ])
+        }
       >
         <DeckGLContainer
           ref={input => {

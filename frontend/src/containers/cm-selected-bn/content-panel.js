@@ -6,7 +6,8 @@ import ZoomableSVG from '../../components/zoomable-svg';
 import {clipLine} from '../../utils';
 import {
   getShowCmSelectedBnWindow,
-  getCmSelectedBnWindowSize
+  getCmSelectedBnWindowSize,
+  getPopupWindowOrder
 } from '../../selectors/base';
 import {
   getCmSelectedBnLayout,
@@ -16,21 +17,24 @@ import {
   updateShowCmSelectedBnWindow,
   updateCmSelectedBnWindowSize,
   updateShowCmSelectedFeatureTimelineWindow,
-  bundleFetchUpdateCmSelectedFeatureTimelineData
+  bundleFetchUpdateCmSelectedFeatureTimelineData,
+  updatePopupWindowOrder
 } from '../../actions';
 
 const mapDispatchToProps = {
   updateShowCmSelectedBnWindow,
   updateCmSelectedBnWindowSize,
   updateShowCmSelectedFeatureTimelineWindow,
-  bundleFetchUpdateCmSelectedFeatureTimelineData
+  bundleFetchUpdateCmSelectedFeatureTimelineData,
+  updatePopupWindowOrder
 };
 
 const mapStateToProps = state => ({
   show: getShowCmSelectedBnWindow(state),
   windowSize: getCmSelectedBnWindowSize(state),
   nodeLink: getCmSelectedBnLayout(state),
-  focusLink: getRawCmSelectedBnFocusLink(state)
+  focusLink: getRawCmSelectedBnFocusLink(state),
+  popupWindowOrder: getPopupWindowOrder(state)
 });
 
 const tooltipStyle = {
@@ -45,6 +49,7 @@ const tooltipStyle = {
 };
 
 const ID = 'cm-selected-bn';
+const NAME = 'CmSelectedBn';
 
 class ContentPanel extends PureComponent {
   constructor(props) {
@@ -155,7 +160,8 @@ class ContentPanel extends PureComponent {
   render() {
     const {
       show,
-      windowSize: [windowWidth, windowHeight]
+      windowSize: [windowWidth, windowHeight],
+      popupWindowOrder
     } = this.props;
     const [width, height] = [windowWidth, windowHeight - 20];
     return show ? (
@@ -169,6 +175,12 @@ class ContentPanel extends PureComponent {
         onClose={() => this.props.updateShowCmSelectedBnWindow(false)}
         onResize={(event, {width, height}) =>
           this.props.updateCmSelectedBnWindowSize([width, height])
+        }
+        onClick={() =>
+          this.props.updatePopupWindowOrder([
+            ...popupWindowOrder.filter(d => d !== NAME),
+            NAME
+          ])
         }
       >
         <ZoomableSVG width={width} height={height}>

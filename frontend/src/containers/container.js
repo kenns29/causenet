@@ -27,7 +27,8 @@ import {
   getTopLeftSubPanelSize,
   getTopRightSubPanelSize,
   getBottomLeftSubPanelSize,
-  getBottomRightSubPanelSize
+  getBottomRightSubPanelSize,
+  getPopupWindowOrder
 } from '../selectors/base';
 
 const mapDispatchToProps = {updateScreenSize};
@@ -37,8 +38,18 @@ const mapStateToProps = state => ({
   topLeftSubPanelSize: getTopLeftSubPanelSize(state),
   topRightSubPanelSize: getTopRightSubPanelSize(state),
   bottomLeftSubPanelSize: getBottomLeftSubPanelSize(state),
-  bottomRightSubPanelSize: getBottomRightSubPanelSize(state)
+  bottomRightSubPanelSize: getBottomRightSubPanelSize(state),
+  popupWindowOrder: getPopupWindowOrder(state)
 });
+
+const popupWindowMap = {
+  CrMatrix,
+  CChord,
+  CmMatrix,
+  CmSelectedBn,
+  CmSelectedFeatureTimeline,
+  WorldMap
+};
 
 class AppContainer extends PureComponent {
   get containerStyle() {
@@ -129,7 +140,7 @@ class AppContainer extends PureComponent {
     });
   };
   render() {
-    const {navPanelWidth} = this.props;
+    const {navPanelWidth, popupWindowOrder} = this.props;
     return (
       <React.Fragment>
         <ProgressBar />
@@ -153,20 +164,20 @@ class AppContainer extends PureComponent {
                 />
               </Layout.Content>
               <Layout.Content style={this.bottomLeftSubPanelStyle}>
-                {
-                  //   <BayesianNetworkMatrix
-                  //   width={this.props.bottomLeftSubPanelSize[0]}
-                  //   height={this.props.bottomLeftSubPanelSize[1]}
-                  // />
-                }
+                {null && (
+                  <BayesianNetworkMatrix
+                    width={this.props.bottomLeftSubPanelSize[0]}
+                    height={this.props.bottomLeftSubPanelSize[1]}
+                  />
+                )}
               </Layout.Content>
               <Layout.Content style={this.bottomRightSubPanelStyle}>
-                {
-                  //   <BayesianNetworkNodeLinkView
-                  //   width={this.props.bottomRightSubPanelSize[0]}
-                  //   height={this.props.bottomRightSubPanelSize[1]}
-                  // />
-                }
+                {null && (
+                  <BayesianNetworkNodeLinkView
+                    width={this.props.bottomRightSubPanelSize[0]}
+                    height={this.props.bottomRightSubPanelSize[1]}
+                  />
+                )}
               </Layout.Content>
               <ContentPanelCenter />
             </Layout.Content>
@@ -174,12 +185,9 @@ class AppContainer extends PureComponent {
           <BayesianNetworkDistribution />
           <FeatureDistribution />
           <BayesianNetworkSubNetworkDetail />
-          <CrMatrix />
-          <CChord />
-          <CmMatrix />
-          <CmSelectedBn />
-          <CmSelectedFeatureTimeline />
-          <WorldMap />
+          {popupWindowOrder.map(key =>
+            React.createElement(popupWindowMap[key], {key})
+          )}
         </Layout>
       </React.Fragment>
     );

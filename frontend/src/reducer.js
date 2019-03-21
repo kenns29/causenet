@@ -19,6 +19,7 @@ import {
   UPDATE_SHOW_CM_SELECTED_FEATURE_TIMELINE_WINDOW,
   UPDATE_CM_SELECTED_FEATURE_TIMELINE_WINDOW_SIZE,
   UPDATE_SHOW_WORLD_MAP_WINDOW,
+  UPDATE_POPUP_WINDOW_ORDER,
   UPDATE_CURRENT_DATASET_NAME,
   UPDATE_DATASET_LIST,
   FETCH_BAYESIAN_NETWORK_START,
@@ -203,6 +204,14 @@ const DEFAULT_STATE = {
   showCmSelectedFeatureTimelineWindow: false,
   cmSelectedFeatureTimelineWindowSize: [800, 600],
   showWorldMapWindow: false,
+  popupWindowOrder: [
+    'CrMatrix',
+    'CChord',
+    'CmMatrix',
+    'CmSelectedBn',
+    'CmSelectedFeatureTimeline',
+    'WorldMap'
+  ],
   // feature pair list that will be shown in the distribution window
   // [
   //  {
@@ -377,6 +386,11 @@ const handleUpdateShowWorldMapWindow = (state, {payload}) => ({
 const handleUpdateCrMatrixWindowSize = (state, {payload}) => ({
   ...state,
   crMatrixWindowSize: payload
+});
+
+const handleUpdatePopupWindowOrder = (state, {payload}) => ({
+  ...state,
+  popupWindowOrder: payload
 });
 
 const handleUpdateCurrentDatasetName = (state, {payload}) => ({
@@ -626,6 +640,7 @@ export default handleActions(
     [UPDATE_SHOW_CM_SELECTED_FEATURE_TIMELINE_WINDOW]: handleUpdateShowCmSelectedFeatureTimelineWindow,
     [UPDATE_CM_SELECTED_FEATURE_TIMELINE_WINDOW_SIZE]: handleUpdateCmSelectedFeatureTimelineWindowSize,
     [UPDATE_SHOW_WORLD_MAP_WINDOW]: handleUpdateShowWorldMapWindow,
+    [UPDATE_POPUP_WINDOW_ORDER]: handleUpdatePopupWindowOrder,
     [UPDATE_CURRENT_DATASET_NAME]: handleUpdateCurrentDatasetName,
     [UPDATE_DATASET_LIST]: handleUpdateDatasetList,
     [FETCH_BAYESIAN_NETWORK_START]: handleFetchBayesianNetworkStart,

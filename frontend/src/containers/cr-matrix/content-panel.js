@@ -4,7 +4,8 @@ import PopupWindow from '../../components/popup-window';
 import DeckGLContainer from './deckgl-container';
 import {
   getShowCrMatrixWindow,
-  getCrMatrixWindowSize
+  getCrMatrixWindowSize,
+  getPopupWindowOrder
 } from '../../selectors/base';
 import {
   getRelationMatrixCellSize,
@@ -18,13 +19,15 @@ import {
 import {
   updateShowCrMatrixWindow,
   updateCrMatrixWindowSize,
-  updateCrMatrixFocus
+  updateCrMatrixFocus,
+  updatePopupWindowOrder
 } from '../../actions';
 
 const mapDispatchToProps = {
   updateShowCrMatrixWindow,
   updateCrMatrixWindowSize,
-  updateCrMatrixFocus
+  updateCrMatrixFocus,
+  updatePopupWindowOrder
 };
 
 const mapStateToProps = state => ({
@@ -36,8 +39,11 @@ const mapStateToProps = state => ({
   colNetwork: getCrColBayesianNetworkLayout(state),
   crossNetwork: getCrCrossBayesianNetworkLayout(state),
   options: getRawCrMatrixOptions(state),
-  focus: getRawCrMatrixFocus(state)
+  focus: getRawCrMatrixFocus(state),
+  popupWindowOrder: getPopupWindowOrder(state)
 });
+
+const NAME = 'CrMatrix';
 
 class ContentPanel extends PureComponent {
   constructor(props) {
@@ -113,7 +119,8 @@ class ContentPanel extends PureComponent {
   render() {
     const {
       showWindow,
-      windowSize: [width, height]
+      windowSize: [width, height],
+      popupWindowOrder
     } = this.props;
     const {getCursor} = this.state;
     return (
@@ -133,6 +140,12 @@ class ContentPanel extends PureComponent {
             onClick: this._handleClick,
             onMouseMove: this._handleMouseMove
           }}
+          onClick={() =>
+            this.props.updatePopupWindowOrder([
+              ...popupWindowOrder.filter(d => d !== NAME),
+              NAME
+            ])
+          }
         >
           <DeckGLContainer
             ref={input => {

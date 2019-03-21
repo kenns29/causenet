@@ -2,24 +2,40 @@ import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
 import PopupWindow from '../../components/popup-window';
 import ZoomableSVG from '../../components/zoomable-svg';
-import {getShowCChordWindow, getCChordWindowSize} from '../../selectors/base';
+import {
+  getShowCChordWindow,
+  getCChordWindowSize,
+  getPopupWindowOrder
+} from '../../selectors/base';
 import {getCcLayout} from '../../selectors/data';
-import {updateShowCChordWindow, updateCChordWindowSize} from '../../actions';
+import {
+  updateShowCChordWindow,
+  updateCChordWindowSize,
+  updatePopupWindowOrder
+} from '../../actions';
 
-const mapDispatchToProps = {updateShowCChordWindow, updateCChordWindowSize};
+const mapDispatchToProps = {
+  updateShowCChordWindow,
+  updateCChordWindowSize,
+  updatePopupWindowOrder
+};
 
 const mapStateToProps = state => ({
   show: getShowCChordWindow(state),
   windowSize: getCChordWindowSize(state),
-  layout: getCcLayout(state)
+  layout: getCcLayout(state),
+  popupWindowOrder: getPopupWindowOrder(state)
 });
+
+const NAME = 'CChord';
 
 class ContentPanel extends PureComponent {
   render() {
     const {
       layout,
       windowSize: [windowWidth, windowHeight],
-      show
+      show,
+      popupWindowOrder
     } = this.props;
     const {chords, groups} = layout;
     const [width, height] = [windowWidth, windowHeight - 20];
@@ -34,6 +50,12 @@ class ContentPanel extends PureComponent {
         onClose={() => this.props.updateShowCChordWindow(false)}
         onResize={(event, {width, height}) =>
           this.props.updateCChordWindowSize([width, height])
+        }
+        onClick={() =>
+          this.props.updatePopupWindowOrder([
+            ...popupWindowOrder.filter(d => d !== NAME),
+            NAME
+          ])
         }
       >
         <ZoomableSVG width={width} height={height}>
