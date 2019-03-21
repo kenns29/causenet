@@ -118,22 +118,39 @@ class ContentPanel extends PureComponent {
               ...points.slice(0, points.length - 1),
               clippedEnd[1]
             ];
+
+            const path = lineg(clippedPoints);
+
             return (
-              <path
-                key={`${source.id}-${target.id}`}
-                d={lineg(clippedPoints)}
-                fill="none"
-                stroke={corr > 0 ? 'blue' : 'red'}
-                strokeWidth={1}
-                markerEnd={`url(#${ID}-arrow-marker)`}
-                style={{cursor: 'pointer'}}
-                onClick={event => {
-                  this.props.bundleFetchUpdateCmSelectedFeatureTimelineData({
-                    featureSelection: [source.id, target.id]
-                  });
-                  this.props.updateShowCmSelectedFeatureTimelineWindow(true);
-                }}
-              />
+              <React.Fragment key={`${source.id}-${target.id}`}>
+                <path
+                  d={path}
+                  fill="none"
+                  stroke="white"
+                  strokeWidth={5}
+                  style={{cursor: 'pointer'}}
+                  onClick={event => {
+                    this.props.bundleFetchUpdateCmSelectedFeatureTimelineData({
+                      featureSelection: [source.id, target.id]
+                    });
+                    this.props.updateShowCmSelectedFeatureTimelineWindow(true);
+                  }}
+                />
+                <path
+                  d={path}
+                  fill="none"
+                  stroke={corr > 0 ? 'blue' : 'red'}
+                  strokeWidth={1}
+                  markerEnd={`url(#${ID}-arrow-marker)`}
+                  style={{cursor: 'pointer'}}
+                  onClick={event => {
+                    this.props.bundleFetchUpdateCmSelectedFeatureTimelineData({
+                      featureSelection: [source.id, target.id]
+                    });
+                    this.props.updateShowCmSelectedFeatureTimelineWindow(true);
+                  }}
+                />
+              </React.Fragment>
             );
           })}
         </g>
