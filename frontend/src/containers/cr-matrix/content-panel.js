@@ -141,6 +141,7 @@ class ContentPanel extends PureComponent {
             onMouseMove: this._handleMouseMove
           }}
           onClick={() =>
+            popupWindowOrder[popupWindowOrder.length - 1] === NAME ||
             this.props.updatePopupWindowOrder([
               ...popupWindowOrder.filter(d => d !== NAME),
               NAME

@@ -52,6 +52,7 @@ class ContentPanel extends PureComponent {
           this.props.updateCChordWindowSize([width, height])
         }
         onClick={() =>
+          popupWindowOrder[popupWindowOrder.length - 1] === NAME ||
           this.props.updatePopupWindowOrder([
             ...popupWindowOrder.filter(d => d !== NAME),
             NAME

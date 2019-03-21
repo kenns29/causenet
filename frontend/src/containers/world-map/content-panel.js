@@ -24,6 +24,7 @@ class ContentPanel extends PureComponent {
         style={{zIndex: 99, boxShadow: '10px 10px 5px grey'}}
         onClose={() => this.props.updateShowWorldMapWindow(false)}
         onClick={() =>
+          popupWindowOrder[popupWindowOrder.length - 1] === NAME ||
           this.props.updatePopupWindowOrder([
             ...popupWindowOrder.filter(d => d !== NAME),
             NAME

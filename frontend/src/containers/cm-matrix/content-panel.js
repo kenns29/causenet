@@ -120,6 +120,7 @@ class ContentPanel extends PureComponent {
           onClick: this._handleClick
         }}
         onClick={() =>
+          popupWindowOrder[popupWindowOrder.length - 1] === NAME ||
           this.props.updatePopupWindowOrder([
             ...popupWindowOrder.filter(d => d !== NAME),
             NAME
