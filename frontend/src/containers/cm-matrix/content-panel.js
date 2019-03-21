@@ -7,7 +7,11 @@ import {
   getCmMatrixWindowSize,
   getPopupWindowOrder
 } from '../../selectors/base';
-import {getCmMatrixLayout, getCmMatrixCellSize} from '../../selectors/data';
+import {
+  getCmMatrixLayout,
+  getCmMatrixCellSize,
+  getRawCmUSelection
+} from '../../selectors/data';
 import {
   updateShowCmMatrixWindow,
   updateCmMatrixWindowSize,
@@ -29,7 +33,8 @@ const mapStateToProps = state => ({
   windowSize: getCmMatrixWindowSize(state),
   matrix: getCmMatrixLayout(state),
   cellSize: getCmMatrixCellSize(state),
-  popupWindowOrder: getPopupWindowOrder(state)
+  popupWindowOrder: getPopupWindowOrder(state),
+  u: getRawCmUSelection(state)
 });
 
 const NAME = 'CmMatrix';
@@ -71,9 +76,10 @@ class ContentPanel extends PureComponent {
             row_id: f,
             col_id: c
           } = info.object;
+          const {u} = this.props;
           if (isSpurious || direction === 1) {
             this.props.updateCmSelectedBnFocusLink({
-              source: `(${f}, ${c}, 1)`,
+              source: `(${f}, ${c}, ${u})`,
               target: `(${f}, ${-1}, 0)`,
               direction,
               isSpurious
@@ -81,7 +87,7 @@ class ContentPanel extends PureComponent {
           } else if (direction === -1) {
             this.props.updateCmSelectedBnFocusLink({
               source: `(${f}, ${-1}, 0)`,
-              target: `(${f}, ${c}, 1)`,
+              target: `(${f}, ${c}, ${u})`,
               direction,
               isSpurious
             });

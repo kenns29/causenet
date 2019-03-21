@@ -55,7 +55,7 @@ const getCmFocusedBayesianNetwork = createSelector(
 );
 
 const getCountryIdToName = createSelector(getRawCountries, countries =>
-  array2Object(countries, d => d.country_code, d => d.country)
+  array2Object(countries, d => d.country_code, d => d.long_name)
 );
 
 const getItemIdToName = createSelector(getRawItems, items =>

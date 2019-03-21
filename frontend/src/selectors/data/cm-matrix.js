@@ -9,7 +9,8 @@ import {
   getRawCmCorrelations,
   getRawBayesianNetwork,
   getRawCountries,
-  getRawItems
+  getRawItems,
+  getRawCmUSelection
 } from './raw';
 
 const CELL_SIZE = [20, 20];
@@ -40,8 +41,8 @@ const getCleanedBayesianNetwork = createSelector(
 );
 
 export const getCmJointCorrelations = createSelector(
-  [getRawCmCorrelations, getCleanedBayesianNetwork],
-  (cmCorrelations, network) => {
+  [getRawCmCorrelations, getCleanedBayesianNetwork, getRawCmUSelection],
+  (cmCorrelations, network, u) => {
     const corrs = cmCorrelations.map(({country, item, corr}) => ({
       country,
       item,
@@ -59,7 +60,7 @@ export const getCmJointCorrelations = createSelector(
           const [[sf, sc, su], [tf, tc, tu]] = [csource, ctarget];
           return (
             sf === tf &&
-            ((sc === '-1' && tu === 1) || (tc === '-1' && su === 1))
+            ((sc === '-1' && tu === u) || (tc === '-1' && su === u))
           );
         })
         .reduce((m, {csource, ctarget, ...rest}) => {
@@ -101,7 +102,7 @@ const getCmMatrixObject = createSelector(getCmJointCorrelations, corrs => {
 });
 
 const getCountryIdToName = createSelector(getRawCountries, countries =>
-  array2Object(countries, d => d.country_code, d => d.country)
+  array2Object(countries, d => d.country_code, d => d.long_name)
 );
 
 const getItemIdToName = createSelector(getRawItems, items =>

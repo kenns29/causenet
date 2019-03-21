@@ -132,14 +132,15 @@ def query_countries():
         conn.row_factory = sqlite3.Row
 
         iterator = conn.execute('''
-            SELECT FAO_CountryCode AS country_code, ISO2_CountryCode AS country
+            SELECT FAO_CountryCode AS country_code, ISO2_CountryCode AS country, CountryName AS long_name
             FROM ALL_Countries
             WHERE Use_Flag = 1
         ''')
 
         return [{
             'country_code': int(d['country_code']),
-            'country': d['country']
+            'country': d['country'],
+            'long_name': d['long_name']
         } for d in iterator]
     finally:
         conn.close()
