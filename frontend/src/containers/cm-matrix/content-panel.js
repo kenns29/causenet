@@ -83,10 +83,11 @@ class ContentPanel extends PureComponent {
         if (
           layer.id === 'cm-matrix-cause-cells' ||
           layer.id === 'cm-matrix-non-cells' ||
-          layer.id === 'cm-matrix-spurious-cells'
+          layer.id === 'cm-matrix-spurious-cells' ||
+          layer.id === 'cm-matrix-undecided-cells'
         ) {
           const {
-            data: {fname, cname, corr, isSpurious, direction}
+            data: {fname, cname, corr, isUndecided, direction}
           } = info.object;
           const format = d3Format('.2f');
           this.setState({
@@ -111,6 +112,7 @@ class ContentPanel extends PureComponent {
                         : 'None'
                     }`}
                   </div>
+                  {isUndecided ? <div>Undecided</div> : null}
                 </div>
               )
             }
@@ -133,7 +135,8 @@ class ContentPanel extends PureComponent {
         if (
           layer.id === 'cm-matrix-cause-cells' ||
           layer.id === 'cm-matrix-non-cells' ||
-          layer.id === 'cm-matrix-spurious-cells'
+          layer.id === 'cm-matrix-spurious-cells' ||
+          layer.id === 'cm-matrix-undecided-cells'
         ) {
           const {
             data: {direction, isSpurious},
@@ -141,7 +144,6 @@ class ContentPanel extends PureComponent {
             col_id: c
           } = info.object;
           const {u} = this.props;
-          console.log([f, c, u]);
           if (isSpurious || direction === 1) {
             this.props.updateCmSelectedBnFocusLink({
               source: `(${f}, ${c}, ${u})`,

@@ -24,11 +24,16 @@ export default class Content extends PureComponent {
 
     const radius = Math.min(w, h) / 2;
     const nonCells = cells.filter(cell => cell.data.corr === 0);
+    const undecidedCells = cells.filter(
+      cell => cell.data.corr !== 0 && cell.data.isUndecided
+    );
     const causeCells = cells.filter(
-      cell => cell.data.corr !== 0 && !cell.data.isSpurious
+      cell =>
+        cell.data.corr !== 0 && !cell.data.isUndecided && !cell.data.isSpurious
     );
     const spuriousCells = cells.filter(
-      cell => cell.data.corr !== 0 && cell.data.isSpurious
+      cell =>
+        cell.data.corr !== 0 && !cell.data.isUndecided && cell.data.isSpurious
     );
     console.log('causeCells', causeCells);
     console.log('spuriousCells', spuriousCells);
@@ -38,11 +43,11 @@ export default class Content extends PureComponent {
         data: causeCells,
         coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
         getPolygon: ({x, y}) => [
-          [x, y],
-          [x, y + h],
-          [x + w, y + h],
-          [x + w, y],
-          [x, y]
+          [x + w / 2, y],
+          [x + w, y + h / 2],
+          [x + w / 2, y + h],
+          [x, y + h / 2],
+          [x + w / 2, y]
         ],
         stroked: true,
         getLineWidth: 1,
@@ -57,6 +62,23 @@ export default class Content extends PureComponent {
         getSourcePosition: ({x, y}) => [x, y + h],
         getTargetPosition: ({x, y}) => [x + w, y],
         getColor: [60, 60, 60],
+        pickable: true
+      }),
+      new PolygonLayer({
+        id: `${ID}-undecided-cells`,
+        data: undecidedCells,
+        coordinateSystem: COORDINATE_SYSTEM.IDENTITY,
+        getPolygon: ({x, y}) => [
+          [x, y],
+          [x, y + h],
+          [x + w, y + h],
+          [x + w, y],
+          [x, y]
+        ],
+        stroked: true,
+        getLineWidth: 1,
+        getLineColor: [255, 255, 255, 255],
+        getFillColor: d => d.color,
         pickable: true
       }),
       new ScatterplotLayer({

@@ -8,6 +8,7 @@ import {rootSelector} from '../base';
 import {
   getRawCmCorrelations,
   getRawBayesianNetwork,
+  getRawBayesianModelFeatures,
   getRawCountries,
   getRawItems,
   getRawCmUSelection
@@ -41,13 +42,19 @@ const getCleanedBayesianNetwork = createSelector(
 );
 
 export const getCmJointCorrelations = createSelector(
-  [getRawCmCorrelations, getCleanedBayesianNetwork, getRawCmUSelection],
-  (cmCorrelations, network, u) => {
+  [
+    getRawCmCorrelations,
+    getCleanedBayesianNetwork,
+    getRawCmUSelection,
+    getRawBayesianModelFeatures
+  ],
+  (cmCorrelations, network, u, features) => {
     const corrs = cmCorrelations.map(({country, item, corr}) => ({
       country,
       item,
       corr,
-      isSpurious: false,
+      isUndecided: true,
+      isSpurious: true,
       // 0 -- non-directional
       // 1 -- trade to social
       // -1 -- social to trade
@@ -55,6 +62,7 @@ export const getCmJointCorrelations = createSelector(
       direction: 0
     }));
     if (network.length) {
+      const fset = new Set(features);
       const cmap = network
         .filter(({csource, ctarget}) => {
           const [[sf, sc, su], [tf, tc, tu]] = [csource, ctarget];
@@ -76,6 +84,10 @@ export const getCmJointCorrelations = createSelector(
         const n = cmap.hasOwnProperty(`${country}-${item}`)
           ? cmap[`${country}-${item}`]
           : null;
+        corr.isUndecided = [
+          `(${country}, ${item}, ${u})`,
+          `(${country}, ${-1}, ${0})`
+        ].some(d => !fset.has(d));
         corr.isSpurious = !n;
         corr.direction = n ? n.direction : 0;
       });
@@ -102,10 +114,11 @@ const getCmMatrixObject = createSelector(
       .links(corrs)
       .source(d => d.country)
       .target(d => d.item)
-      .value(({country, item, corr, isSpurious, direction}) => ({
+      .value(({country, item, corr, isSpurious, isUndecided, direction}) => ({
         fname: fid2name[country],
         cname: cid2name[item],
         corr,
+        isUndecided,
         isSpurious,
         direction
       }))
@@ -113,7 +126,8 @@ const getCmMatrixObject = createSelector(
         fname: fid2name[country],
         cname: cid2name[item],
         corr: 0,
-        isSpurious: false,
+        isUndecided: true,
+        isSpurious: true,
         direction: 0
       }));
     return generate().cell_value(d => d.corr);
