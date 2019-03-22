@@ -1,4 +1,6 @@
 import {createSelector} from 'reselect';
+import {scaleLog} from 'd3-scale';
+import {line as d3Line, curveCardinal} from 'd3-shape';
 import {rootSelector} from '../base';
 import {
   getRawCmSelectedBnFocusLink,
@@ -10,6 +12,7 @@ import {
   array2Object,
   linksToNodeMap,
   createDagLayout,
+  clipLine,
   getPathLinksThroughLink,
   getUndirectedPathLinksBetweenNodes
 } from '../../utils';
@@ -91,6 +94,43 @@ export const getCmSelectedBnLayout = createSelector(
         ...rest
       };
     });
-    return createDagLayout({nodes, links}, null, d => d.id);
+
+    const layout = createDagLayout({nodes, links}, null, d => d.id);
+
+    if (layout.edges.length) {
+      const weightDomain = links.reduce(
+        ([min, max], {weight}) => [
+          Math.min(min, weight),
+          Math.max(max, weight)
+        ],
+        [Infinity, -Infinity]
+      );
+
+      const eScale = scaleLog()
+        .domain(weightDomain)
+        .range([1, 5]);
+
+      const lineg = d3Line()
+        .x(d => d[0])
+        .y(d => d[1])
+        .curve(curveCardinal);
+
+      layout.edges.forEach(edge => {
+        const {points, corr, weight} = edge;
+        const strokeWidth = eScale(weight);
+        const clippedEnd = clipLine({
+          line: points.slice(points.length - 2),
+          clipLengths: [0, 5]
+        });
+        const clippedPoints = [
+          ...points.slice(0, points.length - 1),
+          clippedEnd[1]
+        ];
+        const path = lineg(clippedPoints);
+        edge.path = path;
+        edge.strokeWidth = strokeWidth;
+      });
+    }
+    return layout;
   }
 );

@@ -1,9 +1,7 @@
 import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
-import {line as d3Line, curveCardinal} from 'd3-shape';
 import PopupWindow from '../../components/popup-window';
 import ZoomableSVG from '../../components/zoomable-svg';
-import {clipLine} from '../../utils';
 import {
   getShowCmSelectedBnWindow,
   getCmSelectedBnWindowSize,
@@ -86,10 +84,6 @@ class ContentPanel extends PureComponent {
       return null;
     }
     const {source: focs, target: foct} = focusLink;
-    const lineg = d3Line()
-      .x(d => d[0])
-      .y(d => d[1])
-      .curve(curveCardinal);
     return (
       <g transform="translate(50 50)">
         <g>
@@ -113,18 +107,7 @@ class ContentPanel extends PureComponent {
           )}
         </g>
         <g>
-          {edges.map(({source, target, points, corr}) => {
-            const clippedEnd = clipLine({
-              line: points.slice(points.length - 2),
-              clipLengths: [0, 5]
-            });
-            const clippedPoints = [
-              ...points.slice(0, points.length - 1),
-              clippedEnd[1]
-            ];
-
-            const path = lineg(clippedPoints);
-
+          {edges.map(({source, target, points, corr, path, strokeWidth}) => {
             return (
               <React.Fragment key={`${source.id}-${target.id}`}>
                 <path
@@ -144,7 +127,7 @@ class ContentPanel extends PureComponent {
                   d={path}
                   fill="none"
                   stroke={corr > 0 ? 'blue' : 'red'}
-                  strokeWidth={1}
+                  strokeWidth={strokeWidth}
                   markerEnd={`url(#${ID}-arrow-marker)`}
                   style={{cursor: 'pointer'}}
                   onClick={event => {
@@ -168,7 +151,7 @@ class ContentPanel extends PureComponent {
           id={`${ID}-arrow-marker`}
           refX="0"
           refY="3"
-          markerUnits="strokeWidth"
+          markerUnits="userSpaceOnUse"
           markerWidth="6"
           markerHeight="6"
           orient="auto"
