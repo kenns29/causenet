@@ -103,13 +103,19 @@ const getCmMatrixObject = createSelector(
       .source(d => d.country)
       .target(d => d.item)
       .value(({country, item, corr, isSpurious, direction}) => ({
+        fname: fid2name[country],
+        cname: cid2name[item],
         corr,
         isSpurious,
-        direction,
-        fname: fid2name[country],
-        cname: cid2name[item]
+        direction
       }))
-      .null({corr: 0, isSpurious: false, direction: 0});
+      .null((country, item) => ({
+        fname: fid2name[country],
+        cname: cid2name[item],
+        corr: 0,
+        isSpurious: false,
+        direction: 0
+      }));
     return generate().cell_value(d => d.corr);
   }
 );
