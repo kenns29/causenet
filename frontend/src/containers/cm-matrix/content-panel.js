@@ -1,5 +1,7 @@
 import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
+import {Divider} from 'antd';
+import {format as d3Format} from 'd3-format';
 import PopupWindow from '../../components/popup-window';
 import DeckGLContainer from './deckgl-container';
 import {
@@ -41,8 +43,6 @@ const NAME = 'CmMatrix';
 
 const tooltipStyle = {
   position: 'absolute',
-  padding: '4px',
-  background: 'rgba(180, 180, 180, 0.8)',
   maxWidth: '300px',
   fontSize: '10px',
   zIndex: 9,
@@ -78,6 +78,49 @@ class ContentPanel extends PureComponent {
     if (this._getDeck()) {
       const [x, y] = this._getEventMouse(event);
       const info = this._pickObject({x, y});
+      if (info) {
+        const {layer} = info;
+        if (
+          layer.id === 'cm-matrix-cause-cells' ||
+          layer.id === 'cm-matrix-non-cells' ||
+          layer.id === 'cm-matrix-spurious-cells'
+        ) {
+          const {
+            data: {fname, cname, corr, isSpurious, direction}
+          } = info.object;
+          const format = d3Format('.2f');
+          this.setState({
+            tooltip: {
+              x,
+              y,
+              content: (
+                <div
+                  style={{
+                    backgroundColor: 'white'
+                  }}
+                >
+                  <div>{`Country: ${fname}`}</div>
+                  <div>{`Item: ${cname}`}</div>
+                  <div>{`Correlation: ${format(corr)}`}</div>
+                  <div>
+                    {`Cause: ${
+                      direction
+                        ? direction > 0
+                          ? 'trade to stablity'
+                          : 'stablity to trade'
+                        : 'None'
+                    }`}
+                  </div>
+                </div>
+              )
+            }
+          });
+        } else {
+          this.setState({tooltip: null});
+        }
+      } else {
+        this.setState({tooltip: null});
+      }
     }
   };
 
@@ -98,6 +141,7 @@ class ContentPanel extends PureComponent {
             col_id: c
           } = info.object;
           const {u} = this.props;
+          console.log([f, c, u]);
           if (isSpurious || direction === 1) {
             this.props.updateCmSelectedBnFocusLink({
               source: `(${f}, ${c}, ${u})`,
@@ -151,7 +195,8 @@ class ContentPanel extends PureComponent {
         }}
         onClose={() => this.props.updateShowCmMatrixWindow(false)}
         contentProps={{
-          onClick: this._handleClick
+          onClick: this._handleClick,
+          onMouseMove: this._handleMouseMove
         }}
         onClick={() =>
           popupWindowOrder[popupWindowOrder.length - 1] === NAME ||

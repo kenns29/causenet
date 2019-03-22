@@ -80,8 +80,12 @@ class ContentPanel extends PureComponent {
   _renderNodeLink() {
     const {
       nodeLink: {nodes, edges},
-      focusLink: {source: focs, target: foct}
+      focusLink
     } = this.props;
+    if (!focusLink) {
+      return null;
+    }
+    const {source: focs, target: foct} = focusLink;
     const lineg = d3Line()
       .x(d => d[0])
       .y(d => d[1])
