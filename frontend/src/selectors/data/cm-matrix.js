@@ -84,29 +84,34 @@ export const getCmJointCorrelations = createSelector(
   }
 );
 
-const getCmMatrixObject = createSelector(getCmJointCorrelations, corrs => {
-  if (!corrs.length) {
-    return null;
-  }
-  const generate = links2generator()
-    .links(corrs)
-    .source(d => d.country)
-    .target(d => d.item)
-    .value(({corr, isSpurious, direction}) => ({
-      corr,
-      isSpurious,
-      direction
-    }))
-    .null({corr: 0, isSpurious: false, direction: 0});
-  return generate().cell_value(d => d.corr);
-});
-
 const getCountryIdToName = createSelector(getRawCountries, countries =>
   array2Object(countries, d => d.country_code, d => d.long_name)
 );
 
 const getItemIdToName = createSelector(getRawItems, items =>
   array2Object(items, d => d.item_code, d => d.item)
+);
+
+const getCmMatrixObject = createSelector(
+  [getCmJointCorrelations, getCountryIdToName, getItemIdToName],
+  (corrs, fid2name, cid2name) => {
+    if (!corrs.length) {
+      return null;
+    }
+    const generate = links2generator()
+      .links(corrs)
+      .source(d => d.country)
+      .target(d => d.item)
+      .value(({country, item, corr, isSpurious, direction}) => ({
+        corr,
+        isSpurious,
+        direction,
+        fname: fid2name[country],
+        cname: cid2name[item]
+      }))
+      .null({corr: 0, isSpurious: false, direction: 0});
+    return generate().cell_value(d => d.corr);
+  }
 );
 
 const getCmMatrix = createSelector(

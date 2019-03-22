@@ -39,7 +39,24 @@ const mapStateToProps = state => ({
 
 const NAME = 'CmMatrix';
 
+const tooltipStyle = {
+  position: 'absolute',
+  padding: '4px',
+  background: 'rgba(180, 180, 180, 0.8)',
+  maxWidth: '300px',
+  fontSize: '10px',
+  zIndex: 9,
+  pointerEvents: 'none'
+};
+
 class ContentPanel extends PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = {
+      tooltip: null
+    };
+  }
+
   _getDeck = () =>
     this.deckGLContainer &&
     this.deckGLContainer.container &&
@@ -57,13 +74,17 @@ class ContentPanel extends PureComponent {
     return [clientX - left, clientY - top];
   };
 
+  _handleMouseMove = event => {
+    if (this._getDeck()) {
+      const [x, y] = this._getEventMouse(event);
+      const info = this._pickObject({x, y});
+    }
+  };
+
   _handleClick = event => {
     if (this._getDeck()) {
       const [x, y] = this._getEventMouse(event);
-      const info = this._pickObject({
-        x,
-        y
-      });
+      const info = this._pickObject({x, y});
       if (info) {
         const {layer} = info;
         if (
@@ -97,6 +118,19 @@ class ContentPanel extends PureComponent {
       }
     }
   };
+
+  _renderTooltip() {
+    const {tooltip} = this.state;
+    if (tooltip) {
+      const {content, x, y} = tooltip;
+      return (
+        <div style={{...tooltipStyle, left: x + 10, top: y - 20}}>
+          {content}
+        </div>
+      );
+    }
+    return null;
+  }
 
   render() {
     const {
@@ -135,6 +169,7 @@ class ContentPanel extends PureComponent {
           width={width}
           height={height - 20}
         />
+        {this._renderTooltip()}
       </PopupWindow>
     ) : null;
   }
