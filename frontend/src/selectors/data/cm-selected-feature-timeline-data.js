@@ -5,7 +5,12 @@ import {range as d3Range} from 'd3-array';
 import {schemeCategory10} from 'd3-scale-chromatic';
 import {format as d3Format} from 'd3-format';
 import {rootSelector, getCmSelectedFeatureTimelineWindowSize} from '../base';
-import {getRawCmSelectedFeatureTimelineData} from './raw';
+import {
+  getRawCmSelectedFeatureTimelineData,
+  getRawCountries,
+  getRawItems
+} from './raw';
+import {makeTextLengthComputer, array2Object} from '../../utils';
 
 const MARGINS = [60, 80, 60, 30];
 const HEIGHT = 300;
@@ -16,9 +21,9 @@ const idToCid = id => {
     return [p[0], p[1], Number(p[2])];
   }
   if (p.length > 1) {
-    return [p[0], '1', Number(p[1])];
+    return [p[0], null, Number(p[1])];
   }
-  return [p[0], '1', 0];
+  return [p[0], null, null];
 };
 
 const getCmTimelines = createSelector(
@@ -210,17 +215,95 @@ export const getCmTimelineStabilityAxisTicks = createSelector(
   }
 );
 
+const getFIdToName = createSelector(getRawCountries, countries =>
+  array2Object(countries, d => d.country_code, d => d.long_name)
+);
+
+const getCIdToName = createSelector(getRawItems, items =>
+  array2Object(items, d => d.item_code, d => d.item)
+);
+
+export const getCmTimelineLegend = createSelector(
+  [
+    getCmTimelines,
+    getCmTimelineLayoutSize,
+    getCmTimelineMargins,
+    getFIdToName,
+    getCIdToName
+  ],
+  (timelines, [width, height], [ml, mt, mr, mb], fIdToName, cIdToName) => {
+    const fontSize = 12;
+    const computeTextLength = makeTextLengthComputer({fontSize});
+    const [trade, stability] = [[], []];
+    const colorScale = scaleOrdinal(schemeCategory10);
+    timelines.forEach(({id, values}, index) => {
+      const [f, c, u] = idToCid(id);
+      const fname = fIdToName[f];
+      if (c === '-1') {
+        stability.push({
+          id,
+          label: `${fname}, stability`,
+          color: colorScale(index)
+        });
+      } else {
+        const cname = c !== null ? cIdToName[c] : null;
+        const uname = u !== null ? (u === 0 ? 'Export' : 'Import') : null;
+        let label = fname;
+        if (cname) {
+          label += `, ${cname}`;
+        }
+        if (uname) {
+          label += `, ${uname}`;
+        }
+        trade.push({
+          id,
+          label,
+          color: colorScale(index)
+        });
+      }
+    });
+
+    const [w, h] = [12, 12];
+    let [x, y] = [ml, mt / 2 - h / 2];
+
+    trade.forEach((d, i) => {
+      d.position = [x + 3, y];
+      d.textOffest = 2;
+      d.size = [w, h];
+      d.fontSize = fontSize;
+      x += 3 + w + 2 + computeTextLength(d.label);
+    });
+
+    x += 20;
+
+    stability.forEach((d, i) => {
+      d.position = [x + 3, y];
+      d.textOffest = 2;
+      d.size = [w, h];
+      d.fontSize = fontSize;
+      x += 3 + w + 2 + computeTextLength(d.label);
+    });
+
+    return {
+      trade,
+      stability
+    };
+  }
+);
+
 export const getCmTimelineViewLayout = createSelector(
   [
     getCmTimelineLayout,
     getCmTimelineYearAxisTicks,
     getCmTimelineTradeAxisTicks,
-    getCmTimelineStabilityAxisTicks
+    getCmTimelineStabilityAxisTicks,
+    getCmTimelineLegend
   ],
-  (timelines, yearTicks, tradeTicks, stabilityTicks) => ({
+  (timelines, yearTicks, tradeTicks, stabilityTicks, legend) => ({
     timelines,
     yearTicks,
     tradeTicks,
-    stabilityTicks
+    stabilityTicks,
+    legend
   })
 );

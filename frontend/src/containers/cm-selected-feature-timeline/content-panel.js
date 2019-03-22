@@ -229,6 +229,41 @@ class ContentPanel extends PureComponent {
       </g>
     );
   }
+
+  _renderLegend() {
+    const {
+      layout: {
+        legend: {trade, stability}
+      }
+    } = this.props;
+    return (
+      <g>
+        {[...trade, ...stability].map(
+          ({
+            id,
+            position: [x, y],
+            size: [w, h],
+            label,
+            textOffest,
+            color,
+            fontSize
+          }) => (
+            <React.Fragment key={id}>
+              <rect x={x} y={y} width={w} height={h} fill={color} />
+              <text
+                x={x + w + textOffest}
+                y={y + h / 2}
+                style={{alignmentBaseline: 'middle', fontSize}}
+              >
+                {label}
+              </text>
+            </React.Fragment>
+          )
+        )}
+      </g>
+    );
+  }
+
   render() {
     const {
       show,
@@ -263,6 +298,7 @@ class ContentPanel extends PureComponent {
           {this._renderYearAxis()}
           {this._renderTradeAxis()}
           {this._renderStabilityAxis()}
+          {this._renderLegend()}
         </svg>
         {this._renderTooltip()}
       </PopupWindow>
