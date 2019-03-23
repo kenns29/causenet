@@ -97,9 +97,11 @@ class ContentPanel extends PureComponent {
                 fill={id === focs || id === foct ? 'orange' : 'black'}
                 onMouseOver={event => {
                   const [x, y] = this._getEventMouse(event);
-                  this.setState({
-                    tooltip: {x, y, content: `${fname}, ${cname}, ${uname}`}
-                  });
+                  let content = `${fname}, ${cname}`;
+                  if (cname !== 'stability') {
+                    content += `, ${uname}`;
+                  }
+                  this.setState({tooltip: {x, y, content}});
                 }}
                 onMouseOut={() => this.setState({tooltip: null})}
               />
