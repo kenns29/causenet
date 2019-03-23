@@ -120,7 +120,7 @@ export const getCmSelectedBnLayout = createSelector(
         const strokeWidth = eScale(weight);
         const clippedEnd = clipLine({
           line: points.slice(points.length - 2),
-          clipLengths: [0, 5]
+          clipLengths: [0, strokeWidth > 2 ? 11 : 8]
         });
         const clippedPoints = [
           ...points.slice(0, points.length - 1),

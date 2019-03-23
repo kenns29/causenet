@@ -128,7 +128,15 @@ class ContentPanel extends PureComponent {
                   fill="none"
                   stroke={corr > 0 ? 'blue' : 'red'}
                   strokeWidth={strokeWidth}
-                  markerEnd={`url(#${ID}-arrow-marker)`}
+                  markerEnd={
+                    corr > 0
+                      ? strokeWidth > 2
+                        ? `url(#${ID}-blue-arrow-marker-bg)`
+                        : `url(#${ID}-blue-arrow-marker-sm)`
+                      : strokeWidth > 2
+                        ? `url(#${ID}-red-arrow-marker-bg)`
+                        : `url(#${ID}-red-arrow-marker-sm)`
+                  }
                   style={{cursor: 'pointer'}}
                   onClick={event => {
                     this.props.bundleFetchUpdateCmSelectedFeatureTimelineData({
@@ -144,19 +152,53 @@ class ContentPanel extends PureComponent {
       </g>
     );
   }
+
   _renderMarker() {
     return (
       <defs>
         <marker
-          id={`${ID}-arrow-marker`}
+          id={`${ID}-blue-arrow-marker-sm`}
           refX="0"
           refY="3"
           markerUnits="userSpaceOnUse"
-          markerWidth="6"
+          markerWidth="9"
           markerHeight="6"
           orient="auto"
         >
-          <path d="M0,0 L0,6 L9,3 z" fill="black" />
+          <path d="M0,0 L0,6 L9,3 z" fill="blue" />
+        </marker>
+        <marker
+          id={`${ID}-blue-arrow-marker-bg`}
+          refX="0"
+          refY="6"
+          markerUnits="userSpaceOnUse"
+          markerWidth="12"
+          markerHeight="12"
+          orient="auto"
+        >
+          <path d="M0,0 L0,12 L12,6 z" fill="blue" />
+        </marker>
+        <marker
+          id={`${ID}-red-arrow-marker-sm`}
+          refX="0"
+          refY="3"
+          markerUnits="userSpaceOnUse"
+          markerWidth="9"
+          markerHeight="6"
+          orient="auto"
+        >
+          <path d="M0,0 L0,6 L9,3 z" fill="red" />
+        </marker>
+        <marker
+          id={`${ID}-red-arrow-marker-bg`}
+          refX="0"
+          refY="6"
+          markerUnits="userSpaceOnUse"
+          markerWidth="12"
+          markerHeight="12"
+          orient="auto"
+        >
+          <path d="M0,0 L0,12 L12,6 z" fill="red" />
         </marker>
       </defs>
     );
