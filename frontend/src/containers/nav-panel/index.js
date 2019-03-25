@@ -20,6 +20,7 @@ import BayesianModelFeatureSlicesTable from './bayesian-model-feature-slices-tab
 import CrMatrixOptions from './cr-matrix-options';
 import CrMatrixFeatureSearch from './cr-matrix-feature-search';
 import CmMatrixUSelectionRadio from './cm-matrix-u-selection-radio';
+import CmMatrixSortOption from './cm-matrix-sort-option';
 import {updateNavPanelWidth} from '../../actions';
 import {getNavPanelWidth, getContentPanelHeight} from '../../selectors/base';
 
@@ -70,6 +71,7 @@ class NavPanel extends PureComponent {
         <CrMatrixOptions />
         <CrMatrixFeatureSearch />
         <CmMatrixUSelectionRadio />
+        <CmMatrixSortOption />
       </Rnd>
     );
   }

@@ -96,6 +96,7 @@ export const UPDATE_CM_SELECED_BN_FOCUS_LINK =
 export const UPDATE_CM_U_SELECTION = 'UPDATE_CM_U_SELECTION';
 export const UPDATE_CM_SELECTED_FEATURE_TIMELINE_DATA =
   'UPDATE_CM_SELECTED_FEATURE_TIMELINE_DATA';
+export const UPDATE_CM_SORT_OPTION = 'UPDATE_CM_SORT_OPTION';
 export const UPDATE_COUNTRIES = 'UPDATE_COUNTRIES';
 export const UPDATE_ITEMS = 'UPDATE_ITEMS';
 export const UPDATE_MT_SELECTED_MODEL = 'UPDATE_MT_SELECTED_MODEL';
@@ -245,6 +246,7 @@ export const updateCmSelectedBnFocusLink = createAction(
   UPDATE_CM_SELECED_BN_FOCUS_LINK
 );
 export const updateCmUSelection = createAction(UPDATE_CM_U_SELECTION);
+export const updateCmSortOption = createAction(UPDATE_CM_SORT_OPTION);
 export const updateCmSelectedFeatureTimelineData = createAction(
   UPDATE_CM_SELECTED_FEATURE_TIMELINE_DATA
 );

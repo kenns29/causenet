@@ -11,7 +11,8 @@ import {
   getRawBayesianModelFeatures,
   getRawCountries,
   getRawItems,
-  getRawCmUSelection
+  getRawCmUSelection,
+  getRawCmSortOption
 } from './raw';
 
 const CELL_SIZE = [20, 20];
@@ -135,8 +136,8 @@ const getCmMatrixObject = createSelector(
 );
 
 const getCmMatrix = createSelector(
-  [getCmMatrixObject, getCountryIdToName, getItemIdToName],
-  (matrix, rid2Name, cid2Name) => {
+  [getCmMatrixObject, getCountryIdToName, getItemIdToName, getRawCmSortOption],
+  (matrix, rid2Name, cid2Name, sortOption) => {
     if (
       !matrix ||
       !Object.keys(rid2Name).length ||
@@ -144,7 +145,17 @@ const getCmMatrix = createSelector(
     ) {
       return {rows: [], cols: [], cells: []};
     }
-    const {rows, cols, cells} = flattener().matrix(sort2d(matrix));
+    const sort =
+      sortOption === 0
+        ? d => {
+          const t = d.isUndecided ? 0 : d.isSpurious ? 5 : 100;
+          return d.corr + t;
+        }
+        : d => {
+          const t = d.isUndecided ? 0 : d.isSpurious ? 5 : 100;
+          return 1 - d.corr + t;
+        };
+    const {rows, cols, cells} = flattener().matrix(sort2d(matrix, sort));
     return {
       rows: rows().map(id => ({id, name: rid2Name[id]})),
       cols: cols().map(id => ({id, name: cid2Name[id]})),

@@ -57,6 +57,7 @@ import {
   UPDATE_CM_CORRELATIONS,
   UPDATE_CM_SELECED_BN_FOCUS_LINK,
   UPDATE_CM_U_SELECTION,
+  UPDATE_CM_SORT_OPTION,
   UPDATE_CM_SELECTED_FEATURE_TIMELINE_DATA,
   UPDATE_COUNTRIES,
   UPDATE_ITEMS,
@@ -266,7 +267,12 @@ const DEFAULT_STATE = {
   // ]
   cmCorrelations: [],
   cmSelectedBnFocusLink: null,
+  // 0 -- export
+  // 1 -- import
   cmUSelection: 1,
+  // 0 -- positive first
+  // 1 -- negative first
+  cmSortOption: 0,
   // cmSelectedFeatureTimelineData
   // {
   //  feature_id : {
@@ -589,6 +595,11 @@ const handleUpdateCmUSelection = (state, {payload}) => ({
   cmUSelection: payload
 });
 
+const handleUpdateCmSortOption = (state, {payload}) => ({
+  ...state,
+  cmSortOption: payload
+});
+
 const handleUpdateCmSelectedFeatureTimelineData = (state, {payload}) => ({
   ...state,
   cmSelectedFeatureTimelineData: payload
@@ -678,6 +689,7 @@ export default handleActions(
     [UPDATE_CM_CORRELATIONS]: handleUpdateCmCorrelations,
     [UPDATE_CM_SELECED_BN_FOCUS_LINK]: handleUpdateCmSelectedBnFocusLink,
     [UPDATE_CM_U_SELECTION]: handleUpdateCmUSelection,
+    [UPDATE_CM_SORT_OPTION]: handleUpdateCmSortOption,
     [UPDATE_CM_SELECTED_FEATURE_TIMELINE_DATA]: handleUpdateCmSelectedFeatureTimelineData,
     [UPDATE_COUNTRIES]: handleUpdateCountries,
     [UPDATE_ITEMS]: handleUpdateItems,

@@ -181,6 +181,11 @@ export const getRawCmUSelection = createSelector(
   state => state.cmUSelection
 );
 
+export const getRawCmSortOption = createSelector(
+  rootSelector,
+  state => state.cmSortOption
+);
+
 export const getRawCmSelectedFeatureTimelineData = createSelector(
   rootSelector,
   state => state.cmSelectedFeatureTimelineData
