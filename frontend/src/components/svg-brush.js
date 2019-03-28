@@ -69,12 +69,10 @@ export default class SVGBrush extends PureComponent {
         width={x1 - x0}
         height={y1 - y0}
         onMouseDown={event => {
-          console.log('mouse down', this.state.drag.start);
           const [x, y] = this.props.getEventMouse(event);
           this.setState({drag: {start: [x, y]}});
         }}
         onMouseMove={event => {
-          console.log('mouse move', this.state.drag.start);
           if (this.state.drag.start) {
             const [x, y] = this.props.getEventMouse(event);
             const [sx, sy] = this.state.drag.start;
@@ -87,7 +85,6 @@ export default class SVGBrush extends PureComponent {
           }
         }}
         onMouseUp={event => {
-          console.log('mouse up', this.state.drag.start);
           this.setState({drag: {...this.state.drag, start: null}});
         }}
       />
@@ -115,6 +112,9 @@ export default class SVGBrush extends PureComponent {
           width={w}
           height={h}
           onMouseDown={event => {}}
+          onMouseUp={event => {
+            this.setState({drag: {...this.state.drag, start: null}});
+          }}
         />
         <rect
           className="handle handle--n"
@@ -123,6 +123,9 @@ export default class SVGBrush extends PureComponent {
           y={y - 5}
           width={w + 10}
           height={10}
+          onMouseUp={event => {
+            this.setState({drag: {...this.state.drag, start: null}});
+          }}
         />
         <rect
           className="handle handle--e"
@@ -139,6 +142,9 @@ export default class SVGBrush extends PureComponent {
           y={y + h - 5}
           width={w + 10}
           height={10}
+          onMouseUp={event => {
+            this.setState({drag: {...this.state.drag, start: null}});
+          }}
         />
         <rect
           className="handle handle--w"
@@ -147,6 +153,9 @@ export default class SVGBrush extends PureComponent {
           y={y - 5}
           width={10}
           height={h + 10}
+          onMouseUp={event => {
+            this.setState({drag: {...this.state.drag, start: null}});
+          }}
         />
         <rect
           className="handle handle--nw"
@@ -155,6 +164,9 @@ export default class SVGBrush extends PureComponent {
           y={y - 5}
           width={10}
           height={10}
+          onMouseUp={event => {
+            this.setState({drag: {...this.state.drag, start: null}});
+          }}
         />
         <rect
           className="handle handle--ne"
@@ -163,6 +175,9 @@ export default class SVGBrush extends PureComponent {
           y={y - 5}
           width={10}
           height={10}
+          onMouseUp={event => {
+            this.setState({drag: {...this.state.drag, start: null}});
+          }}
         />
         <rect
           className="handle handle--se"
@@ -171,6 +186,9 @@ export default class SVGBrush extends PureComponent {
           y={y + h - 5}
           width={10}
           height={10}
+          onMouseUp={event => {
+            this.setState({drag: {...this.state.drag, start: null}});
+          }}
         />
         <rect
           className="handle handle--sw"
@@ -179,6 +197,9 @@ export default class SVGBrush extends PureComponent {
           y={y + h - 5}
           width={10}
           height={10}
+          onMouseUp={event => {
+            this.setState({drag: {...this.state.drag, start: null}});
+          }}
         />
       </React.Fragment>
     );
