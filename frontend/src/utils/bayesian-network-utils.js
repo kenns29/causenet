@@ -395,11 +395,17 @@ export const getPathLinksBetweenNodes = ([id1, id2], graph) => {
   }
 };
 
-export const getPathLinksThroughLink = ({source, target, ...rest}, graph) => [
-  ...getPathLinksToNode(source, graph),
-  {source, target, ...rest},
-  ...getPathLinksFromNode(target, graph)
-];
+export const getPathLinksThroughLink = ({source, target}, graph) => {
+  const sourceAdjacencyMap = linksToSourceAdjacencyMap(graph);
+  const targetAdjacencyMap = linksToTargetAdjacencyMap(graph);
+  const {id, ...rest} = sourceAdjacencyMap[source].find(d => d.id === target);
+  const link = {source, target, ...rest};
+  return [
+    ...getPathLinksToNode(source, targetAdjacencyMap),
+    link,
+    ...getPathLinksFromNode(target, sourceAdjacencyMap)
+  ];
+};
 
 export const getUndirectedPathLinksThroughNode = (id, graph) => {
   const neighborAdjacencyMap = isArray(graph)

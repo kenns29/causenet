@@ -130,6 +130,7 @@ export const getCmSelectedBnLayout = createSelector(
         edge.path = path;
         edge.strokeWidth = strokeWidth;
       });
+      console.log('layout edges', layout.edges);
     }
     return layout;
   }
