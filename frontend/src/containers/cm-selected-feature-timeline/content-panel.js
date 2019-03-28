@@ -2,6 +2,7 @@ import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
 import {line as d3Line, curveCardinal} from 'd3-shape';
 import PopupWindow from '../../components/popup-window';
+import SVGBrush from '../../components/svg-brush';
 import {
   getShowCmSelectedFeatureTimelineWindow,
   getCmSelectedFeatureTimelineWindowSize,
@@ -293,12 +294,20 @@ class ContentPanel extends PureComponent {
           ])
         }
       >
-        <svg width={width} height={height}>
+        <svg ref={input => (this.svg = input)} width={width} height={height}>
           {this._renderTimelines()}
           {this._renderYearAxis()}
           {this._renderTradeAxis()}
           {this._renderStabilityAxis()}
           {this._renderLegend()}
+          <SVGBrush
+            extent={[[0, 0], [width, height]]}
+            getEventMouse={event => {
+              const {clientX, clientY} = event;
+              const {left, top} = this.svg.getBoundingClientRect();
+              return [clientX - left, clientY - top];
+            }}
+          />
         </svg>
         {this._renderTooltip()}
       </PopupWindow>

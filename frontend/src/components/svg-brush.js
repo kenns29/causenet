@@ -18,16 +18,15 @@ const compareSelections = (s1, s2) => {
 
 export default class SVGBrush extends PureComponent {
   static defaultProps = {
-    svg: document.createElementNS('http://www.w3.org/2000/svg', 'svg'),
     selection: null,
     extent: [[0, 0], [1, 1]],
     onBrushStart: event => {},
     onBrush: event => {},
-    onBrushEnd: event => {}
+    onBrushEnd: event => {},
+    getEventMouse: event => [event.clientX, event.clientY]
   };
 
   static propTypes = {
-    svg: PropTypes.node.isRequired,
     selection: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)),
     extent: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)).isRequired
   };
@@ -49,16 +48,10 @@ export default class SVGBrush extends PureComponent {
       selection: null,
       changer: null,
       drag: {
-        move: null // drag start move position - [x, y]
+        start: null // drag start move position - [x, y]
       }
     };
   }
-
-  _getEventMouse = event => {
-    const {clientX, clientY} = event;
-    const {left, top} = this.svg.getBoundingClientRect();
-    return [clientX - left, clientY - top];
-  };
 
   _renderOverlay() {
     const {
@@ -70,14 +63,32 @@ export default class SVGBrush extends PureComponent {
         className="overlay"
         pointerEvents="all"
         cursor="crosshair"
+        fill="none"
         x={x0}
         y={y0}
         width={x1 - x0}
         height={y1 - y0}
         onMouseDown={event => {
-          const [x, y] = this._getEventMouse(event);
-          console.log('x', x, 'y', y);
-          this.setState({drag: {move: [x, y]}});
+          console.log('mouse down', this.state.drag.start);
+          const [x, y] = this.props.getEventMouse(event);
+          this.setState({drag: {start: [x, y]}});
+        }}
+        onMouseMove={event => {
+          console.log('mouse move', this.state.drag.start);
+          if (this.state.drag.start) {
+            const [x, y] = this.props.getEventMouse(event);
+            const [sx, sy] = this.state.drag.start;
+            this.setState({
+              selection: [
+                [Math.min(sx, x), Math.min(sy, y)],
+                [Math.max(sx, x), Math.max(sy, y)]
+              ]
+            });
+          }
+        }}
+        onMouseUp={event => {
+          console.log('mouse up', this.state.drag.start);
+          this.setState({drag: {...this.state.drag, start: null}});
         }}
       />
     );
