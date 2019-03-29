@@ -265,6 +265,24 @@ class ContentPanel extends PureComponent {
     );
   }
 
+  _renderBrush() {
+    const {
+      layoutSize: [width, height],
+      margins: [ml, mt, mr, mb]
+    } = this.props;
+    return (
+      <SVGBrush
+        extent={[[ml, mt], [ml + width, mt + height]]}
+        getEventMouse={event => {
+          const {clientX, clientY} = event;
+          const {left, top} = this.svg.getBoundingClientRect();
+          return [clientX - left, clientY - top];
+        }}
+        brushType="x"
+      />
+    );
+  }
+
   render() {
     const {
       show,
@@ -300,14 +318,7 @@ class ContentPanel extends PureComponent {
           {this._renderTradeAxis()}
           {this._renderStabilityAxis()}
           {this._renderLegend()}
-          <SVGBrush
-            extent={[[0, 0], [width, height]]}
-            getEventMouse={event => {
-              const {clientX, clientY} = event;
-              const {left, top} = this.svg.getBoundingClientRect();
-              return [clientX - left, clientY - top];
-            }}
-          />
+          {this._renderBrush()}
         </svg>
         {this._renderTooltip()}
       </PopupWindow>
