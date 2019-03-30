@@ -83,30 +83,38 @@ export default class SVGBrush extends PureComponent {
           event.target.setPointerCapture(event.pointerId);
           const [x, y] = this.props.getEventMouse(event);
           this.setState({drag: {omove: [x, y]}});
+          this.props.onBrushStart({
+            target: this,
+            type: 'start',
+            selection: this.state.selection,
+            sourceEvent: event
+          });
         }}
         onPointerMove={event => {
           if (this.state.drag.omove) {
             const [x, y] = this.props.getEventMouse(event);
             const [sx, sy] = this.state.drag.omove;
+            let selection = this.state.selection;
             switch (brushType) {
             case '2d':
-              this.setState({
-                selection: [
-                  [Math.min(sx, x), Math.min(sy, y)],
-                  [Math.max(sx, x), Math.max(sy, y)]
-                ]
-              });
+              selection = [
+                [Math.min(sx, x), Math.min(sy, y)],
+                [Math.max(sx, x), Math.max(sy, y)]
+              ];
               break;
             case 'x':
-              this.setState({
-                selection: [[Math.min(sx, x), y0], [Math.max(sx, x), y1]]
-              });
+              selection = [[Math.min(sx, x), y0], [Math.max(sx, x), y1]];
               break;
             case 'y':
-              this.setState({
-                selection: [[x0, Math.min(sy, y)], [x1, Math.max(sy, y)]]
-              });
+              selection = [[x0, Math.min(sy, y)], [x1, Math.max(sy, y)]];
             }
+            this.setState({selection});
+            this.props.onBrush({
+              target: this,
+              type: 'brush',
+              selection,
+              sourceEvent: event
+            });
           }
         }}
         onPointerUp={event => {
@@ -118,6 +126,12 @@ export default class SVGBrush extends PureComponent {
               lmove: null,
               cmove: null
             }
+          });
+          this.props.onBrushEnd({
+            target: this,
+            type: 'end',
+            selection: this.state.selection,
+            sourceEvent: event
           });
         }}
       />
@@ -173,6 +187,12 @@ export default class SVGBrush extends PureComponent {
             event.target.setPointerCapture(event.pointerId);
             const [x, y] = this.props.getEventMouse(event);
             this.setState({drag: {smove: [x, y]}});
+            this.props.onBrushStart({
+              target: this,
+              type: 'start',
+              selection: this.state.selection,
+              sourceEvent: event
+            });
           }}
           onPointerMove={event => {
             if (this.state.drag.smove) {
@@ -193,6 +213,12 @@ export default class SVGBrush extends PureComponent {
                 selection = [[x0, my0], [x1, my1]];
               }
               this.setState({selection, drag: {smove: [x, y]}});
+              this.props.onBrush({
+                target: this,
+                type: 'brush',
+                selection,
+                sourceEvent: event
+              });
             }
           }}
           onPointerUp={event => {
@@ -204,6 +230,12 @@ export default class SVGBrush extends PureComponent {
                 lmove: null,
                 cmove: null
               }
+            });
+            this.props.onBrushEnd({
+              target: this,
+              type: 'end',
+              selection: this.state.selection,
+              sourceEvent: event
             });
           }}
         />
@@ -219,6 +251,12 @@ export default class SVGBrush extends PureComponent {
             event.target.setPointerCapture(event.pointerId);
             const [x, y] = this.props.getEventMouse(event);
             this.setState({drag: {lmove: [x, y]}});
+            this.props.onBrushStart({
+              target: this,
+              type: 'start',
+              selection: this.state.selection,
+              sourceEvent: event
+            });
           }}
           onPointerMove={event => {
             if (this.state.drag.lmove) {
@@ -238,6 +276,12 @@ export default class SVGBrush extends PureComponent {
                 selection = [[x0, my0], [x1, my0]];
               }
               this.setState({selection, drag: {lmove: [x, y]}});
+              this.props.onBrush({
+                target: this,
+                type: 'brush',
+                selection: this.state.selection,
+                sourceEvent: event
+              });
             }
           }}
           onPointerUp={event => {
@@ -249,6 +293,12 @@ export default class SVGBrush extends PureComponent {
                 lmove: null,
                 cmove: null
               }
+            });
+            this.props.onBrushEnd({
+              target: this,
+              type: 'end',
+              selection: this.state.selection,
+              sourceEvent: event
             });
           }}
         />
@@ -264,6 +314,12 @@ export default class SVGBrush extends PureComponent {
             event.target.setPointerCapture(event.pointerId);
             const [x, y] = this.props.getEventMouse(event);
             this.setState({drag: {lmove: [x, y]}});
+            this.props.onBrushStart({
+              target: this,
+              type: 'start',
+              selection: this.state.selection,
+              sourceEvent: event
+            });
           }}
           onPointerMove={event => {
             if (this.state.drag.lmove) {
@@ -283,6 +339,12 @@ export default class SVGBrush extends PureComponent {
                 selection = [[mx0, y0], [mx1, y1]];
               }
               this.setState({selection, drag: {lmove: [x, y]}});
+              this.props.onBrush({
+                target: this,
+                type: 'brush',
+                selection,
+                sourceEvent: event
+              });
             }
           }}
           onPointerUp={event => {
@@ -294,6 +356,12 @@ export default class SVGBrush extends PureComponent {
                 lmove: null,
                 cmove: null
               }
+            });
+            this.props.onBrushEnd({
+              target: this,
+              type: 'end',
+              selection: this.state.selection,
+              sourceEvent: event
             });
           }}
         />
@@ -309,6 +377,12 @@ export default class SVGBrush extends PureComponent {
             event.target.setPointerCapture(event.pointerId);
             const [x, y] = this.props.getEventMouse(event);
             this.setState({drag: {lmove: [x, y]}});
+            this.props.onBrushStart({
+              target: this,
+              type: 'start',
+              selection: this.state.selection,
+              sourceEvent: event
+            });
           }}
           onPointerMove={event => {
             if (this.state.drag.lmove) {
@@ -321,13 +395,19 @@ export default class SVGBrush extends PureComponent {
               const dy = y - sy;
               const my = ybf(y1 + dy);
               const [my0, my1] = y0 < my ? [y0, my] : [y0, y0];
+              let selection = this.state.selection;
               switch (brushType) {
               case '2d':
               case 'y':
-                this.setState({
-                  selection: [[x0, my0], [x1, my1]]
-                });
+                selection = [[x0, my0], [x1, my1]];
               }
+              this.setState({selection, lmove: [x, y]});
+              this.props.onBrush({
+                target: this,
+                type: 'brush',
+                selection,
+                sourceEvent: event
+              });
             }
           }}
           onPointerUp={event => {
@@ -339,6 +419,12 @@ export default class SVGBrush extends PureComponent {
                 lmove: null,
                 cmove: null
               }
+            });
+            this.props.onBrushEnd({
+              target: this,
+              type: 'end',
+              selection: this.state.selection,
+              sourceEvent: event
             });
           }}
         />
@@ -354,6 +440,12 @@ export default class SVGBrush extends PureComponent {
             event.target.setPointerCapture(event.pointerId);
             const [x, y] = this.props.getEventMouse(event);
             this.setState({drag: {lmove: [x, y]}});
+            this.props.onBrushStart({
+              target: this,
+              type: 'start',
+              selection: this.state.selection,
+              sourceEvent: event
+            });
           }}
           onPointerMove={event => {
             if (this.state.drag.lmove) {
@@ -373,6 +465,12 @@ export default class SVGBrush extends PureComponent {
                 selection = [[mx0, y0], [mx1, y1]];
               }
               this.setState({selection, drag: {lmove: [x, y]}});
+              this.props.onBrush({
+                target: this,
+                type: 'brush',
+                selection,
+                sourceEvent: event
+              });
             }
           }}
           onPointerUp={event => {
@@ -384,6 +482,12 @@ export default class SVGBrush extends PureComponent {
                 lmove: null,
                 cmove: null
               }
+            });
+            this.props.onBrushEnd({
+              target: this,
+              type: 'end',
+              selection: this.state.selection,
+              sourceEvent: event
             });
           }}
         />
