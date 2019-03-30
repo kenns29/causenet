@@ -273,7 +273,7 @@ export default class SVGBrush extends PureComponent {
               switch (brushType) {
               case '2d':
               case 'y':
-                selection = [[x0, my0], [x1, my0]];
+                selection = [[x0, my0], [x1, my1]];
               }
               this.setState({selection, drag: {lmove: [x, y]}});
               this.props.onBrush({
@@ -401,7 +401,7 @@ export default class SVGBrush extends PureComponent {
               case 'y':
                 selection = [[x0, my0], [x1, my1]];
               }
-              this.setState({selection, lmove: [x, y]});
+              this.setState({selection, drag: {lmove: [x, y]}});
               this.props.onBrush({
                 target: this,
                 type: 'brush',
