@@ -1,6 +1,6 @@
 import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
-import {line as d3Line, curveCardinal} from 'd3-shape';
+import {scaleLinear} from 'd3-scale';
 import PopupWindow from '../../components/popup-window';
 import SVGBrush from '../../components/svg-brush';
 import {
@@ -11,7 +11,8 @@ import {
 import {
   getCmTimelineViewLayout,
   getCmTimelineMargins,
-  getCmTimelineLayoutSize
+  getCmTimelineLayoutSize,
+  getCmTimelineYearDomain
 } from '../../selectors/data';
 import {
   updateShowCmSelectedFeatureTimelineWindow,
@@ -30,6 +31,7 @@ const mapStateToProps = state => ({
   windowSize: getCmSelectedFeatureTimelineWindowSize(state),
   layout: getCmTimelineViewLayout(state),
   layoutSize: getCmTimelineLayoutSize(state),
+  yearDomain: getCmTimelineYearDomain(state),
   margins: getCmTimelineMargins(state),
   popupWindowOrder: getPopupWindowOrder(state)
 });
@@ -52,7 +54,8 @@ class ContentPanel extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      tooltip: null
+      tooltip: null,
+      brushSelection: null
     };
   }
 
@@ -268,8 +271,13 @@ class ContentPanel extends PureComponent {
   _renderBrush() {
     const {
       layoutSize: [width, height],
-      margins: [ml, mt, mr, mb]
+      margins: [ml, mt, mr, mb],
+      yearDomain
     } = this.props;
+    const {brushSelection} = this.state;
+    if (!yearDomain) {
+      return null;
+    }
     return (
       <SVGBrush
         extent={[[ml, mt], [ml + width, mt + height]]}
@@ -278,7 +286,12 @@ class ContentPanel extends PureComponent {
           const {left, top} = this.svg.getBoundingClientRect();
           return [clientX - left, clientY - top];
         }}
-        brushType="2d"
+        brushType="x"
+        selection={brushSelection}
+        onBrushEnd={({selection}) => {
+          console.log('selection', selection);
+          this.setState({brushSelection: selection});
+        }}
       />
     );
   }

@@ -38,17 +38,20 @@ const getCmTimelines = createSelector(
     }))
 );
 
-const getCmTimelineYearDomain = createSelector(getCmTimelines, timelines => {
-  if (timelines.length === 0) {
-    return null;
+export const getCmTimelineYearDomain = createSelector(
+  getCmTimelines,
+  timelines => {
+    if (timelines.length === 0) {
+      return null;
+    }
+    return timelines[0].values.reduce(
+      ([min, max], {year}) => [Math.min(min, year), Math.max(max, year)],
+      [Infinity, -Infinity]
+    );
   }
-  return timelines[0].values.reduce(
-    ([min, max], {year}) => [Math.min(min, year), Math.max(max, year)],
-    [Infinity, -Infinity]
-  );
-});
+);
 
-const getCmTimelineTradeValueDomain = createSelector(
+export const getCmTimelineTradeValueDomain = createSelector(
   getCmTimelines,
   timelines => {
     const tls = timelines.filter(({id}) => {
@@ -69,7 +72,7 @@ const getCmTimelineTradeValueDomain = createSelector(
   }
 );
 
-const getCmTimelineStabilityValueDomain = createSelector(
+export const getCmTimelineStabilityValueDomain = createSelector(
   getCmTimelines,
   timelines => {
     const tls = timelines.filter(({id}) => {
