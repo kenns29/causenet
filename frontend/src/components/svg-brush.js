@@ -453,7 +453,7 @@ export default class SVGBrush extends PureComponent {
               const [sx, sy] = this.state.drag.lmove;
               const dx = x - sx;
               const mx = xbf(x0 + dx);
-              const [mx0, mx1] = mx <= x1 ? [mx, x1] : [x1, x1];
+              const [mx0, mx1] = mx < x1 ? [mx, x1] : [x1, x1];
               let selection = this.state.selection;
               switch (brushType) {
               case '2d':
@@ -492,6 +492,7 @@ export default class SVGBrush extends PureComponent {
           }}
         />
         <rect
+          ref={input => (this.handleNW = input)}
           className="handle handle--nw"
           cursor="nwse-resize"
           x={x - 5}
@@ -501,29 +502,56 @@ export default class SVGBrush extends PureComponent {
           onPointerDown={event => {
             event.target.setPointerCapture(event.pointerId);
             const [x, y] = this.props.getEventMouse(event);
-            this.setState({drag: {move: [x, y]}});
+            this.setState({drag: {cmove: [x, y]}});
+            this.props.onBrushStart({
+              target: this,
+              type: 'start',
+              selection: this.state.selection,
+              sourceEvent: event
+            });
           }}
           onPointerMove={event => {
-            if (this.state.drag.move) {
+            if (this.state.drag.cmove) {
               const [x, y] = this.props.getEventMouse(event);
-              const [sx, sy] = this.state.drag.move;
+              const [sx, sy] = this.state.drag.cmove;
               const [dx, dy] = [x - sx, y - sy];
+              let [mx, my] = [x0, y0];
+              let mx0, mx1, my0, my1;
+              let selection = this.state.selection;
               switch (brushType) {
               case '2d':
-                this.setState({
-                  selection: [[x0, y0], [xbf(x1 + dx), ybf(y1 + dy)]]
-                });
+                [mx, my] = [xbf(x0 + dx), ybf(y0 + dy)];
+                [mx0, mx1] = mx < x1 ? [mx, x1] : [x1, x1];
+                [my0, my1] = my < y1 ? [my, y1] : [y1, y1];
+                selection = [[mx0, my0], [mx1, my1]];
                 break;
               case 'x':
-                this.setState({
-                  selection: [[xbf(x0 + dx), y0], [xbf(x1 + dx), y1]]
-                });
+                [mx, my] = [xbf(x0 + dx), y0];
+                [mx0, mx1] = mx < x1 ? [mx, x1] : [x1, x1];
+                selection = [[mx0, y0], [mx1, y1]];
                 break;
               case 'y':
-                this.setState({
-                  selection: [[x0, ybf(y0 + dy)], [x1, ybf(y1 + dy)]]
-                });
+                [mx, my] = [x0, ybf(y0 + dy)];
+                [my0, my1] = my < y1 ? [my, y1] : [y1, y1];
+                selection = [[x0, my0], [x1, my1]];
               }
+              this.setState({selection, drag: {cmove: [x, y]}});
+              if (mx >= x1 && my >= y1) {
+                this.handleSE.setPointerCapture(event.pointerId);
+                return;
+              } else if (mx >= x1) {
+                this.handleNE.setPointerCapture(event.pointerId);
+                return;
+              } else if (my >= y1) {
+                this.handleSW.setPointerCapture(event.pointerId);
+                return;
+              }
+              this.props.onBrush({
+                target: this,
+                type: 'brush',
+                selection,
+                sourceEvent: event
+              });
             }
           }}
           onPointerUp={event => {
@@ -536,16 +564,78 @@ export default class SVGBrush extends PureComponent {
                 cmove: null
               }
             });
+            this.props.onBrushEnd({
+              target: this,
+              type: 'end',
+              selection: this.state.selection,
+              sourceEvent: event
+            });
           }}
         />
         <rect
+          ref={input => (this.handleNE = input)}
           className="handle handle--ne"
           cursor="nesw-resize"
           x={x + w - 5}
           y={y - 5}
           width={10}
           height={10}
-          onMouseUp={event => {
+          onPointerDown={event => {
+            event.target.setPointerCapture(event.pointerId);
+            const [x, y] = this.props.getEventMouse(event);
+            this.setState({drag: {cmove: [x, y]}});
+            this.props.onBrushStart({
+              target: this,
+              type: 'start',
+              selection: this.state.selection,
+              sourceEvent: event
+            });
+          }}
+          onPointerMove={event => {
+            if (this.state.drag.cmove) {
+              const [x, y] = this.props.getEventMouse(event);
+              const [sx, sy] = this.state.drag.cmove;
+              const [dx, dy] = [x - sx, y - sy];
+              let [mx, my] = [x1, y0];
+              let mx0, mx1, my0, my1;
+              let selection = this.state.selection;
+              switch (brushType) {
+              case '2d':
+                [mx, my] = [xbf(x1 + dx), ybf(y0 + dy)];
+                [mx0, mx1] = x0 < mx ? [x0, mx] : [x0, x0];
+                [my0, my1] = my < y1 ? [my, y1] : [y1, y1];
+                selection = [[mx0, my0], [mx1, my1]];
+                break;
+              case 'x':
+                [mx, my] = [xbf(x1 + dx), y0];
+                [mx0, mx1] = x0 < mx ? [x0, mx] : [x0, x0];
+                selection = [[mx0, y0], [mx1, y1]];
+                break;
+              case 'y':
+                [mx, my] = [x1, ybf(y0 + dy)];
+                [my0, my1] = my < y1 ? [my, y1] : [y1, y1];
+                selection = [[x0, my0], [x1, my1]];
+              }
+              this.setState({selection, drag: {cmove: [x, y]}});
+              if (x0 >= mx && my >= y1) {
+                this.handleSW.setPointerCapture(event.pointerId);
+                return;
+              } else if (x0 >= mx) {
+                this.handleNW.setPointerCapture(event.pointerId);
+                return;
+              } else if (my >= y1) {
+                this.handleSE.setPointerCapture(event.pointerId);
+                return;
+              }
+              this.props.onBrush({
+                target: this,
+                type: 'brush',
+                selection,
+                sourceEvent: event
+              });
+            }
+          }}
+          onPointerUp={event => {
             this.setState({
               drag: {
                 ...this.state.drag,
@@ -555,16 +645,78 @@ export default class SVGBrush extends PureComponent {
                 cmove: null
               }
             });
+            this.props.onBrushEnd({
+              target: this,
+              type: 'end',
+              selection: this.state.selection,
+              sourceEvent: event
+            });
           }}
         />
         <rect
+          ref={input => (this.handleSE = input)}
           className="handle handle--se"
           cursor="nwse-resize"
           x={x + w - 5}
           y={y + h - 5}
           width={10}
           height={10}
-          onMouseUp={event => {
+          onPointerDown={event => {
+            event.target.setPointerCapture(event.pointerId);
+            const [x, y] = this.props.getEventMouse(event);
+            this.setState({drag: {cmove: [x, y]}});
+            this.props.onBrushStart({
+              target: this,
+              type: 'start',
+              selection: this.state.selection,
+              sourceEvent: event
+            });
+          }}
+          onPointerMove={event => {
+            if (this.state.drag.cmove) {
+              const [x, y] = this.props.getEventMouse(event);
+              const [sx, sy] = this.state.drag.cmove;
+              const [dx, dy] = [x - sx, y - sy];
+              let [mx, my] = [x1, y1];
+              let mx0, mx1, my0, my1;
+              let selection = this.state.selection;
+              switch (brushType) {
+              case '2d':
+                [mx, my] = [xbf(x1 + dx), ybf(y1 + dy)];
+                [mx0, mx1] = x0 < mx ? [x0, mx] : [x0, x0];
+                [my0, my1] = y0 < my ? [y0, my] : [y0, y0];
+                selection = [[mx0, my0], [mx1, my1]];
+                break;
+              case 'x':
+                [mx, my] = [xbf(x1 + dx), y1];
+                [mx0, mx1] = x0 < mx ? [x0, mx] : [x0, x0];
+                selection = [[mx0, y0], [mx1, y1]];
+                break;
+              case 'y':
+                [mx, my] = [x1, ybf(y1 + dy)];
+                [my0, my1] = y0 < my ? [y0, my] : [y0, y0];
+                selection = [[x0, my0], [x1, my1]];
+              }
+              this.setState({selection, drag: {cmove: [x, y]}});
+              if (x0 >= mx && y0 >= my) {
+                this.handleNW.setPointerCapture(event.pointerId);
+                return;
+              } else if (x0 >= mx) {
+                this.handleSW.setPointerCapture(event.pointerId);
+                return;
+              } else if (y0 >= my) {
+                this.handleNE.setPointerCapture(event.pointerId);
+                return;
+              }
+              this.props.onBrush({
+                target: this,
+                type: 'brush',
+                selection,
+                sourceEvent: event
+              });
+            }
+          }}
+          onPointerUp={event => {
             this.setState({
               drag: {
                 ...this.state.drag,
@@ -574,16 +726,78 @@ export default class SVGBrush extends PureComponent {
                 cmove: null
               }
             });
+            this.props.onBrushEnd({
+              target: this,
+              type: 'end',
+              selection: this.state.selection,
+              sourceEvent: event
+            });
           }}
         />
         <rect
+          ref={input => (this.handleSW = input)}
           className="handle handle--sw"
           cursor="nesw-resize"
           x={x - 5}
           y={y + h - 5}
           width={10}
           height={10}
-          onMouseUp={event => {
+          onPointerDown={event => {
+            event.target.setPointerCapture(event.pointerId);
+            const [x, y] = this.props.getEventMouse(event);
+            this.setState({drag: {cmove: [x, y]}});
+            this.props.onBrushStart({
+              target: this,
+              type: 'start',
+              selection: this.state.selection,
+              sourceEvent: event
+            });
+          }}
+          onPointerMove={event => {
+            if (this.state.drag.cmove) {
+              const [x, y] = this.props.getEventMouse(event);
+              const [sx, sy] = this.state.drag.cmove;
+              const [dx, dy] = [x - sx, y - sy];
+              let [mx, my] = [x0, y1];
+              let mx0, mx1, my0, my1;
+              let selection = this.state.selection;
+              switch (brushType) {
+              case '2d':
+                [mx, my] = [xbf(x0 + dx), ybf(y1 + dy)];
+                [mx0, mx1] = mx < x1 ? [mx, x1] : [x1, x1];
+                [my0, my1] = y0 < my ? [y0, my] : [y0, y0];
+                selection = [[mx0, my0], [mx1, my1]];
+                break;
+              case 'x':
+                [mx, my] = [xbf(x0 + dx), y1];
+                [mx0, mx1] = mx < x1 ? [mx, x1] : [x1, x1];
+                selection = [[mx0, y0], [mx1, y1]];
+                break;
+              case 'y':
+                [mx, my] = [x0, ybf(y1 + dy)];
+                [my0, my1] = y0 < my ? [y0, my] : [y0, y0];
+                selection = [[x0, my0], [x1, my1]];
+              }
+              this.setState({selection, drag: {cmove: [x, y]}});
+              if (mx >= x1 && y0 >= my) {
+                this.handleNE.setPointerCapture(event.pointerId);
+                return;
+              } else if (mx >= x1) {
+                this.handleSE.setPointerCapture(event.pointerId);
+                return;
+              } else if (y0 >= my) {
+                this.handleNW.setPointerCapture(event.pointerId);
+                return;
+              }
+              this.props.onBrush({
+                target: this,
+                type: 'brush',
+                selection,
+                sourceEvent: event
+              });
+            }
+          }}
+          onPointerUp={event => {
             this.setState({
               drag: {
                 ...this.state.drag,
@@ -592,6 +806,12 @@ export default class SVGBrush extends PureComponent {
                 lmove: null,
                 cmove: null
               }
+            });
+            this.props.onBrushEnd({
+              target: this,
+              type: 'end',
+              selection: this.state.selection,
+              sourceEvent: event
             });
           }}
         />
