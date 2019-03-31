@@ -242,8 +242,11 @@ class ModelTuning extends PureComponent {
       elements,
       pfCategories,
       pfFeatures,
-      pfElements
+      pfElements,
+      width
     } = this.props;
+
+    const boxWidth = Math.min(Math.max((width - 120 - 30) / 2 - 10, 50), 350);
 
     const fsui = [
       {
@@ -280,7 +283,7 @@ class ModelTuning extends PureComponent {
             style={{
               position: 'relative',
               marginLeft: 120,
-              width: 350,
+              width: boxWidth,
               height: 30,
               textAlign: 'center',
               padding: '5px 0px'
@@ -291,8 +294,7 @@ class ModelTuning extends PureComponent {
           <div
             style={{
               position: 'relative',
-              marginLeft: 10,
-              width: 350,
+              width: boxWidth,
               height: 30,
               textAlign: 'center',
               padding: '5px 0px'
@@ -305,7 +307,7 @@ class ModelTuning extends PureComponent {
           const itemh =
             estimateDivHeight(
               items.map(d => [computeTextLength(d.name.slice(0, 6)) + 24, 26]),
-              350
+              boxWidth
             ) + 4;
 
           const pfitemh =
@@ -314,7 +316,7 @@ class ModelTuning extends PureComponent {
                 computeTextLength(d.name.slice(0, 6)) + 24,
                 26
               ]),
-              350
+              boxWidth
             ) + 4;
 
           const height = Math.max(
@@ -346,10 +348,10 @@ class ModelTuning extends PureComponent {
                     t: [-1]
                   };
                 if (source.droppableId === `${key}-items`) {
-                  const {id, name} = items[source.index];
+                  const {id} = items[source.index];
                   nmod[key] = nmod[key].filter(d => d !== id);
                 } else if (source.droppableId === `${key}-pfitems`) {
-                  const {id, name} = pfItems[source.index];
+                  const {id} = pfItems[source.index];
                   nmod[key].push(id);
                 }
                 this.props.updateMtModelMod(nmod);
@@ -378,9 +380,8 @@ class ModelTuning extends PureComponent {
                     <div
                       ref={provided.innerRef}
                       style={{
-                        width: 350,
+                        width: boxWidth,
                         height,
-                        marginLeft: 10,
                         ...featureBoxStyle
                       }}
                     >
@@ -470,7 +471,7 @@ class ModelTuning extends PureComponent {
                     <div
                       ref={provided.innerRef}
                       style={{
-                        width: 350,
+                        width: boxWidth,
                         height,
                         ...featureBoxStyle
                       }}
@@ -523,7 +524,7 @@ class ModelTuning extends PureComponent {
   }
 
   render() {
-    const {width, height} = this.props;
+    const {height} = this.props;
     return (
       <div style={{overflowY: 'auto', overflowX: 'hidden', height}}>
         {this._renderAlert()}
