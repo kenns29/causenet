@@ -32,7 +32,6 @@ export default class SVGBrush extends PureComponent {
     super(props);
     this.state = {
       selection: null,
-      changer: null,
       drag: {
         // drag start move positions - [x, y]
         omove: null, // overlay move
