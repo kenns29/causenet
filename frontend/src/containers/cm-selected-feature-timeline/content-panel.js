@@ -47,7 +47,7 @@ const tooltipStyle = {
   pointerEvents: 'none'
 };
 
-const ID = 'cm-selected-feature-timeline';
+// const ID = 'cm-selected-feature-timeline';
 const NAME = 'CmSelectedFeatureTimeline';
 
 class ContentPanel extends PureComponent {
@@ -100,7 +100,7 @@ class ContentPanel extends PureComponent {
     const {
       layout: {yearTicks},
       layoutSize: [width, height],
-      margins: [ml, mt, mr, mb]
+      margins: [ml, mt]
     } = this.props;
     if (!yearTicks) {
       return null;
@@ -145,8 +145,8 @@ class ContentPanel extends PureComponent {
   _renderTradeAxis() {
     const {
       layout: {tradeTicks},
-      layoutSize: [width, height],
-      margins: [ml, mt, mr, mb]
+      layoutSize: [, height],
+      margins: [ml, mt]
     } = this.props;
     if (!tradeTicks) {
       return null;
@@ -192,7 +192,7 @@ class ContentPanel extends PureComponent {
     const {
       layout: {stabilityTicks},
       layoutSize: [width, height],
-      margins: [ml, mt, mr, mb]
+      margins: [ml, mt]
     } = this.props;
     if (!stabilityTicks) {
       return null;
@@ -271,13 +271,16 @@ class ContentPanel extends PureComponent {
   _renderBrush() {
     const {
       layoutSize: [width, height],
-      margins: [ml, mt, mr, mb],
+      margins: [ml, mt],
       yearDomain
     } = this.props;
     const {brushSelection} = this.state;
     if (!yearDomain) {
       return null;
     }
+    const scale = scaleLinear()
+      .domain(domain)
+      .range([ml, ml + width]);
     return (
       <SVGBrush
         extent={[[ml, mt], [ml + width, mt + height]]}
