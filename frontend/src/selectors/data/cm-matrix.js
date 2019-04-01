@@ -73,7 +73,7 @@ export const getCmJointCorrelations = createSelector(
           );
         })
         .reduce((m, {csource, ctarget, ...rest}) => {
-          const [[sf, sc, su], [tf, tc, tu]] = [csource, ctarget];
+          const [[sf, sc], [, tc]] = [csource, ctarget];
           const [country, item] = [sf, sc === '-1' ? tc : sc];
           const key = `${country}-${item}`;
           const direction = m.hasOwnProperty(key) ? 2 : sc === -1 ? -1 : 1;

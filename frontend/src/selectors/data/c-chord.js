@@ -5,14 +5,7 @@ import {descending as d3Descending} from 'd3-array';
 import {scaleOrdinal} from 'd3-scale';
 import {schemeCategory10} from 'd3-scale-chromatic';
 import {links2generator} from 'sortable-matrix';
-import {rootSelector} from '../base';
-import {
-  getRawCrRelations,
-  getRawCrRelationFeatures,
-  getRawBayesianNetwork,
-  getRawCrMatrixFocus
-} from './raw';
-import {array2Object} from '../../utils';
+import {getRawBayesianNetwork} from './raw';
 
 export const getCcBayesianNetwork = createSelector(
   getRawBayesianNetwork,
@@ -40,8 +33,8 @@ export const getCcCategoryNetwork = createSelector(
   network => {
     const cmap = network.reduce((map, link) => {
       const {
-        csource: [sf, sc, su],
-        ctarget: [tf, tc, tu]
+        csource: [, sc],
+        ctarget: [, tc]
       } = link;
       const key = `${sc}-${tc}`;
       if (!map.hasOwnProperty(key)) {

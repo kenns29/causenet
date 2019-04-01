@@ -1,7 +1,6 @@
 import {createSelector} from 'reselect';
 import {scaleLog} from 'd3-scale';
 import {line as d3Line, curveCardinal} from 'd3-shape';
-import {rootSelector} from '../base';
 import {
   getRawCmSelectedBnFocusLink,
   getRawBayesianNetwork,
@@ -10,7 +9,6 @@ import {
 } from './raw';
 import {
   array2Object,
-  linksToNodeMap,
   createDagLayout,
   clipLine,
   getPathLinksThroughLink,
@@ -116,7 +114,7 @@ export const getCmSelectedBnLayout = createSelector(
         .curve(curveCardinal);
 
       layout.edges.forEach(edge => {
-        const {points, corr, weight} = edge;
+        const {points, weight} = edge;
         const strokeWidth = eScale(weight);
         const clippedEnd = clipLine({
           line: points.slice(points.length - 2),

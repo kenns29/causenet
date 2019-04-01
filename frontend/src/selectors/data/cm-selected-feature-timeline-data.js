@@ -1,5 +1,5 @@
 import {createSelector} from 'reselect';
-import {line as d3Line, curveCardinal} from 'd3-shape';
+import {line as d3Line} from 'd3-shape';
 import {scaleLinear, scaleOrdinal} from 'd3-scale';
 import {range as d3Range} from 'd3-array';
 import {schemeCategory10} from 'd3-scale-chromatic';

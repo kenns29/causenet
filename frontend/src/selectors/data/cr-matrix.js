@@ -46,7 +46,7 @@ export const getCrBayesianNetwork = createSelector(
     const rowSet = new Set(matrix.row_id_order().map(d => d.toString()));
     const colSet = new Set(matrix.col_id_order().map(d => d.toString()));
     return network.filter(({source, target}) => {
-      const [[sf, sc, su], [tf, tc, tu]] = [source, target].map(d => {
+      const [[sf, sc], [tf, tc]] = [source, target].map(d => {
         const p = d.split(',').map(g => g.match(/-?\w+/)[0]);
         return p.length > 2
           ? [p[0], p[1], Number(p[2])]
@@ -183,7 +183,7 @@ const getCrBayesianNetworkPreLayout = createSelector(
     });
     const links = network.map(({source, target, csource, ctarget, ...rest}) => {
       const id = `${source}-${target}`;
-      const [[sf, sc, su], [tf, tc, tu]] = [csource, ctarget];
+      const [[sf, , su], [tf, , tu]] = [csource, ctarget];
       const sourceIndex = nodeId2Index[`(${sf}, ${su})`];
       const targetIndex = nodeId2Index[`(${tf}, ${tu})`];
       const dist = Math.abs(sourceIndex - targetIndex);
@@ -213,17 +213,16 @@ const getCrBayesianNetworkPreLayout = createSelector(
       .fill(0)
       .map(_ => [[], []]);
 
-    const findOverlaps = (link, bounds) => {
+    const findOverlaps = (link, bds) => {
       const {sourceIndex, targetIndex} = link;
       const [s, t] = [
         Math.min(sourceIndex, targetIndex),
         Math.max(sourceIndex, targetIndex)
       ];
       const overlaps = [];
-      bounds.forEach(bound => {
+      bds.forEach(bound => {
         const {
-          range: [rs, rt],
-          h
+          range: [rs, rt]
         } = bound;
         if (s <= rt && t >= rs) {
           overlaps.push(bound);
