@@ -2,20 +2,6 @@ import React, {PureComponent} from 'react';
 import PropTypes from 'prop-types';
 import {document} from 'global';
 
-const compareSelections = (s1, s2) => {
-  if (s1 === null && s2 === null) {
-    return true;
-  }
-  if (s1 !== null && s2 !== null) {
-    const [[px0, py0], [px1, py1]] = s1;
-    const [[cx0, cy0], [cx1, cy1]] = s2;
-    return [[px0, cx0], [py0, cy0], [px1, cx1], [py1, cy1]].every(
-      ([p, c]) => p === c
-    );
-  }
-  return false;
-};
-
 export default class SVGBrush extends PureComponent {
   static defaultProps = {
     selection: null,
@@ -37,16 +23,10 @@ export default class SVGBrush extends PureComponent {
     brushType: PropTypes.string.isRequired
   };
 
-  static getDerivedStateFromProps(props, state) {
-    if (!compareSelections(props.selection, state.changer)) {
-      return {
-        ...state,
-        selection: props.selection,
-        changer: props.selection
-      };
-    }
-    return state;
-  }
+  static getDerivedStateFromProps = (props, state) => ({
+    ...state,
+    selection: props.selection || state.selection
+  });
 
   constructor(props) {
     super(props);

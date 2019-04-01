@@ -279,7 +279,7 @@ class ContentPanel extends PureComponent {
       return null;
     }
     const scale = scaleLinear()
-      .domain(domain)
+      .domain(yearDomain)
       .range([ml, ml + width]);
     return (
       <SVGBrush
@@ -291,9 +291,20 @@ class ContentPanel extends PureComponent {
         }}
         brushType="x"
         selection={brushSelection}
-        onBrushEnd={({selection}) => {
-          console.log('selection', selection);
+        onBrush={({selection}) => {
           this.setState({brushSelection: selection});
+        }}
+        onBrushEnd={({selection}) => {
+          if (!selection) {
+            return;
+          }
+          const [[x0, y0], [x1, y1]] = selection;
+          let [v0, v1] = [x0, x1].map(scale.invert).map(Math.round);
+          v1 = v0 === v1 ? v1 + 1 : v1;
+          const [rx0, rx1] = [v0, v1].map(scale);
+          this.setState({
+            brushSelection: [[rx0, y0], [rx1, y1]]
+          });
         }}
       />
     );
