@@ -289,7 +289,7 @@ class ContentPanel extends PureComponent {
           const {left, top} = this.svg.getBoundingClientRect();
           return [clientX - left, clientY - top];
         }}
-        brushType="x"
+        brushType="2d"
         selection={brushSelection}
         onBrush={({selection}) => {
           this.setState({brushSelection: selection});
@@ -309,7 +309,6 @@ class ContentPanel extends PureComponent {
       />
     );
   }
-
   render() {
     const {
       show,

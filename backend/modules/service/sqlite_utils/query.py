@@ -269,3 +269,7 @@ def query_trade_social_correlation_by_country_item(trade_attribute):
         } for d in iterator]
     finally:
         conn.close()
+
+
+def query_acled_events():
+    return None
