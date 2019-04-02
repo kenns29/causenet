@@ -66,7 +66,8 @@ import {
   UPDATE_MT_SELECTED_MODEL,
   UPDATE_MT_MODEL_MOD,
   UPDATE_MT_MODEL_FEATURES,
-  UPDATE_ACLED_LIST
+  UPDATE_TE_SOURCE,
+  UPDATE_TE_TARGET
 } from './actions';
 
 import {HIERARICAL_CLUSTERING_OPTION} from './constants';
@@ -279,21 +280,37 @@ const DEFAULT_STATE = {
   // 0 -- positive first
   // 1 -- negative first
   cmSortOption: 0,
-  // cmSelectedFeatureTimelineData
-  // {
-  //  feature_id : {
-  //    year : (value),
-  //    ...
+
+  // cmSelectedFeatureTimelineData, currently ordered by [source, target]
+  // [
+  //  {
+  //    id,
+  //    values: [
+  //      {year, value}
+  //    ]
   //  },
-  //  ...
-  // }
-  cmSelectedFeatureTimelineData: {},
+  //  ....
+  // ]
+  cmSelectedFeatureTimelineData: [],
   countries: [],
   items: [],
   mtSelectedModel: null,
   mtModelMod: null,
   mtModelFeatures: [],
-  acledList: []
+  // trade event list source list
+  // null -- no data,
+  // {
+  //  type: 'trade' | 'social',
+  //  id,
+  //  f,
+  //  c,
+  //  u,
+  //  yearRange: [start_year, end_year]
+  //  events: [...]
+  // }
+  teSource: null,
+  // trade event list target list
+  teTarget: null
 };
 
 const handleUpdateScreenSize = (state, {payload}) => ({
@@ -647,9 +664,14 @@ const handleUpdateMtModelFeatures = (state, {payload}) => ({
   mtModelFeatures: payload
 });
 
-const handleUpdateAcledList = (state, {payload}) => ({
+const handleUpdateTeSource = (state, {payload}) => ({
   ...state,
-  acledList: payload
+  teSource: payload
+});
+
+const handleUpdateTeTarget = (state, {payload}) => ({
+  ...state,
+  teTarget: payload
 });
 
 export default handleActions(
@@ -720,7 +742,8 @@ export default handleActions(
     [UPDATE_MT_SELECTED_MODEL]: handleUpdateMtSelectedModel,
     [UPDATE_MT_MODEL_MOD]: handleUpdateMtModelMod,
     [UPDATE_MT_MODEL_FEATURES]: handleUpdateMtModelFeatures,
-    [UPDATE_ACLED_LIST]: handleUpdateAcledList
+    [UPDATE_TE_SOURCE]: handleUpdateTeSource,
+    [UPDATE_TE_TARGET]: handleUpdateTeTarget
   },
   DEFAULT_STATE
 );

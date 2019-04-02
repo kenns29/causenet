@@ -421,6 +421,6 @@ def route_load_acled_event_list():
     if country:
         country = int(country)
     if year_range:
-        year_range = [int(year) for year in year_range]
+        year_range = json.loads(year_range)
 
     return jsonify(query_acled_events(country=country, year_range=year_range))

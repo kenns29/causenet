@@ -213,7 +213,12 @@ export const getRawMtModelFeatures = createSelector(
   state => state.mtModelFeatures
 );
 
-export const getRawAcledList = createSelector(
+export const getRawTeSource = createSelector(
   rootSelector,
-  state => state.acledList
+  state => state.teSource
+);
+
+export const getRawTeTarget = createSelector(
+  rootSelector,
+  state => state.teTarget
 );

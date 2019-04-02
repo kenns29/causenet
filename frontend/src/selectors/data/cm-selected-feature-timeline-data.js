@@ -28,19 +28,13 @@ const idToCid = id => {
 
 const getCmTimelines = createSelector(
   getRawCmSelectedFeatureTimelineData,
-  data =>
-    Object.entries(data).map(([id, valueMap]) => ({
-      id,
-      values: Object.entries(valueMap).map(([year, value]) => ({
-        year: Number(year),
-        value
-      }))
-    }))
+  data => data
 );
 
 export const getCmTimelineYearDomain = createSelector(
   getCmTimelines,
   timelines => {
+    console.log('timelines', timelines);
     if (timelines.length === 0) {
       return null;
     }
@@ -226,31 +220,44 @@ const getCIdToName = createSelector(getRawItems, items =>
   array2Object(items, d => d.item_code, d => d.item)
 );
 
+export const getCmTimelineFeatures = createSelector(
+  [getCmTimelines, getFIdToName, getCIdToName],
+  (timelines, fIdToName, cIdToName) =>
+    timelines.map(({id}) => {
+      const [f, c, u] = idToCid(id);
+      const fname = fIdToName[f];
+      const cname = c === '-1' ? 'stability' : c !== null ? cIdToName[c] : null;
+      const uname =
+        c !== '-1' && u !== null ? (u === 0 ? 'Export' : 'Import') : null;
+      const type = c === '-1' ? 'stability' : 'trade';
+      return {
+        type,
+        id,
+        f,
+        c,
+        u,
+        fname,
+        cname,
+        uname
+      };
+    })
+);
+
 export const getCmTimelineLegend = createSelector(
-  [
-    getCmTimelines,
-    getCmTimelineLayoutSize,
-    getCmTimelineMargins,
-    getFIdToName,
-    getCIdToName
-  ],
-  (timelines, [width, height], [ml, mt, mr, mb], fIdToName, cIdToName) => {
+  [getCmTimelineFeatures, getCmTimelineLayoutSize, getCmTimelineMargins],
+  (features, [width, height], [ml, mt, mr, mb]) => {
     const fontSize = 12;
     const computeTextLength = makeTextLengthComputer({fontSize});
     const [trade, stability] = [[], []];
     const colorScale = scaleOrdinal(schemeCategory10);
-    timelines.forEach(({id, values}, index) => {
-      const [f, c, u] = idToCid(id);
-      const fname = fIdToName[f];
-      if (c === '-1') {
+    features.forEach(({type, id, f, c, u, fname, cname, uname}, index) => {
+      if (type === 'stability') {
         stability.push({
           id,
-          label: `${fname}, stability`,
+          label: `${fname}, ${cname}`,
           color: colorScale(index)
         });
       } else {
-        const cname = c !== null ? cIdToName[c] : null;
-        const uname = u !== null ? (u === 0 ? 'Export' : 'Import') : null;
         let label = fname;
         if (cname) {
           label += `, ${cname}`;

@@ -284,7 +284,7 @@ def query_acled_events(country=None, year_range=None):
         if country is not None or year_range is not None:
             query += 'WHERE '
 
-        cstr = 'FAO_CountryCode = \'{}\' '.format(country) if country is not None else None
+        cstr = 'FAO_CountryCode = {} '.format(country) if country is not None else None
         ystr = 'year >= {} AND year < {} '.format(year_range[0], year_range[1]) if year_range is not None else None
 
         if cstr is not None and ystr is not None:

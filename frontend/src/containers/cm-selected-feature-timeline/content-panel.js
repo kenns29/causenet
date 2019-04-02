@@ -12,21 +12,23 @@ import {
   getCmTimelineViewLayout,
   getCmTimelineMargins,
   getCmTimelineLayoutSize,
-  getCmTimelineYearDomain
+  getCmTimelineYearDomain,
+  getCmTimelineFeatures
 } from '../../selectors/data';
 import {
   updateShowCmSelectedFeatureTimelineWindow,
   updateCmSelectedFeatureTimelineWindowSize,
   updatePopupWindowOrder,
   updateShowTradeEventListWindw,
-  fetchAcledList
+  bundleFetchUpdateTeData
 } from '../../actions';
 
 const mapDispatchToProps = {
   updateShowCmSelectedFeatureTimelineWindow,
   updateCmSelectedFeatureTimelineWindowSize,
   updatePopupWindowOrder,
-  updateShowTradeEventListWindw
+  updateShowTradeEventListWindw,
+  bundleFetchUpdateTeData
 };
 
 const mapStateToProps = state => ({
@@ -36,7 +38,8 @@ const mapStateToProps = state => ({
   layoutSize: getCmTimelineLayoutSize(state),
   yearDomain: getCmTimelineYearDomain(state),
   margins: getCmTimelineMargins(state),
-  popupWindowOrder: getPopupWindowOrder(state)
+  popupWindowOrder: getPopupWindowOrder(state),
+  features: getCmTimelineFeatures(state)
 });
 
 const tooltipStyle = {
@@ -275,12 +278,14 @@ class ContentPanel extends PureComponent {
     const {
       layoutSize: [width, height],
       margins: [ml, mt],
-      yearDomain
+      yearDomain,
+      features
     } = this.props;
     const {brushSelection} = this.state;
     if (!yearDomain) {
       return null;
     }
+    const [source, target] = features;
     const scale = scaleLinear()
       .domain(yearDomain)
       .range([ml, ml + width]);
@@ -309,10 +314,16 @@ class ContentPanel extends PureComponent {
             brushSelection: [[rx0, y0], [rx1, y1]]
           });
           this.props.updateShowTradeEventListWindw(true);
+          this.props.bundleFetchUpdateTeData({
+            source,
+            target,
+            yearRange: [v0, v1]
+          });
         }}
       />
     );
   }
+
   render() {
     const {
       show,

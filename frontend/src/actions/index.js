@@ -106,7 +106,8 @@ export const UPDATE_ITEMS = 'UPDATE_ITEMS';
 export const UPDATE_MT_SELECTED_MODEL = 'UPDATE_MT_SELECTED_MODEL';
 export const UPDATE_MT_MODEL_MOD = 'UPDATE_MT_MODEL_MOD';
 export const UPDATE_MT_MODEL_FEATURES = 'UPDATE_MT_MODEL_FEATURES';
-export const UPDATE_ACLED_LIST = 'UPDATE_ACLED_LIST';
+export const UPDATE_TE_SOURCE = 'UPDATE_TE_SOURCE';
+export const UPDATE_TE_TARGET = 'UPDATE_TE_TARGET';
 
 // UI actions
 export const updateScreenSize = createAction(UPDATE_SCREEN_SIZE);
@@ -266,7 +267,8 @@ export const updateItems = createAction(UPDATE_ITEMS);
 export const updateMtSelectedModel = createAction(UPDATE_MT_SELECTED_MODEL);
 export const updateMtModelMod = createAction(UPDATE_MT_MODEL_MOD);
 export const updateMtModelFeatures = createAction(UPDATE_MT_MODEL_FEATURES);
-export const updateAcledList = createAction(UPDATE_ACLED_LIST);
+export const updateTeSource = createAction(UPDATE_TE_SOURCE);
+export const updateTeTarget = createAction(UPDATE_TE_TARGET);
 
 // async actions
 export const fetchCurrentDatasetName = () => async dispatch => {
@@ -775,11 +777,14 @@ export const fetchItems = () => async dispatch => {
   }
 };
 
-export const fetchAcledList = ({countryCode, yearRange}) => async dispatch => {
+export const fetchAcledEventList = ({country, yearRange}) => async dispatch => {
   try {
-    const response = await fetch(`${BACKEND_URL}/load_acled_event_list`);
+    const response = await fetch(
+      `${BACKEND_URL}/load_acled_event_list?country=${country}&year_range=${JSON.stringify(
+        yearRange
+      )}`
+    );
     const data = await response.json();
-    dispatch(updateAcledList(data));
     return Promise.resolve(data);
   } catch (err) {
     throw new Error(err);
@@ -935,11 +940,49 @@ export const bundleFetchUpdateCmSelectedFeatureTimelineData = ({
   featureSelection
 }) => async dispatch => {
   try {
-    const data = await dispatch(
+    const map = await dispatch(
       fetchData({data_type: 'raw_data_file', featureSelection})
     );
+    const data = featureSelection
+      .filter(d => map.hasOwnProperty(d))
+      .map(id => ({
+        id,
+        values: Object.entries(map[id]).map(([year, value]) => ({
+          year: Number(year),
+          value
+        }))
+      }));
     dispatch(updateCmSelectedFeatureTimelineData(data));
     return Promise.resolve(data);
+  } catch (err) {
+    return new Error(err);
+  }
+};
+
+export const bundleFetchUpdateTeData = ({
+  source,
+  target,
+  yearRange
+}) => async dispatch => {
+  try {
+    console.log('source', source, 'target', target, 'yearRange', yearRange);
+    const [teSource, teTarget] = await Promise.all(
+      [source, target].map(async d => {
+        if (d.type === 'trade') {
+          return Promise.resolve(d);
+        }
+        const eventList = await dispatch(
+          fetchAcledEventList({country: d.f, yearRange})
+        );
+        return Promise.resolve({
+          ...d,
+          eventList
+        });
+      })
+    );
+    dispatch(updateTeSource(teSource));
+    dispatch(updateTeTarget(teTarget));
+    return Promsie.resolve([teSource, teTarget]);
   } catch (err) {
     return new Error(err);
   }

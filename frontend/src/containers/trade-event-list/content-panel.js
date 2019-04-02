@@ -22,7 +22,6 @@ const mapDispatchToProps = {
 const mapStateToProps = state => ({
   show: getShowTradeEventListWindow(state),
   windowSize: getTradeEventListWindowSize(state),
-  acledList: getRawAcledList(state),
   popupWindowOrder: getPopupWindowOrder(state)
 });
 
