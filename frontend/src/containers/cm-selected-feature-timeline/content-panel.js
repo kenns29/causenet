@@ -18,7 +18,8 @@ import {
   updateShowCmSelectedFeatureTimelineWindow,
   updateCmSelectedFeatureTimelineWindowSize,
   updatePopupWindowOrder,
-  updateShowTradeEventListWindw
+  updateShowTradeEventListWindw,
+  fetchAcledList
 } from '../../actions';
 
 const mapDispatchToProps = {
