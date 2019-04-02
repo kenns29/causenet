@@ -212,3 +212,8 @@ export const getRawMtModelFeatures = createSelector(
   rootSelector,
   state => state.mtModelFeatures
 );
+
+export const getRawAcledList = createSelector(
+  rootSelector,
+  state => state.acledList
+);

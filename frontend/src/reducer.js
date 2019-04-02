@@ -18,6 +18,8 @@ import {
   UPDATE_CM_SELECTED_BN_WINDOW_SIZE,
   UPDATE_SHOW_CM_SELECTED_FEATURE_TIMELINE_WINDOW,
   UPDATE_CM_SELECTED_FEATURE_TIMELINE_WINDOW_SIZE,
+  UPDATE_SHOW_TRADE_EVENT_LIST_WINDOW,
+  UPDATE_TRADE_EVENT_LIST_WINDOW_SIZE,
   UPDATE_SHOW_WORLD_MAP_WINDOW,
   UPDATE_POPUP_WINDOW_ORDER,
   UPDATE_CURRENT_DATASET_NAME,
@@ -63,7 +65,8 @@ import {
   UPDATE_ITEMS,
   UPDATE_MT_SELECTED_MODEL,
   UPDATE_MT_MODEL_MOD,
-  UPDATE_MT_MODEL_FEATURES
+  UPDATE_MT_MODEL_FEATURES,
+  UPDATE_ACLED_LIST
 } from './actions';
 
 import {HIERARICAL_CLUSTERING_OPTION} from './constants';
@@ -204,6 +207,8 @@ const DEFAULT_STATE = {
   cmSelectedBnWindowSize: [800, 600],
   showCmSelectedFeatureTimelineWindow: false,
   cmSelectedFeatureTimelineWindowSize: [800, 600],
+  showTradeEventListWindow: false,
+  tradeEventListWindowSize: [500, 800],
   showWorldMapWindow: false,
   popupWindowOrder: [
     'CrMatrix',
@@ -211,6 +216,7 @@ const DEFAULT_STATE = {
     'CmMatrix',
     'CmSelectedBn',
     'CmSelectedFeatureTimeline',
+    'TradeEventList',
     'WorldMap'
   ],
   // feature pair list that will be shown in the distribution window
@@ -286,7 +292,8 @@ const DEFAULT_STATE = {
   items: [],
   mtSelectedModel: null,
   mtModelMod: null,
-  mtModelFeatures: []
+  mtModelFeatures: [],
+  acledList: []
 };
 
 const handleUpdateScreenSize = (state, {payload}) => ({
@@ -382,6 +389,16 @@ const handleUpdateShowCmSelectedFeatureTimelineWindow = (state, {payload}) => ({
 const handleUpdateCmSelectedFeatureTimelineWindowSize = (state, {payload}) => ({
   ...state,
   cmSelectedFeatureTimelineWindowSize: payload
+});
+
+const handleUpdateShowTradeEventListWindow = (state, {payload}) => ({
+  ...state,
+  showTradeEventListWindow: payload
+});
+
+const handleUpdateTradeEventListWindowSize = (state, {payload}) => ({
+  ...state,
+  tradeEventListWindowSize: payload
 });
 
 const handleUpdateShowWorldMapWindow = (state, {payload}) => ({
@@ -630,6 +647,11 @@ const handleUpdateMtModelFeatures = (state, {payload}) => ({
   mtModelFeatures: payload
 });
 
+const handleUpdateAcledList = (state, {payload}) => ({
+  ...state,
+  acledList: payload
+});
+
 export default handleActions(
   {
     [UPDATE_SCREEN_SIZE]: handleUpdateScreenSize,
@@ -650,6 +672,8 @@ export default handleActions(
     [UPDATE_CM_MATRIX_WINDOW_SIZE]: handleUpdateCmMatrixWindowSize,
     [UPDATE_SHOW_CM_SELECTED_FEATURE_TIMELINE_WINDOW]: handleUpdateShowCmSelectedFeatureTimelineWindow,
     [UPDATE_CM_SELECTED_FEATURE_TIMELINE_WINDOW_SIZE]: handleUpdateCmSelectedFeatureTimelineWindowSize,
+    [UPDATE_SHOW_TRADE_EVENT_LIST_WINDOW]: handleUpdateShowTradeEventListWindow,
+    [UPDATE_TRADE_EVENT_LIST_WINDOW_SIZE]: handleUpdateTradeEventListWindowSize,
     [UPDATE_SHOW_WORLD_MAP_WINDOW]: handleUpdateShowWorldMapWindow,
     [UPDATE_POPUP_WINDOW_ORDER]: handleUpdatePopupWindowOrder,
     [UPDATE_CURRENT_DATASET_NAME]: handleUpdateCurrentDatasetName,
@@ -695,7 +719,8 @@ export default handleActions(
     [UPDATE_ITEMS]: handleUpdateItems,
     [UPDATE_MT_SELECTED_MODEL]: handleUpdateMtSelectedModel,
     [UPDATE_MT_MODEL_MOD]: handleUpdateMtModelMod,
-    [UPDATE_MT_MODEL_FEATURES]: handleUpdateMtModelFeatures
+    [UPDATE_MT_MODEL_FEATURES]: handleUpdateMtModelFeatures,
+    [UPDATE_ACLED_LIST]: handleUpdateAcledList
   },
   DEFAULT_STATE
 );

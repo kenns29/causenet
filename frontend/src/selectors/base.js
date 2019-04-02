@@ -137,6 +137,16 @@ export const getCmSelectedFeatureTimelineWindowSize = createSelector(
   state => state.cmSelectedFeatureTimelineWindowSize
 );
 
+export const getShowTradeEventListWindow = createSelector(
+  rootSelector,
+  state => state.showTradeEventListWindow
+);
+
+export const getTradeEventListWindowSize = createSelector(
+  rootSelector,
+  state => state.tradeEventListWindowSize
+);
+
 export const getShowWorldMapWindow = createSelector(
   rootSelector,
   state => state.showWorldMapWindow

@@ -17,13 +17,15 @@ import {
 import {
   updateShowCmSelectedFeatureTimelineWindow,
   updateCmSelectedFeatureTimelineWindowSize,
-  updatePopupWindowOrder
+  updatePopupWindowOrder,
+  updateShowTradeEventListWindw
 } from '../../actions';
 
 const mapDispatchToProps = {
   updateShowCmSelectedFeatureTimelineWindow,
   updateCmSelectedFeatureTimelineWindowSize,
-  updatePopupWindowOrder
+  updatePopupWindowOrder,
+  updateShowTradeEventListWindw
 };
 
 const mapStateToProps = state => ({
@@ -305,6 +307,7 @@ class ContentPanel extends PureComponent {
           this.setState({
             brushSelection: [[rx0, y0], [rx1, y1]]
           });
+          this.props.updateShowTradeEventListWindw(true);
         }}
       />
     );

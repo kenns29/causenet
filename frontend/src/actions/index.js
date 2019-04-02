@@ -30,6 +30,10 @@ export const UPDATE_SHOW_CM_SELECTED_FEATURE_TIMELINE_WINDOW =
   'UPDATE_SHOW_CM_SELECTED_FEATURE_TIMELINE_WINDOW';
 export const UPDATE_CM_SELECTED_FEATURE_TIMELINE_WINDOW_SIZE =
   'UPDATE_CM_SELECTED_FEATURE_TIMELINE_WINDOW_SIZE';
+export const UPDATE_SHOW_TRADE_EVENT_LIST_WINDOW =
+  'UPDATE_SHOW_TRADE_EVENT_LIST_WINDOW';
+export const UPDATE_TRADE_EVENT_LIST_WINDOW_SIZE =
+  'UPDATE_TRADE_EVENT_LIST_WINDOW_SIZE';
 export const UPDATE_SHOW_WORLD_MAP_WINDOW = 'UPDATE_SHOW_WORLD_MAP_WINDOW';
 export const UPDATE_POPUP_WINDOW_ORDER = 'UPDATE_POPUP_WINDOW_ORDER';
 
@@ -102,6 +106,7 @@ export const UPDATE_ITEMS = 'UPDATE_ITEMS';
 export const UPDATE_MT_SELECTED_MODEL = 'UPDATE_MT_SELECTED_MODEL';
 export const UPDATE_MT_MODEL_MOD = 'UPDATE_MT_MODEL_MOD';
 export const UPDATE_MT_MODEL_FEATURES = 'UPDATE_MT_MODEL_FEATURES';
+export const UPDATE_ACLED_LIST = 'UPDATE_ACLED_LIST';
 
 // UI actions
 export const updateScreenSize = createAction(UPDATE_SCREEN_SIZE);
@@ -149,6 +154,12 @@ export const updateShowCmSelectedFeatureTimelineWindow = createAction(
 );
 export const updateCmSelectedFeatureTimelineWindowSize = createAction(
   UPDATE_CM_SELECTED_FEATURE_TIMELINE_WINDOW_SIZE
+);
+export const updateShowTradeEventListWindw = createAction(
+  UPDATE_SHOW_TRADE_EVENT_LIST_WINDOW
+);
+export const updateTradeEventListWindowSize = createAction(
+  UPDATE_TRADE_EVENT_LIST_WINDOW_SIZE
 );
 export const updateShowWorldMapWindow = createAction(
   UPDATE_SHOW_WORLD_MAP_WINDOW
@@ -255,6 +266,7 @@ export const updateItems = createAction(UPDATE_ITEMS);
 export const updateMtSelectedModel = createAction(UPDATE_MT_SELECTED_MODEL);
 export const updateMtModelMod = createAction(UPDATE_MT_MODEL_MOD);
 export const updateMtModelFeatures = createAction(UPDATE_MT_MODEL_FEATURES);
+export const updateAcledList = createAction(UPDATE_ACLED_LIST);
 
 // async actions
 export const fetchCurrentDatasetName = () => async dispatch => {
@@ -757,6 +769,17 @@ export const fetchItems = () => async dispatch => {
     const response = await fetch(`${BACKEND_URL}/load_fao_items`);
     const data = await response.json();
     dispatch(updateItems(data));
+    return Promise.resolve(data);
+  } catch (err) {
+    throw new Error(err);
+  }
+};
+
+export const fetchAcledList = ({countryCode, yearRange}) => async dispatch => {
+  try {
+    const response = await fetch(`${BACKEND_URL}/load_acled_event_list`);
+    const data = await response.json();
+    dispatch(updateAcledList(data));
     return Promise.resolve(data);
   } catch (err) {
     throw new Error(err);

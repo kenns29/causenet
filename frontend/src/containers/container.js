@@ -17,6 +17,7 @@ import CChord from './c-chord';
 import CmMatrix from './cm-matrix';
 import CmSelectedBn from './cm-selected-bn';
 import CmSelectedFeatureTimeline from './cm-selected-feature-timeline';
+import TradeEventList from './trade-event-list';
 import FeatureList from './feature-list';
 import WorldMap from './world-map';
 import ContentPanelCenter from './content-panel-center';
@@ -48,6 +49,7 @@ const popupWindowMap = {
   CmMatrix,
   CmSelectedBn,
   CmSelectedFeatureTimeline,
+  TradeEventList,
   WorldMap
 };
 

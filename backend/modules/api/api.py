@@ -413,8 +413,8 @@ def route_load_fao_items():
     return jsonify(items)
 
 
-@blueprint.route('/load_acled_events', methods=['GET'])
-def route_load_acled_events():
+@blueprint.route('/load_acled_event_list', methods=['GET'])
+def route_load_acled_event_list():
     country = request.args.get('country')
     year_range = request.args.get('year_range')
 
