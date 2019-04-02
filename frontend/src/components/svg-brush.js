@@ -203,6 +203,8 @@ export default class SVGBrush extends PureComponent {
           y={y - 5}
           width={w + 10}
           height={10}
+          fill="none"
+          pointerEvents="visible"
           onPointerDown={event => {
             event.target.setPointerCapture(event.pointerId);
             this.move = this.props.getEventMouse(event);
@@ -258,6 +260,8 @@ export default class SVGBrush extends PureComponent {
           y={y - 5}
           width={10}
           height={h + 10}
+          fill="none"
+          pointerEvents="visible"
           onPointerDown={event => {
             event.target.setPointerCapture(event.pointerId);
             this.move = this.props.getEventMouse(event);
@@ -313,6 +317,8 @@ export default class SVGBrush extends PureComponent {
           y={y + h - 5}
           width={w + 10}
           height={10}
+          fill="none"
+          pointerEvents="visible"
           onPointerDown={event => {
             event.target.setPointerCapture(event.pointerId);
             this.move = this.props.getEventMouse(event);
@@ -368,6 +374,8 @@ export default class SVGBrush extends PureComponent {
           y={y - 5}
           width={10}
           height={h + 10}
+          fill="none"
+          pointerEvents="visible"
           onPointerDown={event => {
             event.target.setPointerCapture(event.pointerId);
             this.move = this.props.getEventMouse(event);
@@ -423,6 +431,8 @@ export default class SVGBrush extends PureComponent {
           y={y - 5}
           width={10}
           height={10}
+          fill="none"
+          pointerEvents="visible"
           onPointerDown={event => {
             event.target.setPointerCapture(event.pointerId);
             this.move = this.props.getEventMouse(event);
@@ -496,6 +506,8 @@ export default class SVGBrush extends PureComponent {
           y={y - 5}
           width={10}
           height={10}
+          fill="none"
+          pointerEvents="visible"
           onPointerDown={event => {
             event.target.setPointerCapture(event.pointerId);
             this.move = this.props.getEventMouse(event);
@@ -569,6 +581,8 @@ export default class SVGBrush extends PureComponent {
           y={y + h - 5}
           width={10}
           height={10}
+          fill="none"
+          pointerEvents="visible"
           onPointerDown={event => {
             event.target.setPointerCapture(event.pointerId);
             this.move = this.props.getEventMouse(event);
@@ -642,6 +656,8 @@ export default class SVGBrush extends PureComponent {
           y={y + h - 5}
           width={10}
           height={10}
+          fill="none"
+          pointerEvents="visible"
           onPointerDown={event => {
             event.target.setPointerCapture(event.pointerId);
             this.move = this.props.getEventMouse(event);
