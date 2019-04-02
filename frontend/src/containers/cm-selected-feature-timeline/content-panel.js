@@ -330,7 +330,7 @@ class ContentPanel extends PureComponent {
         onResize={(event, {width, height}) =>
           this.props.updateCmSelectedFeatureTimelineWindowSize([width, height])
         }
-        onClick={() =>
+        onMouseDown={() =>
           popupWindowOrder[popupWindowOrder.length - 1] === NAME ||
           this.props.updatePopupWindowOrder([
             ...popupWindowOrder.filter(d => d !== NAME),

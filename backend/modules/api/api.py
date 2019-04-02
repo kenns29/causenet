@@ -15,7 +15,7 @@ from modules.service.data_utils import load_data, load_pdist, load_clustering, g
 from modules.service.clustering_utils import tree2dict, tree_to_non_binary_dict
 from modules.service.sqlite_utils.query import query_bilateral_trade_averaged_by_country_by_item_group, \
     query_countries, query_import_social_correlation_by_country_item, query_items, \
-    query_trade_social_correlation_by_country_item
+    query_trade_social_correlation_by_country_item, query_acled_events
 from scipy.cluster.hierarchy import to_tree
 from itertools import combinations
 
@@ -411,3 +411,16 @@ def route_load_fao_countries():
 def route_load_fao_items():
     items = query_items()
     return jsonify(items)
+
+
+@blueprint.route('/load_acled_events', methods=['GET'])
+def route_load_acled_events():
+    country = request.args.get('country')
+    year_range = request.args.get('year_range')
+
+    if country:
+        country = int(country)
+    if year_range:
+        year_range = [int(year) for year in year_range]
+
+    return jsonify(query_acled_events(country=country, year_range=year_range))

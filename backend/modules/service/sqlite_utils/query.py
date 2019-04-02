@@ -271,5 +271,36 @@ def query_trade_social_correlation_by_country_item(trade_attribute):
         conn.close()
 
 
-def query_acled_events():
-    return None
+def query_acled_events(country=None, year_range=None):
+    try:
+        conn = sqlite3.connect(db_dir)
+        conn.row_factory = sqlite3.Row
+
+        query = '''
+            SELECT *
+            FROM ACLED
+        '''
+
+        if country is not None or year_range is not None:
+            query += 'WHERE '
+
+        cstr = 'FAO_CountryCode = \'{}\' '.format(country) if country is not None else None
+        ystr = 'year >= {} AND year < {} '.format(year_range[0], year_range[1]) if year_range is not None else None
+
+        if cstr is not None and ystr is not None:
+            query += cstr + ' AND ' + ystr
+        elif cstr is not None:
+            query += cstr
+        elif ystr is not None:
+            query += ystr
+
+        iterator = conn.execute(query)
+
+        return [{
+            'country': int(d['FAO_CountryCode']),
+            'year': int(d['year']),
+            'notes': d['notes'],
+            'event_type': d['event_type']
+        } for d in iterator]
+    finally:
+        conn.close()

@@ -23,6 +23,7 @@ export default class PopupWindow extends PureComponent {
     onDrag: () => {},
     onResize: () => {},
     onClick: () => {},
+    onMouseDown: () => {},
     contentProps: {}
   };
   static getDerivedStateFromProps(props, state) {
@@ -78,6 +79,7 @@ export default class PopupWindow extends PureComponent {
         }}
         style={this.props.style}
         onClick={this.props.onClick}
+        onMouseDown={this.props.onMouseDown}
       >
         <div style={{position: 'relative'}}>
           <div
