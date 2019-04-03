@@ -14,3 +14,4 @@ export * from './cm-matrix';
 export * from './cm-selected-bn';
 export * from './cm-selected-feature-timeline-data';
 export * from './model-tuning';
+export * from './trade-event-list';

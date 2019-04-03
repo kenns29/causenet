@@ -209,7 +209,7 @@ const DEFAULT_STATE = {
   showCmSelectedFeatureTimelineWindow: false,
   cmSelectedFeatureTimelineWindowSize: [800, 600],
   showTradeEventListWindow: false,
-  tradeEventListWindowSize: [500, 800],
+  tradeEventListWindowSize: [800, 800],
   showWorldMapWindow: false,
   popupWindowOrder: [
     'CrMatrix',
