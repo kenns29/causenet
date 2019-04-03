@@ -211,7 +211,7 @@ class ContentPanel extends PureComponent {
       windowSize: [windowWidth, windowHeight],
       popupWindowOrder
     } = this.props;
-    const [width, height] = [windowWidth, windowHeight - 20];
+    const [width, height] = [windowWidth, windowHeight - 25];
     return show ? (
       <PopupWindow
         ref={input => (this.container = input)}
@@ -232,7 +232,11 @@ class ContentPanel extends PureComponent {
           ])
         }
       >
-        <ZoomableSVG width={width} height={height}>
+        <ZoomableSVG
+          width={width}
+          height={height}
+          style={{position: 'relative'}}
+        >
           {this._renderMarker()}
           {this._renderNodeLink()}
         </ZoomableSVG>

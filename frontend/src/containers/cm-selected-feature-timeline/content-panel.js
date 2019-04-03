@@ -330,7 +330,7 @@ class ContentPanel extends PureComponent {
       windowSize: [windowWidth, windowHeight],
       popupWindowOrder
     } = this.props;
-    const [width, height] = [windowWidth, windowHeight - 20];
+    const [width, height] = [windowWidth, windowHeight - 25];
     return show ? (
       <PopupWindow
         ref={input => (this.container = input)}
