@@ -11,8 +11,8 @@ class EventList extends PureComponent {
     const {eventList} = this.props;
     return eventList ? (
       <List>
-        {eventList.map(d => (
-          <List.Item>
+        {eventList.map((d, i) => (
+          <List.Item key={i}>
             <div>{d.year}</div>
             <List.Item.Meta title={d.event_type} description={d.notes} />
           </List.Item>

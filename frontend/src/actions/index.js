@@ -965,7 +965,6 @@ export const bundleFetchUpdateTeData = ({
   yearRange
 }) => async dispatch => {
   try {
-    console.log('source', source, 'target', target, 'yearRange', yearRange);
     const [teSource, teTarget] = await Promise.all(
       [source, target].map(async d => {
         if (d.type === 'trade') {

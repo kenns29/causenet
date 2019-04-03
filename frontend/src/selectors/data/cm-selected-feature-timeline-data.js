@@ -34,7 +34,6 @@ const getCmTimelines = createSelector(
 export const getCmTimelineYearDomain = createSelector(
   getCmTimelines,
   timelines => {
-    console.log('timelines', timelines);
     if (timelines.length === 0) {
       return null;
     }

@@ -306,7 +306,7 @@ const DEFAULT_STATE = {
   //  c,
   //  u,
   //  yearRange: [start_year, end_year]
-  //  events: [...]
+  //  eventList: [...]
   // }
   teSource: null,
   // trade event list target list

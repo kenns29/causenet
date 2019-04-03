@@ -72,7 +72,19 @@ class TradeEventList extends PureComponent {
         </div>
         <Divider />
         <div style={{display: 'flex', padding: '0px 10px'}}>
-          <div style={{}} />
+          <div style={{width: w, height: height - 80, overflow: 'auto'}}>
+            <EventList eventList={source.eventList} />
+          </div>
+          <div
+            style={{
+              width: w,
+              height: height - 80,
+              marginLeft: 30,
+              overflow: 'auto'
+            }}
+          >
+            <EventList eventList={target.eventList} />
+          </div>
         </div>
       </React.Fragment>
     );
