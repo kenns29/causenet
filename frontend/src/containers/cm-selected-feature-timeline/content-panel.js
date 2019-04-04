@@ -59,15 +59,6 @@ const tooltipStyle = {
 // const ID = 'cm-selected-feature-timeline';
 const NAME = 'CmSelectedFeatureTimeline';
 
-const WrappedBrush = props => {
-  const {x0, y0, x1, y1, empty} = props;
-  const s = new Set(['x0', 'y0', 'x1', 'y1', 'empty']);
-  const selection = empty ? null : [[x0, y0], [x1, y1]];
-  return (
-    <SVGBrush {...{...filterObject(props, key => !s.has(key)), selection}} />
-  );
-};
-
 class ContentPanel extends PureComponent {
   constructor(props) {
     super(props);
@@ -314,7 +305,7 @@ class ContentPanel extends PureComponent {
         immediate={!interBrushSelection}
       >
         {props => (
-          <WrappedBrush
+          <SVGBrush
             extent={[[ml, mt], [ml + width, mt + height]]}
             getEventMouse={event => {
               const {clientX, clientY} = event;
@@ -322,11 +313,9 @@ class ContentPanel extends PureComponent {
               return [clientX - left, clientY - top];
             }}
             brushType="x"
-            x0={props.x0}
-            y0={props.y0}
-            x1={props.x1}
-            y1={props.y1}
-            empty={!brushSelection}
+            selection={
+              brushSelection && [[props.x0, props.y0], [props.x1, props.y1]]
+            }
             onBrush={({selection}) => {
               this.setState({
                 brushSelection: selection,
