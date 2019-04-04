@@ -1,6 +1,9 @@
 import React, {PureComponent} from 'react';
 import {connect} from 'react-redux';
 import {scaleLinear} from 'd3-scale';
+import {config} from 'react-spring';
+import {Spring} from 'react-spring/renderprops';
+import {filterObject} from '../../utils';
 import PopupWindow from '../../components/popup-window';
 import SVGBrush from '../../components/svg-brush';
 import {
@@ -56,12 +59,22 @@ const tooltipStyle = {
 // const ID = 'cm-selected-feature-timeline';
 const NAME = 'CmSelectedFeatureTimeline';
 
+const WrappedBrush = props => {
+  const {x0, y0, x1, y1, empty} = props;
+  const s = new Set(['x0', 'y0', 'x1', 'y1', 'empty']);
+  const selection = empty ? null : [[x0, y0], [x1, y1]];
+  return (
+    <SVGBrush {...{...filterObject(props, key => !s.has(key)), selection}} />
+  );
+};
+
 class ContentPanel extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
       tooltip: null,
-      brushSelection: null
+      brushSelection: null,
+      interBrushSelection: null
     };
   }
 
@@ -281,7 +294,7 @@ class ContentPanel extends PureComponent {
       yearDomain,
       features
     } = this.props;
-    const {brushSelection} = this.state;
+    const {brushSelection, interBrushSelection} = this.state;
     if (!yearDomain) {
       return null;
     }
@@ -289,38 +302,59 @@ class ContentPanel extends PureComponent {
     const scale = scaleLinear()
       .domain(yearDomain)
       .range([ml, ml + width]);
+
+    const fs = interBrushSelection || brushSelection;
+    const ts = brushSelection;
+    const [[fx0, fy0], [fx1, fy1]] = fs || [[0, 0], [0, 0]];
+    const [[tx0, ty0], [tx1, ty1]] = ts || [[0, 0], [0, 0]];
     return (
-      <SVGBrush
-        extent={[[ml, mt], [ml + width, mt + height]]}
-        getEventMouse={event => {
-          const {clientX, clientY} = event;
-          const {left, top} = this.svg.getBoundingClientRect();
-          return [clientX - left, clientY - top];
-        }}
-        brushType="x"
-        selection={brushSelection}
-        onBrush={({selection}) => {
-          this.setState({brushSelection: selection});
-        }}
-        onBrushEnd={({selection}) => {
-          if (!selection) {
-            return;
-          }
-          const [[x0, y0], [x1, y1]] = selection;
-          let [v0, v1] = [x0, x1].map(scale.invert).map(Math.round);
-          v1 = v0 === v1 ? v1 + 1 : v1;
-          const [rx0, rx1] = [v0, v1].map(scale);
-          this.setState({
-            brushSelection: [[rx0, y0], [rx1, y1]]
-          });
-          this.props.updateShowTradeEventListWindw(true);
-          this.props.bundleFetchUpdateTeData({
-            source,
-            target,
-            yearRange: [v0, v1]
-          });
-        }}
-      />
+      <Spring
+        from={{x0: fx0, y0: fy0, x1: fx1, y1: fy1}}
+        to={{x0: tx0, y0: ty0, x1: tx1, y1: ty1}}
+        immediate={!interBrushSelection}
+      >
+        {props => (
+          <WrappedBrush
+            extent={[[ml, mt], [ml + width, mt + height]]}
+            getEventMouse={event => {
+              const {clientX, clientY} = event;
+              const {left, top} = this.svg.getBoundingClientRect();
+              return [clientX - left, clientY - top];
+            }}
+            brushType="x"
+            x0={props.x0}
+            y0={props.y0}
+            x1={props.x1}
+            y1={props.y1}
+            empty={!brushSelection}
+            onBrush={({selection}) => {
+              this.setState({
+                brushSelection: selection,
+                interBrushSelection: null
+              });
+            }}
+            onBrushEnd={({selection}) => {
+              if (!selection) {
+                return;
+              }
+              const [[x0, y0], [x1, y1]] = selection;
+              let [v0, v1] = [x0, x1].map(scale.invert).map(Math.round);
+              v1 = v0 === v1 ? v1 + 1 : v1;
+              const [rx0, rx1] = [v0, v1].map(scale);
+              this.setState({
+                brushSelection: [[rx0, y0], [rx1, y1]],
+                interBrushSelection: [[x0, y0], [x1, y1]]
+              });
+              this.props.updateShowTradeEventListWindw(true);
+              this.props.bundleFetchUpdateTeData({
+                source,
+                target,
+                yearRange: [v0, v1]
+              });
+            }}
+          />
+        )}
+      </Spring>
     );
   }
 
