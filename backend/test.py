@@ -102,6 +102,19 @@ def test_concat():
     print(data)
 
 
+def test_eliminiation():
+    from pgmpy.inference.EliminationOrder import WeightedMinFill
+    from pgmpy.inference.ExactInference import VariableElimination
+    model = get_bn_test_model()
+    order = WeightedMinFill(model).get_elimination_order(model.nodes())
+    edges = WeightedMinFill(model).fill_in_edges('O')
+    print(order)
+    print(list(edges))
+    ve = VariableElimination(model)
+    g = ve.induced_graph(order)
+    print(g)
+
+
 if __name__ == '__main__':
     # import json
     # # print(test_bn_edge_weights())
@@ -109,5 +122,6 @@ if __name__ == '__main__':
     # # print(json.dumps(test_learn_parameters(), indent='\t'))
     # raw_data, normalized_data, data = load_data_test()
     # features = load_full_features_test()
-    test_concat()
+    # test_concat()
+    test_eliminiation()
     print('---')

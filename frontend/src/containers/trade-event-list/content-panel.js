@@ -64,9 +64,12 @@ class TradeEventList extends PureComponent {
                 marginLeft: i ? 30 : 0
               }}
             >
-              {d.type === 'trade'
-                ? `${d.fname}, ${d.cname}, ${d.uname}`
-                : `${d.fname}, ${d.cname}`}
+              {
+                // d.type === 'trade'
+                // ? `${d.fname}, ${d.cname}, ${d.uname}`
+                // : `${d.fname}, ${d.cname}`
+              }
+              {`${d.fname}, stability`}
             </div>
           ))}
         </div>

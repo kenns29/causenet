@@ -967,9 +967,9 @@ export const bundleFetchUpdateTeData = ({
   try {
     const [teSource, teTarget] = await Promise.all(
       [source, target].map(async d => {
-        if (d.type === 'trade') {
-          return Promise.resolve(d);
-        }
+        // if (d.type === 'trade') {
+        //   return Promise.resolve(d);
+        // }
         const eventList = await dispatch(
           fetchAcledEventList({country: d.f, yearRange})
         );
