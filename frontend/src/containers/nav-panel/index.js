@@ -51,6 +51,7 @@ class NavPanel extends PureComponent {
         onResizeStop={(e, dir, refToElement, delta, position) =>
           this.props.updateNavPanelWidth(width + delta.width)
         }
+        style={{overflowY: 'auto', overflowX: 'hidden'}}
       >
         <DatasetSelect />
         <ModelList />
